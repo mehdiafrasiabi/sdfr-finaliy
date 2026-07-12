@@ -158,7 +158,11 @@ class ProgramPart extends Model
     public function getDayNameAttribute(): string
     {
         $dayNames = ['شنبه', '۱شنبه', '۲شنبه', '۳شنبه', '۴شنبه', '۵شنبه', 'جمعه'];
-        return $dayNames[$this->day_of_week] ?? '-';
+        if ($this->part_date) {
+            return $dayNames[jdate($this->part_date)->getDayOfWeek()] ?? '-';
+        }
+
+        return $dayNames[((int) $this->day_of_week) % 7] ?? '-';
     }
 
     // تبدیل دقیقه به ساعت

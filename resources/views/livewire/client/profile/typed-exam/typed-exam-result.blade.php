@@ -40,6 +40,20 @@
                 </button>
             @endif
         </div>
+        @if($attempt->canUploadAnalysis())
+            <div class="mb-5 rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-4">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="space-y-1">
+                        <p class="font-bold text-yellow-700 dark:text-yellow-300">همین حالا تحلیل آزمون خود را قرار دهید.</p>
+                        <p class="text-sm text-yellow-700/90 dark:text-yellow-200/90">بعد از انتخاب تصویر، فایل‌ها به WebP تبدیل می‌شوند و مستقیم در همین بخش ثبت خواهند شد.</p>
+                    </div>
+                    <a href="#analysis-upload-box"
+                       class="inline-flex items-center justify-center gap-2 rounded-xl bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-yellow-600">
+                        بزن آپلود
+                    </a>
+                </div>
+            </div>
+        @endif
         @if($viewMode === 'report')
             <!-- Report Card View -->
             @if($canViewResult)
@@ -84,7 +98,7 @@
 
                             </svg>
                             <span class="text-xs text-muted block">مدت آزمون</span>
-                            <span class="font-bold text-foreground text-sm">{{ $stats['duration'] }}</span>
+                            <span dir="ltr" class="inline-block font-bold text-foreground text-sm">{{ $stats['duration'] }}</span>
                         </div>
                         <div class="bg-background border border-border rounded-xl p-4 text-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mx-auto  mb-2" fill="none"
@@ -200,7 +214,42 @@
                         </div>
                     </div>
                 </div>
-
+                <div class="bg-secondary border border-border rounded-2xl p-6 mb-5">
+                    <h2 class="font-bold text-lg text-foreground mb-4 flex items-center gap-2 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/>
+                        </svg>
+                        نمره منفی
+                    </h2>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div class="rounded-2xl border border-green-500/20 bg-green-500/10 p-4">
+                            <span class="block text-xs text-muted mb-2">اگر آزمون بدون نمره منفی باشد</span>
+                            <span class="block text-2xl font-bold text-green-600 dark:text-green-400">
+                                {{ number_format($stats['score'] ?? 0, 1) }}%
+                            </span>
+                            <p class="mt-2 text-sm text-muted">
+                                {{ $stats['correct'] }} پاسخ صحیح از {{ $stats['total'] }} سوال
+                            </p>
+                        </div>
+                        <div class="rounded-2xl border border-red-500/20 bg-red-500/10 p-4">
+                            <span class="block text-xs text-muted mb-2">اگر آزمون با نمره منفی باشد</span>
+                            <span class="block text-2xl font-bold text-red-600 dark:text-red-400">
+                                {{ number_format($stats['negative_score'] ?? 0, 1) }}%
+                            </span>
+                            <p class="mt-2 text-sm text-muted">
+                                {{ $stats['wrong'] }} غلط ثبت شده و {{ $stats['negative_penalty_count'] }} پاسخ صحیح از امتیاز شما کم می‌شود.
+                            </p>
+                            <p class="mt-1 text-sm text-muted">
+                                نتیجه نهایی با نمره منفی: {{ $stats['negative_correct'] }} پاسخ صحیح موثر از {{ $stats['total'] }} سوال
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-4 rounded-xl border border-border bg-background/60 p-4 text-sm text-muted">
+                        هر ۳ پاسخ غلط، ۱ پاسخ صحیح را از امتیاز کم می‌کند. سوالات بدون پاسخ، نمره منفی ندارند.
+                    </div>
+                </div>
                 <!-- System Analysis -->
                 <div class="bg-secondary border border-border rounded-2xl p-6 mb-5">
                     <h2 class="font-bold text-lg text-foreground mb-4 flex items-center gap-2 mb-2">
@@ -215,8 +264,9 @@
                         <p class="text-muted font-bold text-lg  leading-relaxed">{{ $systemAnalysis }}</p>
                     </div>
                 </div>
+
                 <!-- Analysis Upload Section -->
-                <div class="bg-secondary border border-border rounded-2xl p-6 mb-5">
+                <div id="analysis-upload-box" class="bg-secondary border border-border rounded-2xl p-6 mb-5">
                     <h2 class="font-bold text-lg text-foreground mb-4 flex items-center gap-2 mb-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
@@ -226,6 +276,7 @@
 
                         آپلود تحلیل
                     </h2>
+
                     <!-- Analysis Status -->
                     @if($attempt->analysis_status)
                         <div class="mb-4 p-4 rounded-xl
@@ -297,8 +348,15 @@
                             </div>
                         @endif
                         <div class="space-y-4">
-                            <div
-                                class="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors">
+                            <div class="relative border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors">
+                                <div wire:loading.flex wire:target="analysisFiles,uploadAnalysis"
+                                     class="absolute inset-0 z-10 hidden items-center justify-center rounded-xl bg-background/80 backdrop-blur-sm">
+                                    <div class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-secondary px-5 py-4 shadow-xl">
+                                        <span class="h-8 w-8 rounded-full border-2 border-primary/20 border-t-primary animate-spin"></span>
+                                        <span class="text-sm font-semibold text-foreground" wire:loading.remove wire:target="analysisFiles">در حال آپلود تصویر و تبدیل به webp...</span>
+                                        <span class="text-sm font-semibold text-foreground" wire:loading wire:target="analysisFiles">در حال آماده‌سازی تصویر...</span>
+                                    </div>
+                                </div>
                                 <input type="file" wire:model="analysisFiles" multiple accept="image/*" class="hidden"
                                        id="analysisUpload">
                                 <label for="analysisUpload" class="cursor-pointer">
@@ -313,6 +371,9 @@
                                 </label>
                             </div>
                             @error('analysisFiles.*')
+                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                            @enderror
+                            @error('analysisFiles')
                             <p class="text-red-500 text-sm">{{ $message }}</p>
                             @enderror
                             <!-- Preview -->
@@ -374,22 +435,31 @@
                 <!-- Filter -->
                 <div class="flex items-center justify-end gap-4 mt-5 mb-5">
                     <label class="text-sm text-muted">فیلتر:</label>
-                    <select wire:model.live="answerFilter"
-                            class="bg-secondary border border-border rounded-xl px-4 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                        <option value="all">همه سوالات</option>
-                        <option value="correct">سوالات صحیح</option>
-                        <option value="wrong">سوالات غلط</option>
-                        <option value="unanswered">سوالات بدون پاسخ</option>
-                    </select>
+                    <div class="w-full max-w-[240px]">
+                        <x-ui.select wire:model.live="answerFilter"
+                                     :options="[
+                                        ['value' => 'all', 'label' => 'همه سوالات'],
+                                        ['value' => 'correct', 'label' => 'سوالات صحیح'],
+                                        ['value' => 'wrong', 'label' => 'سوالات غلط'],
+                                        ['value' => 'unanswered', 'label' => 'سوالات بدون پاسخ'],
+                                     ]"
+                                     value-key="value"
+                                     label-key="label"
+                                     placeholder="همه سوالات"/>
+                    </div>
                 </div>
                 <!-- Questions List -->
-                <div class="space-y-6">
-                    @foreach($questionsWithAnswers as $index => $qa)
+                @if($questionsWithAnswers->count() > 0)
+                    <div class="space-y-6">
+                        @foreach($questionsWithAnswers as $index => $qa)
                         @php
                             $question = $qa['question'];
                             $selectedOption = $qa['selected_option'];
                             $isCorrect = $qa['is_correct'];
                             $correctOptionNum = $qa['correct_option_number'];
+                            $displayOptions = $qa['ordered_options']->isNotEmpty()
+                                ? $qa['ordered_options']
+                                : collect([1, 2, 3, 4])->map(fn ($num) => (object) ['option_number' => $num, 'is_correct' => (int) $correctOptionNum === $num, 'content' => null]);
                         @endphp
                         <div class="bg-secondary border-2 rounded-2xl overflow-hidden mb-5
                                     {{ $isCorrect === true ? 'border-green-500/50' : '' }}
@@ -451,11 +521,25 @@
                             </div>
                             <!-- Question Body -->
                             <div class="p-6 mb-5">
+                                <div class="mb-5 grid gap-3 sm:grid-cols-2">
+                                    <div class="rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm">
+                                        <span class="block text-xs text-muted mb-1">کلید شما</span>
+                                        <span class="font-bold text-foreground">
+                                            {{ $selectedOption !== null ? 'گزینه ' . $selectedOption : 'وجود ندارد' }}
+                                        </span>
+                                    </div>
+                                    <div class="rounded-xl border border-green-500/20 bg-green-500/10 p-3 text-sm">
+                                        <span class="block text-xs text-muted mb-1">کلید درست</span>
+                                        <span class="font-bold text-green-600 dark:text-green-400">
+                                            {{ $correctOptionNum !== null ? 'گزینه ' . $correctOptionNum : 'وجود ندارد' }}
+                                        </span>
+                                    </div>
+                                </div>
                                 <!-- Question Image or Text -->
-                                @if($question->content && $question->content->question_image)
+                                @if($question->content?->question_image_url)
                                     <div class="question-image mb-5">
                                         <img
-                                            src="/questions/{{ $question->content->question_image_folder }}/{{ $question->content->question_image }}"
+                                            src="{{ $question->content->question_image_url }}"
                                             alt="تصویر سوال {{ $loop->iteration }}"
                                             class="exam-question-img rounded-lg shadow-lg"
                                             loading="lazy">
@@ -466,10 +550,10 @@
                                     </div>
                                 @endif
                                 <!-- Options -->
-                                @if($question->content && $question->content->question_image)
+                                @if($question->content?->question_image_url)
                                     <!-- Image-based question: show option numbers with status -->
                                     <div class="flex flex-wrap items-center gap-3 justify-center mt-6">
-                                        @foreach($question->options as $optIndex => $option)
+                                        @foreach($displayOptions as $optIndex => $option)
                                             @php
                                                 $isSelected = $selectedOption === $option->option_number;
                                                 $isCorrectOpt = $option->is_correct;
@@ -500,7 +584,7 @@
                                 @else
                                     <!-- Text-based options (legacy support) -->
                                     <div class="space-y-2">
-                                        @foreach($question->options as $optIndex => $option)
+                                        @foreach($displayOptions as $optIndex => $option)
                                             @php
                                                 $isSelected = $selectedOption === $option->option_number;
                                                 $isCorrectOpt = $option->is_correct;
@@ -517,7 +601,11 @@
                                                     {{ $optionLabel }}
                                                 </span>
                                                 <div class="flex-1 prose prose-sm dark:prose-invert text-muted mb-2">
-                                                    {!! $option->content !!}
+                                                    @if($option->content)
+                                                        {!! $option->content !!}
+                                                    @else
+                                                        <span class="text-sm text-muted">گزینه {{ $option->option_number }}</span>
+                                                    @endif
                                                 </div>
                                                 <div class="flex items-center gap-2">
                                                     @if($isSelected)
@@ -537,7 +625,7 @@
                                 @endif
 
                                 <!-- Explanation -->
-                                @if($question->content && $question->content->explanation_image)
+                                @if($question->content?->explanation_image_url)
                                     <div class="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
                                         <h4 class="font-bold text-foreground mb-3 flex items-center gap-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-500"
@@ -548,7 +636,7 @@
                                             پاسخ تشریحی
                                         </h4>
                                         <img
-                                            src="/questions/{{ $question->content->explanation_image_folder }}/{{ $question->content->explanation_image }}"
+                                            src="{{ $question->content->explanation_image_url }}"
                                             alt="پاسخ تشریحی سوال {{ $loop->iteration }}"
                                             class="exam-question-img rounded-lg mt-2"
                                             loading="lazy">
@@ -575,8 +663,13 @@
                                 @endif
                             </div>
                         </div>
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="bg-secondary border border-border rounded-2xl p-12 text-center">
+                        <p class="text-muted text-sm">وجود ندارد</p>
+                    </div>
+                @endif
             @else
                 <div class="bg-secondary border border-border rounded-2xl p-12 text-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 mx-auto text-yellow-500 mb-4" fill="none"

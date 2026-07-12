@@ -52,6 +52,8 @@ class PurchaseFinalizer
                 'access_ends_at' => $this->resolveAccessEnd($payment),
             ]);
         });
+
+        app(TrialLifecycleSmsService::class)->trySendPurchaseCompleted($payment);
     }
 
     protected function finalizeInstallmentInitial(Payment $payment): void
@@ -89,6 +91,8 @@ class PurchaseFinalizer
                 ]);
             }
         });
+
+        app(TrialLifecycleSmsService::class)->trySendPurchaseCompleted($payment);
     }
 
     protected function finalizeInstallment(Payment $payment): void

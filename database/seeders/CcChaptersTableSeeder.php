@@ -2271,25 +2271,15 @@ class CcChaptersTableSeeder extends Seeder
             ),
             225 => 
             array (
-                'id' => 231,
-                'cc_subject_id' => 17,
-                'name' => 'فصل5',
-                'order' => 4,
+                'id' => 797,
+                'cc_subject_id' => 155,
+                'name' => 'هوش ریاضی منطقی',
+                'order' => 0,
                 'is_active' => 1,
-                'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-07-06 15:29:34',
+                'created_at' => '2026-07-09 12:08:50',
+                'updated_at' => '2026-07-09 12:08:50',
             ),
             226 => 
-            array (
-                'id' => 232,
-                'cc_subject_id' => 17,
-                'name' => 'فصل6',
-                'order' => 5,
-                'is_active' => 1,
-                'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-07-06 15:29:50',
-            ),
-            227 => 
             array (
                 'id' => 233,
                 'cc_subject_id' => 18,
@@ -2299,7 +2289,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:33:51',
             ),
-            228 => 
+            227 => 
             array (
                 'id' => 234,
                 'cc_subject_id' => 18,
@@ -2309,7 +2299,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:34:01',
             ),
-            229 => 
+            228 => 
             array (
                 'id' => 235,
                 'cc_subject_id' => 18,
@@ -2319,7 +2309,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:34:08',
             ),
-            230 => 
+            229 => 
             array (
                 'id' => 236,
                 'cc_subject_id' => 18,
@@ -2329,7 +2319,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:34:15',
             ),
-            231 => 
+            230 => 
             array (
                 'id' => 237,
                 'cc_subject_id' => 19,
@@ -2339,7 +2329,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:34:44',
             ),
-            232 => 
+            231 => 
             array (
                 'id' => 238,
                 'cc_subject_id' => 19,
@@ -2349,7 +2339,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:34:54',
             ),
-            233 => 
+            232 => 
             array (
                 'id' => 239,
                 'cc_subject_id' => 19,
@@ -2359,7 +2349,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:35:15',
             ),
-            234 => 
+            233 => 
             array (
                 'id' => 240,
                 'cc_subject_id' => 19,
@@ -2369,7 +2359,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:35:29',
             ),
-            235 => 
+            234 => 
             array (
                 'id' => 241,
                 'cc_subject_id' => 19,
@@ -2379,7 +2369,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:35:48',
             ),
-            236 => 
+            235 => 
             array (
                 'id' => 242,
                 'cc_subject_id' => 19,
@@ -2389,7 +2379,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:36:01',
             ),
-            237 => 
+            236 => 
             array (
                 'id' => 243,
                 'cc_subject_id' => 19,
@@ -2399,7 +2389,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:36:12',
             ),
-            238 => 
+            237 => 
             array (
                 'id' => 244,
                 'cc_subject_id' => 19,
@@ -2409,7 +2399,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:36:28',
             ),
-            239 => 
+            238 => 
             array (
                 'id' => 245,
                 'cc_subject_id' => 20,
@@ -2419,7 +2409,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:36:55',
             ),
-            240 => 
+            239 => 
             array (
                 'id' => 246,
                 'cc_subject_id' => 20,
@@ -2429,7 +2419,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:37:49',
             ),
-            241 => 
+            240 => 
             array (
                 'id' => 247,
                 'cc_subject_id' => 20,
@@ -2439,7 +2429,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:38:11',
             ),
-            242 => 
+            241 => 
             array (
                 'id' => 248,
                 'cc_subject_id' => 20,
@@ -2449,7 +2439,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:38:26',
             ),
-            243 => 
+            242 => 
             array (
                 'id' => 249,
                 'cc_subject_id' => 21,
@@ -2459,7 +2449,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:38:43',
             ),
-            244 => 
+            243 => 
             array (
                 'id' => 250,
                 'cc_subject_id' => 21,
@@ -2469,7 +2459,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:38:56',
             ),
-            245 => 
+            244 => 
             array (
                 'id' => 251,
                 'cc_subject_id' => 21,
@@ -2479,7 +2469,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:39:08',
             ),
-            246 => 
+            245 => 
             array (
                 'id' => 252,
                 'cc_subject_id' => 21,
@@ -2489,7 +2479,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:39:19',
             ),
-            247 => 
+            246 => 
             array (
                 'id' => 253,
                 'cc_subject_id' => 21,
@@ -2499,7 +2489,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:39:31',
             ),
-            248 => 
+            247 => 
             array (
                 'id' => 254,
                 'cc_subject_id' => 21,
@@ -2509,7 +2499,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:39:46',
             ),
-            249 => 
+            248 => 
             array (
                 'id' => 255,
                 'cc_subject_id' => 21,
@@ -2519,7 +2509,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:39:58',
             ),
-            250 => 
+            249 => 
             array (
                 'id' => 256,
                 'cc_subject_id' => 21,
@@ -2529,7 +2519,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:40:10',
             ),
-            251 => 
+            250 => 
             array (
                 'id' => 257,
                 'cc_subject_id' => 21,
@@ -2539,7 +2529,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:40:33',
             ),
-            252 => 
+            251 => 
             array (
                 'id' => 258,
                 'cc_subject_id' => 21,
@@ -2549,7 +2539,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:40:50',
             ),
-            253 => 
+            252 => 
             array (
                 'id' => 259,
                 'cc_subject_id' => 22,
@@ -2559,7 +2549,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:41:15',
             ),
-            254 => 
+            253 => 
             array (
                 'id' => 260,
                 'cc_subject_id' => 22,
@@ -2569,7 +2559,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:41:31',
             ),
-            255 => 
+            254 => 
             array (
                 'id' => 261,
                 'cc_subject_id' => 22,
@@ -2579,7 +2569,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:41:54',
             ),
-            256 => 
+            255 => 
             array (
                 'id' => 262,
                 'cc_subject_id' => 23,
@@ -2589,7 +2579,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:42:10',
             ),
-            257 => 
+            256 => 
             array (
                 'id' => 263,
                 'cc_subject_id' => 23,
@@ -2599,7 +2589,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:42:20',
             ),
-            258 => 
+            257 => 
             array (
                 'id' => 536,
                 'cc_subject_id' => 28,
@@ -2609,7 +2599,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:51:29',
                 'updated_at' => '2026-07-06 15:51:53',
             ),
-            259 => 
+            258 => 
             array (
                 'id' => 264,
                 'cc_subject_id' => 23,
@@ -2619,7 +2609,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:42:31',
             ),
-            260 => 
+            259 => 
             array (
                 'id' => 265,
                 'cc_subject_id' => 23,
@@ -2629,7 +2619,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:42:49',
             ),
-            261 => 
+            260 => 
             array (
                 'id' => 266,
                 'cc_subject_id' => 23,
@@ -2639,7 +2629,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:43:00',
             ),
-            262 => 
+            261 => 
             array (
                 'id' => 267,
                 'cc_subject_id' => 23,
@@ -2649,7 +2639,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:43:12',
             ),
-            263 => 
+            262 => 
             array (
                 'id' => 268,
                 'cc_subject_id' => 24,
@@ -2659,7 +2649,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:44:05',
             ),
-            264 => 
+            263 => 
             array (
                 'id' => 269,
                 'cc_subject_id' => 24,
@@ -2669,7 +2659,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:44:16',
             ),
-            265 => 
+            264 => 
             array (
                 'id' => 270,
                 'cc_subject_id' => 24,
@@ -2679,77 +2669,77 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 15:44:29',
             ),
-            266 => 
+            265 => 
             array (
                 'id' => 271,
                 'cc_subject_id' => 24,
                 'name' => 'فصل4',
-                'order' => 4,
+                'order' => 3,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-07-06 15:44:44',
+                'updated_at' => '2026-07-09 10:01:00',
             ),
-            267 => 
+            266 => 
             array (
                 'id' => 272,
                 'cc_subject_id' => 24,
                 'name' => 'فصل5',
-                'order' => 5,
+                'order' => 4,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-07-06 15:44:56',
+                'updated_at' => '2026-07-09 10:01:09',
             ),
-            268 => 
+            267 => 
             array (
                 'id' => 273,
                 'cc_subject_id' => 24,
                 'name' => 'فصل6',
-                'order' => 6,
+                'order' => 5,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-07-06 15:45:12',
+                'updated_at' => '2026-07-09 10:01:14',
             ),
-            269 => 
+            268 => 
             array (
                 'id' => 274,
                 'cc_subject_id' => 24,
                 'name' => 'فصل7',
-                'order' => 7,
+                'order' => 6,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-07-06 15:45:23',
+                'updated_at' => '2026-07-09 10:01:19',
             ),
-            270 => 
+            269 => 
             array (
                 'id' => 275,
                 'cc_subject_id' => 24,
                 'name' => 'فصل8',
-                'order' => 8,
+                'order' => 7,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-07-06 15:45:37',
+                'updated_at' => '2026-07-09 10:01:24',
             ),
-            271 => 
+            270 => 
             array (
                 'id' => 276,
                 'cc_subject_id' => 24,
                 'name' => 'فصل9',
-                'order' => 9,
+                'order' => 8,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-07-06 15:45:49',
+                'updated_at' => '2026-07-09 10:01:31',
             ),
-            272 => 
+            271 => 
             array (
                 'id' => 277,
                 'cc_subject_id' => 24,
-                'name' => 'فصل11',
-                'order' => 10,
+                'name' => 'فصل10',
+                'order' => 9,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-07-06 15:46:02',
+                'updated_at' => '2026-07-09 10:01:39',
             ),
-            273 => 
+            272 => 
             array (
                 'id' => 535,
                 'cc_subject_id' => 28,
@@ -2759,7 +2749,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:51:14',
                 'updated_at' => '2026-07-06 15:51:14',
             ),
-            274 => 
+            273 => 
             array (
                 'id' => 278,
                 'cc_subject_id' => 133,
@@ -2769,7 +2759,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:54:34',
             ),
-            275 => 
+            274 => 
             array (
                 'id' => 279,
                 'cc_subject_id' => 133,
@@ -2779,7 +2769,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:54:38',
             ),
-            276 => 
+            275 => 
             array (
                 'id' => 280,
                 'cc_subject_id' => 133,
@@ -2789,7 +2779,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:54:44',
             ),
-            277 => 
+            276 => 
             array (
                 'id' => 281,
                 'cc_subject_id' => 133,
@@ -2799,7 +2789,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:54:49',
             ),
-            278 => 
+            277 => 
             array (
                 'id' => 282,
                 'cc_subject_id' => 133,
@@ -2809,7 +2799,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:54:54',
             ),
-            279 => 
+            278 => 
             array (
                 'id' => 283,
                 'cc_subject_id' => 133,
@@ -2819,7 +2809,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:55:00',
             ),
-            280 => 
+            279 => 
             array (
                 'id' => 284,
                 'cc_subject_id' => 133,
@@ -2829,7 +2819,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:55:06',
             ),
-            281 => 
+            280 => 
             array (
                 'id' => 289,
                 'cc_subject_id' => 135,
@@ -2839,7 +2829,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 18:44:31',
             ),
-            282 => 
+            281 => 
             array (
                 'id' => 290,
                 'cc_subject_id' => 135,
@@ -2849,7 +2839,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 18:44:48',
             ),
-            283 => 
+            282 => 
             array (
                 'id' => 291,
                 'cc_subject_id' => 135,
@@ -2859,7 +2849,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 18:45:09',
             ),
-            284 => 
+            283 => 
             array (
                 'id' => 292,
                 'cc_subject_id' => 136,
@@ -2869,7 +2859,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:56:42',
             ),
-            285 => 
+            284 => 
             array (
                 'id' => 293,
                 'cc_subject_id' => 136,
@@ -2879,7 +2869,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:56:48',
             ),
-            286 => 
+            285 => 
             array (
                 'id' => 294,
                 'cc_subject_id' => 136,
@@ -2889,7 +2879,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:56:53',
             ),
-            287 => 
+            286 => 
             array (
                 'id' => 295,
                 'cc_subject_id' => 136,
@@ -2899,7 +2889,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:56:59',
             ),
-            288 => 
+            287 => 
             array (
                 'id' => 297,
                 'cc_subject_id' => 137,
@@ -2909,7 +2899,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:58:59',
             ),
-            289 => 
+            288 => 
             array (
                 'id' => 298,
                 'cc_subject_id' => 137,
@@ -2919,7 +2909,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:59:04',
             ),
-            290 => 
+            289 => 
             array (
                 'id' => 299,
                 'cc_subject_id' => 137,
@@ -2929,7 +2919,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:59:09',
             ),
-            291 => 
+            290 => 
             array (
                 'id' => 300,
                 'cc_subject_id' => 137,
@@ -2939,7 +2929,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:59:13',
             ),
-            292 => 
+            291 => 
             array (
                 'id' => 301,
                 'cc_subject_id' => 137,
@@ -2949,7 +2939,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:59:18',
             ),
-            293 => 
+            292 => 
             array (
                 'id' => 302,
                 'cc_subject_id' => 137,
@@ -2959,7 +2949,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:59:23',
             ),
-            294 => 
+            293 => 
             array (
                 'id' => 303,
                 'cc_subject_id' => 137,
@@ -2969,7 +2959,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:59:29',
             ),
-            295 => 
+            294 => 
             array (
                 'id' => 304,
                 'cc_subject_id' => 137,
@@ -2979,7 +2969,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 21:59:36',
             ),
-            296 => 
+            295 => 
             array (
                 'id' => 305,
                 'cc_subject_id' => 91,
@@ -2989,7 +2979,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:38:58',
             ),
-            297 => 
+            296 => 
             array (
                 'id' => 306,
                 'cc_subject_id' => 91,
@@ -2999,7 +2989,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:39:12',
             ),
-            298 => 
+            297 => 
             array (
                 'id' => 307,
                 'cc_subject_id' => 91,
@@ -3009,7 +2999,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:39:21',
             ),
-            299 => 
+            298 => 
             array (
                 'id' => 308,
                 'cc_subject_id' => 91,
@@ -3019,7 +3009,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:39:30',
             ),
-            300 => 
+            299 => 
             array (
                 'id' => 309,
                 'cc_subject_id' => 91,
@@ -3029,7 +3019,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:39:39',
             ),
-            301 => 
+            300 => 
             array (
                 'id' => 310,
                 'cc_subject_id' => 91,
@@ -3039,7 +3029,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:39:48',
             ),
-            302 => 
+            301 => 
             array (
                 'id' => 311,
                 'cc_subject_id' => 91,
@@ -3049,7 +3039,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:39:59',
             ),
-            303 => 
+            302 => 
             array (
                 'id' => 312,
                 'cc_subject_id' => 91,
@@ -3059,7 +3049,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:40:11',
             ),
-            304 => 
+            303 => 
             array (
                 'id' => 313,
                 'cc_subject_id' => 91,
@@ -3069,7 +3059,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:40:20',
             ),
-            305 => 
+            304 => 
             array (
                 'id' => 314,
                 'cc_subject_id' => 91,
@@ -3079,7 +3069,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:40:30',
             ),
-            306 => 
+            305 => 
             array (
                 'id' => 315,
                 'cc_subject_id' => 91,
@@ -3089,7 +3079,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:40:53',
             ),
-            307 => 
+            306 => 
             array (
                 'id' => 316,
                 'cc_subject_id' => 91,
@@ -3099,7 +3089,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:41:09',
             ),
-            308 => 
+            307 => 
             array (
                 'id' => 317,
                 'cc_subject_id' => 92,
@@ -3109,7 +3099,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:41:30',
             ),
-            309 => 
+            308 => 
             array (
                 'id' => 318,
                 'cc_subject_id' => 92,
@@ -3119,7 +3109,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:43:13',
             ),
-            310 => 
+            309 => 
             array (
                 'id' => 319,
                 'cc_subject_id' => 92,
@@ -3129,7 +3119,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:43:21',
             ),
-            311 => 
+            310 => 
             array (
                 'id' => 320,
                 'cc_subject_id' => 92,
@@ -3139,7 +3129,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:43:31',
             ),
-            312 => 
+            311 => 
             array (
                 'id' => 321,
                 'cc_subject_id' => 92,
@@ -3149,7 +3139,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:43:40',
             ),
-            313 => 
+            312 => 
             array (
                 'id' => 322,
                 'cc_subject_id' => 92,
@@ -3159,7 +3149,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:43:51',
             ),
-            314 => 
+            313 => 
             array (
                 'id' => 323,
                 'cc_subject_id' => 92,
@@ -3169,7 +3159,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:44:15',
             ),
-            315 => 
+            314 => 
             array (
                 'id' => 324,
                 'cc_subject_id' => 92,
@@ -3179,7 +3169,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:44:37',
             ),
-            316 => 
+            315 => 
             array (
                 'id' => 325,
                 'cc_subject_id' => 94,
@@ -3189,7 +3179,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 22:03:34',
             ),
-            317 => 
+            316 => 
             array (
                 'id' => 326,
                 'cc_subject_id' => 94,
@@ -3199,7 +3189,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 22:03:39',
             ),
-            318 => 
+            317 => 
             array (
                 'id' => 327,
                 'cc_subject_id' => 94,
@@ -3209,7 +3199,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 22:03:43',
             ),
-            319 => 
+            318 => 
             array (
                 'id' => 328,
                 'cc_subject_id' => 95,
@@ -3219,7 +3209,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:45:29',
             ),
-            320 => 
+            319 => 
             array (
                 'id' => 329,
                 'cc_subject_id' => 95,
@@ -3229,7 +3219,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:45:37',
             ),
-            321 => 
+            320 => 
             array (
                 'id' => 330,
                 'cc_subject_id' => 95,
@@ -3239,7 +3229,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:45:53',
             ),
-            322 => 
+            321 => 
             array (
                 'id' => 331,
                 'cc_subject_id' => 95,
@@ -3249,7 +3239,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 19:46:04',
             ),
-            323 => 
+            322 => 
             array (
                 'id' => 332,
                 'cc_subject_id' => 98,
@@ -3259,7 +3249,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 22:06:56',
             ),
-            324 => 
+            323 => 
             array (
                 'id' => 333,
                 'cc_subject_id' => 98,
@@ -3269,7 +3259,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 22:07:01',
             ),
-            325 => 
+            324 => 
             array (
                 'id' => 334,
                 'cc_subject_id' => 98,
@@ -3279,7 +3269,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 22:07:06',
             ),
-            326 => 
+            325 => 
             array (
                 'id' => 335,
                 'cc_subject_id' => 98,
@@ -3289,7 +3279,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-27 22:07:12',
             ),
-            327 => 
+            326 => 
             array (
                 'id' => 336,
                 'cc_subject_id' => 138,
@@ -3299,7 +3289,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:25:37',
             ),
-            328 => 
+            327 => 
             array (
                 'id' => 337,
                 'cc_subject_id' => 138,
@@ -3309,7 +3299,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:26:08',
             ),
-            329 => 
+            328 => 
             array (
                 'id' => 338,
                 'cc_subject_id' => 138,
@@ -3319,7 +3309,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:26:19',
             ),
-            330 => 
+            329 => 
             array (
                 'id' => 339,
                 'cc_subject_id' => 138,
@@ -3329,7 +3319,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:26:30',
             ),
-            331 => 
+            330 => 
             array (
                 'id' => 340,
                 'cc_subject_id' => 138,
@@ -3339,7 +3329,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:26:43',
             ),
-            332 => 
+            331 => 
             array (
                 'id' => 344,
                 'cc_subject_id' => 69,
@@ -3349,7 +3339,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:27:01',
             ),
-            333 => 
+            332 => 
             array (
                 'id' => 345,
                 'cc_subject_id' => 69,
@@ -3359,7 +3349,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:27:14',
             ),
-            334 => 
+            333 => 
             array (
                 'id' => 346,
                 'cc_subject_id' => 69,
@@ -3369,7 +3359,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:27:27',
             ),
-            335 => 
+            334 => 
             array (
                 'id' => 615,
                 'cc_subject_id' => 41,
@@ -3379,7 +3369,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:08:13',
                 'updated_at' => '2026-07-06 18:08:13',
             ),
-            336 => 
+            335 => 
             array (
                 'id' => 347,
                 'cc_subject_id' => 140,
@@ -3389,7 +3379,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:27:56',
             ),
-            337 => 
+            336 => 
             array (
                 'id' => 348,
                 'cc_subject_id' => 140,
@@ -3399,7 +3389,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:28:06',
             ),
-            338 => 
+            337 => 
             array (
                 'id' => 614,
                 'cc_subject_id' => 41,
@@ -3409,7 +3399,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:07:51',
                 'updated_at' => '2026-07-06 18:07:59',
             ),
-            339 => 
+            338 => 
             array (
                 'id' => 349,
                 'cc_subject_id' => 140,
@@ -3419,7 +3409,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:28:17',
             ),
-            340 => 
+            339 => 
             array (
                 'id' => 350,
                 'cc_subject_id' => 140,
@@ -3429,7 +3419,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:28:29',
             ),
-            341 => 
+            340 => 
             array (
                 'id' => 613,
                 'cc_subject_id' => 41,
@@ -3439,7 +3429,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:07:46',
                 'updated_at' => '2026-07-06 18:07:46',
             ),
-            342 => 
+            341 => 
             array (
                 'id' => 355,
                 'cc_subject_id' => 142,
@@ -3449,7 +3439,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:28:44',
             ),
-            343 => 
+            342 => 
             array (
                 'id' => 356,
                 'cc_subject_id' => 142,
@@ -3459,7 +3449,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:28:54',
             ),
-            344 => 
+            343 => 
             array (
                 'id' => 357,
                 'cc_subject_id' => 142,
@@ -3469,7 +3459,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:30:04',
             ),
-            345 => 
+            344 => 
             array (
                 'id' => 358,
                 'cc_subject_id' => 142,
@@ -3479,7 +3469,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:29:56',
             ),
-            346 => 
+            345 => 
             array (
                 'id' => 359,
                 'cc_subject_id' => 142,
@@ -3489,7 +3479,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:29:49',
             ),
-            347 => 
+            346 => 
             array (
                 'id' => 360,
                 'cc_subject_id' => 142,
@@ -3499,7 +3489,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:30:20',
             ),
-            348 => 
+            347 => 
             array (
                 'id' => 361,
                 'cc_subject_id' => 142,
@@ -3509,7 +3499,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:30:32',
             ),
-            349 => 
+            348 => 
             array (
                 'id' => 362,
                 'cc_subject_id' => 142,
@@ -3519,7 +3509,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:30:44',
             ),
-            350 => 
+            349 => 
             array (
                 'id' => 363,
                 'cc_subject_id' => 75,
@@ -3529,7 +3519,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:31:11',
             ),
-            351 => 
+            350 => 
             array (
                 'id' => 364,
                 'cc_subject_id' => 75,
@@ -3539,7 +3529,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:31:29',
             ),
-            352 => 
+            351 => 
             array (
                 'id' => 365,
                 'cc_subject_id' => 75,
@@ -3549,7 +3539,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:31:41',
             ),
-            353 => 
+            352 => 
             array (
                 'id' => 366,
                 'cc_subject_id' => 75,
@@ -3559,7 +3549,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:31:52',
             ),
-            354 => 
+            353 => 
             array (
                 'id' => 367,
                 'cc_subject_id' => 75,
@@ -3569,7 +3559,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:32:03',
             ),
-            355 => 
+            354 => 
             array (
                 'id' => 368,
                 'cc_subject_id' => 75,
@@ -3579,7 +3569,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:32:18',
             ),
-            356 => 
+            355 => 
             array (
                 'id' => 369,
                 'cc_subject_id' => 75,
@@ -3589,7 +3579,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:32:33',
             ),
-            357 => 
+            356 => 
             array (
                 'id' => 612,
                 'cc_subject_id' => 40,
@@ -3599,7 +3589,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:06:03',
                 'updated_at' => '2026-07-06 18:06:03',
             ),
-            358 => 
+            357 => 
             array (
                 'id' => 370,
                 'cc_subject_id' => 75,
@@ -3609,7 +3599,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:32:43',
             ),
-            359 => 
+            358 => 
             array (
                 'id' => 371,
                 'cc_subject_id' => 75,
@@ -3619,7 +3609,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:32:52',
             ),
-            360 => 
+            359 => 
             array (
                 'id' => 372,
                 'cc_subject_id' => 75,
@@ -3629,7 +3619,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:33:08',
             ),
-            361 => 
+            360 => 
             array (
                 'id' => 373,
                 'cc_subject_id' => 75,
@@ -3639,7 +3629,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:33:30',
             ),
-            362 => 
+            361 => 
             array (
                 'id' => 374,
                 'cc_subject_id' => 75,
@@ -3649,7 +3639,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:33:41',
             ),
-            363 => 
+            362 => 
             array (
                 'id' => 375,
                 'cc_subject_id' => 79,
@@ -3659,7 +3649,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:36:29',
             ),
-            364 => 
+            363 => 
             array (
                 'id' => 376,
                 'cc_subject_id' => 79,
@@ -3669,7 +3659,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:36:39',
             ),
-            365 => 
+            364 => 
             array (
                 'id' => 377,
                 'cc_subject_id' => 79,
@@ -3679,7 +3669,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:36:49',
             ),
-            366 => 
+            365 => 
             array (
                 'id' => 378,
                 'cc_subject_id' => 79,
@@ -3689,7 +3679,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:36:59',
             ),
-            367 => 
+            366 => 
             array (
                 'id' => 379,
                 'cc_subject_id' => 79,
@@ -3699,7 +3689,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:37:10',
             ),
-            368 => 
+            367 => 
             array (
                 'id' => 380,
                 'cc_subject_id' => 79,
@@ -3709,7 +3699,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:37:23',
             ),
-            369 => 
+            368 => 
             array (
                 'id' => 381,
                 'cc_subject_id' => 79,
@@ -3719,7 +3709,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:37:34',
             ),
-            370 => 
+            369 => 
             array (
                 'id' => 382,
                 'cc_subject_id' => 143,
@@ -3729,7 +3719,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:38:04',
             ),
-            371 => 
+            370 => 
             array (
                 'id' => 383,
                 'cc_subject_id' => 143,
@@ -3739,7 +3729,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:38:13',
             ),
-            372 => 
+            371 => 
             array (
                 'id' => 384,
                 'cc_subject_id' => 143,
@@ -3749,7 +3739,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:38:26',
             ),
-            373 => 
+            372 => 
             array (
                 'id' => 385,
                 'cc_subject_id' => 143,
@@ -3759,7 +3749,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:38:36',
             ),
-            374 => 
+            373 => 
             array (
                 'id' => 386,
                 'cc_subject_id' => 143,
@@ -3769,7 +3759,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:38:49',
             ),
-            375 => 
+            374 => 
             array (
                 'id' => 387,
                 'cc_subject_id' => 143,
@@ -3779,7 +3769,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:39:01',
             ),
-            376 => 
+            375 => 
             array (
                 'id' => 388,
                 'cc_subject_id' => 143,
@@ -3789,7 +3779,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:39:12',
             ),
-            377 => 
+            376 => 
             array (
                 'id' => 389,
                 'cc_subject_id' => 143,
@@ -3799,7 +3789,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:39:42',
             ),
-            378 => 
+            377 => 
             array (
                 'id' => 390,
                 'cc_subject_id' => 143,
@@ -3809,7 +3799,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:39:51',
             ),
-            379 => 
+            378 => 
             array (
                 'id' => 391,
                 'cc_subject_id' => 143,
@@ -3819,7 +3809,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:40:02',
             ),
-            380 => 
+            379 => 
             array (
                 'id' => 392,
                 'cc_subject_id' => 143,
@@ -3829,7 +3819,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:40:19',
             ),
-            381 => 
+            380 => 
             array (
                 'id' => 393,
                 'cc_subject_id' => 143,
@@ -3839,7 +3829,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:40:28',
             ),
-            382 => 
+            381 => 
             array (
                 'id' => 394,
                 'cc_subject_id' => 143,
@@ -3849,7 +3839,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:40:36',
             ),
-            383 => 
+            382 => 
             array (
                 'id' => 395,
                 'cc_subject_id' => 143,
@@ -3859,7 +3849,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:40:46',
             ),
-            384 => 
+            383 => 
             array (
                 'id' => 396,
                 'cc_subject_id' => 143,
@@ -3869,7 +3859,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:40:56',
             ),
-            385 => 
+            384 => 
             array (
                 'id' => 397,
                 'cc_subject_id' => 143,
@@ -3879,7 +3869,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:41:05',
             ),
-            386 => 
+            385 => 
             array (
                 'id' => 398,
                 'cc_subject_id' => 143,
@@ -3889,7 +3879,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:41:13',
             ),
-            387 => 
+            386 => 
             array (
                 'id' => 399,
                 'cc_subject_id' => 143,
@@ -3899,7 +3889,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:41:29',
             ),
-            388 => 
+            387 => 
             array (
                 'id' => 400,
                 'cc_subject_id' => 143,
@@ -3909,7 +3899,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:41:41',
             ),
-            389 => 
+            388 => 
             array (
                 'id' => 401,
                 'cc_subject_id' => 143,
@@ -3919,7 +3909,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:41:59',
             ),
-            390 => 
+            389 => 
             array (
                 'id' => 402,
                 'cc_subject_id' => 143,
@@ -3929,7 +3919,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:42:10',
             ),
-            391 => 
+            390 => 
             array (
                 'id' => 403,
                 'cc_subject_id' => 143,
@@ -3939,7 +3929,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:42:17',
             ),
-            392 => 
+            391 => 
             array (
                 'id' => 404,
                 'cc_subject_id' => 143,
@@ -3949,7 +3939,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:42:34',
             ),
-            393 => 
+            392 => 
             array (
                 'id' => 405,
                 'cc_subject_id' => 143,
@@ -3959,7 +3949,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:42:48',
             ),
-            394 => 
+            393 => 
             array (
                 'id' => 406,
                 'cc_subject_id' => 143,
@@ -3969,7 +3959,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:43:07',
             ),
-            395 => 
+            394 => 
             array (
                 'id' => 407,
                 'cc_subject_id' => 143,
@@ -3979,7 +3969,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:43:22',
             ),
-            396 => 
+            395 => 
             array (
                 'id' => 408,
                 'cc_subject_id' => 144,
@@ -3989,7 +3979,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:44:52',
             ),
-            397 => 
+            396 => 
             array (
                 'id' => 409,
                 'cc_subject_id' => 144,
@@ -3999,7 +3989,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:45:02',
             ),
-            398 => 
+            397 => 
             array (
                 'id' => 410,
                 'cc_subject_id' => 144,
@@ -4009,7 +3999,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:45:15',
             ),
-            399 => 
+            398 => 
             array (
                 'id' => 411,
                 'cc_subject_id' => 145,
@@ -4019,7 +4009,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:53:44',
             ),
-            400 => 
+            399 => 
             array (
                 'id' => 412,
                 'cc_subject_id' => 145,
@@ -4029,7 +4019,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:53:56',
             ),
-            401 => 
+            400 => 
             array (
                 'id' => 611,
                 'cc_subject_id' => 40,
@@ -4039,7 +4029,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:05:46',
                 'updated_at' => '2026-07-06 18:05:55',
             ),
-            402 => 
+            401 => 
             array (
                 'id' => 413,
                 'cc_subject_id' => 145,
@@ -4049,7 +4039,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:54:06',
             ),
-            403 => 
+            402 => 
             array (
                 'id' => 414,
                 'cc_subject_id' => 145,
@@ -4059,7 +4049,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:54:17',
             ),
-            404 => 
+            403 => 
             array (
                 'id' => 415,
                 'cc_subject_id' => 145,
@@ -4069,7 +4059,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:54:26',
             ),
-            405 => 
+            404 => 
             array (
                 'id' => 416,
                 'cc_subject_id' => 145,
@@ -4079,7 +4069,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:54:39',
             ),
-            406 => 
+            405 => 
             array (
                 'id' => 610,
                 'cc_subject_id' => 40,
@@ -4089,7 +4079,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:05:38',
                 'updated_at' => '2026-07-06 18:05:38',
             ),
-            407 => 
+            406 => 
             array (
                 'id' => 417,
                 'cc_subject_id' => 145,
@@ -4099,7 +4089,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:54:59',
             ),
-            408 => 
+            407 => 
             array (
                 'id' => 418,
                 'cc_subject_id' => 83,
@@ -4109,7 +4099,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:55:27',
             ),
-            409 => 
+            408 => 
             array (
                 'id' => 419,
                 'cc_subject_id' => 83,
@@ -4119,7 +4109,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:55:36',
             ),
-            410 => 
+            409 => 
             array (
                 'id' => 420,
                 'cc_subject_id' => 83,
@@ -4129,7 +4119,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:55:47',
             ),
-            411 => 
+            410 => 
             array (
                 'id' => 421,
                 'cc_subject_id' => 83,
@@ -4139,7 +4129,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:55:57',
             ),
-            412 => 
+            411 => 
             array (
                 'id' => 422,
                 'cc_subject_id' => 83,
@@ -4149,7 +4139,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:56:07',
             ),
-            413 => 
+            412 => 
             array (
                 'id' => 423,
                 'cc_subject_id' => 83,
@@ -4159,7 +4149,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:56:17',
             ),
-            414 => 
+            413 => 
             array (
                 'id' => 424,
                 'cc_subject_id' => 83,
@@ -4169,7 +4159,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 17:56:27',
             ),
-            415 => 
+            414 => 
             array (
                 'id' => 425,
                 'cc_subject_id' => 27,
@@ -4179,7 +4169,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:44:07',
                 'updated_at' => '2026-07-06 15:46:32',
             ),
-            416 => 
+            415 => 
             array (
                 'id' => 426,
                 'cc_subject_id' => 27,
@@ -4189,7 +4179,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:44:15',
                 'updated_at' => '2026-07-06 15:46:43',
             ),
-            417 => 
+            416 => 
             array (
                 'id' => 427,
                 'cc_subject_id' => 27,
@@ -4199,7 +4189,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:44:28',
                 'updated_at' => '2026-07-06 15:46:54',
             ),
-            418 => 
+            417 => 
             array (
                 'id' => 428,
                 'cc_subject_id' => 27,
@@ -4209,7 +4199,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:44:38',
                 'updated_at' => '2026-07-06 15:47:04',
             ),
-            419 => 
+            418 => 
             array (
                 'id' => 429,
                 'cc_subject_id' => 27,
@@ -4219,7 +4209,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:44:57',
                 'updated_at' => '2026-07-06 15:47:14',
             ),
-            420 => 
+            419 => 
             array (
                 'id' => 430,
                 'cc_subject_id' => 27,
@@ -4229,7 +4219,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:45:05',
                 'updated_at' => '2026-07-06 15:47:28',
             ),
-            421 => 
+            420 => 
             array (
                 'id' => 431,
                 'cc_subject_id' => 27,
@@ -4239,7 +4229,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:45:14',
                 'updated_at' => '2026-07-06 15:47:39',
             ),
-            422 => 
+            421 => 
             array (
                 'id' => 432,
                 'cc_subject_id' => 27,
@@ -4249,7 +4239,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:45:24',
                 'updated_at' => '2026-07-06 15:47:52',
             ),
-            423 => 
+            422 => 
             array (
                 'id' => 433,
                 'cc_subject_id' => 146,
@@ -4259,7 +4249,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:54:58',
                 'updated_at' => '2026-07-06 17:56:55',
             ),
-            424 => 
+            423 => 
             array (
                 'id' => 434,
                 'cc_subject_id' => 146,
@@ -4269,7 +4259,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:55:29',
                 'updated_at' => '2026-07-06 17:57:06',
             ),
-            425 => 
+            424 => 
             array (
                 'id' => 435,
                 'cc_subject_id' => 146,
@@ -4279,7 +4269,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:55:50',
                 'updated_at' => '2026-07-06 17:57:15',
             ),
-            426 => 
+            425 => 
             array (
                 'id' => 436,
                 'cc_subject_id' => 146,
@@ -4289,7 +4279,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:56:08',
                 'updated_at' => '2026-07-06 17:57:40',
             ),
-            427 => 
+            426 => 
             array (
                 'id' => 437,
                 'cc_subject_id' => 146,
@@ -4299,7 +4289,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:56:25',
                 'updated_at' => '2026-07-06 17:57:53',
             ),
-            428 => 
+            427 => 
             array (
                 'id' => 438,
                 'cc_subject_id' => 146,
@@ -4309,7 +4299,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:56:39',
                 'updated_at' => '2026-07-06 17:58:04',
             ),
-            429 => 
+            428 => 
             array (
                 'id' => 439,
                 'cc_subject_id' => 146,
@@ -4319,7 +4309,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:56:54',
                 'updated_at' => '2026-07-06 17:58:15',
             ),
-            430 => 
+            429 => 
             array (
                 'id' => 440,
                 'cc_subject_id' => 84,
@@ -4329,7 +4319,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:06:28',
                 'updated_at' => '2026-02-27 21:52:26',
             ),
-            431 => 
+            430 => 
             array (
                 'id' => 441,
                 'cc_subject_id' => 84,
@@ -4339,7 +4329,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:06:42',
                 'updated_at' => '2026-02-27 21:52:31',
             ),
-            432 => 
+            431 => 
             array (
                 'id' => 442,
                 'cc_subject_id' => 84,
@@ -4349,7 +4339,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:06:50',
                 'updated_at' => '2026-02-27 21:52:35',
             ),
-            433 => 
+            432 => 
             array (
                 'id' => 443,
                 'cc_subject_id' => 84,
@@ -4359,7 +4349,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:07:13',
                 'updated_at' => '2026-02-27 21:52:42',
             ),
-            434 => 
+            433 => 
             array (
                 'id' => 444,
                 'cc_subject_id' => 84,
@@ -4369,7 +4359,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:09:00',
                 'updated_at' => '2026-02-27 21:52:47',
             ),
-            435 => 
+            434 => 
             array (
                 'id' => 445,
                 'cc_subject_id' => 84,
@@ -4379,7 +4369,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:09:20',
                 'updated_at' => '2026-02-27 21:52:53',
             ),
-            436 => 
+            435 => 
             array (
                 'id' => 446,
                 'cc_subject_id' => 84,
@@ -4389,7 +4379,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:09:32',
                 'updated_at' => '2026-02-27 21:52:58',
             ),
-            437 => 
+            436 => 
             array (
                 'id' => 447,
                 'cc_subject_id' => 146,
@@ -4399,7 +4389,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:18:55',
                 'updated_at' => '2026-07-06 17:58:40',
             ),
-            438 => 
+            437 => 
             array (
                 'id' => 448,
                 'cc_subject_id' => 146,
@@ -4409,7 +4399,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:29:25',
                 'updated_at' => '2026-07-06 17:57:24',
             ),
-            439 => 
+            438 => 
             array (
                 'id' => 449,
                 'cc_subject_id' => 147,
@@ -4419,7 +4409,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:57:31',
                 'updated_at' => '2026-07-06 14:27:05',
             ),
-            440 => 
+            439 => 
             array (
                 'id' => 450,
                 'cc_subject_id' => 147,
@@ -4429,7 +4419,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:57:45',
                 'updated_at' => '2026-07-06 14:30:41',
             ),
-            441 => 
+            440 => 
             array (
                 'id' => 451,
                 'cc_subject_id' => 147,
@@ -4439,7 +4429,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:57:58',
                 'updated_at' => '2026-07-06 14:31:15',
             ),
-            442 => 
+            441 => 
             array (
                 'id' => 452,
                 'cc_subject_id' => 147,
@@ -4449,7 +4439,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:58:13',
                 'updated_at' => '2026-07-06 14:31:55',
             ),
-            443 => 
+            442 => 
             array (
                 'id' => 453,
                 'cc_subject_id' => 147,
@@ -4459,7 +4449,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:58:28',
                 'updated_at' => '2026-07-07 10:45:24',
             ),
-            444 => 
+            443 => 
             array (
                 'id' => 454,
                 'cc_subject_id' => 147,
@@ -4469,7 +4459,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:58:41',
                 'updated_at' => '2026-07-07 10:46:13',
             ),
-            445 => 
+            444 => 
             array (
                 'id' => 455,
                 'cc_subject_id' => 147,
@@ -4479,7 +4469,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:58:52',
                 'updated_at' => '2026-07-07 10:46:22',
             ),
-            446 => 
+            445 => 
             array (
                 'id' => 456,
                 'cc_subject_id' => 147,
@@ -4489,7 +4479,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:59:04',
                 'updated_at' => '2026-07-07 10:46:30',
             ),
-            447 => 
+            446 => 
             array (
                 'id' => 457,
                 'cc_subject_id' => 147,
@@ -4499,7 +4489,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:59:16',
                 'updated_at' => '2026-07-07 10:46:36',
             ),
-            448 => 
+            447 => 
             array (
                 'id' => 458,
                 'cc_subject_id' => 147,
@@ -4509,17 +4499,17 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:59:27',
                 'updated_at' => '2026-07-07 10:46:48',
             ),
-            449 => 
+            448 => 
             array (
-                'id' => 459,
-                'cc_subject_id' => 147,
-                'name' => 'فصل12',
-                'order' => 10,
+                'id' => 796,
+                'cc_subject_id' => 155,
+                'name' => 'هوش زبانی کلامی',
+                'order' => 1,
                 'is_active' => 1,
-                'created_at' => '2026-02-16 15:00:03',
-                'updated_at' => '2026-07-07 10:46:55',
+                'created_at' => '2026-07-09 12:08:37',
+                'updated_at' => '2026-07-09 12:09:08',
             ),
-            450 => 
+            449 => 
             array (
                 'id' => 460,
                 'cc_subject_id' => 148,
@@ -4529,7 +4519,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:04:56',
                 'updated_at' => '2026-07-06 14:41:00',
             ),
-            451 => 
+            450 => 
             array (
                 'id' => 461,
                 'cc_subject_id' => 148,
@@ -4539,7 +4529,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:05:07',
                 'updated_at' => '2026-07-06 14:41:10',
             ),
-            452 => 
+            451 => 
             array (
                 'id' => 462,
                 'cc_subject_id' => 148,
@@ -4549,7 +4539,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:05:22',
                 'updated_at' => '2026-07-06 14:41:22',
             ),
-            453 => 
+            452 => 
             array (
                 'id' => 463,
                 'cc_subject_id' => 148,
@@ -4559,7 +4549,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:05:32',
                 'updated_at' => '2026-07-06 14:41:38',
             ),
-            454 => 
+            453 => 
             array (
                 'id' => 464,
                 'cc_subject_id' => 148,
@@ -4569,7 +4559,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:05:45',
                 'updated_at' => '2026-07-06 14:41:53',
             ),
-            455 => 
+            454 => 
             array (
                 'id' => 465,
                 'cc_subject_id' => 148,
@@ -4579,7 +4569,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:05:58',
                 'updated_at' => '2026-07-06 14:42:07',
             ),
-            456 => 
+            455 => 
             array (
                 'id' => 466,
                 'cc_subject_id' => 148,
@@ -4589,7 +4579,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:06:10',
                 'updated_at' => '2026-07-06 14:42:26',
             ),
-            457 => 
+            456 => 
             array (
                 'id' => 467,
                 'cc_subject_id' => 148,
@@ -4599,7 +4589,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:06:25',
                 'updated_at' => '2026-07-06 14:42:46',
             ),
-            458 => 
+            457 => 
             array (
                 'id' => 468,
                 'cc_subject_id' => 148,
@@ -4609,7 +4599,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:06:42',
                 'updated_at' => '2026-07-06 14:43:10',
             ),
-            459 => 
+            458 => 
             array (
                 'id' => 469,
                 'cc_subject_id' => 149,
@@ -4619,7 +4609,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:35:32',
                 'updated_at' => '2026-07-06 14:36:54',
             ),
-            460 => 
+            459 => 
             array (
                 'id' => 519,
                 'cc_subject_id' => 154,
@@ -4629,7 +4619,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:01:16',
                 'updated_at' => '2026-07-06 15:01:16',
             ),
-            461 => 
+            460 => 
             array (
                 'id' => 470,
                 'cc_subject_id' => 149,
@@ -4639,7 +4629,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:35:42',
                 'updated_at' => '2026-07-06 14:37:09',
             ),
-            462 => 
+            461 => 
             array (
                 'id' => 518,
                 'cc_subject_id' => 153,
@@ -4649,7 +4639,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:57:42',
                 'updated_at' => '2026-07-06 14:57:42',
             ),
-            463 => 
+            462 => 
             array (
                 'id' => 471,
                 'cc_subject_id' => 149,
@@ -4659,7 +4649,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:35:53',
                 'updated_at' => '2026-07-06 14:37:21',
             ),
-            464 => 
+            463 => 
             array (
                 'id' => 517,
                 'cc_subject_id' => 153,
@@ -4669,7 +4659,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:57:31',
                 'updated_at' => '2026-07-06 14:57:31',
             ),
-            465 => 
+            464 => 
             array (
                 'id' => 472,
                 'cc_subject_id' => 149,
@@ -4679,7 +4669,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:36:06',
                 'updated_at' => '2026-07-06 14:37:35',
             ),
-            466 => 
+            465 => 
             array (
                 'id' => 473,
                 'cc_subject_id' => 149,
@@ -4689,7 +4679,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:36:20',
                 'updated_at' => '2026-07-06 14:37:50',
             ),
-            467 => 
+            466 => 
             array (
                 'id' => 474,
                 'cc_subject_id' => 149,
@@ -4699,7 +4689,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:36:47',
                 'updated_at' => '2026-07-06 14:38:02',
             ),
-            468 => 
+            467 => 
             array (
                 'id' => 516,
                 'cc_subject_id' => 153,
@@ -4709,7 +4699,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:57:17',
                 'updated_at' => '2026-07-06 14:57:17',
             ),
-            469 => 
+            468 => 
             array (
                 'id' => 475,
                 'cc_subject_id' => 149,
@@ -4719,7 +4709,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:37:01',
                 'updated_at' => '2026-07-06 14:38:18',
             ),
-            470 => 
+            469 => 
             array (
                 'id' => 515,
                 'cc_subject_id' => 153,
@@ -4729,7 +4719,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:57:02',
                 'updated_at' => '2026-07-06 14:57:02',
             ),
-            471 => 
+            470 => 
             array (
                 'id' => 476,
                 'cc_subject_id' => 149,
@@ -4739,7 +4729,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:37:12',
                 'updated_at' => '2026-07-06 14:38:30',
             ),
-            472 => 
+            471 => 
             array (
                 'id' => 477,
                 'cc_subject_id' => 149,
@@ -4749,7 +4739,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:37:22',
                 'updated_at' => '2026-07-06 14:38:43',
             ),
-            473 => 
+            472 => 
             array (
                 'id' => 478,
                 'cc_subject_id' => 149,
@@ -4759,7 +4749,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:37:34',
                 'updated_at' => '2026-07-06 14:39:00',
             ),
-            474 => 
+            473 => 
             array (
                 'id' => 514,
                 'cc_subject_id' => 153,
@@ -4769,7 +4759,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:56:51',
                 'updated_at' => '2026-07-06 14:56:51',
             ),
-            475 => 
+            474 => 
             array (
                 'id' => 479,
                 'cc_subject_id' => 149,
@@ -4779,7 +4769,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:37:46',
                 'updated_at' => '2026-07-06 14:39:16',
             ),
-            476 => 
+            475 => 
             array (
                 'id' => 513,
                 'cc_subject_id' => 153,
@@ -4789,7 +4779,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:56:27',
                 'updated_at' => '2026-07-06 14:56:27',
             ),
-            477 => 
+            476 => 
             array (
                 'id' => 480,
                 'cc_subject_id' => 149,
@@ -4799,7 +4789,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:38:04',
                 'updated_at' => '2026-07-06 14:39:28',
             ),
-            478 => 
+            477 => 
             array (
                 'id' => 512,
                 'cc_subject_id' => 153,
@@ -4809,7 +4799,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:56:15',
                 'updated_at' => '2026-07-06 14:56:39',
             ),
-            479 => 
+            478 => 
             array (
                 'id' => 481,
                 'cc_subject_id' => 149,
@@ -4819,7 +4809,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:38:16',
                 'updated_at' => '2026-07-06 14:39:45',
             ),
-            480 => 
+            479 => 
             array (
                 'id' => 511,
                 'cc_subject_id' => 153,
@@ -4829,7 +4819,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:56:02',
                 'updated_at' => '2026-07-06 14:56:02',
             ),
-            481 => 
+            480 => 
             array (
                 'id' => 482,
                 'cc_subject_id' => 149,
@@ -4839,7 +4829,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:38:29',
                 'updated_at' => '2026-07-06 14:40:14',
             ),
-            482 => 
+            481 => 
             array (
                 'id' => 510,
                 'cc_subject_id' => 153,
@@ -4849,7 +4839,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:55:49',
                 'updated_at' => '2026-07-06 14:55:49',
             ),
-            483 => 
+            482 => 
             array (
                 'id' => 483,
                 'cc_subject_id' => 149,
@@ -4859,7 +4849,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:38:50',
                 'updated_at' => '2026-07-06 14:40:27',
             ),
-            484 => 
+            483 => 
             array (
                 'id' => 509,
                 'cc_subject_id' => 153,
@@ -4869,7 +4859,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:55:39',
                 'updated_at' => '2026-07-06 14:55:39',
             ),
-            485 => 
+            484 => 
             array (
                 'id' => 484,
                 'cc_subject_id' => 150,
@@ -4879,7 +4869,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:04',
                 'updated_at' => '2026-07-06 14:43:46',
             ),
-            486 => 
+            485 => 
             array (
                 'id' => 485,
                 'cc_subject_id' => 150,
@@ -4889,7 +4879,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:11',
                 'updated_at' => '2026-07-06 14:43:58',
             ),
-            487 => 
+            486 => 
             array (
                 'id' => 486,
                 'cc_subject_id' => 150,
@@ -4899,7 +4889,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:17',
                 'updated_at' => '2026-07-06 14:44:13',
             ),
-            488 => 
+            487 => 
             array (
                 'id' => 487,
                 'cc_subject_id' => 150,
@@ -4909,7 +4899,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:23',
                 'updated_at' => '2026-07-06 14:44:26',
             ),
-            489 => 
+            488 => 
             array (
                 'id' => 488,
                 'cc_subject_id' => 150,
@@ -4919,7 +4909,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:29',
                 'updated_at' => '2026-07-06 14:44:39',
             ),
-            490 => 
+            489 => 
             array (
                 'id' => 489,
                 'cc_subject_id' => 150,
@@ -4929,7 +4919,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:37',
                 'updated_at' => '2026-07-06 14:44:51',
             ),
-            491 => 
+            490 => 
             array (
                 'id' => 490,
                 'cc_subject_id' => 151,
@@ -4939,7 +4929,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:19:39',
                 'updated_at' => '2026-07-06 14:45:47',
             ),
-            492 => 
+            491 => 
             array (
                 'id' => 491,
                 'cc_subject_id' => 151,
@@ -4949,7 +4939,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:19:46',
                 'updated_at' => '2026-07-06 14:45:58',
             ),
-            493 => 
+            492 => 
             array (
                 'id' => 508,
                 'cc_subject_id' => 152,
@@ -4959,7 +4949,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:54:03',
                 'updated_at' => '2026-07-06 14:54:08',
             ),
-            494 => 
+            493 => 
             array (
                 'id' => 492,
                 'cc_subject_id' => 151,
@@ -4969,7 +4959,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:19:56',
                 'updated_at' => '2026-07-06 14:46:11',
             ),
-            495 => 
+            494 => 
             array (
                 'id' => 507,
                 'cc_subject_id' => 152,
@@ -4979,7 +4969,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:52:28',
                 'updated_at' => '2026-07-06 14:52:46',
             ),
-            496 => 
+            495 => 
             array (
                 'id' => 493,
                 'cc_subject_id' => 151,
@@ -4989,7 +4979,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:20:06',
                 'updated_at' => '2026-07-06 14:46:31',
             ),
-            497 => 
+            496 => 
             array (
                 'id' => 494,
                 'cc_subject_id' => 151,
@@ -4999,7 +4989,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:20:14',
                 'updated_at' => '2026-07-06 14:46:45',
             ),
-            498 => 
+            497 => 
             array (
                 'id' => 506,
                 'cc_subject_id' => 152,
@@ -5009,7 +4999,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:52:10',
                 'updated_at' => '2026-07-06 14:53:13',
             ),
-            499 => 
+            498 => 
             array (
                 'id' => 495,
                 'cc_subject_id' => 151,
@@ -5019,9 +5009,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:20:28',
                 'updated_at' => '2026-07-06 14:47:04',
             ),
-        ));
-        \DB::table('cc_chapters')->insert(array (
-            0 => 
+            499 => 
             array (
                 'id' => 505,
                 'cc_subject_id' => 152,
@@ -5031,7 +5019,9 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:52:04',
                 'updated_at' => '2026-07-06 14:53:26',
             ),
-            1 => 
+        ));
+        \DB::table('cc_chapters')->insert(array (
+            0 => 
             array (
                 'id' => 496,
                 'cc_subject_id' => 151,
@@ -5041,7 +5031,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:20:37',
                 'updated_at' => '2026-07-06 14:47:16',
             ),
-            2 => 
+            1 => 
             array (
                 'id' => 497,
                 'cc_subject_id' => 151,
@@ -5051,7 +5041,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:20:49',
                 'updated_at' => '2026-07-06 14:47:33',
             ),
-            3 => 
+            2 => 
             array (
                 'id' => 503,
                 'cc_subject_id' => 152,
@@ -5061,7 +5051,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:51:31',
                 'updated_at' => '2026-07-06 14:53:49',
             ),
-            4 => 
+            3 => 
             array (
                 'id' => 504,
                 'cc_subject_id' => 152,
@@ -5071,7 +5061,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:51:58',
                 'updated_at' => '2026-07-06 14:53:40',
             ),
-            5 => 
+            4 => 
             array (
                 'id' => 498,
                 'cc_subject_id' => 151,
@@ -5081,7 +5071,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:20:58',
                 'updated_at' => '2026-07-06 14:47:45',
             ),
-            6 => 
+            5 => 
             array (
                 'id' => 499,
                 'cc_subject_id' => 151,
@@ -5091,7 +5081,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:21:08',
                 'updated_at' => '2026-07-06 14:47:57',
             ),
-            7 => 
+            6 => 
             array (
                 'id' => 500,
                 'cc_subject_id' => 151,
@@ -5101,7 +5091,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:21:17',
                 'updated_at' => '2026-07-06 14:48:14',
             ),
-            8 => 
+            7 => 
             array (
                 'id' => 501,
                 'cc_subject_id' => 151,
@@ -5111,7 +5101,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:21:28',
                 'updated_at' => '2026-07-06 14:48:26',
             ),
-            9 => 
+            8 => 
             array (
                 'id' => 502,
                 'cc_subject_id' => 147,
@@ -5121,7 +5111,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 14:29:40',
                 'updated_at' => '2026-07-06 14:30:34',
             ),
-            10 => 
+            9 => 
             array (
                 'id' => 520,
                 'cc_subject_id' => 154,
@@ -5131,7 +5121,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:01:28',
                 'updated_at' => '2026-07-06 15:01:28',
             ),
-            11 => 
+            10 => 
             array (
                 'id' => 521,
                 'cc_subject_id' => 154,
@@ -5141,7 +5131,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:01:36',
                 'updated_at' => '2026-07-06 15:01:36',
             ),
-            12 => 
+            11 => 
             array (
                 'id' => 522,
                 'cc_subject_id' => 154,
@@ -5151,7 +5141,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:01:49',
                 'updated_at' => '2026-07-06 15:01:49',
             ),
-            13 => 
+            12 => 
             array (
                 'id' => 523,
                 'cc_subject_id' => 154,
@@ -5161,7 +5151,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:01:59',
                 'updated_at' => '2026-07-06 15:01:59',
             ),
-            14 => 
+            13 => 
             array (
                 'id' => 524,
                 'cc_subject_id' => 156,
@@ -5171,7 +5161,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:03:51',
                 'updated_at' => '2026-07-06 15:03:51',
             ),
-            15 => 
+            14 => 
             array (
                 'id' => 525,
                 'cc_subject_id' => 156,
@@ -5181,7 +5171,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:04:00',
                 'updated_at' => '2026-07-06 15:04:00',
             ),
-            16 => 
+            15 => 
             array (
                 'id' => 526,
                 'cc_subject_id' => 156,
@@ -5191,7 +5181,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:04:10',
                 'updated_at' => '2026-07-06 15:04:10',
             ),
-            17 => 
+            16 => 
             array (
                 'id' => 527,
                 'cc_subject_id' => 156,
@@ -5201,7 +5191,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:04:18',
                 'updated_at' => '2026-07-06 15:04:18',
             ),
-            18 => 
+            17 => 
             array (
                 'id' => 528,
                 'cc_subject_id' => 156,
@@ -5211,7 +5201,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:04:29',
                 'updated_at' => '2026-07-06 15:04:29',
             ),
-            19 => 
+            18 => 
             array (
                 'id' => 529,
                 'cc_subject_id' => 156,
@@ -5221,7 +5211,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:04:41',
                 'updated_at' => '2026-07-06 15:04:41',
             ),
-            20 => 
+            19 => 
             array (
                 'id' => 530,
                 'cc_subject_id' => 156,
@@ -5231,7 +5221,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:04:50',
                 'updated_at' => '2026-07-06 15:04:50',
             ),
-            21 => 
+            20 => 
             array (
                 'id' => 531,
                 'cc_subject_id' => 156,
@@ -5241,7 +5231,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:05:06',
                 'updated_at' => '2026-07-06 15:05:06',
             ),
-            22 => 
+            21 => 
             array (
                 'id' => 532,
                 'cc_subject_id' => 156,
@@ -5251,7 +5241,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:05:16',
                 'updated_at' => '2026-07-06 15:05:16',
             ),
-            23 => 
+            22 => 
             array (
                 'id' => 533,
                 'cc_subject_id' => 156,
@@ -5261,7 +5251,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:05:25',
                 'updated_at' => '2026-07-06 15:05:25',
             ),
-            24 => 
+            23 => 
             array (
                 'id' => 534,
                 'cc_subject_id' => 156,
@@ -5271,7 +5261,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:05:42',
                 'updated_at' => '2026-07-06 15:05:42',
             ),
-            25 => 
+            24 => 
             array (
                 'id' => 540,
                 'cc_subject_id' => 29,
@@ -5281,7 +5271,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:53:45',
                 'updated_at' => '2026-07-06 15:53:45',
             ),
-            26 => 
+            25 => 
             array (
                 'id' => 541,
                 'cc_subject_id' => 29,
@@ -5291,7 +5281,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:53:55',
                 'updated_at' => '2026-07-06 15:53:55',
             ),
-            27 => 
+            26 => 
             array (
                 'id' => 542,
                 'cc_subject_id' => 29,
@@ -5301,7 +5291,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:54:06',
                 'updated_at' => '2026-07-06 15:54:06',
             ),
-            28 => 
+            27 => 
             array (
                 'id' => 543,
                 'cc_subject_id' => 30,
@@ -5311,7 +5301,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 15:55:31',
                 'updated_at' => '2026-07-06 15:55:31',
             ),
-            29 => 
+            28 => 
             array (
                 'id' => 544,
                 'cc_subject_id' => 30,
@@ -5321,7 +5311,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:29:00',
                 'updated_at' => '2026-07-06 16:29:00',
             ),
-            30 => 
+            29 => 
             array (
                 'id' => 545,
                 'cc_subject_id' => 30,
@@ -5331,7 +5321,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:29:13',
                 'updated_at' => '2026-07-06 16:29:13',
             ),
-            31 => 
+            30 => 
             array (
                 'id' => 546,
                 'cc_subject_id' => 30,
@@ -5341,7 +5331,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:29:30',
                 'updated_at' => '2026-07-06 16:29:30',
             ),
-            32 => 
+            31 => 
             array (
                 'id' => 547,
                 'cc_subject_id' => 31,
@@ -5351,7 +5341,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:31:25',
                 'updated_at' => '2026-07-06 16:31:25',
             ),
-            33 => 
+            32 => 
             array (
                 'id' => 548,
                 'cc_subject_id' => 31,
@@ -5361,7 +5351,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:31:32',
                 'updated_at' => '2026-07-06 16:31:42',
             ),
-            34 => 
+            33 => 
             array (
                 'id' => 549,
                 'cc_subject_id' => 31,
@@ -5371,7 +5361,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:31:52',
                 'updated_at' => '2026-07-06 16:31:52',
             ),
-            35 => 
+            34 => 
             array (
                 'id' => 550,
                 'cc_subject_id' => 32,
@@ -5381,7 +5371,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:32:54',
                 'updated_at' => '2026-07-06 16:32:54',
             ),
-            36 => 
+            35 => 
             array (
                 'id' => 551,
                 'cc_subject_id' => 32,
@@ -5391,7 +5381,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:33:03',
                 'updated_at' => '2026-07-06 16:33:35',
             ),
-            37 => 
+            36 => 
             array (
                 'id' => 552,
                 'cc_subject_id' => 32,
@@ -5401,7 +5391,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:33:10',
                 'updated_at' => '2026-07-06 16:33:30',
             ),
-            38 => 
+            37 => 
             array (
                 'id' => 553,
                 'cc_subject_id' => 32,
@@ -5411,7 +5401,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:33:22',
                 'updated_at' => '2026-07-06 16:33:22',
             ),
-            39 => 
+            38 => 
             array (
                 'id' => 554,
                 'cc_subject_id' => 32,
@@ -5421,7 +5411,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:33:56',
                 'updated_at' => '2026-07-06 16:34:06',
             ),
-            40 => 
+            39 => 
             array (
                 'id' => 555,
                 'cc_subject_id' => 32,
@@ -5431,7 +5421,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:34:18',
                 'updated_at' => '2026-07-06 16:34:18',
             ),
-            41 => 
+            40 => 
             array (
                 'id' => 556,
                 'cc_subject_id' => 32,
@@ -5441,7 +5431,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:34:30',
                 'updated_at' => '2026-07-06 16:34:30',
             ),
-            42 => 
+            41 => 
             array (
                 'id' => 557,
                 'cc_subject_id' => 32,
@@ -5451,7 +5441,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:34:52',
                 'updated_at' => '2026-07-06 16:34:52',
             ),
-            43 => 
+            42 => 
             array (
                 'id' => 558,
                 'cc_subject_id' => 32,
@@ -5461,7 +5451,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:35:06',
                 'updated_at' => '2026-07-06 16:35:06',
             ),
-            44 => 
+            43 => 
             array (
                 'id' => 559,
                 'cc_subject_id' => 32,
@@ -5471,7 +5461,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:35:25',
                 'updated_at' => '2026-07-06 16:35:25',
             ),
-            45 => 
+            44 => 
             array (
                 'id' => 560,
                 'cc_subject_id' => 32,
@@ -5481,7 +5471,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:35:38',
                 'updated_at' => '2026-07-06 16:35:38',
             ),
-            46 => 
+            45 => 
             array (
                 'id' => 561,
                 'cc_subject_id' => 32,
@@ -5491,7 +5481,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:35:54',
                 'updated_at' => '2026-07-06 16:35:54',
             ),
-            47 => 
+            46 => 
             array (
                 'id' => 562,
                 'cc_subject_id' => 33,
@@ -5501,7 +5491,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:36:54',
                 'updated_at' => '2026-07-06 16:36:54',
             ),
-            48 => 
+            47 => 
             array (
                 'id' => 563,
                 'cc_subject_id' => 33,
@@ -5511,7 +5501,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:37:07',
                 'updated_at' => '2026-07-06 16:37:07',
             ),
-            49 => 
+            48 => 
             array (
                 'id' => 564,
                 'cc_subject_id' => 33,
@@ -5521,7 +5511,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:37:28',
                 'updated_at' => '2026-07-06 16:37:28',
             ),
-            50 => 
+            49 => 
             array (
                 'id' => 565,
                 'cc_subject_id' => 34,
@@ -5531,7 +5521,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:38:36',
                 'updated_at' => '2026-07-06 16:38:36',
             ),
-            51 => 
+            50 => 
             array (
                 'id' => 566,
                 'cc_subject_id' => 34,
@@ -5541,7 +5531,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:38:44',
                 'updated_at' => '2026-07-06 16:38:44',
             ),
-            52 => 
+            51 => 
             array (
                 'id' => 567,
                 'cc_subject_id' => 34,
@@ -5551,7 +5541,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:38:52',
                 'updated_at' => '2026-07-06 16:38:52',
             ),
-            53 => 
+            52 => 
             array (
                 'id' => 568,
                 'cc_subject_id' => 34,
@@ -5561,7 +5551,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:39:01',
                 'updated_at' => '2026-07-06 16:39:01',
             ),
-            54 => 
+            53 => 
             array (
                 'id' => 569,
                 'cc_subject_id' => 34,
@@ -5571,7 +5561,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:39:11',
                 'updated_at' => '2026-07-06 16:39:11',
             ),
-            55 => 
+            54 => 
             array (
                 'id' => 570,
                 'cc_subject_id' => 34,
@@ -5581,7 +5571,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:39:19',
                 'updated_at' => '2026-07-06 16:39:19',
             ),
-            56 => 
+            55 => 
             array (
                 'id' => 571,
                 'cc_subject_id' => 34,
@@ -5591,7 +5581,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:39:40',
                 'updated_at' => '2026-07-06 16:39:40',
             ),
-            57 => 
+            56 => 
             array (
                 'id' => 572,
                 'cc_subject_id' => 34,
@@ -5601,7 +5591,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:39:54',
                 'updated_at' => '2026-07-06 16:39:54',
             ),
-            58 => 
+            57 => 
             array (
                 'id' => 573,
                 'cc_subject_id' => 34,
@@ -5611,7 +5601,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:40:03',
                 'updated_at' => '2026-07-06 16:40:03',
             ),
-            59 => 
+            58 => 
             array (
                 'id' => 574,
                 'cc_subject_id' => 34,
@@ -5621,7 +5611,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:40:15',
                 'updated_at' => '2026-07-06 16:40:15',
             ),
-            60 => 
+            59 => 
             array (
                 'id' => 575,
                 'cc_subject_id' => 35,
@@ -5631,7 +5621,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:40:46',
                 'updated_at' => '2026-07-06 16:40:46',
             ),
-            61 => 
+            60 => 
             array (
                 'id' => 576,
                 'cc_subject_id' => 35,
@@ -5641,7 +5631,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:41:39',
                 'updated_at' => '2026-07-06 16:41:39',
             ),
-            62 => 
+            61 => 
             array (
                 'id' => 577,
                 'cc_subject_id' => 35,
@@ -5651,7 +5641,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:41:57',
                 'updated_at' => '2026-07-06 16:41:57',
             ),
-            63 => 
+            62 => 
             array (
                 'id' => 578,
                 'cc_subject_id' => 35,
@@ -5661,7 +5651,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:42:08',
                 'updated_at' => '2026-07-06 16:42:08',
             ),
-            64 => 
+            63 => 
             array (
                 'id' => 579,
                 'cc_subject_id' => 35,
@@ -5671,7 +5661,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:42:24',
                 'updated_at' => '2026-07-06 16:42:24',
             ),
-            65 => 
+            64 => 
             array (
                 'id' => 580,
                 'cc_subject_id' => 35,
@@ -5681,7 +5671,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:42:35',
                 'updated_at' => '2026-07-06 16:42:35',
             ),
-            66 => 
+            65 => 
             array (
                 'id' => 581,
                 'cc_subject_id' => 35,
@@ -5691,7 +5681,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:42:43',
                 'updated_at' => '2026-07-06 16:42:43',
             ),
-            67 => 
+            66 => 
             array (
                 'id' => 582,
                 'cc_subject_id' => 35,
@@ -5701,7 +5691,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:42:57',
                 'updated_at' => '2026-07-06 16:42:57',
             ),
-            68 => 
+            67 => 
             array (
                 'id' => 583,
                 'cc_subject_id' => 36,
@@ -5711,7 +5701,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:44:19',
                 'updated_at' => '2026-07-06 16:44:19',
             ),
-            69 => 
+            68 => 
             array (
                 'id' => 584,
                 'cc_subject_id' => 36,
@@ -5721,7 +5711,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:44:35',
                 'updated_at' => '2026-07-06 16:44:35',
             ),
-            70 => 
+            69 => 
             array (
                 'id' => 585,
                 'cc_subject_id' => 36,
@@ -5731,7 +5721,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:44:54',
                 'updated_at' => '2026-07-06 16:44:54',
             ),
-            71 => 
+            70 => 
             array (
                 'id' => 586,
                 'cc_subject_id' => 36,
@@ -5741,7 +5731,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:45:08',
                 'updated_at' => '2026-07-06 16:45:08',
             ),
-            72 => 
+            71 => 
             array (
                 'id' => 587,
                 'cc_subject_id' => 36,
@@ -5751,7 +5741,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:45:17',
                 'updated_at' => '2026-07-06 16:45:17',
             ),
-            73 => 
+            72 => 
             array (
                 'id' => 588,
                 'cc_subject_id' => 36,
@@ -5761,7 +5751,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:45:26',
                 'updated_at' => '2026-07-06 16:45:26',
             ),
-            74 => 
+            73 => 
             array (
                 'id' => 589,
                 'cc_subject_id' => 36,
@@ -5771,7 +5761,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:45:36',
                 'updated_at' => '2026-07-06 16:45:36',
             ),
-            75 => 
+            74 => 
             array (
                 'id' => 590,
                 'cc_subject_id' => 36,
@@ -5781,7 +5771,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:45:49',
                 'updated_at' => '2026-07-06 16:45:49',
             ),
-            76 => 
+            75 => 
             array (
                 'id' => 591,
                 'cc_subject_id' => 36,
@@ -5791,7 +5781,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:46:00',
                 'updated_at' => '2026-07-06 16:46:00',
             ),
-            77 => 
+            76 => 
             array (
                 'id' => 592,
                 'cc_subject_id' => 36,
@@ -5801,7 +5791,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:46:56',
                 'updated_at' => '2026-07-06 16:46:56',
             ),
-            78 => 
+            77 => 
             array (
                 'id' => 593,
                 'cc_subject_id' => 36,
@@ -5811,7 +5801,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:47:08',
                 'updated_at' => '2026-07-06 16:47:08',
             ),
-            79 => 
+            78 => 
             array (
                 'id' => 594,
                 'cc_subject_id' => 36,
@@ -5821,7 +5811,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:47:19',
                 'updated_at' => '2026-07-06 16:47:19',
             ),
-            80 => 
+            79 => 
             array (
                 'id' => 595,
                 'cc_subject_id' => 36,
@@ -5831,7 +5821,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:47:33',
                 'updated_at' => '2026-07-06 16:47:33',
             ),
-            81 => 
+            80 => 
             array (
                 'id' => 596,
                 'cc_subject_id' => 37,
@@ -5841,7 +5831,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:50:45',
                 'updated_at' => '2026-07-06 16:50:45',
             ),
-            82 => 
+            81 => 
             array (
                 'id' => 597,
                 'cc_subject_id' => 37,
@@ -5851,7 +5841,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:50:56',
                 'updated_at' => '2026-07-06 16:50:56',
             ),
-            83 => 
+            82 => 
             array (
                 'id' => 598,
                 'cc_subject_id' => 37,
@@ -5861,7 +5851,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:51:08',
                 'updated_at' => '2026-07-06 16:51:08',
             ),
-            84 => 
+            83 => 
             array (
                 'id' => 599,
                 'cc_subject_id' => 38,
@@ -5871,7 +5861,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:52:03',
                 'updated_at' => '2026-07-06 16:52:03',
             ),
-            85 => 
+            84 => 
             array (
                 'id' => 600,
                 'cc_subject_id' => 38,
@@ -5881,7 +5871,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:52:19',
                 'updated_at' => '2026-07-06 16:52:19',
             ),
-            86 => 
+            85 => 
             array (
                 'id' => 601,
                 'cc_subject_id' => 38,
@@ -5891,7 +5881,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:52:30',
                 'updated_at' => '2026-07-06 16:52:30',
             ),
-            87 => 
+            86 => 
             array (
                 'id' => 602,
                 'cc_subject_id' => 38,
@@ -5901,7 +5891,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:52:44',
                 'updated_at' => '2026-07-06 16:52:44',
             ),
-            88 => 
+            87 => 
             array (
                 'id' => 603,
                 'cc_subject_id' => 38,
@@ -5911,7 +5901,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:52:55',
                 'updated_at' => '2026-07-06 16:52:55',
             ),
-            89 => 
+            88 => 
             array (
                 'id' => 604,
                 'cc_subject_id' => 38,
@@ -5921,7 +5911,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:53:26',
                 'updated_at' => '2026-07-06 16:53:26',
             ),
-            90 => 
+            89 => 
             array (
                 'id' => 605,
                 'cc_subject_id' => 39,
@@ -5931,7 +5921,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:55:30',
                 'updated_at' => '2026-07-06 16:55:30',
             ),
-            91 => 
+            90 => 
             array (
                 'id' => 606,
                 'cc_subject_id' => 39,
@@ -5941,7 +5931,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:55:39',
                 'updated_at' => '2026-07-06 16:55:39',
             ),
-            92 => 
+            91 => 
             array (
                 'id' => 607,
                 'cc_subject_id' => 39,
@@ -5951,7 +5941,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:55:54',
                 'updated_at' => '2026-07-06 16:55:54',
             ),
-            93 => 
+            92 => 
             array (
                 'id' => 608,
                 'cc_subject_id' => 39,
@@ -5961,7 +5951,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:56:06',
                 'updated_at' => '2026-07-06 16:56:06',
             ),
-            94 => 
+            93 => 
             array (
                 'id' => 609,
                 'cc_subject_id' => 39,
@@ -5971,7 +5961,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 16:56:17',
                 'updated_at' => '2026-07-06 16:56:17',
             ),
-            95 => 
+            94 => 
             array (
                 'id' => 620,
                 'cc_subject_id' => 42,
@@ -5981,7 +5971,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:10:31',
                 'updated_at' => '2026-07-06 18:10:31',
             ),
-            96 => 
+            95 => 
             array (
                 'id' => 621,
                 'cc_subject_id' => 42,
@@ -5991,7 +5981,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:10:41',
                 'updated_at' => '2026-07-06 18:10:41',
             ),
-            97 => 
+            96 => 
             array (
                 'id' => 622,
                 'cc_subject_id' => 42,
@@ -6001,7 +5991,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:10:52',
                 'updated_at' => '2026-07-06 18:10:52',
             ),
-            98 => 
+            97 => 
             array (
                 'id' => 623,
                 'cc_subject_id' => 42,
@@ -6011,7 +6001,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:11:05',
                 'updated_at' => '2026-07-06 18:11:05',
             ),
-            99 => 
+            98 => 
             array (
                 'id' => 624,
                 'cc_subject_id' => 43,
@@ -6021,7 +6011,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:12:19',
                 'updated_at' => '2026-07-06 18:12:19',
             ),
-            100 => 
+            99 => 
             array (
                 'id' => 625,
                 'cc_subject_id' => 43,
@@ -6031,7 +6021,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:12:25',
                 'updated_at' => '2026-07-06 18:12:43',
             ),
-            101 => 
+            100 => 
             array (
                 'id' => 626,
                 'cc_subject_id' => 43,
@@ -6041,7 +6031,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:12:35',
                 'updated_at' => '2026-07-06 18:12:56',
             ),
-            102 => 
+            101 => 
             array (
                 'id' => 627,
                 'cc_subject_id' => 44,
@@ -6051,7 +6041,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:14:04',
                 'updated_at' => '2026-07-06 18:14:04',
             ),
-            103 => 
+            102 => 
             array (
                 'id' => 628,
                 'cc_subject_id' => 44,
@@ -6061,7 +6051,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:14:09',
                 'updated_at' => '2026-07-06 18:14:17',
             ),
-            104 => 
+            103 => 
             array (
                 'id' => 629,
                 'cc_subject_id' => 44,
@@ -6071,7 +6061,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:14:28',
                 'updated_at' => '2026-07-06 18:14:28',
             ),
-            105 => 
+            104 => 
             array (
                 'id' => 630,
                 'cc_subject_id' => 44,
@@ -6081,7 +6071,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:14:57',
                 'updated_at' => '2026-07-06 18:14:57',
             ),
-            106 => 
+            105 => 
             array (
                 'id' => 631,
                 'cc_subject_id' => 45,
@@ -6091,7 +6081,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:16:15',
                 'updated_at' => '2026-07-06 18:16:15',
             ),
-            107 => 
+            106 => 
             array (
                 'id' => 632,
                 'cc_subject_id' => 45,
@@ -6101,7 +6091,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:16:36',
                 'updated_at' => '2026-07-06 18:16:36',
             ),
-            108 => 
+            107 => 
             array (
                 'id' => 633,
                 'cc_subject_id' => 45,
@@ -6111,7 +6101,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:16:46',
                 'updated_at' => '2026-07-06 18:16:46',
             ),
-            109 => 
+            108 => 
             array (
                 'id' => 634,
                 'cc_subject_id' => 45,
@@ -6121,7 +6111,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:16:57',
                 'updated_at' => '2026-07-06 18:16:57',
             ),
-            110 => 
+            109 => 
             array (
                 'id' => 635,
                 'cc_subject_id' => 46,
@@ -6131,7 +6121,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:22:57',
                 'updated_at' => '2026-07-06 18:22:57',
             ),
-            111 => 
+            110 => 
             array (
                 'id' => 636,
                 'cc_subject_id' => 46,
@@ -6141,7 +6131,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:23:10',
                 'updated_at' => '2026-07-06 18:23:10',
             ),
-            112 => 
+            111 => 
             array (
                 'id' => 637,
                 'cc_subject_id' => 46,
@@ -6151,7 +6141,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:23:21',
                 'updated_at' => '2026-07-06 18:23:21',
             ),
-            113 => 
+            112 => 
             array (
                 'id' => 638,
                 'cc_subject_id' => 46,
@@ -6161,7 +6151,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:23:45',
                 'updated_at' => '2026-07-06 18:23:45',
             ),
-            114 => 
+            113 => 
             array (
                 'id' => 639,
                 'cc_subject_id' => 47,
@@ -6171,7 +6161,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:24:57',
                 'updated_at' => '2026-07-06 18:24:57',
             ),
-            115 => 
+            114 => 
             array (
                 'id' => 640,
                 'cc_subject_id' => 47,
@@ -6181,7 +6171,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:25:13',
                 'updated_at' => '2026-07-06 18:25:13',
             ),
-            116 => 
+            115 => 
             array (
                 'id' => 641,
                 'cc_subject_id' => 47,
@@ -6191,7 +6181,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:25:28',
                 'updated_at' => '2026-07-06 18:25:28',
             ),
-            117 => 
+            116 => 
             array (
                 'id' => 642,
                 'cc_subject_id' => 47,
@@ -6201,7 +6191,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:25:39',
                 'updated_at' => '2026-07-06 18:25:39',
             ),
-            118 => 
+            117 => 
             array (
                 'id' => 643,
                 'cc_subject_id' => 47,
@@ -6211,7 +6201,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:25:57',
                 'updated_at' => '2026-07-06 18:25:57',
             ),
-            119 => 
+            118 => 
             array (
                 'id' => 644,
                 'cc_subject_id' => 47,
@@ -6221,7 +6211,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:26:07',
                 'updated_at' => '2026-07-06 18:26:07',
             ),
-            120 => 
+            119 => 
             array (
                 'id' => 645,
                 'cc_subject_id' => 47,
@@ -6231,7 +6221,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:26:21',
                 'updated_at' => '2026-07-06 18:26:21',
             ),
-            121 => 
+            120 => 
             array (
                 'id' => 646,
                 'cc_subject_id' => 47,
@@ -6241,7 +6231,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:27:22',
                 'updated_at' => '2026-07-06 18:27:22',
             ),
-            122 => 
+            121 => 
             array (
                 'id' => 647,
                 'cc_subject_id' => 48,
@@ -6251,7 +6241,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:28:49',
                 'updated_at' => '2026-07-06 18:28:49',
             ),
-            123 => 
+            122 => 
             array (
                 'id' => 648,
                 'cc_subject_id' => 48,
@@ -6261,7 +6251,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:28:55',
                 'updated_at' => '2026-07-06 18:28:55',
             ),
-            124 => 
+            123 => 
             array (
                 'id' => 649,
                 'cc_subject_id' => 48,
@@ -6271,7 +6261,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:29:07',
                 'updated_at' => '2026-07-06 18:29:07',
             ),
-            125 => 
+            124 => 
             array (
                 'id' => 650,
                 'cc_subject_id' => 48,
@@ -6281,7 +6271,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:29:35',
                 'updated_at' => '2026-07-06 18:29:35',
             ),
-            126 => 
+            125 => 
             array (
                 'id' => 651,
                 'cc_subject_id' => 48,
@@ -6291,7 +6281,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:29:48',
                 'updated_at' => '2026-07-06 18:29:48',
             ),
-            127 => 
+            126 => 
             array (
                 'id' => 652,
                 'cc_subject_id' => 48,
@@ -6301,7 +6291,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:29:58',
                 'updated_at' => '2026-07-06 18:29:58',
             ),
-            128 => 
+            127 => 
             array (
                 'id' => 653,
                 'cc_subject_id' => 48,
@@ -6311,7 +6301,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:30:10',
                 'updated_at' => '2026-07-06 18:30:10',
             ),
-            129 => 
+            128 => 
             array (
                 'id' => 654,
                 'cc_subject_id' => 48,
@@ -6321,7 +6311,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:30:20',
                 'updated_at' => '2026-07-06 18:30:20',
             ),
-            130 => 
+            129 => 
             array (
                 'id' => 655,
                 'cc_subject_id' => 49,
@@ -6331,7 +6321,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:31:34',
                 'updated_at' => '2026-07-06 18:31:34',
             ),
-            131 => 
+            130 => 
             array (
                 'id' => 656,
                 'cc_subject_id' => 49,
@@ -6341,7 +6331,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:31:59',
                 'updated_at' => '2026-07-06 18:31:59',
             ),
-            132 => 
+            131 => 
             array (
                 'id' => 657,
                 'cc_subject_id' => 49,
@@ -6351,7 +6341,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:32:09',
                 'updated_at' => '2026-07-06 18:32:09',
             ),
-            133 => 
+            132 => 
             array (
                 'id' => 658,
                 'cc_subject_id' => 49,
@@ -6361,7 +6351,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:32:22',
                 'updated_at' => '2026-07-06 18:32:22',
             ),
-            134 => 
+            133 => 
             array (
                 'id' => 659,
                 'cc_subject_id' => 49,
@@ -6371,7 +6361,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:32:34',
                 'updated_at' => '2026-07-06 18:32:34',
             ),
-            135 => 
+            134 => 
             array (
                 'id' => 660,
                 'cc_subject_id' => 49,
@@ -6381,7 +6371,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:32:44',
                 'updated_at' => '2026-07-06 18:32:44',
             ),
-            136 => 
+            135 => 
             array (
                 'id' => 661,
                 'cc_subject_id' => 49,
@@ -6391,7 +6381,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:32:55',
                 'updated_at' => '2026-07-06 18:32:55',
             ),
-            137 => 
+            136 => 
             array (
                 'id' => 662,
                 'cc_subject_id' => 49,
@@ -6401,7 +6391,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:33:04',
                 'updated_at' => '2026-07-06 18:33:04',
             ),
-            138 => 
+            137 => 
             array (
                 'id' => 663,
                 'cc_subject_id' => 49,
@@ -6411,7 +6401,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:33:21',
                 'updated_at' => '2026-07-06 18:33:21',
             ),
-            139 => 
+            138 => 
             array (
                 'id' => 664,
                 'cc_subject_id' => 49,
@@ -6421,7 +6411,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:33:37',
                 'updated_at' => '2026-07-06 18:33:37',
             ),
-            140 => 
+            139 => 
             array (
                 'id' => 665,
                 'cc_subject_id' => 49,
@@ -6431,7 +6421,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:33:50',
                 'updated_at' => '2026-07-06 18:33:50',
             ),
-            141 => 
+            140 => 
             array (
                 'id' => 666,
                 'cc_subject_id' => 49,
@@ -6441,7 +6431,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:34:05',
                 'updated_at' => '2026-07-06 18:34:05',
             ),
-            142 => 
+            141 => 
             array (
                 'id' => 667,
                 'cc_subject_id' => 49,
@@ -6451,7 +6441,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:34:16',
                 'updated_at' => '2026-07-06 18:34:16',
             ),
-            143 => 
+            142 => 
             array (
                 'id' => 668,
                 'cc_subject_id' => 49,
@@ -6461,7 +6451,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:34:28',
                 'updated_at' => '2026-07-06 18:34:28',
             ),
-            144 => 
+            143 => 
             array (
                 'id' => 669,
                 'cc_subject_id' => 49,
@@ -6471,7 +6461,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:34:39',
                 'updated_at' => '2026-07-06 18:34:39',
             ),
-            145 => 
+            144 => 
             array (
                 'id' => 670,
                 'cc_subject_id' => 49,
@@ -6481,7 +6471,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:34:51',
                 'updated_at' => '2026-07-06 18:34:51',
             ),
-            146 => 
+            145 => 
             array (
                 'id' => 671,
                 'cc_subject_id' => 49,
@@ -6491,7 +6481,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:35:04',
                 'updated_at' => '2026-07-06 18:35:04',
             ),
-            147 => 
+            146 => 
             array (
                 'id' => 672,
                 'cc_subject_id' => 49,
@@ -6501,7 +6491,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:35:16',
                 'updated_at' => '2026-07-06 18:35:16',
             ),
-            148 => 
+            147 => 
             array (
                 'id' => 673,
                 'cc_subject_id' => 50,
@@ -6511,7 +6501,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:36:36',
                 'updated_at' => '2026-07-06 18:36:36',
             ),
-            149 => 
+            148 => 
             array (
                 'id' => 674,
                 'cc_subject_id' => 50,
@@ -6521,7 +6511,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:36:46',
                 'updated_at' => '2026-07-06 18:36:46',
             ),
-            150 => 
+            149 => 
             array (
                 'id' => 675,
                 'cc_subject_id' => 50,
@@ -6531,7 +6521,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:37:00',
                 'updated_at' => '2026-07-06 18:37:00',
             ),
-            151 => 
+            150 => 
             array (
                 'id' => 676,
                 'cc_subject_id' => 50,
@@ -6541,7 +6531,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:37:10',
                 'updated_at' => '2026-07-06 18:37:10',
             ),
-            152 => 
+            151 => 
             array (
                 'id' => 677,
                 'cc_subject_id' => 50,
@@ -6551,7 +6541,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:37:21',
                 'updated_at' => '2026-07-06 18:37:21',
             ),
-            153 => 
+            152 => 
             array (
                 'id' => 678,
                 'cc_subject_id' => 50,
@@ -6561,7 +6551,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:37:36',
                 'updated_at' => '2026-07-06 18:37:36',
             ),
-            154 => 
+            153 => 
             array (
                 'id' => 679,
                 'cc_subject_id' => 50,
@@ -6571,7 +6561,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:37:51',
                 'updated_at' => '2026-07-06 18:37:51',
             ),
-            155 => 
+            154 => 
             array (
                 'id' => 680,
                 'cc_subject_id' => 51,
@@ -6581,7 +6571,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:38:55',
                 'updated_at' => '2026-07-06 18:38:55',
             ),
-            156 => 
+            155 => 
             array (
                 'id' => 681,
                 'cc_subject_id' => 51,
@@ -6591,7 +6581,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:39:04',
                 'updated_at' => '2026-07-06 18:39:04',
             ),
-            157 => 
+            156 => 
             array (
                 'id' => 682,
                 'cc_subject_id' => 51,
@@ -6601,7 +6591,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:39:12',
                 'updated_at' => '2026-07-06 18:39:12',
             ),
-            158 => 
+            157 => 
             array (
                 'id' => 683,
                 'cc_subject_id' => 53,
@@ -6611,7 +6601,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:47:44',
                 'updated_at' => '2026-07-06 18:47:44',
             ),
-            159 => 
+            158 => 
             array (
                 'id' => 684,
                 'cc_subject_id' => 53,
@@ -6621,7 +6611,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:47:52',
                 'updated_at' => '2026-07-06 18:47:52',
             ),
-            160 => 
+            159 => 
             array (
                 'id' => 685,
                 'cc_subject_id' => 53,
@@ -6631,7 +6621,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:48:00',
                 'updated_at' => '2026-07-06 18:48:00',
             ),
-            161 => 
+            160 => 
             array (
                 'id' => 686,
                 'cc_subject_id' => 53,
@@ -6641,17 +6631,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:48:12',
                 'updated_at' => '2026-07-06 18:48:12',
             ),
-            162 => 
-            array (
-                'id' => 687,
-                'cc_subject_id' => 53,
-                'name' => 'فصل5',
-                'order' => 4,
-                'is_active' => 1,
-                'created_at' => '2026-07-06 18:48:26',
-                'updated_at' => '2026-07-06 18:48:26',
-            ),
-            163 => 
+            161 => 
             array (
                 'id' => 688,
                 'cc_subject_id' => 54,
@@ -6661,7 +6641,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:49:13',
                 'updated_at' => '2026-07-06 18:49:13',
             ),
-            164 => 
+            162 => 
             array (
                 'id' => 689,
                 'cc_subject_id' => 54,
@@ -6671,7 +6651,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:49:21',
                 'updated_at' => '2026-07-06 18:49:21',
             ),
-            165 => 
+            163 => 
             array (
                 'id' => 690,
                 'cc_subject_id' => 54,
@@ -6681,7 +6661,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:49:31',
                 'updated_at' => '2026-07-06 18:49:31',
             ),
-            166 => 
+            164 => 
             array (
                 'id' => 691,
                 'cc_subject_id' => 54,
@@ -6691,7 +6671,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:49:39',
                 'updated_at' => '2026-07-06 18:49:39',
             ),
-            167 => 
+            165 => 
             array (
                 'id' => 692,
                 'cc_subject_id' => 54,
@@ -6701,7 +6681,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:49:50',
                 'updated_at' => '2026-07-06 18:49:50',
             ),
-            168 => 
+            166 => 
             array (
                 'id' => 693,
                 'cc_subject_id' => 54,
@@ -6711,7 +6691,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:50:00',
                 'updated_at' => '2026-07-06 18:50:00',
             ),
-            169 => 
+            167 => 
             array (
                 'id' => 694,
                 'cc_subject_id' => 54,
@@ -6721,7 +6701,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:50:25',
                 'updated_at' => '2026-07-06 18:50:25',
             ),
-            170 => 
+            168 => 
             array (
                 'id' => 695,
                 'cc_subject_id' => 54,
@@ -6731,7 +6711,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:50:49',
                 'updated_at' => '2026-07-06 18:50:49',
             ),
-            171 => 
+            169 => 
             array (
                 'id' => 696,
                 'cc_subject_id' => 55,
@@ -6741,7 +6721,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:51:58',
                 'updated_at' => '2026-07-06 18:51:58',
             ),
-            172 => 
+            170 => 
             array (
                 'id' => 697,
                 'cc_subject_id' => 55,
@@ -6751,7 +6731,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:52:05',
                 'updated_at' => '2026-07-06 18:52:05',
             ),
-            173 => 
+            171 => 
             array (
                 'id' => 698,
                 'cc_subject_id' => 55,
@@ -6761,7 +6741,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:52:15',
                 'updated_at' => '2026-07-06 18:52:15',
             ),
-            174 => 
+            172 => 
             array (
                 'id' => 699,
                 'cc_subject_id' => 55,
@@ -6771,7 +6751,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:52:36',
                 'updated_at' => '2026-07-06 18:52:36',
             ),
-            175 => 
+            173 => 
             array (
                 'id' => 700,
                 'cc_subject_id' => 56,
@@ -6781,7 +6761,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:54:25',
                 'updated_at' => '2026-07-06 18:54:25',
             ),
-            176 => 
+            174 => 
             array (
                 'id' => 701,
                 'cc_subject_id' => 56,
@@ -6791,7 +6771,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:54:32',
                 'updated_at' => '2026-07-06 18:54:32',
             ),
-            177 => 
+            175 => 
             array (
                 'id' => 702,
                 'cc_subject_id' => 56,
@@ -6801,7 +6781,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:54:39',
                 'updated_at' => '2026-07-06 18:54:39',
             ),
-            178 => 
+            176 => 
             array (
                 'id' => 703,
                 'cc_subject_id' => 56,
@@ -6811,7 +6791,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:54:47',
                 'updated_at' => '2026-07-06 18:54:47',
             ),
-            179 => 
+            177 => 
             array (
                 'id' => 704,
                 'cc_subject_id' => 57,
@@ -6821,7 +6801,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:56:05',
                 'updated_at' => '2026-07-06 18:56:05',
             ),
-            180 => 
+            178 => 
             array (
                 'id' => 705,
                 'cc_subject_id' => 57,
@@ -6831,7 +6811,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:56:11',
                 'updated_at' => '2026-07-06 18:56:11',
             ),
-            181 => 
+            179 => 
             array (
                 'id' => 706,
                 'cc_subject_id' => 57,
@@ -6841,7 +6821,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:56:21',
                 'updated_at' => '2026-07-06 18:56:21',
             ),
-            182 => 
+            180 => 
             array (
                 'id' => 707,
                 'cc_subject_id' => 58,
@@ -6851,7 +6831,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:57:24',
                 'updated_at' => '2026-07-06 18:57:24',
             ),
-            183 => 
+            181 => 
             array (
                 'id' => 708,
                 'cc_subject_id' => 58,
@@ -6861,7 +6841,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:57:31',
                 'updated_at' => '2026-07-06 18:57:31',
             ),
-            184 => 
+            182 => 
             array (
                 'id' => 709,
                 'cc_subject_id' => 58,
@@ -6871,7 +6851,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:57:42',
                 'updated_at' => '2026-07-06 18:57:42',
             ),
-            185 => 
+            183 => 
             array (
                 'id' => 710,
                 'cc_subject_id' => 59,
@@ -6881,7 +6861,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:58:57',
                 'updated_at' => '2026-07-06 18:58:57',
             ),
-            186 => 
+            184 => 
             array (
                 'id' => 711,
                 'cc_subject_id' => 59,
@@ -6891,7 +6871,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 18:59:05',
                 'updated_at' => '2026-07-06 18:59:05',
             ),
-            187 => 
+            185 => 
             array (
                 'id' => 712,
                 'cc_subject_id' => 60,
@@ -6901,7 +6881,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:00:00',
                 'updated_at' => '2026-07-06 19:00:00',
             ),
-            188 => 
+            186 => 
             array (
                 'id' => 713,
                 'cc_subject_id' => 60,
@@ -6911,7 +6891,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:00:04',
                 'updated_at' => '2026-07-06 19:00:12',
             ),
-            189 => 
+            187 => 
             array (
                 'id' => 714,
                 'cc_subject_id' => 60,
@@ -6921,7 +6901,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:00:25',
                 'updated_at' => '2026-07-06 19:00:25',
             ),
-            190 => 
+            188 => 
             array (
                 'id' => 715,
                 'cc_subject_id' => 60,
@@ -6931,7 +6911,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:00:36',
                 'updated_at' => '2026-07-06 19:00:36',
             ),
-            191 => 
+            189 => 
             array (
                 'id' => 716,
                 'cc_subject_id' => 60,
@@ -6941,7 +6921,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:00:48',
                 'updated_at' => '2026-07-06 19:00:55',
             ),
-            192 => 
+            190 => 
             array (
                 'id' => 717,
                 'cc_subject_id' => 60,
@@ -6951,7 +6931,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:01:04',
                 'updated_at' => '2026-07-06 19:01:04',
             ),
-            193 => 
+            191 => 
             array (
                 'id' => 718,
                 'cc_subject_id' => 60,
@@ -6961,17 +6941,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:01:21',
                 'updated_at' => '2026-07-06 19:01:21',
             ),
-            194 => 
-            array (
-                'id' => 719,
-                'cc_subject_id' => 60,
-                'name' => 'فصل8',
-                'order' => 7,
-                'is_active' => 1,
-                'created_at' => '2026-07-06 19:01:35',
-                'updated_at' => '2026-07-06 19:01:35',
-            ),
-            195 => 
+            192 => 
             array (
                 'id' => 720,
                 'cc_subject_id' => 61,
@@ -6981,7 +6951,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:02:26',
                 'updated_at' => '2026-07-06 19:02:26',
             ),
-            196 => 
+            193 => 
             array (
                 'id' => 721,
                 'cc_subject_id' => 61,
@@ -6991,7 +6961,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:02:34',
                 'updated_at' => '2026-07-06 19:02:34',
             ),
-            197 => 
+            194 => 
             array (
                 'id' => 722,
                 'cc_subject_id' => 61,
@@ -7001,7 +6971,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:02:43',
                 'updated_at' => '2026-07-06 19:02:43',
             ),
-            198 => 
+            195 => 
             array (
                 'id' => 723,
                 'cc_subject_id' => 61,
@@ -7011,7 +6981,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:03:01',
                 'updated_at' => '2026-07-06 19:03:01',
             ),
-            199 => 
+            196 => 
             array (
                 'id' => 724,
                 'cc_subject_id' => 61,
@@ -7021,7 +6991,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:03:13',
                 'updated_at' => '2026-07-06 19:03:13',
             ),
-            200 => 
+            197 => 
             array (
                 'id' => 725,
                 'cc_subject_id' => 61,
@@ -7031,7 +7001,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:03:22',
                 'updated_at' => '2026-07-06 19:03:22',
             ),
-            201 => 
+            198 => 
             array (
                 'id' => 726,
                 'cc_subject_id' => 61,
@@ -7041,7 +7011,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:03:35',
                 'updated_at' => '2026-07-06 19:03:35',
             ),
-            202 => 
+            199 => 
             array (
                 'id' => 727,
                 'cc_subject_id' => 61,
@@ -7051,7 +7021,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:03:46',
                 'updated_at' => '2026-07-06 19:03:46',
             ),
-            203 => 
+            200 => 
             array (
                 'id' => 728,
                 'cc_subject_id' => 62,
@@ -7061,7 +7031,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:11:40',
                 'updated_at' => '2026-07-06 19:11:40',
             ),
-            204 => 
+            201 => 
             array (
                 'id' => 729,
                 'cc_subject_id' => 62,
@@ -7071,7 +7041,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:11:50',
                 'updated_at' => '2026-07-06 19:11:50',
             ),
-            205 => 
+            202 => 
             array (
                 'id' => 730,
                 'cc_subject_id' => 62,
@@ -7081,7 +7051,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:11:59',
                 'updated_at' => '2026-07-06 19:11:59',
             ),
-            206 => 
+            203 => 
             array (
                 'id' => 731,
                 'cc_subject_id' => 62,
@@ -7091,7 +7061,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:12:06',
                 'updated_at' => '2026-07-06 19:12:06',
             ),
-            207 => 
+            204 => 
             array (
                 'id' => 732,
                 'cc_subject_id' => 62,
@@ -7101,7 +7071,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:12:15',
                 'updated_at' => '2026-07-06 19:12:15',
             ),
-            208 => 
+            205 => 
             array (
                 'id' => 733,
                 'cc_subject_id' => 62,
@@ -7111,7 +7081,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:12:28',
                 'updated_at' => '2026-07-06 19:12:28',
             ),
-            209 => 
+            206 => 
             array (
                 'id' => 734,
                 'cc_subject_id' => 62,
@@ -7121,7 +7091,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:12:42',
                 'updated_at' => '2026-07-06 19:12:42',
             ),
-            210 => 
+            207 => 
             array (
                 'id' => 735,
                 'cc_subject_id' => 62,
@@ -7131,7 +7101,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:12:59',
                 'updated_at' => '2026-07-06 19:12:59',
             ),
-            211 => 
+            208 => 
             array (
                 'id' => 736,
                 'cc_subject_id' => 62,
@@ -7141,7 +7111,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:13:16',
                 'updated_at' => '2026-07-06 19:13:16',
             ),
-            212 => 
+            209 => 
             array (
                 'id' => 737,
                 'cc_subject_id' => 62,
@@ -7151,7 +7121,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:13:32',
                 'updated_at' => '2026-07-06 19:13:32',
             ),
-            213 => 
+            210 => 
             array (
                 'id' => 738,
                 'cc_subject_id' => 62,
@@ -7161,7 +7131,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:13:45',
                 'updated_at' => '2026-07-07 17:14:11',
             ),
-            214 => 
+            211 => 
             array (
                 'id' => 739,
                 'cc_subject_id' => 62,
@@ -7171,7 +7141,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:14:07',
                 'updated_at' => '2026-07-06 19:14:07',
             ),
-            215 => 
+            212 => 
             array (
                 'id' => 740,
                 'cc_subject_id' => 62,
@@ -7181,7 +7151,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:14:18',
                 'updated_at' => '2026-07-06 19:14:18',
             ),
-            216 => 
+            213 => 
             array (
                 'id' => 741,
                 'cc_subject_id' => 62,
@@ -7191,7 +7161,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:14:42',
                 'updated_at' => '2026-07-06 19:14:42',
             ),
-            217 => 
+            214 => 
             array (
                 'id' => 742,
                 'cc_subject_id' => 63,
@@ -7201,7 +7171,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:16:36',
                 'updated_at' => '2026-07-06 19:16:36',
             ),
-            218 => 
+            215 => 
             array (
                 'id' => 743,
                 'cc_subject_id' => 63,
@@ -7211,7 +7181,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:16:45',
                 'updated_at' => '2026-07-06 19:16:45',
             ),
-            219 => 
+            216 => 
             array (
                 'id' => 744,
                 'cc_subject_id' => 63,
@@ -7221,7 +7191,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:16:53',
                 'updated_at' => '2026-07-06 19:16:53',
             ),
-            220 => 
+            217 => 
             array (
                 'id' => 745,
                 'cc_subject_id' => 63,
@@ -7231,7 +7201,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:17:48',
                 'updated_at' => '2026-07-06 19:17:48',
             ),
-            221 => 
+            218 => 
             array (
                 'id' => 746,
                 'cc_subject_id' => 64,
@@ -7241,7 +7211,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:19:00',
                 'updated_at' => '2026-07-06 19:19:00',
             ),
-            222 => 
+            219 => 
             array (
                 'id' => 747,
                 'cc_subject_id' => 64,
@@ -7251,7 +7221,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:19:07',
                 'updated_at' => '2026-07-06 19:19:07',
             ),
-            223 => 
+            220 => 
             array (
                 'id' => 748,
                 'cc_subject_id' => 64,
@@ -7261,7 +7231,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:19:21',
                 'updated_at' => '2026-07-06 19:19:21',
             ),
-            224 => 
+            221 => 
             array (
                 'id' => 749,
                 'cc_subject_id' => 64,
@@ -7271,7 +7241,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:19:33',
                 'updated_at' => '2026-07-06 19:19:33',
             ),
-            225 => 
+            222 => 
             array (
                 'id' => 750,
                 'cc_subject_id' => 65,
@@ -7281,7 +7251,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:26:31',
                 'updated_at' => '2026-07-06 19:26:31',
             ),
-            226 => 
+            223 => 
             array (
                 'id' => 751,
                 'cc_subject_id' => 65,
@@ -7291,7 +7261,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:26:37',
                 'updated_at' => '2026-07-06 19:26:37',
             ),
-            227 => 
+            224 => 
             array (
                 'id' => 752,
                 'cc_subject_id' => 65,
@@ -7301,7 +7271,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:26:49',
                 'updated_at' => '2026-07-06 19:26:49',
             ),
-            228 => 
+            225 => 
             array (
                 'id' => 753,
                 'cc_subject_id' => 65,
@@ -7311,7 +7281,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:27:03',
                 'updated_at' => '2026-07-06 19:27:03',
             ),
-            229 => 
+            226 => 
             array (
                 'id' => 754,
                 'cc_subject_id' => 67,
@@ -7321,7 +7291,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:28:05',
                 'updated_at' => '2026-07-06 19:28:05',
             ),
-            230 => 
+            227 => 
             array (
                 'id' => 755,
                 'cc_subject_id' => 67,
@@ -7331,7 +7301,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:28:12',
                 'updated_at' => '2026-07-06 19:28:12',
             ),
-            231 => 
+            228 => 
             array (
                 'id' => 756,
                 'cc_subject_id' => 67,
@@ -7341,7 +7311,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:28:20',
                 'updated_at' => '2026-07-06 19:28:20',
             ),
-            232 => 
+            229 => 
             array (
                 'id' => 757,
                 'cc_subject_id' => 67,
@@ -7351,7 +7321,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:28:32',
                 'updated_at' => '2026-07-06 19:28:32',
             ),
-            233 => 
+            230 => 
             array (
                 'id' => 758,
                 'cc_subject_id' => 67,
@@ -7361,7 +7331,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:28:44',
                 'updated_at' => '2026-07-06 19:28:44',
             ),
-            234 => 
+            231 => 
             array (
                 'id' => 759,
                 'cc_subject_id' => 67,
@@ -7371,7 +7341,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:28:56',
                 'updated_at' => '2026-07-06 19:28:56',
             ),
-            235 => 
+            232 => 
             array (
                 'id' => 760,
                 'cc_subject_id' => 67,
@@ -7381,7 +7351,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:29:12',
                 'updated_at' => '2026-07-06 19:29:12',
             ),
-            236 => 
+            233 => 
             array (
                 'id' => 761,
                 'cc_subject_id' => 67,
@@ -7391,7 +7361,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:29:23',
                 'updated_at' => '2026-07-06 19:29:23',
             ),
-            237 => 
+            234 => 
             array (
                 'id' => 762,
                 'cc_subject_id' => 67,
@@ -7401,7 +7371,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:29:37',
                 'updated_at' => '2026-07-06 19:29:37',
             ),
-            238 => 
+            235 => 
             array (
                 'id' => 763,
                 'cc_subject_id' => 67,
@@ -7411,7 +7381,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:29:50',
                 'updated_at' => '2026-07-06 19:29:50',
             ),
-            239 => 
+            236 => 
             array (
                 'id' => 764,
                 'cc_subject_id' => 67,
@@ -7421,7 +7391,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:30:04',
                 'updated_at' => '2026-07-06 19:30:04',
             ),
-            240 => 
+            237 => 
             array (
                 'id' => 765,
                 'cc_subject_id' => 67,
@@ -7431,7 +7401,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:30:21',
                 'updated_at' => '2026-07-06 19:30:21',
             ),
-            241 => 
+            238 => 
             array (
                 'id' => 766,
                 'cc_subject_id' => 67,
@@ -7441,7 +7411,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:30:30',
                 'updated_at' => '2026-07-06 19:30:30',
             ),
-            242 => 
+            239 => 
             array (
                 'id' => 767,
                 'cc_subject_id' => 67,
@@ -7451,7 +7421,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:30:40',
                 'updated_at' => '2026-07-06 19:30:40',
             ),
-            243 => 
+            240 => 
             array (
                 'id' => 768,
                 'cc_subject_id' => 67,
@@ -7461,7 +7431,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:30:52',
                 'updated_at' => '2026-07-06 19:30:52',
             ),
-            244 => 
+            241 => 
             array (
                 'id' => 769,
                 'cc_subject_id' => 67,
@@ -7471,7 +7441,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:31:05',
                 'updated_at' => '2026-07-06 19:31:05',
             ),
-            245 => 
+            242 => 
             array (
                 'id' => 770,
                 'cc_subject_id' => 67,
@@ -7481,7 +7451,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:31:14',
                 'updated_at' => '2026-07-06 19:31:14',
             ),
-            246 => 
+            243 => 
             array (
                 'id' => 771,
                 'cc_subject_id' => 67,
@@ -7491,7 +7461,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:31:42',
                 'updated_at' => '2026-07-06 19:31:42',
             ),
-            247 => 
+            244 => 
             array (
                 'id' => 772,
                 'cc_subject_id' => 67,
@@ -7501,7 +7471,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:31:55',
                 'updated_at' => '2026-07-06 19:31:55',
             ),
-            248 => 
+            245 => 
             array (
                 'id' => 773,
                 'cc_subject_id' => 67,
@@ -7511,7 +7481,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:32:04',
                 'updated_at' => '2026-07-06 19:32:04',
             ),
-            249 => 
+            246 => 
             array (
                 'id' => 774,
                 'cc_subject_id' => 67,
@@ -7521,7 +7491,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:32:18',
                 'updated_at' => '2026-07-06 19:32:18',
             ),
-            250 => 
+            247 => 
             array (
                 'id' => 775,
                 'cc_subject_id' => 67,
@@ -7531,7 +7501,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:32:30',
                 'updated_at' => '2026-07-06 19:32:30',
             ),
-            251 => 
+            248 => 
             array (
                 'id' => 776,
                 'cc_subject_id' => 67,
@@ -7541,7 +7511,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:32:42',
                 'updated_at' => '2026-07-06 19:32:42',
             ),
-            252 => 
+            249 => 
             array (
                 'id' => 777,
                 'cc_subject_id' => 67,
@@ -7551,7 +7521,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:32:51',
                 'updated_at' => '2026-07-06 19:32:51',
             ),
-            253 => 
+            250 => 
             array (
                 'id' => 778,
                 'cc_subject_id' => 67,
@@ -7561,7 +7531,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:33:01',
                 'updated_at' => '2026-07-06 19:33:01',
             ),
-            254 => 
+            251 => 
             array (
                 'id' => 779,
                 'cc_subject_id' => 67,
@@ -7571,7 +7541,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:33:10',
                 'updated_at' => '2026-07-06 19:33:10',
             ),
-            255 => 
+            252 => 
             array (
                 'id' => 780,
                 'cc_subject_id' => 67,
@@ -7581,7 +7551,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:33:19',
                 'updated_at' => '2026-07-06 19:33:36',
             ),
-            256 => 
+            253 => 
             array (
                 'id' => 781,
                 'cc_subject_id' => 67,
@@ -7591,7 +7561,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:33:50',
                 'updated_at' => '2026-07-06 19:33:50',
             ),
-            257 => 
+            254 => 
             array (
                 'id' => 782,
                 'cc_subject_id' => 67,
@@ -7601,7 +7571,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:34:07',
                 'updated_at' => '2026-07-06 19:34:07',
             ),
-            258 => 
+            255 => 
             array (
                 'id' => 783,
                 'cc_subject_id' => 67,
@@ -7611,7 +7581,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:34:16',
                 'updated_at' => '2026-07-06 19:34:16',
             ),
-            259 => 
+            256 => 
             array (
                 'id' => 784,
                 'cc_subject_id' => 67,
@@ -7621,7 +7591,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:34:27',
                 'updated_at' => '2026-07-06 19:34:27',
             ),
-            260 => 
+            257 => 
             array (
                 'id' => 785,
                 'cc_subject_id' => 67,
@@ -7631,7 +7601,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:34:49',
                 'updated_at' => '2026-07-06 19:34:49',
             ),
-            261 => 
+            258 => 
             array (
                 'id' => 786,
                 'cc_subject_id' => 68,
@@ -7641,7 +7611,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:35:09',
                 'updated_at' => '2026-07-06 19:35:09',
             ),
-            262 => 
+            259 => 
             array (
                 'id' => 787,
                 'cc_subject_id' => 68,
@@ -7651,7 +7621,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:35:42',
                 'updated_at' => '2026-07-06 19:35:42',
             ),
-            263 => 
+            260 => 
             array (
                 'id' => 788,
                 'cc_subject_id' => 68,
@@ -7661,7 +7631,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:35:49',
                 'updated_at' => '2026-07-06 19:35:49',
             ),
-            264 => 
+            261 => 
             array (
                 'id' => 789,
                 'cc_subject_id' => 68,
@@ -7671,7 +7641,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:36:01',
                 'updated_at' => '2026-07-06 19:36:01',
             ),
-            265 => 
+            262 => 
             array (
                 'id' => 790,
                 'cc_subject_id' => 68,
@@ -7681,7 +7651,7 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-07-06 19:36:08',
                 'updated_at' => '2026-07-06 19:36:08',
             ),
-            266 => 
+            263 => 
             array (
                 'id' => 791,
                 'cc_subject_id' => 68,
@@ -7690,6 +7660,56 @@ class CcChaptersTableSeeder extends Seeder
                 'is_active' => 1,
                 'created_at' => '2026-07-06 19:36:20',
                 'updated_at' => '2026-07-06 19:36:20',
+            ),
+            264 => 
+            array (
+                'id' => 792,
+                'cc_subject_id' => 138,
+                'name' => 'فصل6',
+                'order' => 5,
+                'is_active' => 1,
+                'created_at' => '2026-07-08 11:39:16',
+                'updated_at' => '2026-07-08 11:39:24',
+            ),
+            265 => 
+            array (
+                'id' => 793,
+                'cc_subject_id' => 138,
+                'name' => 'فصل7',
+                'order' => 6,
+                'is_active' => 1,
+                'created_at' => '2026-07-08 11:40:32',
+                'updated_at' => '2026-07-08 11:40:32',
+            ),
+            266 => 
+            array (
+                'id' => 794,
+                'cc_subject_id' => 132,
+                'name' => 'فصل6',
+                'order' => 5,
+                'is_active' => 1,
+                'created_at' => '2026-07-08 16:19:20',
+                'updated_at' => '2026-07-08 16:19:28',
+            ),
+            267 => 
+            array (
+                'id' => 795,
+                'cc_subject_id' => 132,
+                'name' => 'فصل7',
+                'order' => 6,
+                'is_active' => 1,
+                'created_at' => '2026-07-08 16:19:58',
+                'updated_at' => '2026-07-08 16:19:58',
+            ),
+            268 => 
+            array (
+                'id' => 798,
+                'cc_subject_id' => 155,
+                'name' => 'هوش تصویری فضایی',
+                'order' => 2,
+                'is_active' => 1,
+                'created_at' => '2026-07-09 12:09:04',
+                'updated_at' => '2026-07-09 12:09:04',
             ),
         ));
         

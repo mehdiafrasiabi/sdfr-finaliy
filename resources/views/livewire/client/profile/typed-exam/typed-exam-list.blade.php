@@ -24,14 +24,19 @@
                                         class="relative inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all
                                         {{ $activeTab === 'typed' ? 'bg-secondary text-primary shadow-sm' : 'text-foreground/70 hover:text-foreground' }}">
                                     آزمون تستی
+                                    @if($this->typedPendingCount > 0)
+                                        <span class="inline-flex items-center justify-center min-w-[18px] h-4 px-1 text-[10px] font-bold rounded-full bg-red-500 text-white">
+                                            {{ $this->typedPendingCount }}
+                                        </span>
+                                    @endif
                                 </button>
                                 <button type="button" wire:click="setTab('essay')"
                                         class="relative inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all
                                         {{ $activeTab === 'essay' ? 'bg-secondary text-primary shadow-sm' : 'text-foreground/70 hover:text-foreground' }}">
                                     آزمون تشریحی
-                                    @if($essayAssignments->count() > 0)
+                                    @if($this->essayPendingCount > 0)
                                         <span class="inline-flex items-center  justify-center min-w-[18px] h-4 px-1 text-[10px] font-bold rounded-full bg-red-500 text-white">
-                                            {{ $essayAssignments->count() }}
+                                            {{ $this->essayPendingCount }}
                                         </span>
                                     @endif
                                 </button>
@@ -95,6 +100,12 @@
                                                     @if($assignment->computed_status === 'completed' && $assignment->latestAttempt?->score !== null)
                                                         <span class="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
                                                             نمره: {{ number_format($assignment->latestAttempt->score, 1) }}%
+                                                        </span>
+                                                    @endif
+
+                                                    @if($assignment->computed_status === 'completed' && empty($assignment->latestAttempt?->analysis_status))
+                                                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-amber-500 text-white text-xs rounded-full">
+                                                            عدم آپلود تحلیل توسط دانش آموز
                                                         </span>
                                                     @endif
                                                 </div>
@@ -171,6 +182,12 @@
                                                         @if($assignment->computed_status === 'completed' && $assignment->latestAttempt?->score !== null)
                                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">
                                                                 نمره: {{ number_format($assignment->latestAttempt->score, 1) }}%
+                                                            </span>
+                                                        @endif
+
+                                                        @if($assignment->computed_status === 'completed' && empty($assignment->latestAttempt?->analysis_status))
+                                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-500 text-white text-xs rounded-full">
+                                                                عدم آپلود تحلیل توسط دانش آموز
                                                             </span>
                                                         @endif
                                                     </div>

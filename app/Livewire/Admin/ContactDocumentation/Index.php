@@ -63,6 +63,9 @@ class Index extends Component
         $connected = $records->where('connected', true)->count();
         $notConnected = $records->where('connected', false)->count();
         $makeup = $records->filter(fn ($record) => str_contains((string) $record->title, 'جبرانی'))->count();
+        $finalConfirmation = $records
+            ->where('title', ContactDocumentation::TITLE_FINAL_CONFIRMATION)
+            ->count();
         $totalTalkSeconds = (int) $records->where('connected', true)->sum('talk_duration_seconds');
 
         $successfulByHour = $records
@@ -105,6 +108,7 @@ class Index extends Component
             'successful' => $successful,
             'unsuccessful' => $unsuccessful,
             'makeup' => $makeup,
+            'final_confirmation' => $finalConfirmation,
             'total' => $records->count(),
             'connected' => $connected,
             'not_connected' => $notConnected,

@@ -18,6 +18,8 @@ class TypedExamList extends Component
     public string $activeTab = 'typed';
 
     public ?int $viewingAnswerSheetFor = null; // essay assignment id for preview
+    public int $typedPendingCount = 0;
+    public int $essayPendingCount = 0;
 
     public function setTab(string $tab): void
     {
@@ -154,6 +156,12 @@ class TypedExamList extends Component
         if ($student) {
             $assignments      = $this->loadTypedAssignments($student);
             $essayAssignments = $this->loadEssayAssignments($student);
+            $this->typedPendingCount = $assignments
+                ->whereIn('computed_status', ['not_started', 'available'])
+                ->count();
+            $this->essayPendingCount = $essayAssignments
+                ->whereIn('computed_status', ['not_started', 'available'])
+                ->count();
         }
 
         return view('livewire.client.profile.typed-exam.typed-exam-list', compact(

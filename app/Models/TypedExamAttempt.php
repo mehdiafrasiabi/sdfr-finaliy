@@ -104,8 +104,8 @@ class TypedExamAttempt extends Model
     public function calculateScore(): float
 
     {
-
-        $totalQuestions = $this->answers()->count();
+        $totalQuestions = $this->assignment?->typedExam?->questions()->count()
+            ?? $this->answers()->count();
 
         if ($totalQuestions === 0) {
 
@@ -141,7 +141,6 @@ class TypedExamAttempt extends Model
     public function getCorrectCountAttribute(): int
 
     {
-
         return $this->answers()->where('is_correct', true)->count();
 
     }
@@ -154,7 +153,6 @@ class TypedExamAttempt extends Model
     public function getWrongCountAttribute(): int
 
     {
-
         return $this->answers()->where('is_correct', false)->whereNotNull('selected_option')->count();
 
     }
@@ -168,6 +166,13 @@ class TypedExamAttempt extends Model
     public function getUnansweredCountAttribute(): int
 
     {
+        $totalQuestions = $this->assignment?->typedExam?->questions()->count();
+
+        if ($totalQuestions !== null) {
+            $answeredCount = $this->answers()->whereNotNull('selected_option')->count();
+
+            return max($totalQuestions - $answeredCount, 0);
+        }
 
         return $this->answers()->whereNull('selected_option')->count();
 
@@ -181,15 +186,13 @@ class TypedExamAttempt extends Model
     public function getDurationInSecondsAttribute(): ?int
 
     {
-
         if (!$this->started_at || !$this->submitted_at) {
 
             return null;
 
         }
 
-
-        return $this->submitted_at->diffInSeconds($this->started_at);
+        return max($this->submitted_at->getTimestamp() - $this->started_at->getTimestamp(), 0);
 
     }
 

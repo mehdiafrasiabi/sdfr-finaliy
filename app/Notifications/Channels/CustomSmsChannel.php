@@ -11,16 +11,16 @@ class CustomSmsChannel
         $data = $notification->toCustomSms($notifiable);
 
         $postData = [
-            'username' => '9020029757',
-            'password' => '7b1b0fdb-dddd-4c93-b02d-a069edf44693',
+            'username' => config('services.melipayamak.username', '9020029757'),
+            'password' => config('services.melipayamak.password', 'b1b0fdb-dddd-4c93-b02d-a069edf44693'),
             'text' => $data['text'] ?? $data['code'] ?? '',
             'to' => $data['mobile'],
-            'bodyId' => $data['bodyId'] ?? 480452,
+            'bodyId' => $data['bodyId'] ?? config('services.melipayamak.otp_body_id', 480452),
         ];
 
 
         $post_data = http_build_query($postData);
-        $handle = curl_init('https://rest.payamak-panel.com/api/SendSMS/BaseServiceNumber');
+        $handle = curl_init(config('services.melipayamak.endpoint', 'https://rest.payamak-panel.com/api/SendSMS/BaseServiceNumber'));
         curl_setopt($handle, CURLOPT_HTTPHEADER, ['content-type' => 'application/x-www-form-urlencoded']);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);

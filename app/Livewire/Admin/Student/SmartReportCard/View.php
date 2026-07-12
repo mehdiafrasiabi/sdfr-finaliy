@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Student\SmartReportCard;
 
 use App\Concerns\BuildsSmartReportCardData;
+use App\Models\GeneralSetting;
 use App\Models\SmartReportCard;
 use App\Models\User;
 use Artesaos\SEOTools\Traits\SEOTools;
@@ -31,11 +32,18 @@ class View extends Component
     public string $startDate;
     public string $endDate;
 
+    public function boot(): void
+    {
+        $this->ensureSmartReportCardAccess();
+    }
+
     public function mount(User $student, int $year, int $month): void
     {
         if (!$student->student) {
             abort(404, 'Student not found');
         }
+
+        abort_if($student->student->is_trial, 404);
 
         // فقط مشاورِ همان دانش‌آموز یا سوپرادمین اجازهٔ مشاهده دارد.
         $admin = auth('admin')->user();
@@ -111,5 +119,12 @@ class View extends Component
         if ($sg <= 10) return ['10'];
         if ($sg === 11) return ['10', '11'];
         return ['10', '11', '12'];
+    }
+
+    private function ensureSmartReportCardAccess(): void
+    {
+        $isEnabled = (bool) GeneralSetting::query()->value('smart_report_card_enabled');
+
+        abort_unless($isEnabled, 403, 'دسترسی به کارنامه هوشمند توسط manager غیرفعال است.');
     }
 }

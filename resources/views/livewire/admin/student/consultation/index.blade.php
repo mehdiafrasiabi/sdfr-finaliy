@@ -212,9 +212,7 @@
         </div>
 
         @php
-            $renderStudentName = fn($st) => $st->user?->personalInformation?->name
-                ?? $st->user?->personalInformation?->name_full
-                ?? $st->user?->name ?? 'دانش‌آموز';
+            $renderStudentName = fn($st) => $this->studentDisplayName($st);
         @endphp
 
         {{-- ───────────── هدر بخش اصلی و جستجو ───────────── --}}
@@ -222,7 +220,7 @@
             <div>
                 <h4 class="mb-1 fw-bold">مدیریت جلسات</h4>
                 <p class="small dash-text-muted mb-0">
-                    فقط برای <strong>فردا</strong> می‌توانید تماس بگیرید و ساعت جلسه را تعیین کنید.
+                    فقط برای <strong>فردا</strong> می‌توانید تماس بگیرید و ساعت جلسه را تعیین کنید. دانش‌آموزانی که هنوز در جریان اتمام حجت هستند، تا قبل از تایید مدیر آموزشی وارد این بخش نمی‌شوند.
                 </p>
             </div>
             <div class="input-group shadow-sm" style="max-width:300px">
@@ -230,6 +228,107 @@
                 <input type="text" wire:model.live.debounce.400ms="search" class="form-control border-start-0 ps-0" placeholder="جستجوی دانش‌آموز...">
             </div>
         </div>
+
+        @if ($pendingOnboardings->isNotEmpty())
+            <div class="modern-card mb-4" style="border-color:#6f42c1 !important;">
+                <div class="modern-card-header d-flex justify-content-between align-items-center flex-wrap gap-2" style="background:rgba(111,66,193,.08);">
+                    <div>
+                        <h5 class="mb-1 fw-bold" style="color:#6f42c1;"><i class="ri-shield-user-line ms-1"></i> جریان اتمام حجت</h5>
+                        <p class="small dash-text-muted mb-0">تا قبل از تماس موفق، ثبت لینک گروه بله و تایید مدیر آموزشی، برای این دانش‌آموزان هیچ تماس یا جلسهٔ عادی فعال نمی‌شود.</p>
+                    </div>
+                    <span class="badge rounded-pill" style="background:#6f42c1;">{{ $pendingOnboardings->count() }} دانش‌آموز</span>
+                </div>
+                <div class="card-body p-0">
+                    @foreach ($pendingOnboardings as $onboarding)
+                        @php
+                            $student = $onboarding->student;
+                            $profile = $student?->user?->profile;
+                            $studentName = $renderStudentName($student);
+                            $todayNoAnswerCount = (int) ($onboardingNoAnswerCounts[$onboarding->student_id] ?? 0);
+                        @endphp
+                        <div class="student-item p-3">
+                            <div class="row g-3 align-items-center">
+                                <div class="col-lg-4 d-flex align-items-center gap-3">
+                                    @if ($profile && $profile->picture)
+                                        <img src="{{ asset('user/img/' . $student->user->id . '/' . $profile->picture) }}" class="rounded-circle shadow-sm" width="50" height="50" style="object-fit:cover" alt="">
+                                    @else
+                                        <div class="rounded-circle bg-secondary-subtle text-secondary fw-bold d-flex align-items-center justify-content-center shadow-sm" style="width:50px;height:50px;font-size:1.2rem;">
+                                            {{ mb_substr($studentName, 0, 1) }}
+                                        </div>
+                                    @endif
+                                    <div>
+                                        <h6 class="mb-1 fw-bold">{{ $studentName }}</h6>
+                                        <div class="small dash-text-muted" dir="ltr" style="text-align:right;"><i class="ri-phone-line ms-1"></i>{{ $student?->user?->mobile ?? 'بدون شماره' }}</div>
+                                        <div class="small mt-1">
+                                            <span class="badge {{ $onboarding->status === \App\Models\AdvisorOnboarding::STATUS_APPROVED ? 'bg-success' : ($onboarding->status === \App\Models\AdvisorOnboarding::STATUS_REJECTED ? 'bg-danger' : 'bg-warning text-dark') }}">
+                                                {{ $onboarding->status_label }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-8">
+                                    @if ($onboarding->status === \App\Models\AdvisorOnboarding::STATUS_PENDING_CALL)
+                                        <div class="d-flex align-items-center justify-content-lg-end flex-wrap gap-2">
+                                            <span class="small dash-text-muted me-2">
+                                                <i class="ri-information-line ms-1"></i>
+                                                تا وقتی تماس اتمام حجت پاسخ داده نشود، این دانش‌آموز در لیست جلسات نمی‌آید. تماس ناموفق امروز: {{ $todayNoAnswerCount }}
+                                            </span>
+                                            <button wire:click="openCall({{ $onboarding->student_id }}, {{ $onboarding->id }})" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                                <i class="ri-phone-fill ms-1"></i> تماس اتمام حجت
+                                            </button>
+                                        </div>
+                                    @elseif (in_array($onboarding->status, [\App\Models\AdvisorOnboarding::STATUS_PENDING_LINK, \App\Models\AdvisorOnboarding::STATUS_REJECTED], true))
+                                        <div class="p-3 saved-form-box rounded-3 shadow-sm">
+                                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                                                <span class="badge bg-success-subtle text-success py-2 px-3 rounded-pill">
+                                                    <i class="ri-phone-line ms-1"></i> تماس اتمام حجت ثبت شد
+                                                </span>
+                                                @if ($onboarding->reject_reason)
+                                                    <span class="small text-danger fw-bold"><i class="ri-close-circle-line ms-1"></i>{{ $onboarding->reject_reason }}</span>
+                                                @endif
+                                            </div>
+                                            <div class="row g-3 align-items-end">
+                                                <div class="col-12 col-md">
+                                                    <label class="form-label small dash-text-muted mb-1">لینک گروه بله</label>
+                                                    <input type="url"
+                                                           class="form-control form-control-sm"
+                                                           dir="ltr"
+                                                           wire:model="groupLinks.{{ $onboarding->id }}"
+                                                           placeholder="https://ble.ir/join/...">
+                                                </div>
+                                                <div class="col-12 col-md-auto text-end">
+                                                    <button wire:click="submitGroupLink({{ $onboarding->id }})" class="btn btn-primary btn-sm px-4 shadow-sm w-100 w-md-auto">
+                                                        <i class="ri-send-plane-line ms-1"></i>
+                                                        {{ $onboarding->status === \App\Models\AdvisorOnboarding::STATUS_REJECTED ? 'ویرایش و ارسال مجدد' : 'ارسال برای تایید' }}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2">
+                                                @error("groupLinks.{$onboarding->id}") <span class="text-danger small d-block"><i class="ri-error-warning-line ms-1"></i>{{ $message }}</span> @enderror
+                                            </div>
+                                        </div>
+                                    @elseif ($onboarding->status === \App\Models\AdvisorOnboarding::STATUS_PENDING_REVIEW)
+                                        <div class="p-3 saved-form-box rounded-3 shadow-sm">
+                                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                                <span class="badge bg-warning-subtle text-warning py-2 px-3 rounded-pill">
+                                                    <i class="ri-time-line ms-1"></i> در انتظار تایید مدیر آموزشی
+                                                </span>
+                                                @if ($onboarding->submitted_at)
+                                                    <span class="small dash-text-muted">ارسال شده در {{ $onboarding->submitted_at->format('H:i') }}</span>
+                                                @endif
+                                            </div>
+                                            <div class="small dash-text-muted mb-1">لینک ثبت‌شده</div>
+                                            <a href="{{ $onboarding->group_link }}" target="_blank" dir="ltr" class="text-decoration-none">{{ $onboarding->group_link }}</a>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
 
         {{-- ───────────── جلسات امروز من ───────────── --}}
         <div class="modern-card mb-4">
@@ -256,7 +355,9 @@
                                 </div>
                             </div>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-secondary-subtle dash-text-muted dash-border p-2" style="border: 1px solid">{{ $todaySession->result_label }}</span>
+                                <span class="badge bg-secondary-subtle dash-text-muted dash-border p-2" style="border: 1px solid">
+                                    {{ $todaySession->result_status ? $todaySession->result_label : $todaySession->status_label }}
+                                </span>
                                 <a href="{{ route('admin.student.advising-sessions.create', $todaySession->student?->user_id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">جزئیات</a>
                             </div>
                         </div>
@@ -413,7 +514,7 @@
             <div class="modern-card mb-4" style="border-color: #dc3545 !important;">
                 <div class="modern-card-header bg-danger-subtle">
                     <h5 class="mb-0 text-danger fw-bold"><i class="ri-user-unfollow-line ms-1"></i> غایبین این هفته ({{ $absenteesThisWeek->count() }})</h5>
-                    <p class="small text-danger mb-0 mt-1 opacity-75">دانش‌آموزانی که این هفته جلسه داشته‌اند اما وضعیت جلسه به "برگزار شده" تغییر نکرده است.</p>
+                    <p class="small text-danger mb-0 mt-1 opacity-75">دانش‌آموزانی که برای جلسه این هفته آن‌ها غیبت دانش‌آموز ثبت شده است.</p>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">

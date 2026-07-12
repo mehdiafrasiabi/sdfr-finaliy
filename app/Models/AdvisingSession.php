@@ -123,6 +123,36 @@ class AdvisingSession extends Model
 
     }
 
+    public static function markExpiredSessionsAsAdvisorAbsent(): int
+    {
+        $expiredSessions = self::query()
+            ->where('finalized', true)
+            ->whereNull('result_status')
+            ->whereNotNull('activation_date')
+            ->whereNotNull('session_time')
+            ->get()
+            ->filter(function (self $session) {
+                $timeString = $session->session_time ? $session->session_time->format('H:i:s') : null;
+                if (! $timeString) {
+                    return false;
+                }
+
+                $sessionDateTime = Carbon::parse($session->activation_date)->setTimeFromTimeString($timeString);
+
+                return Carbon::now()->gte($sessionDateTime->copy()->addHours(2));
+            });
+
+        foreach ($expiredSessions as $session) {
+            $session->update([
+                'result_status' => self::RESULT_ADVISOR_ABSENT,
+                'status'        => self::STATUS_COMPLETED,
+                'is_active'     => false,
+            ]);
+        }
+
+        return $expiredSessions->count();
+    }
+
 
     // نمایش وضعیت فارسی
 

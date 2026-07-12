@@ -143,15 +143,6 @@
                     <div class="min-w-0">
                         <div class="text-[10px] font-bold text-primary bg-primary/10 rounded-full px-2 py-0.5 inline-block mb-1.5">مشاور شما</div>
                         <div class="font-black text-foreground truncate">{{ $consultantName ?? 'مشاور SDFR' }}</div>
-                        @if($consultantMobile)
-                            <a href="tel:{{ $consultantMobile }}" dir="ltr"
-                               class="inline-flex items-center gap-1.5 text-xs text-muted font-mono mt-1 hover:text-primary transition-colors">
-                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-                                </svg>
-                                {{ $consultantMobile }}
-                            </a>
-                        @endif
                     </div>
                 </div>
             </div>

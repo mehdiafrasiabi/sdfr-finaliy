@@ -51,10 +51,11 @@ class EnsureTrialStepUnlocked
             return $next($request); // middleware دیگر این را مدیریت می‌کند
         }
 
+        $student = $user->student;
         $trial = $user->trialWeek;
 
         // دانش‌آموز پرداختی (یا کاربرانی که trial ندارند) → عبور.
-        if (! $trial) {
+        if (! $trial || ($student && ! $student->is_trial && $student->hasActivePaidAccess()) || $user->isSchoolStudent()) {
             return $next($request);
         }
 

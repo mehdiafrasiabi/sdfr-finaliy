@@ -12,6 +12,7 @@ class Payment extends Model
 
     protected $casts = [
         'installment_ids' => 'array',
+        'purchase_completed_sms_sent_at' => 'datetime',
     ];
 
     public function order()

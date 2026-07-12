@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Student\Consultation;
 
 use App\Models\AdminWorkSchedule;
+use App\Models\AdvisorOnboarding;
 use App\Models\AdvisingPreSession;
 use App\Models\AdvisingSession;
 use App\Models\ContactDocumentation;
@@ -38,9 +39,12 @@ class Index extends Component
     public ?int $talkSeconds = null;
     public string $callSummary = '';
     public string $failReason = 'no_answer';
+    public string $callPurpose = 'session';
+    public ?int $activeOnboardingId = null;
 
     // ── ورودی‌های زمان‌بندیِ هر دانش‌آموز (کلید: studentId) ──────────
     public array $schedule = [];
+    public array $groupLinks = [];
 
     // ── تعیینِ تاریخ جلسه‌ی جبرانی (کلید: sessionId یا studentId) ──────────
     public array $makeupDate = [];
@@ -80,6 +84,43 @@ class Index extends Component
         return Jalalian::fromCarbon($this->tomorrow())->format('Y/m/d');
     }
 
+    protected function unresolvedOnboardingStatuses(): array
+    {
+        return [
+            AdvisorOnboarding::STATUS_PENDING_CALL,
+            AdvisorOnboarding::STATUS_PENDING_LINK,
+            AdvisorOnboarding::STATUS_PENDING_REVIEW,
+            AdvisorOnboarding::STATUS_REJECTED,
+        ];
+    }
+
+    protected function onboardingRecordForStudent(int $studentId): ?AdvisorOnboarding
+    {
+        return AdvisorOnboarding::where('advisor_id', $this->adminId())
+            ->where('student_id', $studentId)
+            ->first();
+    }
+
+    protected function ensureConsultationUnlocked(Student $student): bool
+    {
+        $onboarding = $this->onboardingRecordForStudent($student->id);
+
+        if ($onboarding && $onboarding->status !== AdvisorOnboarding::STATUS_APPROVED) {
+            $this->dispatch('warning', 'تا قبل از تایید لینک گروه بله توسط مدیر آموزشی، هیچ جلسه یا تماس عادی برای این دانش‌آموز فعال نمی‌شود.');
+            return false;
+        }
+
+        return true;
+    }
+
+    public function studentDisplayName($student): string
+    {
+        $personalInfo = $student?->user?->personalInformation;
+        $fullName = trim(($personalInfo?->name ?? '') . ' ' . ($personalInfo?->name_full ?? ''));
+
+        return $fullName !== '' ? $fullName : ($student?->user?->name ?? 'دانش‌آموز');
+    }
+
     protected function allowedMakeupDates(): array
     {
         $dates = [];
@@ -101,6 +142,9 @@ class Index extends Component
         $dow      = $this->tomorrowDow();
 
         $query = Student::where('advisor_id', $adminId)
+            ->whereNotIn('id', AdvisorOnboarding::where('advisor_id', $adminId)
+                ->whereIn('status', $this->unresolvedOnboardingStatuses())
+                ->pluck('student_id'))
             ->where(function ($q) use ($dow, $tomorrow, $adminId) {
                 $q->where(function ($weekly) use ($dow, $tomorrow, $adminId) {
                     $weekly->where('session_day', $dow)
@@ -160,10 +204,12 @@ class Index extends Component
 
     // ==================== مودالِ تماس ====================
 
-    public function openCall(int $studentId): void
+    public function openCall(int $studentId, ?int $onboardingId = null): void
     {
         $this->resetCall();
         $this->activeStudentId = $studentId;
+        $this->activeOnboardingId = $onboardingId;
+        $this->callPurpose = $onboardingId ? 'onboarding' : 'session';
         $this->callPhase = 'select';
     }
 
@@ -181,6 +227,8 @@ class Index extends Component
         $this->talkSeconds = null;
         $this->callSummary = '';
         $this->failReason  = 'no_answer';
+        $this->callPurpose = 'session';
+        $this->activeOnboardingId = null;
         $this->resetErrorBag();
     }
 
@@ -230,8 +278,22 @@ class Index extends Component
         if (! $this->activeStudentId) {
             return;
         }
-        $this->recordCall(true);
-        $this->dispatch('success', 'تماس ثبت شد. حالا ساعتِ جلسه را تعیین کنید.');
+        $call = $this->recordCall(true);
+
+        if ($this->callPurpose === 'onboarding' && $this->activeOnboardingId && $call) {
+            AdvisorOnboarding::where('id', $this->activeOnboardingId)
+                ->where('advisor_id', $this->adminId())
+                ->where('student_id', $this->activeStudentId)
+                ->update([
+                    'contact_documentation_id' => $call->id,
+                    'status'                   => AdvisorOnboarding::STATUS_PENDING_LINK,
+                ]);
+
+            $this->dispatch('success', 'تماس اتمام حجت ثبت شد. حالا لینک گروه بله را وارد کنید.');
+        } else {
+            $this->dispatch('success', 'تماس ثبت شد. حالا ساعتِ جلسه را تعیین کنید.');
+        }
+
         $this->closeCall();
     }
 
@@ -247,18 +309,18 @@ class Index extends Component
         $this->closeCall();
     }
 
-    protected function recordCall(bool $connected): void
+    protected function recordCall(bool $connected): ?ContactDocumentation
     {
         $student = Student::find($this->activeStudentId);
         if (! $student || $student->advisor_id !== $this->adminId()) {
-            return;
+            return null;
         }
 
         $respondents = $connected
             ? array_values(array_unique(array_filter($this->respondents)))
             : [];
 
-        ContactDocumentation::create([
+        return ContactDocumentation::create([
             'admin_id'              => $this->adminId(),
             'student_id'            => $student->id,
             'title'                 => $this->callTitleForStudent($student->id),
@@ -276,6 +338,10 @@ class Index extends Component
 
     protected function callTitleForStudent(int $studentId): string
     {
+        if ($this->callPurpose === 'onboarding') {
+            return ContactDocumentation::TITLE_FINAL_CONFIRMATION;
+        }
+
         $session = AdvisingSession::where('advisor_id', $this->adminId())
             ->where('student_id', $studentId)
             ->whereDate('activation_date', $this->tomorrow()->toDateString())
@@ -294,6 +360,7 @@ class Index extends Component
         return ContactDocumentation::where('admin_id', $this->adminId())
             ->where('student_id', $studentId)
             ->where('connected', true)
+            ->where('title', '!=', ContactDocumentation::TITLE_FINAL_CONFIRMATION)
             ->whereDate('contact_date', Carbon::today())
             ->exists();
     }
@@ -303,8 +370,41 @@ class Index extends Component
         return ContactDocumentation::where('admin_id', $this->adminId())
             ->where('student_id', $studentId)
             ->where('connected', false)
+            ->where('title', '!=', ContactDocumentation::TITLE_FINAL_CONFIRMATION)
             ->whereDate('contact_date', Carbon::today())
             ->count();
+    }
+
+    public function submitGroupLink(int $onboardingId): void
+    {
+        $onboarding = AdvisorOnboarding::where('advisor_id', $this->adminId())
+            ->where('id', $onboardingId)
+            ->whereIn('status', [AdvisorOnboarding::STATUS_PENDING_LINK, AdvisorOnboarding::STATUS_REJECTED])
+            ->first();
+
+        if (! $onboarding) {
+            $this->dispatch('warning', 'درخواست لینک گروه بله معتبر نیست.');
+            return;
+        }
+
+        $this->validate([
+            "groupLinks.$onboardingId" => 'required|url|starts_with:https://ble.ir/join/',
+        ], [
+            "groupLinks.$onboardingId.required"    => 'لینک گروه بله الزامی است.',
+            "groupLinks.$onboardingId.url"         => 'لینک واردشده معتبر نیست.',
+            "groupLinks.$onboardingId.starts_with" => 'لینک باید با https://ble.ir/join/ شروع شود.',
+        ]);
+
+        $onboarding->update([
+            'group_link'    => trim((string) $this->groupLinks[$onboardingId]),
+            'status'        => AdvisorOnboarding::STATUS_PENDING_REVIEW,
+            'submitted_at'  => now(),
+            'reviewed_by'   => null,
+            'reviewed_at'   => null,
+            'reject_reason' => null,
+        ]);
+
+        $this->dispatch('success', 'لینک گروه بله برای تایید مدیر آموزشی ارسال شد.');
     }
 
     protected function createMakeupForAbsence(AdvisingSession $sourceSession, ?string $activationDate = null): ?AdvisingSession
@@ -353,6 +453,10 @@ class Index extends Component
         $student = Student::find($studentId);
         if (! $student || $student->advisor_id !== $this->adminId()) {
             $this->dispatch('error', 'این دانش‌آموز در فهرستِ شما نیست.');
+            return;
+        }
+
+        if (! $this->ensureConsultationUnlocked($student)) {
             return;
         }
 
@@ -423,6 +527,10 @@ class Index extends Component
             return;
         }
 
+        if (! $this->ensureConsultationUnlocked($student)) {
+            return;
+        }
+
         if (! $this->calledSuccessfullyToday($studentId)) {
             $this->dispatch('warning', 'ابتدا باید تماس موفق ثبت شود.');
             return;
@@ -473,6 +581,10 @@ class Index extends Component
         $student = Student::find($studentId);
         if (! $student || $student->advisor_id !== $this->adminId()) {
             $this->dispatch('error', 'این دانش‌آموز در فهرستِ شما نیست.');
+            return;
+        }
+
+        if (! $this->ensureConsultationUnlocked($student)) {
             return;
         }
 
@@ -538,6 +650,7 @@ class Index extends Component
 
         $sessions = AdvisingSession::where('advisor_id', $this->adminId())
             ->whereDate('activation_date', $this->tomorrow()->toDateString())
+            ->whereIn('student_id', $students->pluck('id'))
             ->get()
             ->keyBy('student_id');
 
@@ -612,12 +725,21 @@ class Index extends Component
 
     public function render()
     {
+        AdvisingSession::markExpiredSessionsAsAdvisorAbsent();
+
         $adminId    = $this->adminId();
         $tomorrowDow = $this->tomorrowDow();
         $tomorrow   = $this->tomorrow();
+        $pendingOnboardings = AdvisorOnboarding::where('advisor_id', $adminId)
+            ->whereIn('status', $this->unresolvedOnboardingStatuses())
+            ->with(['student.user.personalInformation', 'student.user.profile', 'call'])
+            ->latest('updated_at')
+            ->get();
+        $lockedStudentIds = $pendingOnboardings->pluck('student_id')->unique()->values();
 
         $studentsQuery = Student::query()
             ->where('advisor_id', $adminId)
+            ->when($lockedStudentIds->isNotEmpty(), fn ($q) => $q->whereNotIn('id', $lockedStudentIds))
             ->with(['user.personalInformation', 'user.profile']);
 
         // جستجو باید قبل از گروه‌بندی اعمال شود
@@ -656,11 +778,13 @@ class Index extends Component
         $tomorrowStudents = $this->tomorrowStudents();
 
         $tomorrowSessions = AdvisingSession::where('advisor_id', $adminId)
+            ->when($lockedStudentIds->isNotEmpty(), fn ($q) => $q->whereNotIn('student_id', $lockedStudentIds))
             ->whereDate('activation_date', $tomorrow->toDateString())
             ->get()
             ->keyBy('student_id');
 
         $todaySessions = AdvisingSession::where('advisor_id', $adminId)
+            ->when($lockedStudentIds->isNotEmpty(), fn ($q) => $q->whereNotIn('student_id', $lockedStudentIds))
             ->whereDate('activation_date', Carbon::today()->toDateString())
             ->with('student.user.personalInformation')
             ->orderByRaw('session_time IS NULL')
@@ -670,6 +794,7 @@ class Index extends Component
 
         $calledIds = ContactDocumentation::where('admin_id', $adminId)
             ->where('connected', true)
+            ->where('title', '!=', ContactDocumentation::TITLE_FINAL_CONFIRMATION)
             ->whereDate('contact_date', Carbon::today())
             ->pluck('student_id')
             ->unique()
@@ -677,6 +802,15 @@ class Index extends Component
 
         $noAnswerCounts = ContactDocumentation::where('admin_id', $adminId)
             ->where('connected', false)
+            ->where('title', '!=', ContactDocumentation::TITLE_FINAL_CONFIRMATION)
+            ->whereDate('contact_date', Carbon::today())
+            ->selectRaw('student_id, COUNT(*) as count')
+            ->groupBy('student_id')
+            ->pluck('count', 'student_id');
+
+        $onboardingNoAnswerCounts = ContactDocumentation::where('admin_id', $adminId)
+            ->where('connected', false)
+            ->where('title', ContactDocumentation::TITLE_FINAL_CONFIRMATION)
             ->whereDate('contact_date', Carbon::today())
             ->selectRaw('student_id, COUNT(*) as count')
             ->groupBy('student_id')
@@ -691,6 +825,12 @@ class Index extends Component
                     'minute' => $sess && $sess->session_time ? (int) $sess->session_time->format('i') : '',
                     'link'   => $sess->skyroom_link ?? '',
                 ];
+            }
+        }
+
+        foreach ($pendingOnboardings as $onboarding) {
+            if (! array_key_exists($onboarding->id, $this->groupLinks)) {
+                $this->groupLinks[$onboarding->id] = $onboarding->group_link ?? '';
             }
         }
 
@@ -719,6 +859,8 @@ class Index extends Component
             'days'             => AdminWorkSchedule::DAYS,
             'grouped'          => $grouped,
             'allStudents'      => $allStudents,
+            'pendingOnboardings' => $pendingOnboardings,
+            'onboardingNoAnswerCounts' => $onboardingNoAnswerCounts,
             'noDayStudents'    => $allStudents
                 ->filter(fn ($student) => $student->session_day === null && ! $activeMakeupsByStudent->has($student->id))
                 ->values(),

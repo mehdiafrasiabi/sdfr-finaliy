@@ -28,10 +28,22 @@
         $appTz = config('app.timezone');
     @endphp
 
+    @php
+        $availableDayDates = collect($weekDays ?? [])->pluck('date')->filter()->values();
+        $todayDate = \Carbon\Carbon::today()->toDateString();
+        $initialSelectedDay = $availableDayDates->contains($todayDate)
+            ? $todayDate
+            : ($availableDayDates->first() ?? $todayDate);
+    @endphp
+
     <div class="max-w-7xl mx-auto px-3 sm:px-4 "
          x-data="{
              tab: @js($isActiveProgram ? 'study' : 'grid'),
-             selectedDay: @js(\Carbon\Carbon::today()->toDateString()),
+             selectedDay: @js($initialSelectedDay),
+             availableDays: @js($availableDayDates->all()),
+             openPartId: null,
+             selectedAlarmState: @entangle('selectedAlarm'),
+             previewingAlarmId: null,
              permissionModal:   @entangle('showPermissionModal'),
              finishModal:       @entangle('showFinishModal'),
              makeupFinishModal: @entangle('showMakeupFinishModal'),
@@ -41,7 +53,20 @@
              earlyModal:        @entangle('showEarlyFinishConfirmModal'),
              studyMoreModal:    @entangle('showStudyMoreModal'),
              alarmModal:        @entangle('showAlarmModal'),
-         }">
+             ensureSelectedDay() {
+                 if (!this.availableDays.includes(this.selectedDay)) {
+                     this.selectedDay = this.availableDays[0] ?? this.selectedDay
+                 }
+             },
+             togglePart(partId) {
+                 this.openPartId = this.openPartId === partId ? null : partId
+             },
+             isPartOpen(partId) {
+                 return this.openPartId === partId
+             },
+         }"
+         x-init="ensureSelectedDay()"
+         x-on:alarm-preview-state.window="previewingAlarmId = $event.detail?.id || null">
 
         {{-- ════════════════════════════════════════════════════════════
              صفحه تمام‌صفحه تایمر
@@ -78,16 +103,6 @@
                      }
                  }">
                 <div class="min-h-full flex flex-col items-center justify-center px-4 py-10 text-white">
-
-                    <div class="absolute top-4 left-4">
-                        <button @click="alarmModal = true"
-                                class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/10"
-                                title="تنظیمات صدای آلارم">
-                            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#aaa" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-2.12-1.767l1.32-.377V9.5l-7.5 2.25v5.57a2.25 2.25 0 01-1.632 2.163l-1.32.378a1.803 1.803 0 11-2.12-1.768l1.32-.377V7.5L19.5 4.5"/>
-                            </svg>
-                        </button>
-                    </div>
 
                     <div class="mb-6 text-center">
                         @if($isMakeupMode)
@@ -378,6 +393,14 @@
                                 </span>
                                 <span wire:loading wire:target="openMakeupModal" class="spinner-circle"></span>
                             </button>
+
+                            <button type="button" @click="alarmModal = true"
+                                    class="w-full h-11 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 bg-secondary border border-border text-foreground">
+                                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4 text-blue-500">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-2.12-1.767l1.32-.377V9.5l-7.5 2.25v5.57a2.25 2.25 0 01-1.632 2.163l-1.32.378a1.803 1.803 0 11-2.12-1.768l1.32-.377V7.5L19.5 4.5"/>
+                                </svg>
+                                <span>انتخاب صدای آلارم قبل از شروع مطالعه</span>
+                            </button>
                         @endif
 
                         <div class="glass border border-border rounded-2xl p-3">
@@ -480,11 +503,11 @@
                                                     : ($part->part_type === 'descriptive' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500');
                                             @endphp
 
-                                            <div x-data="{ open: false }" wire:key="part-card-{{ $part->id }}"
+                                            <div wire:key="part-card-{{ $part->id }}"
                                                  class="glass border rounded-2xl overflow-hidden transition-colors
                                                         {{ $isActive ? 'border-primary' : ($isDone ? 'border-emerald-500/30' : ($isMissed ? 'border-red-500/30' : 'border-border')) }}">
 
-                                                <div class="flex items-center justify-between gap-3 p-4 cursor-pointer" @click="open = !open">
+                                                <div class="flex items-center justify-between gap-3 p-4 cursor-pointer" @click="togglePart({{ $part->id }})">
                                                     <div class="min-w-0 flex-1">
                                                         <h4 class="font-bold text-foreground text-sm truncate">{{ $part->lesson_name }}</h4>
                                                         @php $pm = $part->part_mode ?? 'normal'; @endphp
@@ -537,7 +560,7 @@
                                                             @elseif($isActive)
                                                                 <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
                                                             @else
-                                                                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="{ 'rotate-180': open }"
+                                                                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="{ 'rotate-180': isPartOpen({{ $part->id }}) }"
                                                                      fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
                                                                 </svg>
@@ -546,7 +569,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div x-show="open" x-collapse x-cloak>
+                                                <div x-show="isPartOpen({{ $part->id }})" x-collapse x-cloak>
                                                     <div class="px-4 pb-4 space-y-3 border-t border-border pt-3">
                                                         @php $pmd = $part->part_mode ?? 'normal'; @endphp
                                                         <div class="flex items-center justify-center gap-1.5 flex-wrap text-xs text-foreground/80">
@@ -1162,35 +1185,48 @@
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
                 <div class="flex items-center justify-between px-6 py-4 border-b border-border">
                     <h3 class="font-bold text-foreground">انتخاب صدای آلارم</h3>
-                    <button @click="alarmModal=false" class="text-muted hover:text-foreground">
+                    <button @click="alarmModal=false; window.stopAlarmPreview && window.stopAlarmPreview()" class="text-muted hover:text-foreground">
                         <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
                 <div class="px-6 py-4 space-y-2">
                     @php $alarms = [['id'=>'Alarmclock','label'=>'زنگ کلاسیک','desc'=>'صدای زنگ سنتی'],['id'=>'Funny','label'=>'زنگ بامزه','desc'=>'آلارم شاد و بامزه'],['id'=>'Modern','label'=>'آلارم مدرن','desc'=>'صدای آلارم امروزی'],['id'=>'Loud','label'=>'آلارم بلند','desc'=>'صدای بلند و کشیده']]; @endphp
                     @foreach($alarms as $alarm)
-                        <div class="flex items-center justify-between px-4 py-3 rounded-2xl cursor-pointer transition border {{ $selectedAlarm === $alarm['id'] ? 'bg-blue-500/10 border-blue-500/40' : 'bg-secondary border-border' }}"
-                             wire:click="setAlarm('{{ $alarm['id'] }}')">
+                        <div wire:key="alarm-option-{{ $alarm['id'] }}"
+                             wire:click="setAlarm('{{ $alarm['id'] }}')"
+                             @click="selectedAlarmState = '{{ $alarm['id'] }}'"
+                             class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl cursor-pointer transition border text-right"
+                             :class="selectedAlarmState === '{{ $alarm['id'] }}' ? 'bg-blue-500/10 border-blue-500/40' : 'bg-secondary border-border'">
                             <div class="flex items-center gap-3">
-                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center {{ $selectedAlarm === $alarm['id'] ? 'border-blue-500 bg-blue-500' : 'border-muted' }}">
-                                    @if($selectedAlarm === $alarm['id'])<div class="w-2 h-2 rounded-full bg-white"></div>@endif
+                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                                     :class="selectedAlarmState === '{{ $alarm['id'] }}' ? 'border-blue-500 bg-blue-500' : 'border-muted'">
+                                    <div x-show="selectedAlarmState === '{{ $alarm['id'] }}'" x-cloak class="w-2 h-2 rounded-full bg-white"></div>
                                 </div>
                                 <div>
                                     <div class="font-semibold text-foreground text-sm">{{ $alarm['label'] }}</div>
                                     <div class="text-xs text-muted">{{ $alarm['desc'] }}</div>
                                 </div>
                             </div>
-                            <button type="button" onclick="event.stopPropagation(); window.previewAlarm('{{ $alarm['id'] }}')"
-                                    class="w-9 h-9 rounded-full flex items-center justify-center bg-blue-500/10 border border-blue-500/30">
-                                <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="#3b82f6" class="w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/>
-                                </svg>
-                            </button>
+                            <span class="flex items-center gap-2 flex-shrink-0">
+                                <span class="text-[11px] font-medium"
+                                      :class="previewingAlarmId === '{{ $alarm['id'] }}' ? 'text-amber-500' : 'text-blue-500'"
+                                      x-text="previewingAlarmId === '{{ $alarm['id'] }}' ? 'توقف' : 'پخش'"></span>
+                                <button type="button"
+                                        @click.stop="window.toggleAlarmPreview && window.toggleAlarmPreview('{{ $alarm['id'] }}')"
+                                        class="w-9 h-9 rounded-full flex items-center justify-center bg-blue-500/10 border border-blue-500/30">
+                                    <svg x-show="previewingAlarmId !== '{{ $alarm['id'] }}'" x-cloak fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="#3b82f6" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/>
+                                    </svg>
+                                    <svg x-show="previewingAlarmId === '{{ $alarm['id'] }}'" x-cloak fill="currentColor" viewBox="0 0 24 24" class="w-4 h-4 text-amber-500">
+                                        <path d="M7.5 5.25A1.125 1.125 0 006.375 6.375v11.25A1.125 1.125 0 007.5 18.75h1.5a1.125 1.125 0 001.125-1.125V6.375A1.125 1.125 0 009 5.25H7.5zm7.5 0a1.125 1.125 0 00-1.125 1.125v11.25A1.125 1.125 0 0015 18.75h1.5a1.125 1.125 0 001.125-1.125V6.375A1.125 1.125 0 0016.5 5.25H15z"/>
+                                    </svg>
+                                </button>
+                            </span>
                         </div>
                     @endforeach
                 </div>
                 <div class="px-6 py-4 border-t border-border">
-                    <p class="text-xs text-center text-muted">صداها در مرورگر کش می‌شوند — حتی بدون اینترنت پخش می‌شوند</p>
+                    <p class="text-xs text-center text-muted">فقط آخرین صدای انتخاب‌شده در مرورگر ذخیره می‌شود و با انتخاب جدید، جای قبلی را می‌گیرد</p>
                 </div>
             </div>
         </div>
@@ -1213,6 +1249,7 @@
 
             const RING_CIRCUMFERENCE = 816.81
             const FALLBACK_ALARM_SRC = '/client/sounds/Alarmclock.ogg'
+            const SELECTED_ALARM_KEY = 'selected_alarm'
             const ROOT_SELECTOR = '[data-weekly-program-view]'
             const initialRoot = document.querySelector(`${ROOT_SELECTOR}[wire\\:id]`) || document.querySelector(ROOT_SELECTOR)
             const componentWire = (() => {
@@ -1224,6 +1261,9 @@
             })()
             const audioCache = {}
             const cleanups = []
+            let previewAudio = null
+            let previewAudioId = null
+            let activeAlarmAudio = null
 
             let clientTimerInterval = null
             let syncInterval = null
@@ -1290,27 +1330,27 @@
                 }
             }
 
-            function safeWireCall(method) {
+            function safeWireCall(method, ...args) {
                 try {
                     const wire = getLiveWireProxy()
 
                     if (!wire) return
 
                     if (typeof wire.call === 'function') {
-                        return wire.call(method)
+                        return wire.call(method, ...args)
                     }
 
                     if (typeof wire[method] === 'function') {
-                        return wire[method]()
+                        return wire[method](...args)
                     }
                 } catch (e) {
                     console.warn(e)
                 }
             }
 
-            function safeWireCallDebounced(method, delay = 50) {
+            function safeWireCallDebounced(method, delay = 50, ...args) {
                 setTimeout(() => {
-                    safeWireCall(method)
+                    safeWireCall(method, ...args)
                 }, delay)
             }
 
@@ -1373,21 +1413,68 @@
                 })
             }
 
+            function emitAlarmPreviewState(id = null) {
+                window.dispatchEvent(new CustomEvent('alarm-preview-state', {
+                    detail: { id }
+                }))
+            }
+
+            function stopAudioInstance(audio) {
+                if (!audio) return
+
+                try {
+                    audio.pause()
+                    audio.currentTime = 0
+                } catch (e) {
+                    console.warn(e)
+                }
+            }
+
+            function stopActiveAlarmPlayback() {
+                stopAudioInstance(activeAlarmAudio)
+                activeAlarmAudio = null
+            }
+
+            function stopAlarmPreview() {
+                stopAudioInstance(previewAudio)
+                previewAudio = null
+                previewAudioId = null
+                emitAlarmPreviewState(null)
+
+                return null
+            }
+
+            function buildAlarmAudio(id) {
+                const entry = audioCache[id] || audioCache.Alarmclock
+                const src = entry ? entry.src : FALLBACK_ALARM_SRC
+                const audio = new Audio(src)
+
+                audio.addEventListener('error', () => {
+                    audio.src = FALLBACK_ALARM_SRC
+                    audio.load()
+                })
+
+                return audio
+            }
+
             function getSelectedAlarm() {
-                return localStorage.getItem('selected_alarm') || 'Alarmclock'
+                const storedAlarm = localStorage.getItem(SELECTED_ALARM_KEY)
+                return ALARMS.some((alarm) => alarm.id === storedAlarm) ? storedAlarm : 'Alarmclock'
             }
 
             function playAlarm() {
                 const id = getSelectedAlarm()
 
                 try {
-                    const entry = audioCache[id] || audioCache.Alarmclock
-                    const src = entry ? entry.src : FALLBACK_ALARM_SRC
+                    stopAlarmPreview()
+                    stopActiveAlarmPlayback()
 
-                    const audio = new Audio(src)
+                    const audio = buildAlarmAudio(id)
                     audio.volume = 1
+                    activeAlarmAudio = audio
 
                     audio.play().catch(() => {
+                        activeAlarmAudio = null
                         const fallbackAudio = new Audio(FALLBACK_ALARM_SRC)
                         fallbackAudio.volume = 1
 
@@ -1554,30 +1641,52 @@
 
             window.unlockStudyPermissions.__weeklyProgramTimer = true
 
-            window.previewAlarm = function (id) {
-                try {
-                    const entry = audioCache[id] || audioCache.Alarmclock
-                    const src = entry ? entry.src : FALLBACK_ALARM_SRC
+            window.stopAlarmPreview = stopAlarmPreview
+            window.stopAlarmPreview.__weeklyProgramTimer = true
 
-                    const audio = new Audio(src)
+            window.toggleAlarmPreview = function (id) {
+                try {
+                    if (previewAudioId === id && previewAudio && !previewAudio.paused) {
+                        return stopAlarmPreview()
+                    }
+
+                    stopAlarmPreview()
+                    stopActiveAlarmPlayback()
+
+                    const audio = buildAlarmAudio(id)
                     audio.volume = 0.7
+                    previewAudio = audio
+                    previewAudioId = id
+                    emitAlarmPreviewState(id)
+
+                    audio.addEventListener('ended', () => {
+                        if (previewAudio === audio) {
+                            previewAudio = null
+                            previewAudioId = null
+                            emitAlarmPreviewState(null)
+                        }
+                    })
 
                     audio.play().catch((e) => {
+                        stopAlarmPreview()
                         console.warn(e)
                     })
+
+                    return id
                 } catch (e) {
                     console.warn(e)
+                    return stopAlarmPreview()
                 }
             }
 
-            window.previewAlarm.__weeklyProgramTimer = true
+            window.toggleAlarmPreview.__weeklyProgramTimer = true
 
             addSafeListener(window, 'alarm-selected', (event) => {
                 const data = getEventData(event)
                 const alarm = data?.alarm || data
 
                 if (alarm) {
-                    localStorage.setItem('selected_alarm', alarm)
+                    localStorage.setItem(SELECTED_ALARM_KEY, alarm)
                 }
             })
 
@@ -1643,11 +1752,14 @@
                     }
                 }
 
-                if (window.previewAlarm?.__weeklyProgramTimer) {
+                stopAlarmPreview()
+                stopActiveAlarmPlayback()
+
+                if (window.toggleAlarmPreview?.__weeklyProgramTimer) {
                     try {
-                        delete window.previewAlarm
+                        delete window.toggleAlarmPreview
                     } catch (e) {
-                        window.previewAlarm = undefined
+                        window.toggleAlarmPreview = undefined
                     }
                 }
 
@@ -1656,6 +1768,14 @@
                         delete window.unlockStudyPermissions
                     } catch (e) {
                         window.unlockStudyPermissions = undefined
+                    }
+                }
+
+                if (window.stopAlarmPreview?.__weeklyProgramTimer) {
+                    try {
+                        delete window.stopAlarmPreview
+                    } catch (e) {
+                        window.stopAlarmPreview = undefined
                     }
                 }
 
@@ -1680,6 +1800,10 @@
             addSafeListener(document, 'livewire:navigating', cleanupOnNavigate, { once: true })
 
             preloadAlarms()
+            const storedAlarm = getSelectedAlarm()
+            if (storedAlarm !== getWireValue('selectedAlarm', 'Alarmclock')) {
+                safeWireCallDebounced('setAlarm', 0, storedAlarm)
+            }
             startClientTimer()
             startServerSync()
 

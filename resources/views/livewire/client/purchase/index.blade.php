@@ -20,11 +20,50 @@
             }
 
             .purchase-panel {
+                position: relative;
+                min-width: 0;
                 border: 1px solid hsl(var(--border) / 0.65);
                 background: linear-gradient(180deg, hsl(var(--secondary) / 0.72), hsl(var(--secondary) / 0.5));
                 backdrop-filter: blur(14px);
                 -webkit-backdrop-filter: blur(14px);
                 box-shadow: inset 0 1px 0 hsl(var(--secondary) / 0.25);
+            }
+
+            .purchase-animated-border::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                padding: 1px;
+                border-radius: inherit;
+                pointer-events: none;
+                background: conic-gradient(
+                    from var(--purchase-angle),
+                    hsl(var(--border) / 0.55),
+                    hsl(var(--primary) / 0.85),
+                    hsl(var(--border) / 0.5),
+                    hsl(var(--primary) / 0.45),
+                    hsl(var(--border) / 0.55)
+                );
+                mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+                -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+                mask-composite: exclude;
+                -webkit-mask-composite: xor;
+                animation: purchaseBorderSpin 7s linear infinite;
+            }
+
+            @property --purchase-angle {
+                syntax: '<angle>';
+                initial-value: 0deg;
+                inherits: false;
+            }
+
+            @keyframes purchaseBorderSpin {
+                to { --purchase-angle: 360deg; }
+            }
+
+            .purchase-stable-price {
+                min-height: 3.5rem;
+                font-variant-numeric: tabular-nums;
             }
 
             .purchase-button {
@@ -74,6 +113,12 @@
 
             .purchase-step-line.is-done {
                 background: linear-gradient(90deg, hsl(var(--primary) / 0.35), hsl(var(--primary) / 0.8));
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .purchase-animated-border::before {
+                    animation: none;
+                }
             }
 
             @media (max-width: 640px) {
@@ -153,7 +198,7 @@
             ];
         @endphp
 
-        <div class="purchase-shell rounded-[2rem] p-3 sm:p-6 lg:p-8">
+        <div class="purchase-shell purchase-animated-border rounded-[2rem] p-3 sm:p-6 lg:p-8">
             <div class="pointer-events-none absolute inset-x-8 top-0 h-48 rounded-full bg-primary/10 blur-3xl"></div>
 
             <div class="relative z-10 space-y-6">
@@ -193,22 +238,10 @@
                             @endforeach
                         </div>
                     </div>
-                    <div class="purchase-panel w-full rounded-[1.5rem] p-4 sm:p-5">
-                        <div class="text-[11px] font-bold text-muted">خلاصه پرداخت</div>
-                        <div class="mt-2 text-2xl font-black text-foreground sm:text-3xl">
-                            {{ number_format($data['full_with_coupon']) }}
-                            <span class="text-sm font-bold text-muted">تومان</span>
-                        </div>
-                        <div class="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-muted">
-                            <span class="rounded-full border border-border bg-secondary/60 px-3 py-1">{{ $price->grade_label }}</span>
-                            <span class="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-primary">
-                                از {{ $data['month_label'] }} تا {{ $data['access_ends_label'] }}</span>
-                        </div>
-                    </div>
                 </div>
 
 
-                <div class="grid gap-6 xl:grid-cols-[1.45fr_.85fr]">
+                <div class="grid gap-6 2xl:grid-cols-[1.45fr_.85fr]">
                     <section class="purchase-panel rounded-[1.75rem] p-4 sm:p-7">
                         @if ($step === 1)
                             <div class="space-y-6">
@@ -226,7 +259,7 @@
                                 </div>
 
                                 <div class="grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
-                                    <div class="rounded-[1.5rem] border border-border bg-secondary/40 p-5">
+                                    <div class="purchase-animated-border relative rounded-[1.5rem] border border-border bg-secondary/40 p-5">
                                         <div class="flex items-center gap-2 text-sm font-black text-foreground">
                                             <span class="h-2.5 w-2.5 rounded-full bg-primary"></span>
                                             خدماتی که در این خرید فعال می‌شود
@@ -244,11 +277,11 @@
                                             @endforeach
                                         </div>
                                         <div class="mt-4 rounded-2xl border border-primary/15 bg-primary/10 p-4 text-sm leading-7 text-muted">
-                                            مبلغ بر اساس <span class="font-black text-foreground">ماه ورود</span> محاسبه می‌شود. اقساط فقط از تیر تا اسفند فعال است و سررسیدها تا پایان اسفند همان سال چیده می‌شوند.
+                                            مبلغ بر اساس <span class="font-black text-foreground">ماه ورود</span> محاسبه می‌شود. دسترسی دوره تا پایان خرداد است و فقط سررسید اقساط تا ۲۰ اسفند چیده می‌شود.
                                         </div>
                                     </div>
 
-                                    <div class="rounded-[1.5rem] border border-primary/15 bg-primary/10 p-5">
+                                    <div class="purchase-animated-border relative rounded-[1.5rem] border border-primary/20 bg-primary/10 p-5">
                                         <div class="flex items-start justify-between gap-4">
                                             <div>
                                                 <div class="text-[11px] font-bold text-primary">پایه تحصیلی</div>
@@ -264,24 +297,13 @@
                                             @if ($data['savings'] > 0)
                                                 <div class="text-sm text-muted line-through">{{ number_format($data['original_total']) }} تومان</div>
                                             @endif
-                                            <div class="mt-2 text-4xl font-black text-foreground sm:text-5xl">{{ number_format($data['total']) }}</div>
+                                            <div class="purchase-stable-price mt-2 text-4xl font-black text-foreground sm:text-5xl">{{ number_format($data['total']) }}</div>
                                             <div class="mt-1 text-sm font-bold text-primary">مبلغ خرید نهایی</div>
                                             @if ($data['savings'] > 0)
                                                 <div class="mt-3 inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-black text-primary">
-                                                    {{ number_format($data['savings']) }} تومان صرفه‌جویی
+                                                    {{ number_format($data['savings']) }} تومان تخفیف
                                                 </div>
                                             @endif
-                                        </div>
-
-                                        <div class="mt-4 grid grid-cols-2 gap-3">
-                                            <div class="rounded-2xl border border-border bg-secondary/60 p-3 text-center">
-                                                <div class="text-[11px] text-muted">ماه‌های تا اسفند</div>
-                                                <div class="mt-1 text-base font-black text-foreground">{{ $data['remaining_months'] }} ماه</div>
-                                            </div>
-                                            <div class="rounded-2xl border border-border bg-secondary/60 p-3 text-center">
-                                                <div class="text-[11px] text-muted">پایان دسترسی</div>
-                                                <div class="mt-1 text-base font-black text-foreground">{{ $data['access_ends_label'] }}</div>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -346,7 +368,7 @@
                                             'نام پدر' => $infoFatherName,
                                             'کد ملی' => $infoCodeMell,
                                             'پایه' => $gradeOptions[$infoGrade] ?? $infoGrade,
-                                            'رشته' => $fieldOptions[$infoField] ?? $infoField,
+                                            'رشته' => $selectedGradeRequiresField ? ($fieldOptions[$infoField] ?? $infoField) : 'بدون رشته',
                                             'تاریخ تولد' => $infoBirthDate ?: '—',
                                             'محل تولد' => $infoPlaceOfBirth ?: '<span class="text-red-400 text-xs font-black">تکمیل این فیلد الزامی است</span>',
                                             'موبایل پدر' => $infoFatherMobile,
@@ -400,22 +422,38 @@
                                         <div class="space-y-2">
                                             <label class="block text-xs font-black text-foreground">پایه</label>
                                             <x-ui.select
-                                                wire:model="infoGrade"
+                                                wire:model.live="infoGrade"
                                                 :options="$gradeSelectOptions"
                                                 placeholder="انتخاب پایه"
                                                 name="infoGrade" />
                                             @error('infoGrade')<div class="mt-1 text-xs font-bold text-red-400">{{ $message }}</div>@enderror
                                         </div>
 
-                                        <div class="space-y-2">
-                                            <label class="block text-xs font-black text-foreground">رشته</label>
-                                            <x-ui.select
-                                                wire:model="infoField"
-                                                :options="$fieldSelectOptions"
-                                                placeholder="انتخاب رشته"
-                                                name="infoField" />
-                                            @error('infoField')<div class="mt-1 text-xs font-bold text-red-400">{{ $message }}</div>@enderror
-                                        </div>
+                                        @if($selectedGradeRequiresField)
+                                            <div class="space-y-2">
+                                                <label class="block text-xs font-black text-foreground">رشته</label>
+                                                <x-ui.select
+                                                    wire:model.live="infoField"
+                                                    :options="$fieldSelectOptions"
+                                                    placeholder="انتخاب رشته"
+                                                    name="infoField" />
+                                                @error('infoField')<div class="mt-1 text-xs font-bold text-red-400">{{ $message }}</div>@enderror
+                                            </div>
+                                        @else
+                                            <div class="space-y-2">
+                                                <label class="block text-xs font-black text-foreground">رشته</label>
+                                                <div class="purchase-field flex h-12 items-center rounded-xl px-4 text-sm font-bold text-muted">
+                                                    پایه نهم رشته ندارد
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        @if($profileSelectionChanged)
+                                            <div class="rounded-2xl border border-primary/20 bg-primary/10 p-4 text-sm leading-7 text-muted sm:col-span-2">
+                                                <span class="font-black text-primary">توجه:</span>
+                                                با تغییر پایه یا رشته، اطلاعات خرید دوباره محاسبه می‌شود. قیمت فعلی بر اساس پایه انتخاب‌شده نمایش داده شده و بعد از ذخیره همین اطلاعات روی پرداخت نقدی و اقساطی اعمال می‌شود.
+                                            </div>
+                                        @endif
 
                                         <div class="space-y-2">
                                             <label class="block text-xs font-black text-foreground">استان</label>
@@ -551,7 +589,7 @@
                                     @endif
                                 </div>
 
-                                <div class="grid gap-4 lg:grid-cols-2">
+                                <div class="grid gap-4 2xl:grid-cols-2">
                                     <div class="rounded-[1.5rem] border border-border bg-secondary/45 p-4 sm:p-5">
                                         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                             <div>
@@ -564,7 +602,7 @@
                                             @if ($couponDiscount > 0 && $data['full_with_coupon'] !== $data['total'])
                                                 <div class="text-sm text-muted line-through">{{ number_format($data['total']) }} تومان</div>
                                             @endif
-                                            <div class="mt-2 text-2xl font-black text-foreground sm:text-3xl">{{ number_format($data['full_with_coupon']) }}</div>
+                                            <div class="purchase-stable-price mt-2 text-2xl font-black text-foreground sm:text-3xl">{{ number_format($data['full_with_coupon']) }}</div>
                                             <div class="mt-1 text-sm font-bold text-primary">مبلغ قابل پرداخت</div>
                                         </div>
                                         <button wire:click="pay" wire:loading.attr="disabled" wire:target="pay" @disabled(! $agreedToTerms)
@@ -590,14 +628,14 @@
                                         </div>
 
                                         @if (($data['installment_open'] ?? false) && $data['installment_count'] > 0)
-                                            <div class="mt-6 grid gap-3 sm:grid-cols-2">
+                                            <div class="mt-6 grid gap-3 md:grid-cols-2">
                                                 <div class="rounded-2xl border border-primary/15 bg-primary/10 p-4 text-center">
                                                     <div class="text-[11px] font-bold text-primary">پیش‌پرداخت</div>
-                                                    <div class="mt-1 text-2xl font-black text-foreground">{{ number_format($data['initial']) }}</div>
+                                                    <div class="purchase-stable-price mt-1 text-2xl font-black text-foreground">{{ number_format($data['initial']) }}</div>
                                                 </div>
                                                 <div class="rounded-2xl border border-border bg-secondary/60 p-4 text-center">
                                                     <div class="text-[11px] text-muted">هر قسط</div>
-                                                    <div class="mt-1 text-2xl font-black text-foreground">{{ number_format($data['monthly']) }}</div>
+                                                    <div class="purchase-stable-price mt-1 text-2xl font-black text-foreground">{{ number_format($data['monthly']) }}</div>
                                                 </div>
                                             </div>
                                             <p class="mt-4 text-sm leading-7 text-muted">
@@ -619,7 +657,7 @@
                                                 @if (! ($data['installment_open'] ?? false))
                                                     از ۱ فروردین تا ۳۱ خرداد پرداخت اقساطی فعال نیست. در این بازه فقط پرداخت نقدی در دسترس است.
                                                 @else
-                                                    در این مقطع، زمان کافی برای تقسیط تا پایان اسفند باقی نمانده است و فقط پرداخت نقدی در دسترس است.
+                                                    در این مقطع، زمان کافی برای تقسیط تا ۲۰ اسفند باقی نمانده است و فقط پرداخت نقدی در دسترس است.
                                                 @endif
                                             </div>
                                         @endif
@@ -638,29 +676,10 @@
 
                     <aside class="space-y-4">
                         <div class="purchase-panel rounded-[1.75rem] p-5">
-                            <div class="text-sm font-black text-foreground">برآورد سریع</div>
-                            <div class="mt-4 space-y-3">
-                                <div class="flex items-center justify-between gap-4 rounded-2xl border border-border bg-secondary/45 px-4 py-3">
-                                    <span class="text-xs font-bold text-muted">قیمت اصلی</span>
-                                    <span class="text-sm font-black text-foreground">{{ number_format($data['original_total']) }}</span>
-                                </div>
-                                <div class="flex items-center justify-between gap-4 rounded-2xl border border-primary/15 bg-primary/10 px-4 py-3">
-                                    <span class="text-xs font-bold text-primary">قیمت نهایی</span>
-                                    <span class="text-sm font-black text-foreground">{{ number_format($data['total']) }}</span>
-                                </div>
-                                <div class="flex items-center justify-between gap-4 rounded-2xl border border-border bg-secondary/45 px-4 py-3">
-                                    <span class="text-xs font-bold text-muted">پرداخت نقدی با کد</span>
-                                    <span class="text-sm font-black text-foreground">{{ number_format($data['full_with_coupon']) }}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="purchase-panel rounded-[1.75rem] p-5">
                             <div class="text-sm font-black text-foreground">یادداشت‌های مهم</div>
                             <div class="mt-4 space-y-3 text-sm leading-7 text-muted">
                                 <div class="rounded-2xl border border-border bg-secondary/45 px-4 py-3">خرید فقط زمانی نهایی می‌شود که پرداخت در درگاه با موفقیت تکمیل شود.</div>
                                 <div class="rounded-2xl border border-border bg-secondary/45 px-4 py-3">اگر قبلاً پرداخت معلق یا طرح اقساطی نیمه‌کاره داشته باشید، همین صفحه تلاش می‌کند همان فرایند را ادامه دهد.</div>
-                                <div class="rounded-2xl border border-border bg-secondary/45 px-4 py-3">سررسید اقساط فقط در بازه تیر تا اسفند همان سال ساخته می‌شود.</div>
                             </div>
                         </div>
                     </aside>

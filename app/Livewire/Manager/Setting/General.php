@@ -89,6 +89,10 @@ class General extends Component
 
     public $advisor_default_capacity = 50;
 
+    // دسترسی کارنامه هوشمند برای مشاوران
+
+    public $smart_report_card_enabled = false;
+
 
     public function mount()
 
@@ -171,6 +175,8 @@ class General extends Component
 
             $this->advisor_default_capacity = (int) ($settings->advisor_default_capacity ?? 50);
 
+            $this->smart_report_card_enabled = (bool) ($settings->smart_report_card_enabled ?? false);
+
         }
 
     }
@@ -212,6 +218,24 @@ class General extends Component
 
 
         $this->dispatch('success', 'ظرفیت پیش‌فرض مشاوران با موفقیت ذخیره شد.');
+
+    }
+
+
+    public function saveSmartReportCardAccess()
+
+    {
+
+        $this->updateOrCreateSettings([
+
+            'smart_report_card_enabled' => $this->smart_report_card_enabled ? true : false,
+
+        ]);
+
+
+        $this->dispatch('success', $this->smart_report_card_enabled
+            ? 'دسترسی کارنامه هوشمند برای مشاوران فعال شد.'
+            : 'دسترسی کارنامه هوشمند برای مشاوران غیرفعال شد.');
 
     }
 

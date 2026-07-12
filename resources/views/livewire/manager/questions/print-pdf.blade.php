@@ -529,6 +529,10 @@
 
                             <span>مبحث: {{ $question->topic->name }}</span>
 
+                        @elseif($question->chapter)
+
+                            <span>فصل: {{ $question->chapter->name }} - جامع</span>
+
                         @endif
 
                     </div>

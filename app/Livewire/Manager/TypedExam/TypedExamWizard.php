@@ -237,7 +237,7 @@ class TypedExamWizard extends Component
 
                 'code' => $q->code,
 
-                'topic' => $q->topic?->name,
+                'topic' => $q->topic?->name ?? ($q->chapter?->name ? $q->chapter->name . ' - جامع' : null),
 
                 'difficulty' => $q->difficulty,
 
@@ -668,33 +668,50 @@ class TypedExamWizard extends Component
 
         } elseif ($this->randomChapter) {
 
-            $query->whereHas('topic', function ($q) {
+            $query->where(function ($q) {
 
-                $q->where('cc_chapter_id', $this->randomChapter);
+                $q->where('cc_chapter_id', $this->randomChapter)
+                    ->orWhereHas('topic', function ($topicQuery) {
+                        $topicQuery->where('cc_chapter_id', $this->randomChapter);
+                    });
 
             });
 
         } elseif ($this->randomSubject) {
 
-            $query->whereHas('topic.chapter', function ($q) {
+            $query->where(function ($q) {
 
-                $q->where('cc_subject_id', $this->randomSubject);
+                $q->where('subject_id', $this->randomSubject)
+                    ->orWhereHas('topic.chapter', function ($chapterQuery) {
+                        $chapterQuery->where('cc_subject_id', $this->randomSubject);
+                    })
+                    ->orWhereHas('chapter', function ($chapterQuery) {
+                        $chapterQuery->where('cc_subject_id', $this->randomSubject);
+                    });
 
             });
 
         } elseif ($this->randomGrade) {
 
-            $query->whereHas('topic.chapter.subject', function ($q) {
+            $query->where(function ($q) {
 
-                $q->where('cc_grade_id', $this->randomGrade);
+                $q->whereHas('topic.chapter.subject', function ($subjectQuery) {
+                    $subjectQuery->where('cc_grade_id', $this->randomGrade);
+                })->orWhereHas('chapter.subject', function ($subjectQuery) {
+                    $subjectQuery->where('cc_grade_id', $this->randomGrade);
+                });
 
             });
 
         } elseif ($this->randomEducationLevel) {
 
-            $query->whereHas('topic.chapter.subject.grade', function ($q) {
+            $query->where(function ($q) {
 
-                $q->where('education_level_id', $this->randomEducationLevel);
+                $q->whereHas('topic.chapter.subject.grade', function ($gradeQuery) {
+                    $gradeQuery->where('education_level_id', $this->randomEducationLevel);
+                })->orWhereHas('chapter.subject.grade', function ($gradeQuery) {
+                    $gradeQuery->where('education_level_id', $this->randomEducationLevel);
+                });
 
             });
 
@@ -762,7 +779,7 @@ class TypedExamWizard extends Component
 
     {
 
-        $questions = Question::with('topic')
+        $questions = Question::with(['topic', 'chapter'])
             ->whereIn('id', $this->selectedQuestions)
             ->get();
 
@@ -782,7 +799,7 @@ class TypedExamWizard extends Component
 
                 'code' => $question->code,
 
-                'topic' => $question->topic?->name,
+                'topic' => $question->topic?->name ?? ($question->chapter?->name ? $question->chapter->name . ' - جامع' : null),
 
                 'difficulty' => $question->difficulty,
 
@@ -1023,7 +1040,7 @@ class TypedExamWizard extends Component
 
         if ($this->currentStep === 2) {
 
-            $query = Question::with(['content', 'topic.chapter.subject.grade.educationLevel']);
+            $query = Question::with(['content', 'topic.chapter.subject.grade.educationLevel', 'chapter.subject.grade.educationLevel']);
 
 
             // Apply hierarchical filters
@@ -1034,33 +1051,50 @@ class TypedExamWizard extends Component
 
             } elseif ($this->filterChapter) {
 
-                $query->whereHas('topic', function ($q) {
+                $query->where(function ($q) {
 
-                    $q->where('cc_chapter_id', $this->filterChapter);
+                    $q->where('cc_chapter_id', $this->filterChapter)
+                        ->orWhereHas('topic', function ($topicQuery) {
+                            $topicQuery->where('cc_chapter_id', $this->filterChapter);
+                        });
 
                 });
 
             } elseif ($this->filterSubject) {
 
-                $query->whereHas('topic.chapter', function ($q) {
+                $query->where(function ($q) {
 
-                    $q->where('cc_subject_id', $this->filterSubject);
+                    $q->where('subject_id', $this->filterSubject)
+                        ->orWhereHas('topic.chapter', function ($chapterQuery) {
+                            $chapterQuery->where('cc_subject_id', $this->filterSubject);
+                        })
+                        ->orWhereHas('chapter', function ($chapterQuery) {
+                            $chapterQuery->where('cc_subject_id', $this->filterSubject);
+                        });
 
                 });
 
             } elseif ($this->filterGrade) {
 
-                $query->whereHas('topic.chapter.subject', function ($q) {
+                $query->where(function ($q) {
 
-                    $q->where('cc_grade_id', $this->filterGrade);
+                    $q->whereHas('topic.chapter.subject', function ($subjectQuery) {
+                        $subjectQuery->where('cc_grade_id', $this->filterGrade);
+                    })->orWhereHas('chapter.subject', function ($subjectQuery) {
+                        $subjectQuery->where('cc_grade_id', $this->filterGrade);
+                    });
 
                 });
 
             } elseif ($this->filterEducationLevel) {
 
-                $query->whereHas('topic.chapter.subject.grade', function ($q) {
+                $query->where(function ($q) {
 
-                    $q->where('education_level_id', $this->filterEducationLevel);
+                    $q->whereHas('topic.chapter.subject.grade', function ($gradeQuery) {
+                        $gradeQuery->where('education_level_id', $this->filterEducationLevel);
+                    })->orWhereHas('chapter.subject.grade', function ($gradeQuery) {
+                        $gradeQuery->where('education_level_id', $this->filterEducationLevel);
+                    });
 
                 });
 

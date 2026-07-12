@@ -3,6 +3,16 @@
     @push('link')
         <style>
             @keyframes wpu-progress { 0% { transform: translateX(-100%); } 50% { transform: translateX(0); } 100% { transform: translateX(100%); } }
+            html.modal-open-custom,
+            body.modal-open-custom {
+                overflow: hidden !important;
+                overscroll-behavior: none !important;
+            }
+            body.modal-open-custom {
+                position: fixed !important;
+                inset: 0 0 auto 0 !important;
+                width: 100% !important;
+            }
         </style>
     @endpush
     {{-- نوار پیشرفت بالای صفحه (برای هر درخواست) --}}
@@ -11,7 +21,7 @@
         <div class="h-100 bg-primary" style="width:50%;animation:wpu-progress 1.1s ease-in-out infinite;"></div>
     </div>
     {{-- نشانگر شناور «در حال پردازش» --}}
-    <div wire:loading.flex wire:target="savePart,deletePart,editPart,openPartModal,selectPartMode,finalSave,copyPrevWeekPartsToProgram,pastePartsToDays,cutPartsToDay,openClassificationModal,openClassScheduleModal,openPrevProgramModal,openPrevReportModal"
+    <div wire:loading.flex wire:target="savePart,deletePart,editPart,openPartModal,selectPartMode,finalSave,copyPrevWeekPartsToProgram,pastePartsToDays,cutPartsToDay,openClassificationModal,openClassScheduleModal,openPrevProgramModal,openPrevReportModal,openExamAssignmentModal,selectExamAssignmentExam,assignExamFromWeeklyProgram"
          class="position-fixed align-items-center gap-2 px-3 py-2 rounded-pill shadow bg-body border"
          style="z-index:2001;bottom:18px;left:18px;pointer-events:none;">
         <span class="spinner-border spinner-border-sm text-primary"></span>
@@ -21,10 +31,10 @@
     {{-- ====== BODY SCROLL LOCK WHEN MODAL OPEN ====== --}}
     @if($showPartModal || $showPrevProgramModal || $showPrevReportModal || $showClassificationModal ||
         $showClassScheduleModal || $showNoScheduleModal || $showRestDayConfirmModal || $showExamDayConfirmModal ||
-        $showExamPartModal || $showExamDaySelectModal || $showDistributeHomeworkModal || $showDistributeExamModal ||
+        $showExamPartModal || $showExamDaySelectModal || $showExamAssignmentModal || $showDistributeHomeworkModal || $showDistributeExamModal ||
         $showDistributeQaModal || $showBulkDeleteConfirmModal || $showZeroTimeWarningModal)
         @push('link')
-            <style>body { overflow: hidden !important; }</style>
+            <style>html, body { overflow: hidden !important; overscroll-behavior: none !important; }</style>
         @endpush
     @endif
 
@@ -161,26 +171,133 @@
             <div class="d-flex align-items-center gap-2 mb-3">
                 <i class="material-symbols-outlined text-primary">quiz</i>
                 <h6 class="mb-0 fw-bold">آزمون‌ها</h6>
-                <small class="text-muted">به زودی</small>
+                <small class="text-muted">اختصاص مستقیم از همین صفحه</small>
             </div>
             <div class="row g-3">
                 <div class="col-6">
-                    <div class="d-flex flex-column align-items-center justify-content-center p-4 text-center border border-2 border-dashed rounded-4 h-100 bg-body-tertiary"
-                         style="border-style:dashed!important;min-height:100px;">
-                        <i class="material-symbols-outlined d-block mb-2 text-muted" style="font-size:32px;">description</i>
-                        <span class="fw-semibold d-block text-muted">آزمون تشریحی</span>
-                        <span class="small text-muted mt-1">به زودی</span>
-                    </div>
+                    <button type="button" wire:click="openExamAssignmentModal('essay')"
+                            class="w-100 d-flex flex-column align-items-center justify-content-center p-4 text-center border border-warning border-opacity-25 rounded-4 h-100 bg-warning bg-opacity-10 text-reset"
+                            style="min-height:100px;">
+                        <i class="material-symbols-outlined d-block mb-2 text-warning" style="font-size:32px;">description</i>
+                        <span class="fw-semibold d-block">آزمون تشریحی</span>
+                        <span class="small text-muted mt-1">انتخاب آزمون و زمان‌بندی</span>
+                    </button>
                 </div>
                 <div class="col-6">
-                    <div class="d-flex flex-column align-items-center justify-content-center p-4 text-center border border-2 border-dashed rounded-4 h-100 bg-body-tertiary"
-                         style="border-style:dashed!important;min-height:100px;">
-                        <i class="material-symbols-outlined d-block mb-2 text-muted" style="font-size:32px;">check_box</i>
-                        <span class="fw-semibold d-block text-muted">آزمون تستی</span>
-                        <span class="small text-muted mt-1">به زودی</span>
-                    </div>
+                    <button type="button" wire:click="openExamAssignmentModal('typed')"
+                            class="w-100 d-flex flex-column align-items-center justify-content-center p-4 text-center border border-primary border-opacity-25 rounded-4 h-100 bg-primary bg-opacity-10 text-reset"
+                            style="min-height:100px;">
+                        <i class="material-symbols-outlined d-block mb-2 text-primary" style="font-size:32px;">check_box</i>
+                        <span class="fw-semibold d-block">آزمون تستی</span>
+                        <span class="small text-muted mt-1">اختصاص با تاریخ جلالی</span>
+                    </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="card mb-4 border rounded-4 shadow-sm">
+        <div class="card-header d-flex align-items-center justify-content-between rounded-top-4">
+            <div class="d-flex align-items-center gap-2">
+                <i class="material-symbols-outlined text-primary">psychology</i>
+                <h5 class="mb-0">خلاصه ارزیابی‌ها</h5>
+            </div>
+            <small class="text-muted">{{ $assessmentSummary ? 'برگرفته از ارزیابی‌های دانش‌آموز' : 'بدون داده' }}</small>
+        </div>
+        <div class="card-body">
+            @if($assessmentSummary)
+                <div class="row g-3">
+                    @if(!empty($assessmentSummary['vark']['profile']))
+                        <div class="col-12">
+                            <div class="border rounded-4 p-3 h-100 bg-body">
+                                <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+                                    <h6 class="mb-0 fw-bold">سبک یادگیری (VARK)</h6>
+                                    <span class="badge bg-primary-subtle text-primary rounded-pill">{{ $assessmentSummary['vark']['profile'] }}</span>
+                                </div>
+                                <div class="row g-3">
+                                    @foreach(($assessmentSummary['vark']['modalities'] ?? []) as $modality)
+                                        <div class="col-md-6 col-xl-3">
+                                            <div class="border rounded-3 p-3 h-100 {{ !empty($modality['dominant']) ? 'border-primary border-opacity-50 bg-primary bg-opacity-10' : '' }}">
+                                                <div class="d-flex align-items-center justify-content-between small mb-1">
+                                                    <span class="fw-semibold">{{ $modality['title'] }}</span>
+                                                    <span>{{ $modality['percent'] }}%</span>
+                                                </div>
+                                                <div class="progress mb-2" style="height:7px;">
+                                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $modality['percent'] }}%"></div>
+                                                </div>
+                                                @if(!empty($modality['tip']))
+                                                    <p class="small text-muted mb-0">{{ $modality['tip'] }}</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @foreach(($assessmentSummary['custom'] ?? []) as $testName => $facets)
+                        <div class="col-lg-6">
+                            <div class="border rounded-4 p-3 h-100 bg-body">
+                                <h6 class="mb-3 fw-bold">{{ $testName }}</h6>
+                                @foreach($facets as $facet)
+                                    @php
+                                        $barClass = match($facet['level'] ?? 'medium') {
+                                            'low' => 'bg-success',
+                                            'high' => 'bg-danger',
+                                            default => 'bg-warning',
+                                        };
+                                    @endphp
+                                    <div class="mb-3">
+                                        <div class="d-flex align-items-center justify-content-between small mb-1">
+                                            <span class="fw-semibold">{{ $facet['label'] }}</span>
+                                            <span>{{ $facet['percent'] }}%</span>
+                                        </div>
+                                        <div class="progress" style="height:7px;">
+                                            <div class="progress-bar {{ $barClass }}" role="progressbar" style="width: {{ $facet['percent'] }}%"></div>
+                                        </div>
+                                        @if(!empty($facet['text']) && $facet['text'] !== '—')
+                                            <p class="small text-muted mb-0 mt-2">{{ $facet['text'] }}</p>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+
+                    @if(!empty($assessmentSummary['flags']))
+                        <div class="col-12">
+                            <div class="border rounded-4 p-3 bg-body-tertiary">
+                                <h6 class="mb-3 fw-bold">هشدارهای مهم</h6>
+                                <div class="row g-2">
+                                    @foreach($assessmentSummary['flags'] as $flag)
+                                        @php
+                                            $flagClass = ($flag['severity'] ?? 'info') === 'critical'
+                                                ? 'border-danger bg-danger bg-opacity-10'
+                                                : (($flag['severity'] ?? 'info') === 'warning'
+                                                    ? 'border-warning bg-warning bg-opacity-10'
+                                                    : 'border-info bg-info bg-opacity-10');
+                                        @endphp
+                                        <div class="col-12">
+                                            <div class="border rounded-3 p-3 {{ $flagClass }}">
+                                                <div class="fw-semibold mb-1">{{ $flag['title'] ?? '' }}</div>
+                                                @if(!empty($flag['text']))
+                                                    <p class="small mb-0 text-muted">{{ $flag['text'] }}</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @else
+                <div class="text-center py-4 text-muted">
+                    <i class="material-symbols-outlined d-block mb-2" style="font-size:34px;">psychology_alt</i>
+                    هنوز ارزیابیِ تکمیل‌شده‌ای برای این دانش‌آموز ثبت نشده است.
+                </div>
+            @endif
         </div>
     </div>
 
@@ -2398,6 +2515,168 @@
         </div>
     @endif
 
+    {{-- ====== MODAL: اختصاص آزمون تستی / تشریحی ====== --}}
+    @if($showExamAssignmentModal)
+        <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:1060;">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <div class="modal-header text-white rounded-top-4" style="background:{{ $examAssignmentType === 'typed' ? 'linear-gradient(135deg,#2563eb,#1d4ed8,#0ea5e9)' : 'linear-gradient(135deg,#d97706,#f59e0b,#fbbf24)' }};">
+                        <div>
+                            <h5 class="modal-title d-flex align-items-center gap-2 mb-1">
+                                <i class="material-symbols-outlined">{{ $examAssignmentType === 'typed' ? 'check_box' : 'description' }}</i>
+                                {{ $examAssignmentType === 'typed' ? 'اختصاص آزمون تستی' : 'اختصاص آزمون تشریحی' }}
+                            </h5>
+                            <small class="text-white-50">
+                                مرحله {{ $examAssignmentStep }} از 2
+                                @if($selectedExamForAssignment)
+                                    - {{ $selectedExamForAssignment->title }}
+                                @endif
+                            </small>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" wire:click="closeExamAssignmentModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if($examAssignmentStep === 1)
+                            <div class="row g-3 mb-3">
+                                <div class="col-lg-8">
+                                    <label class="form-label fw-semibold">جستجوی آزمون</label>
+                                    <input type="text" wire:model.live.debounce.300ms="examAssignmentSearch" class="form-control" placeholder="نام آزمون را جستجو کنید...">
+                                </div>
+                                <div class="col-lg-4">
+                                    <label class="form-label fw-semibold">دانش‌آموز</label>
+                                    <div class="form-control bg-body-tertiary">{{ $student->user->name ?? '---' }}</div>
+                                </div>
+                            </div>
+
+                            @php
+                                $examItems = $examAssignmentType === 'typed' ? $typedExamsForAssignment : $essayExamsForAssignment;
+                                $assignedIds = $examAssignmentType === 'typed' ? $typedAssignedExamIds : $essayAssignedExamIds;
+                            @endphp
+
+                            <div class="row g-3">
+                                @forelse($examItems as $exam)
+                                    @php $isAssigned = in_array($exam->id, $assignedIds, true); @endphp
+                                    <div class="col-md-6 col-xl-4">
+                                        <button type="button"
+                                                wire:click="selectExamAssignmentExam({{ $exam->id }})"
+                                                class="w-100 text-start border rounded-4 p-3 h-100 bg-body {{ $isAssigned ? 'border-success border-opacity-50' : 'border-opacity-25' }}">
+                                            <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                                                <h6 class="mb-0 fw-bold">{{ $exam->title }}</h6>
+                                                @if($isAssigned)
+                                                    <span class="badge bg-success-subtle text-success">قبلاً اختصاص داده شده</span>
+                                                @endif
+                                            </div>
+                                            <div class="small text-muted d-flex flex-wrap gap-2">
+                                                @if(isset($exam->questions_count))
+                                                    <span>{{ $exam->questions_count }} سوال</span>
+                                                @endif
+                                                @if($examAssignmentType === 'typed' && isset($exam->difficulty_label))
+                                                    <span>سطح {{ $exam->difficulty_label }}</span>
+                                                @endif
+                                            </div>
+                                            <div class="small mt-3 text-primary fw-semibold d-flex align-items-center gap-1">
+                                                <i class="material-symbols-outlined" style="font-size:16px;">arrow_back</i>
+                                                انتخاب و ادامه
+                                            </div>
+                                        </button>
+                                    </div>
+                                @empty
+                                    <div class="col-12">
+                                        <div class="text-center py-5 text-muted border rounded-4 bg-body-tertiary">
+                                            <i class="material-symbols-outlined d-block mb-2" style="font-size:36px;">search_off</i>
+                                            آزمونی برای نمایش پیدا نشد.
+                                        </div>
+                                    </div>
+                                @endforelse
+                            </div>
+                        @else
+                            <div class="alert alert-info small d-flex align-items-center gap-2">
+                                <i class="material-symbols-outlined" style="font-size:18px;">info</i>
+                                زمان‌بندی آزمون را با تاریخ جلالی مشخص کنید.
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">تاریخ شروع <span class="text-danger">*</span></label>
+                                    <input type="text"
+                                           id="exam_assignment_start_date"
+                                           wire:model.lazy="examAssignmentForm.start_date_jalali"
+                                           data-jdp data-jdp-only-date
+                                           autocomplete="off"
+                                           placeholder="1405/01/01"
+                                           class="form-control text-center @error('examAssignmentForm.start_date_jalali') is-invalid @enderror"
+                                           dir="ltr">
+                                    @error('examAssignmentForm.start_date_jalali')<div class="text-danger small">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">تاریخ پایان <span class="text-danger">*</span></label>
+                                    <input type="text"
+                                           id="exam_assignment_end_date"
+                                           wire:model.lazy="examAssignmentForm.end_date_jalali"
+                                           data-jdp data-jdp-only-date
+                                           autocomplete="off"
+                                           placeholder="1405/01/08"
+                                           class="form-control text-center @error('examAssignmentForm.end_date_jalali') is-invalid @enderror"
+                                           dir="ltr">
+                                    @error('examAssignmentForm.end_date_jalali')<div class="text-danger small">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">ساعت شروع <span class="text-danger">*</span></label>
+                                    <input type="time" wire:model="examAssignmentForm.start_time" class="form-control @error('examAssignmentForm.start_time') is-invalid @enderror">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">ساعت پایان <span class="text-danger">*</span></label>
+                                    <input type="time" wire:model="examAssignmentForm.end_time" class="form-control @error('examAssignmentForm.end_time') is-invalid @enderror">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">مدت آزمون (دقیقه) <span class="text-danger">*</span></label>
+                                    <input type="number" min="1" max="1440" wire:model="examAssignmentForm.duration_minutes" class="form-control @error('examAssignmentForm.duration_minutes') is-invalid @enderror">
+                                    @error('examAssignmentForm.duration_minutes')<div class="text-danger small">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">عنوان آزمون</label>
+                                    <div class="form-control bg-body-tertiary">{{ $selectedExamForAssignment->title ?? '---' }}</div>
+                                </div>
+
+                                @if($examAssignmentType === 'typed')
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">زمان نمایش کارنامه</label>
+                                        <select wire:model="examAssignmentForm.result_visibility" class="form-select">
+                                            @foreach($visibilityOptions as $value => $label)
+                                                <option value="{{ $value }}">{{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">زمان نمایش پاسخنامه</label>
+                                        <select wire:model="examAssignmentForm.answer_key_visibility" class="form-select">
+                                            @foreach($visibilityOptions as $value => $label)
+                                                <option value="{{ $value }}">{{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                    <div class="modal-footer bg-body-tertiary rounded-bottom-4">
+                        @if($examAssignmentStep === 2)
+                            <button type="button" class="btn btn-outline-secondary" wire:click="backToExamAssignmentList">مرحله قبل</button>
+                        @endif
+                        <button type="button" class="btn btn-outline-dark" wire:click="closeExamAssignmentModal">انصراف</button>
+                        @if($examAssignmentStep === 2)
+                            <button type="button" class="btn {{ $examAssignmentType === 'typed' ? 'btn-primary' : 'btn-warning text-white' }}"
+                                    wire:click="assignExamFromWeeklyProgram">
+                                <span wire:loading.remove wire:target="assignExamFromWeeklyProgram">ثبت اختصاص</span>
+                                <span wire:loading wire:target="assignExamFromWeeklyProgram">در حال ثبت...</span>
+                            </button>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- ====== MODAL: آزمون جامع (افزودن/ویرایش) ====== --}}
     @if($showExamPartModal)
         <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:1060;">
@@ -2440,9 +2719,39 @@
                             <label class="form-label fw-semibold">توضیحات</label>
                             <textarea wire:model="examPartForm.description" rows="3" class="form-control" placeholder="توضیحات آزمون..."></textarea>
                         </div>
+                        <div class="border rounded-4 p-3 bg-body-tertiary">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <i class="material-symbols-outlined text-warning">analytics</i>
+                                <h6 class="mb-0 fw-bold">تحلیل آزمون</h6>
+                            </div>
+                            <div class="mb-3" x-data="{
+                                totalMinutes: $wire.entangle('examPartForm.analysis_duration_minutes'),
+                                hours:0, minutes:0,
+                                init(){ let v=parseInt(this.totalMinutes)||0; this.hours=Math.floor(v/60); this.minutes=v%60; this.$watch('totalMinutes',(v)=>{ let val=parseInt(v)||0; this.hours=Math.floor(val/60); this.minutes=val%60; }); },
+                                update(){ let h=Math.min(Math.max(parseInt(this.hours)||0,0),24); let m=Math.min(Math.max(parseInt(this.minutes)||0,0),59); this.hours=h; this.minutes=m; this.totalMinutes=(h*60)+m; }
+                            }" x-init="init()">
+                                <label class="form-label fw-semibold">مدت زمان تحلیل <span class="text-danger">*</span></label>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <div class="position-relative flex-fill">
+                                        <input type="number" min="0" max="24" x-model.number="hours" @input="update()" class="form-control text-center" placeholder="0">
+                                        <small class="position-absolute top-50 translate-middle-y text-muted" style="left:6px;font-size:10px;">ساعت</small>
+                                    </div>
+                                    <span class="fw-bold text-muted">:</span>
+                                    <div class="position-relative flex-fill">
+                                        <input type="number" min="0" max="59" x-model.number="minutes" @input="update()" class="form-control text-center" placeholder="0">
+                                        <small class="position-absolute top-50 translate-middle-y text-muted" style="left:6px;font-size:10px;">دقیقه</small>
+                                    </div>
+                                </div>
+                                @error('examPartForm.analysis_duration_minutes')<div class="text-danger small">{{ $message }}</div>@enderror
+                            </div>
+                            <div>
+                                <label class="form-label fw-semibold">توضیحات تحلیل</label>
+                                <textarea wire:model="examPartForm.analysis_description" rows="3" class="form-control" placeholder="توضیحات تحلیل آزمون..."></textarea>
+                            </div>
+                        </div>
                         <div class="alert alert-info small py-2 mb-0">
                             <i class="material-symbols-outlined align-middle" style="font-size:14px;">info</i>
-                            با ذخیره آزمون، یک پارت «تحلیل آزمون» نیز به صورت خودکار اضافه می‌شود.
+                            با ذخیره آزمون، پارت «تحلیل آزمون {{ $examPartForm['exam_name'] ?: '...' }}» هم ساخته یا به‌روزرسانی می‌شود.
                         </div>
                     </div>
                     <div class="modal-footer bg-body-tertiary rounded-bottom-4">
@@ -2747,6 +3056,45 @@
             let draggedPartId = null;
             let draggedFromDayIndex = null;
 
+            function initConsultationJalaliPickers() {
+                if (typeof jalaliDatepicker === 'undefined') return;
+                jalaliDatepicker.startWatch({
+                    minDate: 'attr',
+                    maxDate: 'attr',
+                    autoHide: true,
+                    showTodayBtn: true,
+                    showEmptyBtn: true,
+                });
+            }
+
+            function setBodyScrollLock(locked) {
+                const html = document.documentElement;
+                const body = document.body;
+                if (!body) return;
+
+                if (locked) {
+                    if (!body.dataset.scrollLockTop) {
+                        body.dataset.scrollLockTop = String(window.scrollY || window.pageYOffset || 0);
+                    }
+                    html.classList.add('modal-open-custom');
+                    body.classList.add('modal-open-custom');
+                    body.style.top = `-${body.dataset.scrollLockTop}px`;
+                    return;
+                }
+
+                const lockedTop = parseInt(body.dataset.scrollLockTop || '0', 10) || 0;
+                html.classList.remove('modal-open-custom');
+                body.classList.remove('modal-open-custom');
+                body.style.top = '';
+                delete body.dataset.scrollLockTop;
+                window.scrollTo(0, lockedTop);
+            }
+
+            function syncBodyScrollLock() {
+                const hasModal = !!document.querySelector('.modal.show.d-block');
+                setBodyScrollLock(hasModal);
+            }
+
             function initSortableRows() {
                 document.querySelectorAll('tr[data-sortable-row]').forEach(function (row) {
                     if (row._sortable) row._sortable.destroy();
@@ -2787,8 +3135,18 @@
             }
 
             document.addEventListener('DOMContentLoaded', () => setTimeout(initSortableRows, 300));
-            document.addEventListener('livewire:navigated', initSortableRows);
-            document.addEventListener('livewire:updated', () => setTimeout(initSortableRows, 100));
+            document.addEventListener('DOMContentLoaded', () => setTimeout(initConsultationJalaliPickers, 300));
+            document.addEventListener('DOMContentLoaded', () => setTimeout(syncBodyScrollLock, 50));
+            document.addEventListener('livewire:navigated', () => {
+                initSortableRows();
+                setTimeout(initConsultationJalaliPickers, 100);
+                setTimeout(syncBodyScrollLock, 50);
+            });
+            document.addEventListener('livewire:updated', () => {
+                setTimeout(initSortableRows, 100);
+                setTimeout(initConsultationJalaliPickers, 100);
+                setTimeout(syncBodyScrollLock, 50);
+            });
 
             document.addEventListener('livewire:init', () => {
                 const select2Config = { dir: 'rtl', language: 'fa', allowClear: true, width: '100%' };
@@ -2835,7 +3193,10 @@
                 }
 
                 Livewire.on('modal-opened', () => setTimeout(() => Object.keys(selectMappings).forEach(initSingleSelect2), 250));
+                Livewire.on('modal-opened', () => setTimeout(initConsultationJalaliPickers, 250));
+                Livewire.on('modal-opened', () => setTimeout(syncBodyScrollLock, 50));
                 Livewire.on('modal-closed', () => Object.keys(selectMappings).forEach(destroySelect2));
+                Livewire.on('modal-closed', () => setTimeout(syncBodyScrollLock, 50));
                 Livewire.on('select2-update', (params) => {
                     const d = Array.isArray(params) ? params[0] : params;
                     if (!d?.id) return;
@@ -2843,8 +3204,7 @@
                 });
             });
             document.addEventListener('livewire:updated', function() {
-                const hasModal = document.querySelector('.modal.show.d-block');
-                document.body.classList.toggle('modal-open-custom', !!hasModal);
+                syncBodyScrollLock();
             });
         </script>
     @endpush

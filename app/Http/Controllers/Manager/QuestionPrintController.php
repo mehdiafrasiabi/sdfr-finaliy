@@ -62,15 +62,22 @@ class QuestionPrintController extends Controller
 
         // Build question query
 
-        $query = Question::with(['content', 'options', 'topic.chapter.subject'])
-            ->whereHas('topic.chapter', function ($q) use ($subjectId) {
-
-                $q->where('cc_subject_id', $subjectId);
-
+        $query = Question::with(['content', 'options', 'topic.chapter.subject', 'chapter.subject'])
+            ->where(function ($q) use ($subjectId) {
+                $q->where('subject_id', $subjectId)
+                    ->orWhereHas('topic.chapter', function ($chapterQuery) use ($subjectId) {
+                        $chapterQuery->where('cc_subject_id', $subjectId);
+                    })
+                    ->orWhereHas('chapter', function ($chapterQuery) use ($subjectId) {
+                        $chapterQuery->where('cc_subject_id', $subjectId);
+                    });
             });
         if ($chapterId) {
-            $query->whereHas('topic', function ($q) use ($chapterId) {
-                $q->where('cc_chapter_id', $chapterId);
+            $query->where(function ($q) use ($chapterId) {
+                $q->where('cc_chapter_id', $chapterId)
+                    ->orWhereHas('topic', function ($topicQuery) use ($chapterId) {
+                        $topicQuery->where('cc_chapter_id', $chapterId);
+                    });
             });
             $chapter = CcChapter::find($chapterId);
         } else {
@@ -104,4 +111,3 @@ class QuestionPrintController extends Controller
         ));
     }
 }
-

@@ -7,9 +7,10 @@ use App\Models\TypedExamAttempt;
 use App\Models\TypedExamAnalysisUpload;
 use App\Traits\UploadFile;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+
 class TypedExamResult extends Component
 {
     use WithFileUploads,UploadFile;
@@ -52,7 +53,45 @@ class TypedExamResult extends Component
         if (!$this->attempt->is_finished) {
             abort(403, 'آزمون هنوز تکمیل نشده است.');
         }
+
+        $this->normalizeAttemptResults();
         $this->checkVisibility();
+    }
+
+    protected function normalizeAttemptResults(): void
+    {
+        $hasChanges = false;
+
+        foreach ($this->attempt->answers as $answer) {
+            $previous = $answer->is_correct;
+            $answer->checkCorrectness();
+            $answer->refresh();
+
+            if ($previous !== $answer->is_correct) {
+                $hasChanges = true;
+            }
+        }
+
+        $freshScore = $this->attempt->calculateScore();
+
+        if ((float) $this->attempt->score !== (float) $freshScore) {
+            $this->attempt->update(['score' => $freshScore]);
+            $hasChanges = true;
+        }
+
+        if ($hasChanges) {
+            $this->attempt->refresh();
+            $this->attempt->loadMissing([
+                'assignment.typedExam.settings',
+                'assignment.typedExam.questions.content',
+                'assignment.typedExam.questions.options',
+                'assignment.typedExam.questions.subject',
+                'assignment.time',
+                'answers',
+                'studentOrders',
+                'analysisUploads',
+            ]);
+        }
     }
     protected function checkVisibility(): void
     {
@@ -94,6 +133,7 @@ class TypedExamResult extends Component
     {
         $this->validate();
         $this->uploadedPreviews = [];
+
         foreach ($this->analysisFiles as $file) {
             $this->uploadedPreviews[] = $file->temporaryUrl();
         }
@@ -128,7 +168,7 @@ class TypedExamResult extends Component
         // اگر قبلاً رد شده، فایل‌های قدیمی را پاک کن
         if ($this->attempt->isAnalysisRejected()) {
             foreach ($this->attempt->analysisUploads as $upload) {
-                Storage::disk('public')->delete($upload->file_path);
+                File::delete($upload->full_path);
                 $upload->delete();
             }
         }
@@ -181,18 +221,76 @@ class TypedExamResult extends Component
             ->where('attempt_id', $this->attempt->id)
             ->first();
         if ($upload && $this->attempt->canUploadAnalysis()) {
-            Storage::disk('public')->delete($upload->file_path);
+            File::delete($upload->full_path);
             $upload->delete();
             $this->attempt->refresh();
         }
     }
-    protected function getSystemAnalysis(): string
+
+    protected function buildQuestionAnswerData($exam)
     {
-        $score = $this->attempt->score ?? 0;
-        $correct = $this->attempt->correct_count;
-        $wrong = $this->attempt->wrong_count;
-        $unanswered = $this->attempt->unanswered_count;
-        $total = $correct + $wrong + $unanswered;
+        $answers = $this->attempt->answers->keyBy('question_id');
+        $orders = $this->attempt->studentOrders->sortBy('question_order');
+
+        if ($orders->isEmpty()) {
+            return $exam->questions->values()->map(function ($question) use ($answers) {
+                $answer = $answers->get($question->id);
+                $correctOption = $question->options->firstWhere('is_correct', true);
+                $correctOptionNumber = $correctOption?->option_number ?? $question->correct_option;
+                $selectedOptionNumber = $answer?->selected_option;
+                $selectedOption = $question->options->firstWhere('option_number', $selectedOptionNumber);
+                $resolvedIsCorrect = $selectedOptionNumber === null
+                    ? null
+                    : (int) $correctOptionNumber === (int) $selectedOptionNumber;
+
+                return [
+                    'question' => $question,
+                    'ordered_options' => $question->options->sortBy('option_number')->values(),
+                    'selected_option' => $selectedOptionNumber,
+                    'is_correct' => $resolvedIsCorrect,
+                    'correct_option_number' => $correctOptionNumber,
+                    'correct_option' => $correctOption,
+                    'selected_option_obj' => $selectedOption,
+                ];
+            });
+        }
+
+        return $orders->map(function ($order) use ($answers, $exam) {
+            $question = $exam->questions->firstWhere('id', $order->question_id);
+
+            if (!$question) {
+                return null;
+            }
+
+            $answer = $answers->get($question->id);
+            $correctOption = $question->options->firstWhere('is_correct', true);
+            $correctOptionNumber = $correctOption?->option_number ?? $question->correct_option;
+            $selectedOptionNumber = $answer?->selected_option;
+            $selectedOption = $question->options->firstWhere('option_number', $selectedOptionNumber);
+            $resolvedIsCorrect = $selectedOptionNumber === null
+                ? null
+                : (int) $correctOptionNumber === (int) $selectedOptionNumber;
+
+            return [
+                'question' => $question,
+                'ordered_options' => $order->getOrderedOptions(),
+                'selected_option' => $selectedOptionNumber,
+                'is_correct' => $resolvedIsCorrect,
+                'correct_option_number' => $correctOptionNumber,
+                'correct_option' => $correctOption,
+                'selected_option_obj' => $selectedOption,
+            ];
+        })->filter()->values();
+    }
+
+    protected function getSystemAnalysis(array $stats): string
+    {
+        $score = $stats['score'] ?? 0;
+        $correct = $stats['correct'];
+        $wrong = $stats['wrong'];
+        $unanswered = $stats['unanswered'];
+        $total = $stats['total'];
+
         if ($score >= 80) {
             return "عالی! عملکرد شما در این آزمون بسیار خوب بوده است. شما {$correct} سوال از {$total} سوال را درست پاسخ دادید. به همین روند ادامه دهید و برای آزمون‌های بعدی آماده شوید.";
         } elseif ($score >= 60) {
@@ -213,34 +311,34 @@ class TypedExamResult extends Component
     public function render()
     {
         $exam = $this->attempt->assignment->typedExam;
-        $answers = $this->attempt->answers->keyBy('question_id');
+        $questionsWithAnswers = $this->buildQuestionAnswerData($exam);
+        $correctCount = $questionsWithAnswers->where('is_correct', true)->count();
+        $wrongCount = $questionsWithAnswers->where('is_correct', false)->count();
+        $unansweredCount = $questionsWithAnswers->where('selected_option', null)->count();
+        $totalQuestions = $questionsWithAnswers->count();
+        $score = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 100, 2) : 0;
+        $negativePenaltyCount = intdiv($wrongCount, 3);
+        $negativeCorrectCount = max($correctCount - $negativePenaltyCount, 0);
+        $negativeScore = $totalQuestions > 0 ? round(($negativeCorrectCount / $totalQuestions) * 100, 2) : 0;
+
         $stats = [
-            'score' => $this->attempt->score,
-            'correct' => $this->attempt->correct_count,
-            'wrong' => $this->attempt->wrong_count,
-            'unanswered' => $this->attempt->unanswered_count,
+            'score' => $score,
+            'correct' => $correctCount,
+            'wrong' => $wrongCount,
+            'unanswered' => $unansweredCount,
+            'negative_penalty_count' => $negativePenaltyCount,
+            'negative_correct' => $negativeCorrectCount,
+            'negative_score' => $negativeScore,
             'duration' => $this->attempt->formatted_duration,
-            'total' => $exam->questions->count(),
+            'duration_seconds' => $this->attempt->duration_in_seconds,
+            'total' => $totalQuestions,
             'started_at' => $this->attempt->started_at,
             'submitted_at' => $this->attempt->submitted_at,
         ];
-        $systemAnalysis = $this->getSystemAnalysis();
-        $questionsWithAnswers = null;
+
+        $systemAnalysis = $this->getSystemAnalysis($stats);
+
         if ($this->canViewAnswerKey) {
-            $questionsWithAnswers = $exam->questions->map(function ($question) use ($answers) {
-                $answer = $answers->get($question->id);
-                $correctOption = $question->options->firstWhere('is_correct', true);
-                $selectedOption = $question->options->firstWhere('option_number', $answer?->selected_option);
-                return [
-                    'question' => $question,
-                    'selected_option' => $answer?->selected_option,
-                    'is_correct' => $answer?->is_correct,
-                    'correct_option_number' => $correctOption?->option_number,
-                    'correct_option' => $correctOption,
-                    'selected_option_obj' => $selectedOption,
-                ];
-            });
-            // Apply filter
             if ($this->answerFilter !== 'all') {
                 $questionsWithAnswers = $questionsWithAnswers->filter(function ($qa) {
                     return match ($this->answerFilter) {
@@ -249,13 +347,14 @@ class TypedExamResult extends Component
                         'unanswered' => $qa['selected_option'] === null,
                         default => true,
                     };
-                });
+                })->values();
             }
+        } else {
+            $questionsWithAnswers = null;
         }
+
         return view('livewire.client.profile.typed-exam.typed-exam-result', compact(
             'exam', 'stats', 'questionsWithAnswers', 'systemAnalysis'
         ))->layout('layouts.client.app');
     }
 }
-
-

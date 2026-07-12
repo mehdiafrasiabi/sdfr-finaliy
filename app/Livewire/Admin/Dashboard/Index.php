@@ -28,6 +28,8 @@ class Index extends Component
 {
     use SEOTools;
 
+    public bool $usePreviousDayMetrics = true;
+
     public function mount()
     {
         $this->seoConfig();
@@ -39,11 +41,25 @@ class Index extends Component
             ->setTitle('پیشخوان');
     }
 
+    public function showPreviousDayMetrics(): void
+    {
+        $this->usePreviousDayMetrics = true;
+    }
+
+    public function showCurrentDayMetrics(): void
+    {
+        $this->usePreviousDayMetrics = false;
+    }
+
     public function render()
     {
         $adminId = auth('admin')->id();
         $today = now()->startOfDay();
         $todayDate = $today->toDateString();
+        $metricsDate = $this->usePreviousDayMetrics
+            ? $today->copy()->subDay()
+            : $today->copy();
+        $metricsDateString = $metricsDate->toDateString();
 
         $studentIds = $this->getScopedStudentIds($adminId);
 
@@ -71,8 +87,8 @@ class Index extends Component
 
         // New Stats
         $unreadMessagesCount = $this->getUnreadMessagesCount($adminId);
-        [$reportsSentTodayCount, $reportsNotSentTodayCount] = $this->getTodayReportStats($todayDate, $studentIds);
-        [$totalStudyDurationToday, $studentsNotStartedStudy] = $this->getTodayStudyStats($todayDate, $studentIds);
+        [$reportsSentTodayCount, $reportsNotSentTodayCount] = $this->getTodayReportStats($metricsDateString, $studentIds);
+        [$totalStudyDurationToday, $studentsNotStartedStudy] = $this->getTodayStudyStats($metricsDateString, $studentIds);
         
         $examStats = $this->getExamStats($studentIds);
         $classificationStats = $this->getClassificationStats($studentIds);
@@ -106,6 +122,9 @@ class Index extends Component
             'reportsNotSentTodayCount' => $reportsNotSentTodayCount,
             'totalStudyDurationToday' => $totalStudyDurationToday,
             'studentsNotStartedStudy' => $studentsNotStartedStudy,
+            'metricsDateLabel' => jdate($metricsDate)->format('Y/m/d'),
+            'metricsDayLabel' => $this->usePreviousDayMetrics ? 'روز قبل' : 'امروز',
+            'usePreviousDayMetrics' => $this->usePreviousDayMetrics,
             'examStats' => $examStats,
             'classificationStats' => $classificationStats,
 
@@ -227,9 +246,11 @@ class Index extends Component
         $sentCount = DailyReport::query()
             ->whereIn('student_id', $studentIds)
             ->where('report_date', $todayDate)
-            ->count();
+            ->where('is_compensatory', false)
+            ->distinct('student_id')
+            ->count('student_id');
 
-        $notSentCount = count($studentIds) - $sentCount;
+        $notSentCount = max(0, count($studentIds) - $sentCount);
 
         return [$sentCount, $notSentCount];
     }

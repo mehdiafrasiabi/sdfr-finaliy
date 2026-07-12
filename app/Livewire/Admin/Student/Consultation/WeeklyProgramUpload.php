@@ -11,7 +11,17 @@ use App\Models\WeeklyProgramRestDay;
 use App\Models\ClassSchedule;
 use App\Models\Notification;
 use App\Models\NotificationRecipient;
+use App\Models\EssayExam;
+use App\Models\EssayExamAssignment;
+use App\Models\EssayExamAssignmentTime;
+use App\Models\TypedExam;
+use App\Models\TypedExamAssignment;
+use App\Models\TypedExamAssignmentTime;
+use App\Services\AssessmentInterpretationService;
+use App\Services\NotificationService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\EducationLevel;
@@ -91,9 +101,28 @@ class WeeklyProgramUpload extends Component
     public bool  $showExamPartModal       = false;
     public ?int  $editingExamPartId       = null;
     public array $examPartForm = [
-        'exam_name'        => '',
-        'duration_minutes' => 60,
-        'description'      => '',
+        'exam_name'                  => '',
+        'duration_minutes'           => 60,
+        'description'                => '',
+        'analysis_duration_minutes'  => 60,
+        'analysis_description'       => '',
+    ];
+
+    // ==================== Typed / Essay Exam Assignment ====================
+    public bool $showExamAssignmentModal = false;
+    public string $examAssignmentType = 'typed';
+    public int $examAssignmentStep = 1;
+    public string $examAssignmentSearch = '';
+    public ?int $selectedTypedExamId = null;
+    public ?int $selectedEssayExamId = null;
+    public array $examAssignmentForm = [
+        'start_date_jalali'   => '',
+        'end_date_jalali'     => '',
+        'start_time'          => '08:00',
+        'end_time'            => '18:00',
+        'duration_minutes'    => 60,
+        'result_visibility'   => 'after_exam_end',
+        'answer_key_visibility' => 'after_exam_end',
     ];
 
     // ==================== Class Schedule ====================
@@ -230,8 +259,23 @@ class WeeklyProgramUpload extends Component
     // ==================== Mount ====================
     public function mount(Student $student, AdvisingSession $session = null): void
     {
+        AdvisingSession::markExpiredSessionsAsAdvisorAbsent();
+
+        if ($session) {
+            $session->refresh();
+        }
+
         $this->studentId = $student->id;
         $this->sessionId = $session?->id;
+
+        if ($session && in_array($session->result_status, [
+            AdvisingSession::RESULT_STUDENT_ABSENT,
+            AdvisingSession::RESULT_ADVISOR_ABSENT,
+        ], true)) {
+            $this->dispatch('warning', 'برای جلسه‌ای که برگزار نشده، امکان ثبت برنامه هفتگی وجود ندارد.');
+            $this->redirectRoute('admin.advising-sessions');
+            return;
+        }
 
         $existingProgram = WeeklyProgram::where('student_id', $this->studentId)
             ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
@@ -255,6 +299,23 @@ class WeeklyProgramUpload extends Component
         }
 
         $this->buildPrevWeekPreview();
+        $this->resetExamAssignmentForm();
+    }
+
+    protected function resetExamAssignmentForm(): void
+    {
+        $today = jdate(now())->format('Y/m/d');
+        $nextWeek = jdate(now()->addDays(7))->format('Y/m/d');
+
+        $this->examAssignmentForm = [
+            'start_date_jalali'     => $today,
+            'end_date_jalali'       => $nextWeek,
+            'start_time'            => '08:00',
+            'end_time'              => '18:00',
+            'duration_minutes'      => 60,
+            'result_visibility'     => 'after_exam_end',
+            'answer_key_visibility' => 'after_exam_end',
+        ];
     }
 
     public function togglePrevWeekPreview(): void
@@ -988,11 +1049,12 @@ class WeeklyProgramUpload extends Component
             return;
         }
 
-        $results     = [];
-        $gradeFilter = $this->getStudentGradeFilter();
+        $results         = [];
+        $gradeFilter     = $this->getStudentGradeFilter();
         $allowedGrades   = $gradeFilter['grade_numbers'];
         $studentFieldId  = $gradeFilter['field_id'];
-        $seen = [];
+        $wholeBookOnly   = ($this->partForm['part_mode'] ?? 'normal') === ProgramPart::PART_MODE_WHOLE_BOOK;
+        $seen            = [];
 
         // 1. Subjects
         $subjectQuery = CcSubject::where('name', 'like', "%{$value}%")
@@ -1028,24 +1090,33 @@ class WeeklyProgramUpload extends Component
                 ];
             }
 
-            foreach ($subject->chapters as $chapter) {
-                $key = 'chapter_' . $chapter->id;
-                if (isset($seen[$key])) continue;
-                $seen[$key] = true;
-                $results[] = [
-                    'type'               => 'chapter',
-                    'sort'               => 1,
-                    'topic_id'           => null,
-                    'chapter_id'         => $chapter->id,
-                    'subject_id'         => $subject->id,
-                    'grade_id'           => $grade->id,
-                    'grade_name'         => $grade->name,
-                    'grade_number'       => $grade->grade_number,
-                    'field_id'           => $subject->cc_field_id,
-                    'education_level_id' => $educationLevel->id,
-                    'label'              => $subject->name . ' / ' . $chapter->name,
-                ];
+            if (!$wholeBookOnly) {
+                foreach ($subject->chapters as $chapter) {
+                    $key = 'chapter_' . $chapter->id;
+                    if (isset($seen[$key])) continue;
+                    $seen[$key] = true;
+                    $results[] = [
+                        'type'               => 'chapter',
+                        'sort'               => 1,
+                        'topic_id'           => null,
+                        'chapter_id'         => $chapter->id,
+                        'subject_id'         => $subject->id,
+                        'grade_id'           => $grade->id,
+                        'grade_name'         => $grade->name,
+                        'grade_number'       => $grade->grade_number,
+                        'field_id'           => $subject->cc_field_id,
+                        'education_level_id' => $educationLevel->id,
+                        'label'              => $subject->name . ' / ' . $chapter->name,
+                    ];
+                }
             }
+        }
+
+        if ($wholeBookOnly) {
+            usort($results, fn($a, $b) => $a['sort'] <=> $b['sort']);
+            $results = array_map(fn($r) => array_diff_key($r, ['sort' => '']), $results);
+            $this->globalSearchResults = array_slice($results, 0, 15);
+            return;
         }
 
         // 2. Chapters
@@ -1392,16 +1463,28 @@ class WeeklyProgramUpload extends Component
                 return;
             }
 
+            $emptyDays = $this->getUndecidedEmptyDayNames();
+            if (!empty($emptyDays)) {
+                $this->dispatch(
+                    'warning',
+                    'برای این روزهای خالی باید وضعیت مشخص شود: ' . implode('، ', $emptyDays) . '. لطفاً پارت اضافه کنید یا روز را روی استراحت / آزمون جامع بگذارید.'
+                );
+                return;
+            }
+
             $this->markSessionAsHeld();
         }
 
         $this->dispatch('success', 'برنامه هفتگی با موفقیت ذخیره شد.');
+        $this->redirectRoute('admin.advising-sessions');
     }
 
     public function forceFinalSave(): void
     {
         $this->showZeroTimeWarningModal = false;
-        $this->dispatch('success', 'برنامه هفتگی ذخیره شد (بدون تایید نهایی - پارت‌های بدون تایم وجود دارد).');
+        $this->markSessionAsHeld();
+        $this->dispatch('success', 'برنامه هفتگی ذخیره شد.');
+        $this->redirectRoute('admin.advising-sessions');
     }
 
     public function closeZeroTimeWarningModal(): void
@@ -1415,7 +1498,38 @@ class WeeklyProgramUpload extends Component
         AdvisingSession::find($this->sessionId)?->update([
             'result_status' => AdvisingSession::RESULT_HELD,
             'status'        => AdvisingSession::STATUS_COMPLETED,
+            'is_active'     => false,
+            'finalized'     => true,
         ]);
+    }
+
+    protected function getUndecidedEmptyDayNames(): array
+    {
+        if (!$this->weeklyProgramId) {
+            return [];
+        }
+
+        $program = WeeklyProgram::find($this->weeklyProgramId);
+        if (!$program) {
+            return [];
+        }
+
+        $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'روز هشتم'];
+        $emptyDays = [];
+
+        for ($dayIndex = 0; $dayIndex < 8; $dayIndex++) {
+            $hasParts = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $dayIndex)
+                ->exists();
+
+            if ($hasParts || $program->isRestDay($dayIndex) || $program->isExamDay($dayIndex)) {
+                continue;
+            }
+
+            $emptyDays[] = $dayNames[$dayIndex] ?? ('روز ' . ($dayIndex + 1));
+        }
+
+        return $emptyDays;
     }
 
     // ==================== Classification ====================
@@ -1900,9 +2014,15 @@ class WeeklyProgramUpload extends Component
 
     public function openExamPartModal(int $dayIndex): void
     {
-        $this->selectedDay     = $dayIndex;
+        $this->selectedDay       = $dayIndex;
         $this->editingExamPartId = null;
-        $this->examPartForm    = ['exam_name' => '', 'duration_minutes' => 60, 'description' => ''];
+        $this->examPartForm      = [
+            'exam_name'                 => '',
+            'duration_minutes'          => 60,
+            'description'               => '',
+            'analysis_duration_minutes' => 60,
+            'analysis_description'      => '',
+        ];
         $this->showExamPartModal = true;
     }
 
@@ -1911,12 +2031,34 @@ class WeeklyProgramUpload extends Component
         $part = ProgramPart::find($partId);
         if (!$part) return;
 
-        $this->editingExamPartId = $partId;
+        if ($part->part_type === ProgramPart::PART_TYPE_EXAM_ANALYSIS) {
+            $analysisPart = $part;
+            $examPart = ProgramPart::where('weekly_program_id', $part->weekly_program_id)
+                ->where('day_of_week', $part->day_of_week)
+                ->where('part_type', ProgramPart::PART_TYPE_COMPREHENSIVE_EXAM)
+                ->where('part_order', $part->part_order - 1)
+                ->first();
+            if (!$examPart) {
+                $this->dispatch('warning', 'برای این تحلیل، آزمون جامع متناظر پیدا نشد.');
+                return;
+            }
+            $part = $examPart;
+        } else {
+            $analysisPart = ProgramPart::where('weekly_program_id', $part->weekly_program_id)
+                ->where('day_of_week', $part->day_of_week)
+                ->where('part_type', ProgramPart::PART_TYPE_EXAM_ANALYSIS)
+                ->where('part_order', $part->part_order + 1)
+                ->first();
+        }
+
+        $this->editingExamPartId = $part->id;
         $this->selectedDay       = $part->day_of_week;
         $this->examPartForm = [
-            'exam_name'        => $part->lesson_name,
-            'duration_minutes' => $part->duration_minutes,
-            'description'      => $part->description,
+            'exam_name'                 => $part->lesson_name,
+            'duration_minutes'          => $part->duration_minutes,
+            'description'               => $part->description,
+            'analysis_duration_minutes' => $analysisPart?->duration_minutes ?? 60,
+            'analysis_description'      => $analysisPart?->description ?? '',
         ];
         $this->showExamPartModal = true;
     }
@@ -1925,18 +2067,27 @@ class WeeklyProgramUpload extends Component
     {
         $this->showExamPartModal  = false;
         $this->editingExamPartId  = null;
-        $this->examPartForm       = ['exam_name' => '', 'duration_minutes' => 60, 'description' => ''];
+        $this->examPartForm       = [
+            'exam_name'                 => '',
+            'duration_minutes'          => 60,
+            'description'               => '',
+            'analysis_duration_minutes' => 60,
+            'analysis_description'      => '',
+        ];
     }
 
     public function saveExamPart(): void
     {
         $this->validate([
-            'examPartForm.exam_name'        => 'required|string|max:255',
-            'examPartForm.duration_minutes' => 'required|integer|min:1',
+            'examPartForm.exam_name'                 => 'required|string|max:255',
+            'examPartForm.duration_minutes'          => 'required|integer|min:1',
+            'examPartForm.analysis_duration_minutes' => 'required|integer|min:1',
         ], [
-            'examPartForm.exam_name.required'        => 'نام آزمون الزامی است.',
-            'examPartForm.duration_minutes.required' => 'مدت زمان الزامی است.',
-            'examPartForm.duration_minutes.min'      => 'مدت زمان باید حداقل ۱ دقیقه باشد.',
+            'examPartForm.exam_name.required'                 => 'نام آزمون الزامی است.',
+            'examPartForm.duration_minutes.required'          => 'مدت زمان آزمون الزامی است.',
+            'examPartForm.duration_minutes.min'               => 'مدت زمان آزمون باید حداقل ۱ دقیقه باشد.',
+            'examPartForm.analysis_duration_minutes.required' => 'مدت زمان تحلیل الزامی است.',
+            'examPartForm.analysis_duration_minutes.min'      => 'مدت زمان تحلیل باید حداقل ۱ دقیقه باشد.',
         ]);
 
         if (!$this->weeklyProgramId) $this->saveProgram();
@@ -1952,15 +2103,19 @@ class WeeklyProgramUpload extends Component
                 'description'      => $this->examPartForm['description'],
             ]);
 
-            ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-                ->where('day_of_week', $this->selectedDay)
-                ->where('part_type', 'exam_analysis')
-                ->where('part_order', $part->part_order + 1)
-                ->update([
-                    'lesson_name'      => 'تحلیل آزمون: ' . $this->examPartForm['exam_name'],
-                    'duration_minutes' => $this->examPartForm['duration_minutes'],
-                    'description'      => 'تحلیل آزمون - ' . $this->examPartForm['description'],
-                ]);
+            ProgramPart::updateOrCreate([
+                'weekly_program_id' => $this->weeklyProgramId,
+                'day_of_week'       => $this->selectedDay,
+                'part_type'         => ProgramPart::PART_TYPE_EXAM_ANALYSIS,
+                'part_order'        => $part->part_order + 1,
+            ], [
+                'part_date'         => $partDate,
+                'lesson_name'       => 'تحلیل آزمون ' . $this->examPartForm['exam_name'],
+                'duration_minutes'  => $this->examPartForm['analysis_duration_minutes'],
+                'description'       => $this->examPartForm['analysis_description'],
+                'source_type'       => ProgramPart::SOURCE_COMPREHENSIVE_EXAM,
+                'lesson_type'       => 'specialized',
+            ]);
         } else {
             $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
                 ->where('day_of_week', $this->selectedDay)->count();
@@ -1985,21 +2140,339 @@ class WeeklyProgramUpload extends Component
 
             ProgramPart::create([
                 'weekly_program_id' => $this->weeklyProgramId,
-                'lesson_name'       => 'تحلیل آزمون: ' . $this->examPartForm['exam_name'],
+                'lesson_name'       => 'تحلیل آزمون ' . $this->examPartForm['exam_name'],
                 'part_date'         => $partDate,
                 'day_of_week'       => $this->selectedDay,
                 'part_order'        => $existingCount + 2,
-                'description'       => 'تحلیل آزمون - ' . $this->examPartForm['description'],
-                'duration_minutes'  => $this->examPartForm['duration_minutes'],
-                'part_type'         => 'exam_analysis',
+                'description'       => $this->examPartForm['analysis_description'],
+                'duration_minutes'  => $this->examPartForm['analysis_duration_minutes'],
+                'part_type'         => ProgramPart::PART_TYPE_EXAM_ANALYSIS,
                 'source_type'       => ProgramPart::SOURCE_COMPREHENSIVE_EXAM,
                 'lesson_type'       => 'specialized',
             ]);
         }
 
+        $this->reorderAllDays();
         $this->loadExistingParts();
         $this->closeExamPartModal();
         $this->dispatch('success', 'آزمون و تحلیل آزمون با موفقیت ذخیره شد.');
+    }
+
+    // ==================== Typed / Essay Exam Assignment ====================
+    public function openExamAssignmentModal(string $type): void
+    {
+        if (!in_array($type, ['typed', 'essay'], true)) {
+            return;
+        }
+
+        $this->showExamAssignmentModal = true;
+        $this->examAssignmentType      = $type;
+        $this->examAssignmentStep      = 1;
+        $this->examAssignmentSearch    = '';
+        $this->selectedTypedExamId     = null;
+        $this->selectedEssayExamId     = null;
+        $this->resetExamAssignmentForm();
+        $this->resetValidation();
+        $this->dispatch('modal-opened');
+    }
+
+    public function closeExamAssignmentModal(): void
+    {
+        $this->showExamAssignmentModal = false;
+        $this->examAssignmentType      = 'typed';
+        $this->examAssignmentStep      = 1;
+        $this->examAssignmentSearch    = '';
+        $this->selectedTypedExamId     = null;
+        $this->selectedEssayExamId     = null;
+        $this->resetExamAssignmentForm();
+        $this->resetValidation();
+    }
+
+    public function selectExamAssignmentExam(int $examId): void
+    {
+        if ($this->examAssignmentType === 'typed') {
+            $exam = TypedExam::published()->find($examId);
+            if (!$exam) {
+                $this->dispatch('warning', 'آزمون تستی انتخاب‌شده یافت نشد.');
+                return;
+            }
+            $this->selectedTypedExamId = $exam->id;
+            $this->selectedEssayExamId = null;
+        } else {
+            $exam = EssayExam::where('admin_id', Auth::guard('admin')->id())->find($examId);
+            if (!$exam) {
+                $this->dispatch('warning', 'آزمون تشریحی انتخاب‌شده یافت نشد.');
+                return;
+            }
+            $this->selectedEssayExamId = $exam->id;
+            $this->selectedTypedExamId = null;
+        }
+
+        $this->examAssignmentStep = 2;
+        $this->resetValidation();
+        $this->dispatch('modal-opened');
+    }
+
+    public function backToExamAssignmentList(): void
+    {
+        $this->examAssignmentStep = 1;
+        $this->resetValidation();
+    }
+
+    public function assignExamFromWeeklyProgram(): void
+    {
+        if ($this->examAssignmentType === 'typed') {
+            $this->assignTypedExamFromWeeklyProgram();
+            return;
+        }
+
+        $this->assignEssayExamFromWeeklyProgram();
+    }
+
+    protected function assignTypedExamFromWeeklyProgram(): void
+    {
+        if (!$this->selectedTypedExamId) {
+            $this->dispatch('warning', 'ابتدا آزمون تستی را انتخاب کنید.');
+            return;
+        }
+
+        $this->validate([
+            'examAssignmentForm.start_date_jalali'     => 'required|string',
+            'examAssignmentForm.end_date_jalali'       => 'required|string',
+            'examAssignmentForm.start_time'            => 'required',
+            'examAssignmentForm.end_time'              => 'required',
+            'examAssignmentForm.duration_minutes'      => 'required|integer|min:1|max:1440',
+            'examAssignmentForm.result_visibility'     => 'required|in:after_exam_end,immediately',
+            'examAssignmentForm.answer_key_visibility' => 'required|in:after_exam_end,immediately',
+        ], [
+            'examAssignmentForm.start_date_jalali.required' => 'تاریخ شروع الزامی است.',
+            'examAssignmentForm.end_date_jalali.required' => 'تاریخ پایان الزامی است.',
+            'examAssignmentForm.duration_minutes.required' => 'مدت آزمون الزامی است.',
+            'examAssignmentForm.duration_minutes.min' => 'مدت آزمون باید حداقل ۱ دقیقه باشد.',
+        ]);
+
+        $startDate = $this->parseJalaliDateToCarbon($this->examAssignmentForm['start_date_jalali']);
+        $endDate   = $this->parseJalaliDateToCarbon($this->examAssignmentForm['end_date_jalali']);
+
+        if (!$startDate || !$endDate) {
+            $this->dispatch('warning', 'فرمت تاریخ‌های آزمون تستی صحیح نیست.');
+            return;
+        }
+
+        if ($endDate->lt($startDate)) {
+            $this->addError('examAssignmentForm.end_date_jalali', 'تاریخ پایان باید بعد از تاریخ شروع باشد.');
+            return;
+        }
+
+        $admin = Auth::guard('admin')->user();
+        $exam = TypedExam::published()->find($this->selectedTypedExamId);
+        if (!$admin || !$exam) {
+            $this->dispatch('warning', 'اطلاعات آزمون تستی کامل نیست.');
+            return;
+        }
+
+        $assigned = false;
+
+        DB::transaction(function () use ($admin, $exam, $startDate, $endDate, &$assigned) {
+            $exists = TypedExamAssignment::where('typed_exam_id', $exam->id)
+                ->where('student_id', $this->studentId)
+                ->whereNull('deleted_at')
+                ->exists();
+
+            if ($exists) {
+                return;
+            }
+
+            $assignment = TypedExamAssignment::create([
+                'typed_exam_id'         => $exam->id,
+                'student_id'            => $this->studentId,
+                'admin_id'              => $admin->id,
+                'status'                => 'pending',
+                'result_visibility'     => $this->examAssignmentForm['result_visibility'],
+                'answer_key_visibility' => $this->examAssignmentForm['answer_key_visibility'],
+            ]);
+
+            TypedExamAssignmentTime::create([
+                'assignment_id'    => $assignment->id,
+                'start_date'       => $startDate->toDateString(),
+                'end_date'         => $endDate->toDateString(),
+                'start_time'       => $this->examAssignmentForm['start_time'],
+                'end_time'         => $this->examAssignmentForm['end_time'],
+                'duration_minutes' => (int) $this->examAssignmentForm['duration_minutes'],
+            ]);
+
+            $assigned = true;
+        });
+
+        if (!$assigned) {
+            $this->dispatch('warning', 'این آزمون تستی قبلاً به دانش‌آموز اختصاص داده شده است.');
+            return;
+        }
+
+        $this->sendTypedExamAssignedNotification(
+            $exam,
+            $startDate->toDateString(),
+            $endDate->toDateString(),
+            $this->examAssignmentForm['start_time'],
+            $this->examAssignmentForm['end_time'],
+            (int) $this->examAssignmentForm['duration_minutes']
+        );
+
+        $this->closeExamAssignmentModal();
+        $this->dispatch('success', 'آزمون تستی با موفقیت اختصاص داده شد.');
+    }
+
+    protected function assignEssayExamFromWeeklyProgram(): void
+    {
+        if (!$this->selectedEssayExamId) {
+            $this->dispatch('warning', 'ابتدا آزمون تشریحی را انتخاب کنید.');
+            return;
+        }
+
+        $this->validate([
+            'examAssignmentForm.start_date_jalali' => 'required|string',
+            'examAssignmentForm.end_date_jalali'   => 'required|string',
+            'examAssignmentForm.start_time'        => 'required',
+            'examAssignmentForm.end_time'          => 'required',
+            'examAssignmentForm.duration_minutes'  => 'required|integer|min:5|max:600',
+        ], [
+            'examAssignmentForm.start_date_jalali.required' => 'تاریخ شروع الزامی است.',
+            'examAssignmentForm.end_date_jalali.required' => 'تاریخ پایان الزامی است.',
+            'examAssignmentForm.duration_minutes.required' => 'مدت آزمون الزامی است.',
+            'examAssignmentForm.duration_minutes.min' => 'مدت آزمون باید حداقل ۵ دقیقه باشد.',
+        ]);
+
+        $startDate = $this->parseJalaliDateToCarbon($this->examAssignmentForm['start_date_jalali']);
+        $endDate   = $this->parseJalaliDateToCarbon($this->examAssignmentForm['end_date_jalali']);
+
+        if (!$startDate || !$endDate) {
+            $this->dispatch('warning', 'فرمت تاریخ‌های آزمون تشریحی صحیح نیست.');
+            return;
+        }
+
+        $startAt = $this->combineDateAndTime($startDate, $this->examAssignmentForm['start_time']);
+        $endAt   = $this->combineDateAndTime($endDate, $this->examAssignmentForm['end_time']);
+
+        if (!$startAt || !$endAt) {
+            $this->dispatch('warning', 'فرمت ساعت آزمون تشریحی صحیح نیست.');
+            return;
+        }
+
+        if ($endAt->lte($startAt)) {
+            $this->addError('examAssignmentForm.end_date_jalali', 'تاریخ و ساعت پایان باید بعد از شروع باشد.');
+            return;
+        }
+
+        $admin = Auth::guard('admin')->user();
+        $exam = EssayExam::where('admin_id', $admin?->id)->find($this->selectedEssayExamId);
+        if (!$admin || !$exam) {
+            $this->dispatch('warning', 'اطلاعات آزمون تشریحی کامل نیست.');
+            return;
+        }
+
+        DB::transaction(function () use ($admin, $exam, $startAt, $endAt) {
+            $assignment = EssayExamAssignment::create([
+                'essay_exam_id' => $exam->id,
+                'student_id'    => $this->studentId,
+                'admin_id'      => $admin->id,
+                'status'        => EssayExamAssignment::STATUS_PENDING,
+            ]);
+
+            EssayExamAssignmentTime::create([
+                'assignment_id'    => $assignment->id,
+                'start_at'         => $startAt,
+                'end_at'           => $endAt,
+                'duration_minutes' => (int) $this->examAssignmentForm['duration_minutes'],
+            ]);
+        });
+
+        $this->sendEssayExamAssignedNotification($exam);
+
+        $this->closeExamAssignmentModal();
+        $this->dispatch('success', 'آزمون تشریحی با موفقیت اختصاص داده شد.');
+    }
+
+    protected function sendTypedExamAssignedNotification(
+        TypedExam $exam,
+        string $startDate,
+        string $endDate,
+        string $startTime,
+        string $endTime,
+        int $durationMinutes
+    ): void {
+        $student = Student::with('user')->find($this->studentId);
+        if (!$student) {
+            return;
+        }
+
+        $studentName = $student->user?->name ?? 'دانش آموز';
+        $message = "{$studentName} عزیز\nآزمون «{$exam->title}» برای شما اختصاص یافت.\n";
+        $message .= 'تاریخ شروع: ' . jdate(Carbon::parse($startDate))->format('Y/m/d') . "\n";
+        $message .= 'تاریخ پایان: ' . jdate(Carbon::parse($endDate))->format('Y/m/d') . "\n";
+        $message .= "ساعت مجاز: {$startTime} تا {$endTime}\n";
+        $message .= "مدت زمان آزمون: {$durationMinutes} دقیقه\n";
+        $message .= 'با تشکر';
+
+        NotificationService::sendToStudent($student->id, 'اختصاص آزمون جدید', $message);
+    }
+
+    protected function sendEssayExamAssignedNotification(EssayExam $exam): void
+    {
+        $student = Student::with('user')->find($this->studentId);
+        $admin = Auth::guard('admin')->user();
+
+        if (!$student?->user || !$admin) {
+            return;
+        }
+
+        $notification = Notification::create([
+            'admin_id'        => $admin->id,
+            'category'        => Notification::CATEGORY_ANNOUNCEMENT,
+            'target_type'     => Notification::TARGET_SINGLE,
+            'title'           => 'آزمون تشریحی جدید',
+            'body'            => 'آزمون «' . $exam->title . '» برای شما ثبت شد.',
+            'is_from_manager' => false,
+        ]);
+
+        NotificationRecipient::create([
+            'notification_id' => $notification->id,
+            'user_id'         => $student->user->id,
+            'is_read'         => false,
+        ]);
+    }
+
+    protected function parseJalaliDateToCarbon(?string $jalaliDate): ?Carbon
+    {
+        $normalized = $this->normalizeDigits(trim((string) $jalaliDate));
+        if ($normalized === '') {
+            return null;
+        }
+
+        try {
+            return \Morilog\Jalali\Jalalian::fromFormat('Y/m/d', $normalized)->toCarbon()->startOfDay();
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    protected function combineDateAndTime(Carbon $date, string $time): ?Carbon
+    {
+        $time = trim($time);
+        if (!preg_match('/^\d{2}:\d{2}$/', $time)) {
+            return null;
+        }
+
+        [$hour, $minute] = array_map('intval', explode(':', $time));
+        return $date->copy()->setTime($hour, $minute);
+    }
+
+    protected function normalizeDigits(string $value): string
+    {
+        return str_replace(
+            ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹', '٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'],
+            ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+            $value
+        );
     }
 
     public function deleteExamPart(int $partId): void
@@ -3622,11 +4095,22 @@ class WeeklyProgramUpload extends Component
         return $m . ' دقیقه';
     }
 
+    protected function getAssessmentSummary(?Student $student): ?array
+    {
+        $user = $student?->user;
+        if (!$user) {
+            return null;
+        }
+
+        return app(AssessmentInterpretationService::class)->summaryForUser($user);
+    }
+
     // ==================== Render ====================
     public function render()
     {
         $student = Student::with(['user.personalInformation', 'advisor'])->find($this->studentId);
         $weeklyProgram = $this->weeklyProgramId ? WeeklyProgram::with('parts')->find($this->weeklyProgramId) : null;
+        $assessmentSummary = $this->getAssessmentSummary($student);
 
         $educationLevels = EducationLevel::active()->ordered()->get();
 
@@ -3680,6 +4164,58 @@ class WeeklyProgramUpload extends Component
 
         $classScheduleData = $this->getClassScheduleData();
 
+        $typedExamsForAssignment = collect();
+        $essayExamsForAssignment = collect();
+        $typedAssignedExamIds = [];
+        $essayAssignedExamIds = [];
+        $selectedExamForAssignment = null;
+        $visibilityOptions = [
+            'after_exam_end' => 'بعد از پایان آزمون',
+            'immediately' => 'بلافاصله پس از ثبت پاسخ',
+        ];
+
+        if ($this->showExamAssignmentModal) {
+            $typedExamsForAssignment = TypedExam::query()
+                ->withCount('questions')
+                ->where('is_published', true)
+                ->when($this->examAssignmentSearch !== '', fn($q) => $q->where('title', 'like', '%' . $this->examAssignmentSearch . '%'))
+                ->latest()
+                ->limit(20)
+                ->get();
+
+            $essayExamsForAssignment = EssayExam::query()
+                ->where('admin_id', Auth::guard('admin')->id())
+                ->withCount('questions')
+                ->when($this->examAssignmentSearch !== '', fn($q) => $q->where('title', 'like', '%' . $this->examAssignmentSearch . '%'))
+                ->latest()
+                ->limit(20)
+                ->get();
+
+            if ($typedExamsForAssignment->isNotEmpty()) {
+                $typedAssignedExamIds = TypedExamAssignment::query()
+                    ->where('student_id', $this->studentId)
+                    ->whereIn('typed_exam_id', $typedExamsForAssignment->pluck('id'))
+                    ->whereNull('deleted_at')
+                    ->pluck('typed_exam_id')
+                    ->map(fn($id) => (int) $id)
+                    ->all();
+            }
+
+            if ($essayExamsForAssignment->isNotEmpty()) {
+                $essayAssignedExamIds = EssayExamAssignment::query()
+                    ->where('student_id', $this->studentId)
+                    ->whereIn('essay_exam_id', $essayExamsForAssignment->pluck('id'))
+                    ->whereNull('deleted_at')
+                    ->pluck('essay_exam_id')
+                    ->map(fn($id) => (int) $id)
+                    ->all();
+            }
+
+            $selectedExamForAssignment = $this->examAssignmentType === 'typed'
+                ? TypedExam::find($this->selectedTypedExamId)
+                : EssayExam::find($this->selectedEssayExamId);
+        }
+
         return view('livewire.admin.student.consultation.weekly-program-upload', [
             'student'           => $student,
             'educationLevels'   => $educationLevels,
@@ -3691,6 +4227,13 @@ class WeeklyProgramUpload extends Component
             'classScheduleData' => $classScheduleData,
             'filteredPrevParts' => $this->getFilteredPrevParts(),
             'filteredStudyItems' => $this->getFilteredStudyItems(),
+            'assessmentSummary' => $assessmentSummary,
+            'typedExamsForAssignment' => $typedExamsForAssignment,
+            'essayExamsForAssignment' => $essayExamsForAssignment,
+            'typedAssignedExamIds' => $typedAssignedExamIds,
+            'essayAssignedExamIds' => $essayAssignedExamIds,
+            'selectedExamForAssignment' => $selectedExamForAssignment,
+            'visibilityOptions' => $visibilityOptions,
         ])->layout('layouts.admin.app');
     }
 }

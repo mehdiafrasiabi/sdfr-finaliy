@@ -1056,6 +1056,85 @@
 
                             </div>
 
+                            <div class="col-lg-12 mb-4">
+
+                                <div class="card border card-border-info">
+
+                                    <div class="card-header bg-info-subtle">
+
+                                        <div class="d-flex align-items-center">
+
+                                            <i class="ri-file-chart-line fs-18 text-info me-2"></i>
+
+                                            <h5 class="card-title mb-0 text-info">دسترسی کارنامه هوشمند</h5>
+
+                                        </div>
+
+                                        <p class="text-muted mb-0 mt-2">
+
+                                            <small>تا وقتی این گزینه توسط manager فعال نشود، هیچ ادمینی در پنل ادمین به بخش کارنامه هوشمند دسترسی نخواهد داشت. دانش‌آموزان یک هفته آزمایشی هم در این بخش نمایش داده نمی‌شوند.</small>
+
+                                        </p>
+
+                                    </div>
+
+                                    <div class="card-body">
+
+                                        <form wire:submit.prevent="saveSmartReportCardAccess">
+
+                                            <div class="row g-3">
+
+                                                <div class="col-12">
+
+                                                    <div class="form-check form-switch fs-18">
+
+                                                        <input class="form-check-input" type="checkbox" role="switch"
+                                                               id="smartReportCardEnabled" wire:model="smart_report_card_enabled">
+
+                                                        <label class="form-check-label ms-2" for="smartReportCardEnabled">
+
+                                                            کارنامه هوشمند برای ادمین‌ها و مشاوران قابل مشاهده باشد
+
+                                                        </label>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="col-12">
+
+                                                    <div class="text-end">
+
+                                                        <button type="submit" class="btn btn-info">
+
+                                                            <span wire:loading.remove wire:target="saveSmartReportCardAccess">
+
+                                                                <i class="ri-save-line me-1"></i> ذخیره دسترسی کارنامه هوشمند
+
+                                                            </span>
+
+                                                            <span wire:loading wire:target="saveSmartReportCardAccess">
+
+                                                                <i class="ri-loader-4-line ri-spin me-1"></i> در حال ذخیره...
+
+                                                            </span>
+
+                                                        </button>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
                         </div>
 
                     @endif

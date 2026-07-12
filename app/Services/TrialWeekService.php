@@ -48,6 +48,8 @@ class TrialWeekService
             app(ParentInvitationService::class)->sendForTrialWeek($trial);
         }
 
+        app(TrialLifecycleSmsService::class)->trySendTrialStarted($trial);
+
         return $trial;
     }
 
@@ -173,7 +175,7 @@ class TrialWeekService
                 'advisor_id'          => null,
                 'advising_session_id' => $session?->id,
                 'start_date'          => Carbon::now()->toDateString(),
-                'end_date'            => Carbon::now()->addDays(6)->toDateString(),
+                'end_date'            => Carbon::now()->addDays(self::TRIAL_PROGRAM_DAYS - 1)->toDateString(),
                 'is_active'           => true,
             ]);
 
@@ -287,7 +289,8 @@ class TrialWeekService
         ];
     }
 
-    const MIN_PART_MINUTES = 15;   // حداقل ۱۵ دقیقه برای هر پارت
+    const TRIAL_PROGRAM_DAYS = 8;   // امروز + ۷ روز بعد
+    const MIN_PART_MINUTES = 15;    // حداقل قدیمی برای مسیرهای غیرآزمایشی
     const MIN_DAILY_MINUTES = 120; // حداقل ۲ ساعت مطالعه در روز
 
     // ───────── سهم پایهٔ هر سطل از ساعت مطالعهٔ روزانه (نرمال‌سازی دینامیک) ─────────
@@ -333,6 +336,7 @@ class TrialWeekService
 
         // حداقل ۲ ساعت روزانه رعایت شود
         $dailyMinutes = max($dailyHours * 60, self::MIN_DAILY_MINUTES);
+        $minPartMinutes = $this->minPartMinutesForDailyHours($dailyHours);
 
         // نگاشت نوع درس‌ها (عمومی/تخصصی) + نگاشت دستهٔ طبقه‌بندی کاربر
         $this->subjectTypeMap = \App\Models\CcSubject::pluck('type', 'id')->all();
@@ -345,6 +349,13 @@ class TrialWeekService
             $this->classificationTopics($userId, 2),
             $this->classificationTopics($userId, 1),
         );
+        $topicPools = [
+            'a'  => $this->buildTopicDesired($topicsA,  'A'),
+            'b'  => $this->buildTopicDesired($topicsB,  'B'),
+            'cd' => $this->buildTopicDesired($topicsCD, 'CD'),
+        ];
+        $fallbackTopics = $this->fallbackCurriculumTopics($trialWeek);
+        $topicCursors = ['a' => 0, 'b' => 0, 'cd' => 0, 'fallback' => 0];
 
         // برنامهٔ کلاسیِ نهایی‌شدهٔ مدرسه (فقط برای کسانی که مدرسه می‌روند)
         $schedule = null;
@@ -360,8 +371,9 @@ class TrialWeekService
         $events = $this->collectExamEvents($trialWeek);
 
         $startDay = Carbon::now()->startOfDay();
+        $recentDayKeys = [];
 
-        for ($dayIdx = 0; $dayIdx < 7; $dayIdx++) {
+        for ($dayIdx = 0; $dayIdx < self::TRIAL_PROGRAM_DAYS; $dayIdx++) {
             $date     = $startDay->copy()->addDays($dayIdx);
             $dateStr  = $date->toDateString();
             $jWeekday = jdate($date)->getDayOfWeek(); // 0=شنبه .. 6=جمعه
@@ -390,9 +402,10 @@ class TrialWeekService
             $bucketReading  = (!$isNightBefore && !$noDailyPre) ? $this->buildReadingDesired($scheduleSubjects) : [];
             $bucketHomework = (!$isNightBefore && $isFreeDay)   ? $this->buildHomeworkDesired($scheduleSubjects) : [];
             $bucketSchedule = array_merge($bucketReading, $bucketHomework);
-            $bucketA  = $isNightBefore ? [] : $this->buildTopicDesired($topicsA,  'A');
-            $bucketB  = $isNightBefore ? [] : $this->buildTopicDesired($topicsB,  'B');
-            $bucketCD = $isNightBefore ? [] : $this->buildTopicDesired($topicsCD, 'CD');
+            $bucketA  = $isNightBefore ? [] : $topicPools['a'];
+            $bucketB  = $isNightBefore ? [] : $topicPools['b'];
+            $bucketCD = $isNightBefore ? [] : $topicPools['cd'];
+            $bucketFallback = $fallbackTopics;
 
             // سطل‌های دارای محتوا + سهم پایهٔ آن‌ها
             $shares  = [];
@@ -402,38 +415,34 @@ class TrialWeekService
             if (!empty($bucketA))        { $shares['a']        = self::SHARE_TOPIC_A;  $buckets['a']        = $bucketA; }
             if (!empty($bucketB))        { $shares['b']        = self::SHARE_TOPIC_B;  $buckets['b']        = $bucketB; }
             if (!empty($bucketCD))       { $shares['cd']       = self::SHARE_TOPIC_CD; $buckets['cd']       = $bucketCD; }
+            if (!empty($bucketFallback)) { $shares['fallback'] = 0.03;                 $buckets['fallback'] = $bucketFallback; }
 
-            // اگر هیچ سطلی محتوا نداشت → یک پارت پیش‌فرض برای کل روز
+            // برنامهٔ آزمایشی نباید پارت کلی و بی‌درس بسازد.
             if (empty($shares)) {
-                $this->createPart($program, [
-                    'lesson_name'   => 'مطالعه روزانه',
-                    'source_type'   => ProgramPart::SOURCE_DAILY_READING,
-                    'description'   => null,
-                    'cc_subject_id' => null,
-                ], $dailyMinutes, $dateStr, $dayIdx, 1, $gradeForPart);
-                continue;
+                throw new \LogicException('برای ساخت برنامه آزمایشی، حداقل یک درس یا فصل فعال لازم است.');
             }
 
-            // بازتوزیع دینامیک سهم‌ها → دقیقهٔ صحیح که جمعشان دقیقاً = ساعتِ انتخابی
-            $budgets = $this->allocateBudgets($shares, $dailyMinutes);
-
-            $parts = [];
-            foreach ($budgets as $key => $budget) {
-                foreach ($this->distributeWithinBucket($buckets[$key], $budget) as $p) {
-                    $parts[] = $p;
-                }
-            }
-
-            // اطمینان از برابریِ دقیقِ مجموع روز با ساعتِ انتخابی (باقیمانده به آخرین پارت)
-            $sum = array_sum(array_column($parts, 'minutes'));
-            if (!empty($parts) && $sum !== $dailyMinutes) {
-                $parts[count($parts) - 1]['minutes'] += ($dailyMinutes - $sum);
-            }
+            $parts = $this->selectDailyParts(
+                $buckets,
+                $shares,
+                $dailyMinutes,
+                $minPartMinutes,
+                $recentDayKeys,
+                $eventsTomorrow,
+                $topicCursors
+            );
 
             $order = 1;
+            $todayKeys = [];
             foreach ($parts as $p) {
                 $this->createPart($program, $p, $p['minutes'], $dateStr, $dayIdx, $order++, $gradeForPart);
+                $key = $this->partSequenceKey($p);
+                if ($key) {
+                    $todayKeys[$key] = true;
+                }
             }
+            $recentDayKeys[] = array_keys($todayKeys);
+            $recentDayKeys = array_slice($recentDayKeys, -2);
         }
     }
 
@@ -513,14 +522,18 @@ class TrialWeekService
             $base       = $e['type'] === 'exam' ? 'امتحان' : 'پرسش و پاسخ کلاسی';
             $chapterTxt = $e['chapter'] ?: $e['subject'];
             $desc       = $isSameDay ? ($base . ' - ' . $chapterTxt) : ('آمادگی ' . $base . ' - ' . $chapterTxt);
+            $partType   = $e['category'] === 'A'
+                ? ProgramPart::PART_TYPE_TEST
+                : ProgramPart::PART_TYPE_DESCRIPTIVE;
 
             $desired[] = [
                 'lesson_name'   => $e['subject'],
                 'source_type'   => $source,
-                'part_type'     => ProgramPart::PART_TYPE_DESCRIPTIVE,
+                'part_type'     => $partType,
                 'description'   => $desc,
                 'cc_subject_id' => $e['cc_subject_id'],
                 'cc_chapter_id' => $e['cc_chapter_id'],
+                'is_hard_event' => $isSameDay,
             ];
         }
 
@@ -546,11 +559,15 @@ class TrialWeekService
                 $chapter = $ratable->name;
                 $subjId  = $ratable->cc_subject_id;
                 $chapId  = $ratable->id;
+                $subjectOrder = (int) ($ratable->subject?->order ?? 0);
+                $chapterOrder = (int) ($ratable->order ?? 0);
             } elseif ($ratable instanceof \App\Models\CcSubject) {
                 $name    = $ratable->name;
                 $chapter = null;
                 $subjId  = $ratable->id;
                 $chapId  = null;
+                $subjectOrder = (int) ($ratable->order ?? 0);
+                $chapterOrder = 0;
             } else {
                 continue;
             }
@@ -559,10 +576,25 @@ class TrialWeekService
                 'chapter'       => $chapter,
                 'cc_subject_id' => $subjId,
                 'cc_chapter_id' => $chapId,
+                'subject_order' => $subjectOrder,
+                'chapter_order' => $chapterOrder,
             ];
         }
 
-        return array_values($topics);
+        $topics = array_values($topics);
+        usort($topics, fn ($a, $b) => [
+            $a['subject_order'] ?? 0,
+            $a['cc_subject_id'] ?? 0,
+            $a['chapter_order'] ?? 0,
+            $a['cc_chapter_id'] ?? 0,
+        ] <=> [
+            $b['subject_order'] ?? 0,
+            $b['cc_subject_id'] ?? 0,
+            $b['chapter_order'] ?? 0,
+            $b['cc_chapter_id'] ?? 0,
+        ]);
+
+        return $topics;
     }
 
     /** روزخوانی و پیش‌خوانیِ هر درسِ کلاسیِ روز (نوع‌محور). */
@@ -623,7 +655,7 @@ class TrialWeekService
     private function buildTopicDesired(array $topics, string $category): array
     {
         $desired = [];
-        foreach ($topics as $t) {
+        foreach ($topics as $idx => $t) {
             $chapterTxt = $t['chapter'] ?: $t['name'];
 
             switch ($category) {
@@ -648,10 +680,282 @@ class TrialWeekService
                 'description'   => $desc,
                 'cc_subject_id' => $t['cc_subject_id'],
                 'cc_chapter_id' => $t['cc_chapter_id'] ?? null,
+                'topic_index'   => $idx,
             ];
         }
 
         return $desired;
+    }
+
+    private function fallbackCurriculumTopics(TrialWeek $trialWeek): array
+    {
+        $gradeNumber = match (true) {
+            (int) $trialWeek->grade >= 10 && (int) $trialWeek->grade <= 12 => (int) $trialWeek->grade,
+            (int) $trialWeek->grade === TrialWeek::GRADE_GRADUATE => 12,
+            default => 10,
+        };
+
+        $fieldId = $trialWeek->field
+            ? \App\Models\CcField::where('slug', $trialWeek->field)->value('id')
+            : null;
+
+        $ccGrade = \App\Models\CcGrade::where('grade_number', $gradeNumber)
+            ->where('is_active', true)
+            ->when($fieldId, fn ($q) => $q->where('cc_field_id', $fieldId))
+            ->first()
+            ?? \App\Models\CcGrade::where('grade_number', $gradeNumber)->where('is_active', true)->first();
+
+        if (!$ccGrade) {
+            return [];
+        }
+
+        $subjects = \App\Models\CcSubject::where('cc_grade_id', $ccGrade->id)
+            ->where(function ($q) use ($fieldId) {
+                $q->whereNull('cc_field_id');
+                if ($fieldId) {
+                    $q->orWhere('cc_field_id', $fieldId);
+                }
+            })
+            ->with(['chapters' => fn ($q) => $q->active()->ordered()])
+            ->ordered()
+            ->get();
+
+        $topics = [];
+        foreach ($subjects as $subject) {
+            if ($subject->chapters->isEmpty()) {
+                $topics[] = [
+                    'name'          => $subject->name,
+                    'chapter'       => null,
+                    'cc_subject_id' => $subject->id,
+                    'cc_chapter_id' => null,
+                    'subject_order' => (int) ($subject->order ?? 0),
+                    'chapter_order' => 0,
+                ];
+                continue;
+            }
+
+            foreach ($subject->chapters as $chapter) {
+                $topics[] = [
+                    'name'          => $subject->name,
+                    'chapter'       => $chapter->name,
+                    'cc_subject_id' => $subject->id,
+                    'cc_chapter_id' => $chapter->id,
+                    'subject_order' => (int) ($subject->order ?? 0),
+                    'chapter_order' => (int) ($chapter->order ?? 0),
+                ];
+            }
+        }
+
+        return $this->buildTopicDesired($topics, 'CD');
+    }
+
+    private function minPartMinutesForDailyHours(int $dailyHours): int
+    {
+        return match (true) {
+            $dailyHours <= 2 => 40,
+            $dailyHours <= 4 => 60,
+            default          => 90,
+        };
+    }
+
+    private function selectDailyParts(
+        array $buckets,
+        array $shares,
+        int $dailyMinutes,
+        int $minPartMinutes,
+        array $recentDayKeys,
+        array $eventsTomorrow,
+        array &$topicCursors
+    ): array {
+        $maxParts = max(1, intdiv($dailyMinutes, $minPartMinutes));
+        $counts = $this->allocatePartCounts($buckets, $shares, $maxParts);
+        $tomorrowKeys = $this->eventKeys($eventsTomorrow);
+
+        $parts = [];
+        $usedStaticIndexes = [];
+
+        foreach ($counts as $bucketKey => $count) {
+            for ($i = 0; $i < $count; $i++) {
+                $candidate = $this->nextCandidateForBucket(
+                    $bucketKey,
+                    $buckets[$bucketKey] ?? [],
+                    $topicCursors,
+                    $usedStaticIndexes,
+                    $recentDayKeys,
+                    $tomorrowKeys
+                );
+
+                if ($candidate) {
+                    $parts[] = $candidate;
+                }
+            }
+        }
+
+        foreach (array_keys($buckets) as $bucketKey) {
+            while (count($parts) < $maxParts) {
+                $candidate = $this->nextCandidateForBucket(
+                    $bucketKey,
+                    $buckets[$bucketKey] ?? [],
+                    $topicCursors,
+                    $usedStaticIndexes,
+                    $recentDayKeys,
+                    $tomorrowKeys
+                );
+
+                if (!$candidate) {
+                    break;
+                }
+
+                $parts[] = $candidate;
+            }
+        }
+
+        if (count($parts) < $maxParts) {
+            throw new \LogicException('محتوای درسی کافی برای ساخت پارت‌های استاندارد بدون تکرار سه‌روزه وجود ندارد.');
+        }
+
+        return $this->assignDailyMinutes($parts, $dailyMinutes);
+    }
+
+    private function allocatePartCounts(array $buckets, array $shares, int $maxParts): array
+    {
+        $priority = ['exam', 'schedule', 'a', 'b', 'cd', 'fallback'];
+        $available = array_values(array_filter($priority, fn ($key) => !empty($buckets[$key] ?? [])));
+
+        if (empty($available)) {
+            return [];
+        }
+
+        $counts = [];
+        foreach (array_slice($available, 0, $maxParts) as $key) {
+            $counts[$key] = 1;
+        }
+
+        $remaining = $maxParts - array_sum($counts);
+        while ($remaining > 0) {
+            $best = null;
+            $bestScore = -1;
+
+            foreach ($available as $key) {
+                $score = ($shares[$key] ?? 0) / (($counts[$key] ?? 0) + 1);
+                if ($score > $bestScore) {
+                    $best = $key;
+                    $bestScore = $score;
+                }
+            }
+
+            if ($best === null) {
+                break;
+            }
+
+            $counts[$best] = ($counts[$best] ?? 0) + 1;
+            $remaining--;
+        }
+
+        return $counts;
+    }
+
+    private function nextCandidateForBucket(
+        string $bucketKey,
+        array $bucket,
+        array &$topicCursors,
+        array &$usedStaticIndexes,
+        array $recentDayKeys,
+        array $tomorrowKeys
+    ): ?array {
+        if (empty($bucket)) {
+            return null;
+        }
+
+        if (in_array($bucketKey, ['a', 'b', 'cd', 'fallback'], true)) {
+            $count = count($bucket);
+            $cursor = $topicCursors[$bucketKey] ?? 0;
+
+            for ($offset = 0; $offset < $count; $offset++) {
+                $idx = ($cursor + $offset) % $count;
+                $candidate = $bucket[$idx];
+                if ($this->breaksConsecutiveRule($candidate, $recentDayKeys, $tomorrowKeys)) {
+                    continue;
+                }
+
+                $topicCursors[$bucketKey] = ($idx + 1) % $count;
+                return $candidate;
+            }
+
+            return null;
+        }
+
+        $usedStaticIndexes[$bucketKey] ??= [];
+        if (count($usedStaticIndexes[$bucketKey]) >= count($bucket)) {
+            $usedStaticIndexes[$bucketKey] = [];
+        }
+
+        foreach ($bucket as $idx => $candidate) {
+            if (in_array($idx, $usedStaticIndexes[$bucketKey], true)) {
+                continue;
+            }
+            if ($this->breaksConsecutiveRule($candidate, $recentDayKeys, $tomorrowKeys)) {
+                continue;
+            }
+
+            $usedStaticIndexes[$bucketKey][] = $idx;
+            return $candidate;
+        }
+
+        return null;
+    }
+
+    private function assignDailyMinutes(array $parts, int $dailyMinutes): array
+    {
+        $count = count($parts);
+        $base = intdiv($dailyMinutes, $count);
+        $remainder = $dailyMinutes - ($base * $count);
+
+        foreach ($parts as $idx => $part) {
+            $parts[$idx]['minutes'] = $base + ($idx === $count - 1 ? $remainder : 0);
+        }
+
+        return $parts;
+    }
+
+    private function breaksConsecutiveRule(array $candidate, array $recentDayKeys, array $tomorrowKeys): bool
+    {
+        if (($candidate['is_hard_event'] ?? false) === true) {
+            return false;
+        }
+
+        $key = $this->partSequenceKey($candidate);
+        if (!$key) {
+            return false;
+        }
+
+        $yesterday = $recentDayKeys[count($recentDayKeys) - 1] ?? [];
+        $twoDaysAgo = $recentDayKeys[count($recentDayKeys) - 2] ?? [];
+
+        if (in_array($key, $yesterday, true) && in_array($key, $twoDaysAgo, true)) {
+            return true;
+        }
+
+        return in_array($key, $yesterday, true) && in_array($key, $tomorrowKeys, true);
+    }
+
+    private function eventKeys(array $events): array
+    {
+        return array_values(array_filter(array_map(fn ($event) => $this->partSequenceKey($event), $events)));
+    }
+
+    private function partSequenceKey(array $part): ?string
+    {
+        if (!empty($part['cc_chapter_id'])) {
+            return 'chapter:' . $part['cc_chapter_id'];
+        }
+
+        if (!empty($part['cc_subject_id'])) {
+            return 'subject:' . $part['cc_subject_id'];
+        }
+
+        $lesson = trim((string) ($part['lesson_name'] ?? $part['subject'] ?? ''));
+        return $lesson !== '' ? 'lesson:' . mb_strtolower($lesson) : null;
     }
 
     /**
@@ -715,9 +1019,14 @@ class TrialWeekService
             ? ProgramPart::LESSON_TYPE_GENERAL
             : ProgramPart::LESSON_TYPE_SPECIALIZED;
 
-        // تعداد تست برای پارت‌های تستی (تقریباً هر ۱.۵ دقیقه یک تست)
+        // تعداد تست برای پارت‌های تستی بر اساس اندازهٔ پارت انتخاب‌شده در هفتهٔ آزمایشی.
         $testCount = $partType === ProgramPart::PART_TYPE_TEST
-            ? max(5, (int) round($minutes / 1.5))
+            ? match (true) {
+                $minutes >= 90 => 30,
+                $minutes >= 60 => 20,
+                $minutes >= 40 => 10,
+                default        => max(5, (int) round($minutes / 1.5)),
+            }
             : null;
 
         ProgramPart::create([

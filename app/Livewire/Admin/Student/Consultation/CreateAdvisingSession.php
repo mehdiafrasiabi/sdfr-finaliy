@@ -30,6 +30,14 @@ class CreateAdvisingSession extends Component
         $this->studentId = $student->student->id;
     }
 
+    public function studentDisplayName($student): string
+    {
+        $personalInfo = $student?->user?->personalInformation;
+        $fullName = trim(($personalInfo?->name ?? '') . ' ' . ($personalInfo?->name_full ?? ''));
+
+        return $fullName !== '' ? $fullName : ($student?->user?->name ?? 'دانش‌آموز');
+    }
+
     /**
      * ثبتِ نتیجه‌ی جلسه (برگزار/غیبت). برای «برگزار شد» نیاز به برنامه‌ی هفتگیِ کامل است.
      */
@@ -123,6 +131,19 @@ class CreateAdvisingSession extends Component
         return $now->gte($sessionDateTime) && $now->lte($sessionDateTime->copy()->addHour());
     }
 
+    public function canOpenWeeklyProgram(int $sessionId): bool
+    {
+        $session = AdvisingSession::find($sessionId);
+        if (! $session) {
+            return false;
+        }
+
+        return ! in_array($session->result_status, [
+            AdvisingSession::RESULT_STUDENT_ABSENT,
+            AdvisingSession::RESULT_ADVISOR_ABSENT,
+        ], true);
+    }
+
     protected function createMakeupForAbsence(AdvisingSession $sourceSession): void
     {
         AdvisingSession::firstOrCreate(
@@ -171,6 +192,8 @@ class CreateAdvisingSession extends Component
 
     public function render()
     {
+        AdvisingSession::markExpiredSessionsAsAdvisorAbsent();
+
         $student = Student::with(['user.personalInformation'])->find($this->studentId);
 
         $sessions = AdvisingSession::where('student_id', $this->studentId)

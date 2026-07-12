@@ -659,17 +659,6 @@ class CcSubjectsTableSeeder extends Seeder
             ),
             58 => 
             array (
-                'id' => 66,
-                'cc_grade_id' => 11,
-                'cc_field_id' => 3,
-                'name' => 'هنر',
-                'type' => 'general',
-                'order' => 13,
-                'created_at' => '2026-02-07 15:48:44',
-                'updated_at' => '2026-02-07 15:48:44',
-            ),
-            59 => 
-            array (
                 'id' => 67,
                 'cc_grade_id' => 11,
                 'cc_field_id' => 3,
@@ -679,7 +668,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 15:48:55',
                 'updated_at' => '2026-02-07 15:48:55',
             ),
-            60 => 
+            59 => 
             array (
                 'id' => 68,
                 'cc_grade_id' => 11,
@@ -690,7 +679,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 15:49:10',
                 'updated_at' => '2026-02-07 15:49:10',
             ),
-            61 => 
+            60 => 
             array (
                 'id' => 69,
                 'cc_grade_id' => 6,
@@ -701,7 +690,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 15:51:47',
                 'updated_at' => '2026-07-06 20:14:44',
             ),
-            62 => 
+            61 => 
             array (
                 'id' => 75,
                 'cc_grade_id' => 6,
@@ -712,7 +701,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 15:52:58',
                 'updated_at' => '2026-07-06 20:15:05',
             ),
-            63 => 
+            62 => 
             array (
                 'id' => 79,
                 'cc_grade_id' => 6,
@@ -723,7 +712,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 15:53:51',
                 'updated_at' => '2026-07-06 20:15:13',
             ),
-            64 => 
+            63 => 
             array (
                 'id' => 83,
                 'cc_grade_id' => 6,
@@ -734,7 +723,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 15:54:37',
                 'updated_at' => '2026-02-08 19:38:14',
             ),
-            65 => 
+            64 => 
             array (
                 'id' => 84,
                 'cc_grade_id' => 10,
@@ -745,29 +734,29 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 15:55:22',
                 'updated_at' => '2026-07-06 20:13:53',
             ),
-            66 => 
+            65 => 
             array (
                 'id' => 91,
                 'cc_grade_id' => 10,
                 'cc_field_id' => 2,
-                'name' => 'دین و زندگی',
+                'name' => 'دین و زندگی1',
                 'type' => 'general',
                 'order' => 5,
                 'created_at' => '2026-02-07 15:56:48',
-                'updated_at' => '2026-02-08 19:29:14',
+                'updated_at' => '2026-07-08 13:41:02',
             ),
-            67 => 
+            66 => 
             array (
                 'id' => 92,
                 'cc_grade_id' => 10,
                 'cc_field_id' => 2,
-                'name' => 'عربی',
+                'name' => 'عربی1',
                 'type' => 'general',
                 'order' => 6,
                 'created_at' => '2026-02-07 15:57:09',
-                'updated_at' => '2026-02-08 19:29:21',
+                'updated_at' => '2026-07-08 13:41:08',
             ),
-            68 => 
+            67 => 
             array (
                 'id' => 94,
                 'cc_grade_id' => 10,
@@ -778,18 +767,18 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 15:57:31',
                 'updated_at' => '2026-02-08 19:29:25',
             ),
-            69 => 
+            68 => 
             array (
                 'id' => 95,
                 'cc_grade_id' => 10,
                 'cc_field_id' => 2,
-                'name' => 'زبان انگلیسی',
+                'name' => 'زبان انگلیسی1',
                 'type' => 'general',
                 'order' => 8,
                 'created_at' => '2026-02-07 15:57:40',
-                'updated_at' => '2026-02-08 19:29:30',
+                'updated_at' => '2026-07-08 13:41:56',
             ),
-            70 => 
+            69 => 
             array (
                 'id' => 98,
                 'cc_grade_id' => 10,
@@ -800,51 +789,51 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 15:58:26',
                 'updated_at' => '2026-02-08 19:29:34',
             ),
-            71 => 
+            70 => 
             array (
                 'id' => 100,
                 'cc_grade_id' => 9,
                 'cc_field_id' => 1,
-                'name' => 'ریاضی',
+                'name' => 'ریاضی1',
                 'type' => 'specialized',
                 'order' => 0,
                 'created_at' => '2026-02-07 16:00:04',
-                'updated_at' => '2026-02-07 16:00:04',
+                'updated_at' => '2026-07-09 11:06:49',
             ),
-            72 => 
+            71 => 
             array (
                 'id' => 101,
                 'cc_grade_id' => 9,
                 'cc_field_id' => 1,
-                'name' => 'هندسه',
+                'name' => 'هندسه1',
                 'type' => 'specialized',
                 'order' => 1,
                 'created_at' => '2026-02-07 16:00:12',
-                'updated_at' => '2026-02-07 16:00:12',
+                'updated_at' => '2026-07-08 13:42:10',
             ),
-            73 => 
+            72 => 
             array (
                 'id' => 102,
                 'cc_grade_id' => 9,
                 'cc_field_id' => 1,
-                'name' => 'شیمی',
+                'name' => 'شیمی1',
                 'type' => 'specialized',
                 'order' => 2,
                 'created_at' => '2026-02-07 16:00:19',
-                'updated_at' => '2026-02-07 16:00:19',
+                'updated_at' => '2026-07-08 13:42:15',
             ),
-            74 => 
+            73 => 
             array (
                 'id' => 103,
                 'cc_grade_id' => 9,
                 'cc_field_id' => 1,
-                'name' => 'فیزیک',
+                'name' => 'فیزیک1',
                 'type' => 'specialized',
                 'order' => 3,
                 'created_at' => '2026-02-07 16:00:27',
-                'updated_at' => '2026-02-07 16:00:27',
+                'updated_at' => '2026-07-08 13:42:20',
             ),
-            75 => 
+            74 => 
             array (
                 'id' => 105,
                 'cc_grade_id' => 9,
@@ -855,29 +844,29 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:00:50',
                 'updated_at' => '2026-07-07 12:47:21',
             ),
-            76 => 
+            75 => 
             array (
                 'id' => 107,
                 'cc_grade_id' => 9,
                 'cc_field_id' => 1,
-                'name' => 'دین و زندگی',
+                'name' => 'دین و زندگی1',
                 'type' => 'general',
                 'order' => 7,
                 'created_at' => '2026-02-07 16:01:15',
-                'updated_at' => '2026-02-07 16:01:15',
+                'updated_at' => '2026-07-08 13:42:27',
             ),
-            77 => 
+            76 => 
             array (
                 'id' => 108,
                 'cc_grade_id' => 9,
                 'cc_field_id' => 1,
-                'name' => 'عربی',
+                'name' => 'عربی1',
                 'type' => 'general',
                 'order' => 8,
                 'created_at' => '2026-02-07 16:01:24',
-                'updated_at' => '2026-02-07 16:01:24',
+                'updated_at' => '2026-07-08 13:42:31',
             ),
-            78 => 
+            77 => 
             array (
                 'id' => 110,
                 'cc_grade_id' => 9,
@@ -888,18 +877,18 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:01:51',
                 'updated_at' => '2026-02-08 18:55:48',
             ),
-            79 => 
+            78 => 
             array (
                 'id' => 111,
                 'cc_grade_id' => 9,
                 'cc_field_id' => 1,
-                'name' => 'زبان انگلیسی',
+                'name' => 'زبان انگلیسی1',
                 'type' => 'general',
                 'order' => 10,
                 'created_at' => '2026-02-07 16:02:03',
-                'updated_at' => '2026-02-08 18:55:52',
+                'updated_at' => '2026-07-08 13:42:37',
             ),
-            80 => 
+            79 => 
             array (
                 'id' => 114,
                 'cc_grade_id' => 9,
@@ -910,7 +899,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:02:32',
                 'updated_at' => '2026-02-08 18:55:57',
             ),
-            81 => 
+            80 => 
             array (
                 'id' => 116,
                 'cc_grade_id' => 5,
@@ -921,7 +910,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:03:23',
                 'updated_at' => '2026-07-06 20:16:01',
             ),
-            82 => 
+            81 => 
             array (
                 'id' => 117,
                 'cc_grade_id' => 5,
@@ -932,7 +921,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:03:34',
                 'updated_at' => '2026-07-06 20:16:08',
             ),
-            83 => 
+            82 => 
             array (
                 'id' => 118,
                 'cc_grade_id' => 5,
@@ -943,7 +932,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:03:45',
                 'updated_at' => '2026-07-06 20:16:15',
             ),
-            84 => 
+            83 => 
             array (
                 'id' => 119,
                 'cc_grade_id' => 5,
@@ -954,7 +943,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:03:54',
                 'updated_at' => '2026-07-06 20:19:04',
             ),
-            85 => 
+            84 => 
             array (
                 'id' => 120,
                 'cc_grade_id' => 5,
@@ -965,7 +954,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:04:00',
                 'updated_at' => '2026-02-07 16:04:00',
             ),
-            86 => 
+            85 => 
             array (
                 'id' => 122,
                 'cc_grade_id' => 5,
@@ -976,7 +965,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:04:23',
                 'updated_at' => '2026-07-06 20:19:14',
             ),
-            87 => 
+            86 => 
             array (
                 'id' => 124,
                 'cc_grade_id' => 5,
@@ -987,7 +976,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:04:45',
                 'updated_at' => '2026-07-06 20:19:24',
             ),
-            88 => 
+            87 => 
             array (
                 'id' => 125,
                 'cc_grade_id' => 5,
@@ -998,7 +987,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:04:59',
                 'updated_at' => '2026-07-06 20:19:34',
             ),
-            89 => 
+            88 => 
             array (
                 'id' => 127,
                 'cc_grade_id' => 5,
@@ -1009,7 +998,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:05:22',
                 'updated_at' => '2026-07-06 20:19:45',
             ),
-            90 => 
+            89 => 
             array (
                 'id' => 128,
                 'cc_grade_id' => 5,
@@ -1020,7 +1009,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:05:41',
                 'updated_at' => '2026-07-06 20:19:53',
             ),
-            91 => 
+            90 => 
             array (
                 'id' => 130,
                 'cc_grade_id' => 5,
@@ -1031,7 +1020,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:06:09',
                 'updated_at' => '2026-02-08 18:55:04',
             ),
-            92 => 
+            91 => 
             array (
                 'id' => 131,
                 'cc_grade_id' => 5,
@@ -1042,7 +1031,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-07 16:06:18',
                 'updated_at' => '2026-02-08 18:55:09',
             ),
-            93 => 
+            92 => 
             array (
                 'id' => 132,
                 'cc_grade_id' => 2,
@@ -1053,7 +1042,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 20:24:56',
             ),
-            94 => 
+            93 => 
             array (
                 'id' => 133,
                 'cc_grade_id' => 10,
@@ -1064,40 +1053,40 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-07 13:25:40',
             ),
-            95 => 
+            94 => 
             array (
                 'id' => 135,
                 'cc_grade_id' => 10,
                 'cc_field_id' => 2,
-                'name' => 'شیمی',
+                'name' => 'شیمی1',
                 'type' => 'specialized',
                 'order' => 2,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-07-08 13:40:55',
             ),
-            96 => 
+            95 => 
             array (
                 'id' => 136,
                 'cc_grade_id' => 10,
                 'cc_field_id' => 2,
-                'name' => 'فیزیک',
+                'name' => 'فیزیک1',
                 'type' => 'specialized',
                 'order' => 3,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-07-08 13:41:14',
             ),
-            97 => 
+            96 => 
             array (
                 'id' => 137,
                 'cc_grade_id' => 10,
                 'cc_field_id' => 2,
-                'name' => 'ادبیات فارسی',
+                'name' => 'فارسی1',
                 'type' => 'general',
                 'order' => 4,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-02-08 19:29:10',
+                'updated_at' => '2026-07-08 13:41:41',
             ),
-            98 => 
+            97 => 
             array (
                 'id' => 138,
                 'cc_grade_id' => 6,
@@ -1108,7 +1097,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 20:14:38',
             ),
-            99 => 
+            98 => 
             array (
                 'id' => 140,
                 'cc_grade_id' => 6,
@@ -1119,7 +1108,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 20:14:51',
             ),
-            100 => 
+            99 => 
             array (
                 'id' => 142,
                 'cc_grade_id' => 6,
@@ -1130,7 +1119,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 20:14:59',
             ),
-            101 => 
+            100 => 
             array (
                 'id' => 143,
                 'cc_grade_id' => 6,
@@ -1141,7 +1130,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:37:56',
             ),
-            102 => 
+            101 => 
             array (
                 'id' => 144,
                 'cc_grade_id' => 6,
@@ -1152,7 +1141,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-07-06 20:15:24',
             ),
-            103 => 
+            102 => 
             array (
                 'id' => 145,
                 'cc_grade_id' => 6,
@@ -1163,7 +1152,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:38:05',
             ),
-            104 => 
+            103 => 
             array (
                 'id' => 146,
                 'cc_grade_id' => 6,
@@ -1174,7 +1163,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:52:54',
                 'updated_at' => '2026-07-06 20:15:35',
             ),
-            105 => 
+            104 => 
             array (
                 'id' => 147,
                 'cc_grade_id' => 12,
@@ -1185,7 +1174,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:54:44',
                 'updated_at' => '2026-02-16 14:54:44',
             ),
-            106 => 
+            105 => 
             array (
                 'id' => 148,
                 'cc_grade_id' => 12,
@@ -1196,7 +1185,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:54:59',
                 'updated_at' => '2026-02-16 14:54:59',
             ),
-            107 => 
+            106 => 
             array (
                 'id' => 149,
                 'cc_grade_id' => 12,
@@ -1207,7 +1196,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:55:11',
                 'updated_at' => '2026-02-16 14:55:11',
             ),
-            108 => 
+            107 => 
             array (
                 'id' => 150,
                 'cc_grade_id' => 12,
@@ -1218,7 +1207,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:55:26',
                 'updated_at' => '2026-02-16 14:55:26',
             ),
-            109 => 
+            108 => 
             array (
                 'id' => 151,
                 'cc_grade_id' => 12,
@@ -1229,7 +1218,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:55:40',
                 'updated_at' => '2026-02-16 14:55:40',
             ),
-            110 => 
+            109 => 
             array (
                 'id' => 152,
                 'cc_grade_id' => 12,
@@ -1240,7 +1229,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:55:51',
                 'updated_at' => '2026-02-16 14:55:51',
             ),
-            111 => 
+            110 => 
             array (
                 'id' => 153,
                 'cc_grade_id' => 12,
@@ -1251,7 +1240,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:56:02',
                 'updated_at' => '2026-02-16 14:56:02',
             ),
-            112 => 
+            111 => 
             array (
                 'id' => 154,
                 'cc_grade_id' => 12,
@@ -1262,7 +1251,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:56:16',
                 'updated_at' => '2026-02-16 14:56:16',
             ),
-            113 => 
+            112 => 
             array (
                 'id' => 155,
                 'cc_grade_id' => 12,
@@ -1273,7 +1262,7 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 14:56:32',
                 'updated_at' => '2026-02-16 14:56:32',
             ),
-            114 => 
+            113 => 
             array (
                 'id' => 156,
                 'cc_grade_id' => 12,

@@ -358,15 +358,17 @@
                                         </span>
                                         </a>
                                     </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link" href="{{route('admin.student.smartReportCard.index')}}">
-                                            <i class="fi fi-rr-file-medical-alt">
-                                            </i>
-                                            <span class="menu-label">
-                                             کارنامه هوشمند
-                                        </span>
-                                        </a>
-                                    </li>
+                                    @if((bool) \App\Models\GeneralSetting::query()->value('smart_report_card_enabled'))
+                                        <li class="menu-item">
+                                            <a class="menu-link" href="{{route('admin.student.smartReportCard.index')}}">
+                                                <i class="fi fi-rr-file-medical-alt">
+                                                </i>
+                                                <span class="menu-label">
+                                                 کارنامه هوشمند
+                                            </span>
+                                            </a>
+                                        </li>
+                                    @endif
                                     <li class="menu-item">
                                         <a class="menu-link" href="{{route('admin.contact-documentation.index')}}">
                                             <i class="fi fi-rr-phone-call">
@@ -435,6 +437,20 @@
                                            href="{{ route('admin.educational-manager.leave') }}">
                                             <i class="fi fi-rr-calendar-clock"></i>
                                             <span class="menu-label">تایید مرخصی مشاوران</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.educational-manager.advisor-change-requests') ? 'active' : '' }}"
+                                           href="{{ route('admin.educational-manager.advisor-change-requests') }}">
+                                            <i class="fi fi-rr-exchange"></i>
+                                            <span class="menu-label">درخواست جابجایی مشاور</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.educational-manager.advisor-onboarding-approvals') ? 'active' : '' }}"
+                                           href="{{ route('admin.educational-manager.advisor-onboarding-approvals') }}">
+                                            <i class="fi fi-rr-shield-check"></i>
+                                            <span class="menu-label">تایید لینک گروه بله</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">

@@ -1,5 +1,59 @@
 <div class="min-h-screen bg-background text-foreground relative overflow-x-hidden flex items-center justify-center px-4 py-10" dir="rtl">
     <div class="fixed inset-0 pointer-events-none z-0" style="background:radial-gradient(ellipse 70% 45% at 50% 0%, hsl(var(--primary) / .08) 0%, transparent 70%);"></div>
+    <style>
+        @property --choice-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        .choice-card {
+            position: relative;
+            min-height: 8.5rem;
+            overflow: hidden;
+            isolation: isolate;
+            background:
+                radial-gradient(circle at 12% 0%, hsl(var(--primary) / .14), transparent 16rem),
+                linear-gradient(180deg, hsl(var(--secondary) / .82), hsl(var(--secondary) / .56));
+        }
+
+        .choice-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            padding: 1px;
+            border-radius: inherit;
+            pointer-events: none;
+            background: conic-gradient(
+                from var(--choice-angle),
+                hsl(var(--border) / .5),
+                hsl(var(--primary) / .9),
+                hsl(var(--border) / .55),
+                hsl(var(--primary) / .45),
+                hsl(var(--border) / .5)
+            );
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask-composite: exclude;
+            -webkit-mask-composite: xor;
+            animation: choiceBorderSpin 7s linear infinite;
+        }
+
+        .choice-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes choiceBorderSpin {
+            to { --choice-angle: 360deg; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .choice-card::before {
+                animation: none;
+            }
+        }
+    </style>
 
     <div class="relative z-10 w-full {{ ($isAllDone && !$showChoice) ? 'max-w-4xl' : 'max-w-lg' }}">
 
@@ -18,7 +72,7 @@
                 <div class="h-1 bg-primary"></div>
                 <div class="p-6 sm:p-7 space-y-5">
                     <div class="text-center">
-                        <h1 class="text-2xl font-black mb-2">مسیرت را انتخاب کن 🚀</h1>
+                        <h1 class="text-2xl font-black mb-2">مسیرت را انتخاب کن</h1>
                         <p class="text-sm text-muted leading-7">کارنامه‌ات آماده شد؛ حالا یکی از دو مسیر زیر را برای ادامه انتخاب کن.</p>
                     </div>
 
@@ -29,10 +83,9 @@
                     @endif
 
                     <button wire:click="confirmTrial" wire:loading.attr="disabled" wire:target="confirmTrial"
-                            class="w-full rounded-2xl p-5 text-right transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99]
-                            disabled:opacity-60 bg-success border border-emerald-500">
-                        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-500 rounded-full px-2.5 py-1 mb-3 bg-emerald-500/12">
-                            <span class="w-1.5 h-1.5 bg-emberlen  rounded-full"></span> رایگان
+                            class="choice-card w-full rounded-2xl border border-border p-5 text-right transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-60">
+                        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary rounded-full px-2.5 py-1 mb-3 bg-primary/12">
+                            <span class="w-1.5 h-1.5 bg-primary rounded-full"></span> رایگان
                         </div>
                         <h3 class="font-black text-lg mb-1">شروع ۱ هفته آزمایشی</h3>
                         <p class="text-xs text-muted leading-6">
@@ -45,7 +98,7 @@
                     </button>
 
                     <button wire:click="goToPurchase" wire:loading.attr="disabled"
-                            class="w-full rounded-2xl p-5 text-right transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99] bg-primary/8 border border-primary/30">
+                            class="choice-card w-full rounded-2xl border border-primary/25 p-5 text-right transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-60">
                         <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary rounded-full px-2.5 py-1 mb-3 bg-primary/12">
                             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>

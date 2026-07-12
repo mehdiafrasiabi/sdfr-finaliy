@@ -253,6 +253,9 @@
                                                     <span class="badge bg-primary">{{ $question->code }}</span>
                                                     @if($question->topic)
                                                         <span class="badge bg-secondary">{{ $question->topic->name }}</span>
+                                                    @elseif($question->chapter)
+                                                        <span class="badge bg-secondary">{{ $question->chapter->name }}</span>
+                                                        <span class="badge bg-primary">جامع</span>
                                                     @endif
                                                     <span class="badge bg-info">{{ $questionDifficulties[$question->difficulty] ?? $question->difficulty }}</span>
                                                     @if($question->correct_option)

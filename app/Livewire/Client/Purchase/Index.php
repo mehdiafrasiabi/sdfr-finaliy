@@ -50,7 +50,7 @@ class Index extends Component
     public string $infoStateId      = '';
     public string $infoCityId       = '';
 
-    public const GRADE_OPTIONS = ['10' => 'دهم', '11' => 'یازدهم', '12' => 'دوازدهم'];
+    public const GRADE_OPTIONS = ['9' => 'نهم', '10' => 'دهم', '11' => 'یازدهم', '12' => 'دوازدهم'];
     public const FIELD_OPTIONS = ['math' => 'ریاضی و فیزیک', 'experimental' => 'علوم تجربی', 'human' => 'علوم انسانی'];
 
     public function mount(): void
@@ -131,6 +131,16 @@ class Index extends Component
         $this->infoCityId = '';
     }
 
+    public function updatedInfoGrade($value): void
+    {
+        $this->couponNotice = null;
+        $this->couponError = null;
+
+        if (! $this->gradeRequiresField($value)) {
+            $this->infoField = '';
+        }
+    }
+
     public function startEditInfo(): void
     {
         $this->editingInfo = true;
@@ -152,13 +162,17 @@ class Index extends Component
             return;
         }
 
+        $fieldRules = $this->gradeRequiresField($this->infoGrade)
+            ? ['required', Rule::in(array_keys(self::FIELD_OPTIONS))]
+            : ['nullable'];
+
         $this->validate([
             'infoName'         => ['required', 'string', 'max:255'],
             'infoNameFull'     => ['nullable', 'string', 'max:255'],
             'infoFatherName'   => ['required', 'string', 'max:255'],
             'infoCodeMell'     => ['required', 'string', 'max:20', Rule::unique('personal_information', 'code_mell')->ignore($pi->id)],
             'infoGrade'        => ['required', Rule::in(array_keys(self::GRADE_OPTIONS))],
-            'infoField'        => ['required', Rule::in(array_keys(self::FIELD_OPTIONS))],
+            'infoField'        => $fieldRules,
             'infoBirthDate'    => ['nullable', 'string', 'max:30'],
             'infoFatherMobile' => ['required', 'string', 'max:20'],
             'infoMotherMobile' => ['required', 'string', 'max:20'],
@@ -187,7 +201,7 @@ class Index extends Component
             'father_name'    => $this->infoFatherName,
             'code_mell'      => $this->infoCodeMell,
             'grade'          => $this->infoGrade,
-            'field'          => $this->infoField,
+            'field'          => $this->gradeRequiresField($this->infoGrade) ? $this->infoField : null,
             'birth_date'     => $this->infoBirthDate,
             'father_mobile'  => $this->infoFatherMobile,
             'mother_mobile'  => $this->infoMotherMobile,
@@ -206,8 +220,26 @@ class Index extends Component
         $user = Auth::user();
         if (! $user) return null;
 
+        if ($this->infoGrade !== '' && in_array($this->infoGrade, array_keys(self::GRADE_OPTIONS), true)) {
+            return GradePrice::activeFor((int) $this->infoGrade);
+        }
+
         $pi = PersonalInformation::where('user_id', $user->id)->first();
         if (! $pi || ! $pi->grade) return null;
+
+        return GradePrice::activeFor((int) $pi->grade);
+    }
+
+    protected function gradeRequiresField(string|int|null $grade): bool
+    {
+        return (string) $grade !== '9';
+    }
+
+    protected function gradePriceForPersonalInfo(PersonalInformation $pi): ?GradePrice
+    {
+        if (! $pi->grade || ! in_array((string) $pi->grade, array_keys(self::GRADE_OPTIONS), true)) {
+            return null;
+        }
 
         return GradePrice::activeFor((int) $pi->grade);
     }
@@ -265,8 +297,8 @@ class Index extends Component
             return;
         }
 
-        $price = $this->gradePrice();
         $pi    = PersonalInformation::where('user_id', $user->id)->first();
+        $price = $pi ? $this->gradePriceForPersonalInfo($pi) : null;
         if (! $price || ! $pi) {
             $this->dispatch('error', 'قیمتی برای پایهٔ شما تعریف نشده یا اطلاعات شخصی کامل نیست.');
             return;
@@ -283,10 +315,14 @@ class Index extends Component
             return;
         }
 
+        $this->cancelStalePendingFullPayments($user->id, $pi->id, $amount);
+
         $existingPendingPayment = Payment::query()
             ->where('user_id', $user->id)
             ->where('status', 'pending')
             ->where('purpose', Payment::PURPOSE_COURSE_FULL)
+            ->where('personal_information_id', $pi->id)
+            ->where('amount', $amount)
             ->latest('id')
             ->first();
 
@@ -357,44 +393,14 @@ class Index extends Component
             return;
         }
 
-        $price = $this->gradePrice();
         $pi    = PersonalInformation::where('user_id', $user->id)->first();
+        $price = $pi ? $this->gradePriceForPersonalInfo($pi) : null;
         if (! $price || ! $pi) {
             $this->dispatch('error', 'قیمتی برای پایهٔ شما تعریف نشده یا اطلاعات شخصی کامل نیست.');
             return;
         }
 
         if (! $this->ensureProfileReadyForPurchase($pi)) {
-            return;
-        }
-
-        $existingPlan = $this->existingIncompleteInstallmentPlan($user->id);
-        if ($existingPlan) {
-            $pendingInitialPayment = Payment::query()
-                ->where('user_id', $user->id)
-                ->where('status', 'pending')
-                ->where('purpose', Payment::PURPOSE_INSTALLMENT_INITIAL)
-                ->where('installment_plan_id', $existingPlan->id)
-                ->latest('id')
-                ->first();
-
-            if ($pendingInitialPayment) {
-                return $this->requestGateway(
-                    $paymentGateway,
-                    $pendingInitialPayment->amount,
-                    $pendingInitialPayment->order_number,
-                    'پیش‌پرداخت قبلی پیدا شد اما اتصال به درگاه انجام نشد. لطفاً چند لحظه دیگر دوباره تلاش کنید.'
-                );
-            }
-
-            if ($existingPlan->status === InstallmentPlan::STATUS_ACTIVE) {
-                $this->dispatch('warning', 'شما یک طرح اقساطی فعال دارید. برای ادامه یا پرداخت قسط، وارد صفحه اقساط شوید.');
-                $this->redirect(route('client.profile.installment'), navigate: true);
-                return;
-            }
-
-            $this->dispatch('warning', 'طرح اقساطی قبلی شما هنوز کامل نشده است. لطفاً همان فرایند را ادامه دهید.');
-            $this->redirect(route('client.profile.installment'), navigate: true);
             return;
         }
 
@@ -413,6 +419,38 @@ class Index extends Component
         $total    = $price->totalFor($i);
         $initial  = $price->initialPayment($i);
         $monthly  = $price->installmentAmount($i);
+
+        $existingPlan = $this->existingIncompleteInstallmentPlan($user->id);
+        if ($existingPlan) {
+            if (in_array($existingPlan->status, [InstallmentPlan::STATUS_ACTIVE, InstallmentPlan::STATUS_DEFAULTED], true)) {
+                $this->dispatch('warning', 'شما یک طرح اقساطی فعال دارید. برای ادامه یا پرداخت قسط، وارد صفحه اقساط شوید.');
+                $this->redirect(route('client.profile.installment'), navigate: true);
+                return;
+            }
+
+            if ($this->pendingInstallmentPlanMatches($existingPlan, $price, $pi, $i, $count, $total, $initial, $monthly)) {
+                $pendingInitialPayment = Payment::query()
+                    ->where('user_id', $user->id)
+                    ->where('status', 'pending')
+                    ->where('purpose', Payment::PURPOSE_INSTALLMENT_INITIAL)
+                    ->where('installment_plan_id', $existingPlan->id)
+                    ->where('amount', $initial)
+                    ->latest('id')
+                    ->first();
+
+                if ($pendingInitialPayment) {
+                    return $this->requestGateway(
+                        $paymentGateway,
+                        $pendingInitialPayment->amount,
+                        $pendingInitialPayment->order_number,
+                        'پیش‌پرداخت قبلی پیدا شد اما اتصال به درگاه انجام نشد. لطفاً چند لحظه دیگر دوباره تلاش کنید.'
+                    );
+                }
+            }
+
+            $this->cancelPendingInstallmentPlan($existingPlan);
+        }
+
         $purchase = Carbon::now();
         $orderNumber = 'SDFR-' . Str::uuid()->toString();
 
@@ -493,6 +531,67 @@ class Index extends Component
             ->whereIn('status', [InstallmentPlan::STATUS_PENDING, InstallmentPlan::STATUS_ACTIVE, InstallmentPlan::STATUS_DEFAULTED])
             ->latest('id')
             ->first();
+    }
+
+    protected function pendingInstallmentPlanMatches(
+        InstallmentPlan $plan,
+        GradePrice $price,
+        PersonalInformation $pi,
+        int $entryMonthIndex,
+        int $count,
+        int $total,
+        int $initial,
+        int $monthly
+    ): bool {
+        return $plan->status === InstallmentPlan::STATUS_PENDING
+            && (int) $plan->grade_price_id === (int) $price->id
+            && (int) $plan->grade === (int) $pi->grade
+            && (int) $plan->entry_month_index === $entryMonthIndex
+            && (int) $plan->total_amount === $total
+            && (int) $plan->initial_amount === $initial
+            && (int) $plan->installment_count === $count
+            && (int) $plan->monthly_amount === $monthly;
+    }
+
+    protected function cancelStalePendingFullPayments(int $userId, int $personalInformationId, int $currentAmount): void
+    {
+        Payment::query()
+            ->where('user_id', $userId)
+            ->where('status', 'pending')
+            ->where('purpose', Payment::PURPOSE_COURSE_FULL)
+            ->where(function ($query) use ($personalInformationId, $currentAmount) {
+                $query->where('personal_information_id', '!=', $personalInformationId)
+                    ->orWhere('amount', '!=', $currentAmount);
+            })
+            ->with('order')
+            ->get()
+            ->each(function (Payment $payment) {
+                $payment->update(['status' => 'cancelled']);
+                $payment->order?->update(['status' => 'canceled']);
+            });
+    }
+
+    protected function cancelPendingInstallmentPlan(InstallmentPlan $plan): void
+    {
+        if ($plan->status !== InstallmentPlan::STATUS_PENDING) {
+            return;
+        }
+
+        DB::transaction(function () use ($plan) {
+            $plan->installments()->where('status', Installment::STATUS_PENDING)->delete();
+            $plan->update(['status' => InstallmentPlan::STATUS_CANCELLED]);
+
+            Payment::query()
+                ->where('installment_plan_id', $plan->id)
+                ->where('status', 'pending')
+                ->where('purpose', Payment::PURPOSE_INSTALLMENT_INITIAL)
+                ->with('order')
+                ->get()
+                ->each(function (Payment $payment) {
+                    $payment->update(['status' => 'cancelled']);
+                    $payment->order?->update(['status' => 'canceled']);
+                });
+        });
     }
 
     protected function requestGateway(PaymentGateWayInterface $paymentGateway, int $amount, string $orderNumber, string $fallback): mixed
@@ -583,6 +682,14 @@ class Index extends Component
     public function render()
     {
         $price = $this->gradePrice();
+        $pi = PersonalInformation::with(['state', 'city'])->where('user_id', Auth::id())->first();
+        $selectedGradeRequiresField = $this->gradeRequiresField($this->infoGrade);
+        $selectedFieldValue = $selectedGradeRequiresField ? (string) $this->infoField : '';
+        $storedFieldValue = $pi && $this->gradeRequiresField((string) $pi->grade) ? (string) ($pi->field ?? '') : '';
+        $profileSelectionChanged = $pi && (
+            (string) $this->infoGrade !== (string) ($pi->grade ?? '')
+            || $selectedFieldValue !== $storedFieldValue
+        );
 
         $data = null;
         if ($price) {
@@ -610,7 +717,6 @@ class Index extends Component
             ];
         }
 
-        $pi = PersonalInformation::with(['state', 'city'])->where('user_id', Auth::id())->first();
         $states = State::query()->select('id', 'name')->orderBy('name')->get();
         $cities = $this->infoStateId
             ? City::query()->where('state_id', $this->infoStateId)->select('id', 'name')->orderBy('name')->get()
@@ -622,6 +728,8 @@ class Index extends Component
             'pi'           => $pi,
             'gradeOptions' => self::GRADE_OPTIONS,
             'fieldOptions' => self::FIELD_OPTIONS,
+            'selectedGradeRequiresField' => $selectedGradeRequiresField,
+            'profileSelectionChanged' => $profileSelectionChanged,
             'gradeSelectOptions' => collect(self::GRADE_OPTIONS)->map(fn ($label, $id) => ['id' => $id, 'name' => $label])->values(),
             'fieldSelectOptions' => collect(self::FIELD_OPTIONS)->map(fn ($label, $id) => ['id' => $id, 'name' => $label])->values(),
             'states'       => $states,

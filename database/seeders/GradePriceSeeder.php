@@ -10,17 +10,17 @@ use Morilog\Jalali\Jalalian;
 
 class GradePriceSeeder extends Seeder
 {
+
     private const INITIAL_PERCENT = 30;
     private const DEFAULT_BASE_PRICE = 19800000;
 
     public function run(): void
     {
-        // साल-ए-खिदमत-ए जारी (अगर हम खोरदाद के बाद हैं, तो यह साल, वरना पिछला साल).
         $now  = Jalalian::now();
         $year = (int) $now->getMonth() >= 4 ? (int) $now->getYear() : (int) $now->getYear() - 1;
 
         $startAt = Jalalian::fromFormat('Y/m/d', sprintf('%d/04/01', $year))->toCarbon()->startOfDay();
-        $endAt   = Jalalian::fromFormat('Y/m/d', sprintf('%d/12/29', $year))->toCarbon()->endOfDay();
+        $endAt   = Jalalian::fromFormat('Y/m/d', sprintf('%d/03/31', $year + 1))->toCarbon()->endOfDay();
 
         $createdBy = Admin::query()->min('id'); // created_by कॉलम अनिवार्य है
 

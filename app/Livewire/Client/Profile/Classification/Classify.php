@@ -41,6 +41,10 @@ class Classify extends Component
         $this->project       = $project;
         $this->selectedGrade = (int) $grade;
         $this->loadStudentInfo();
+        if (! $this->canAccessProject()) {
+            $this->dispatch('warning', 'این طبقه‌بندی برای حساب شما در دسترس نیست.');
+            return redirect()->route('client.profile.classification.projects');
+        }
         $this->loadAvailableTags();
         $this->loadExistingRatings();
         $this->seoConfig();
@@ -53,21 +57,43 @@ class Classify extends Component
 
     protected function loadStudentInfo()
     {
-        $userId       = auth()->id();
+        $user         = auth()->user();
+        $userId       = $user->id;
         $personalInfo = PersonalInformation::where('user_id', $userId)->first();
         if ($personalInfo) {
             $this->studentGrade = (int) $personalInfo->grade;
             $this->studentField = $personalInfo->field;
-        } else {
-            $trial = TrialWeek::where('user_id', $userId)->latest()->first();
-            if ($trial) {
-                $this->isTrial      = true;
+        }
+
+        $student = $user->student;
+        $hasNormalAccess = $user->isSchoolStudent()
+            || ($student && ! $student->is_trial && $student->hasActivePaidAccess());
+        $trial = TrialWeek::where('user_id', $userId)->latest()->first();
+
+        if ($trial && ! $hasNormalAccess && (! $trial->expires_at || $trial->expires_at->isFuture()) && (! $student || $student->is_trial)) {
+            $this->isTrial = true;
+            if (!$this->studentGrade) {
                 $this->studentGrade = $trial->grade >= 10 ? $trial->grade : 10;
                 $this->studentField = $trial->field;
             }
         }
+
         $fieldMapping          = ['math' => 'math', 'experimental' => 'experimental', 'human' => 'human'];
         $this->studentFieldSlug = $fieldMapping[$this->studentField] ?? null;
+    }
+
+    protected function canAccessProject(): bool
+    {
+        $user = auth()->user();
+        $student = $user?->student;
+        $hasNormalAccess = $user?->isSchoolStudent()
+            || ($student && ! $student->is_trial && $student->hasActivePaidAccess());
+
+        if ($this->project->is_trial) {
+            return ! $hasNormalAccess && $this->isTrial && (! $student || $student->is_trial);
+        }
+
+        return ! $this->isTrial || $hasNormalAccess;
     }
 
     protected function loadAvailableTags()

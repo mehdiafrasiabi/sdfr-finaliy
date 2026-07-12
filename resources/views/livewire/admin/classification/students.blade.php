@@ -88,15 +88,10 @@
                                     <td>{{ $loop->iteration + ($students->currentPage() - 1) * $students->perPage() }}</td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="avatar-xs flex-shrink-0 me-2">
-                                                    <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
-                                                        {{ mb_substr($student->user->name ?? 'N', 0, 1) }}
-                                                    </span>
-                                            </div>
                                             <div>
-                                                <div class="fw-medium">{{ $student->user->name ?? '-' }}</div>
+                                                <div class="fw-medium">{{ $personalInfo->name ?? '-' }}</div>
                                                 @if($personalInfo)
-                                                    <small class="text-muted">{{ $personalInfo->name }}</small>
+                                                    <small class="text-muted">{{  $personalInfo->name_full ?? '-'}}</small>
                                                 @endif
                                             </div>
                                         </div>
@@ -141,8 +136,7 @@
                                                 جزئیات
                                             </a>
                                         @else
-                                            <button class="btn btn-sm btn-soft-secondary" disabled>
-                                                <i class="ri-eye-off-line"></i>
+                                            <button class="btn btn-sm btn-soft-secondary" disabled>وجود ندارد
                                             </button>
                                         @endif
                                     </td>

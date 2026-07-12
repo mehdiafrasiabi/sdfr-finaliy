@@ -5,10 +5,17 @@
         noticeShown: false,
         timerId: null,
         slowTimerId: null,
+        trialNoticeTimerId: null,
         storageKey: 'sdfr_dashboard_intro_seen_v1',
+        trialNoticeEligible: @js($showTrialWeekPanelNotice),
+        showTrialNotice: false,
+        dashboardTourAuto: @js($startDashboardTour),
 
         init() {
-            if (!this.isMobile() || localStorage.getItem(this.storageKey) === '1') {
+            const shouldPlayIntro = this.isMobile() && localStorage.getItem(this.storageKey) !== '1';
+
+            if (!shouldPlayIntro) {
+                this.scheduleTrialNoticeAfterTourState();
                 return;
             }
 
@@ -92,6 +99,7 @@
             this.showIntro = false;
             document.body.style.overflow = '';
             this.maybeShowVpnNotice();
+            this.scheduleTrialNoticeAfterTourState();
         },
 
         skip() {
@@ -105,10 +113,44 @@
             if (this.slowTimerId) {
                 clearTimeout(this.slowTimerId);
             }
+            if (this.trialNoticeTimerId) {
+                clearTimeout(this.trialNoticeTimerId);
+            }
+            document.body.style.overflow = '';
+        },
+
+        scheduleTrialNoticeAfterTourState() {
+            if (!this.trialNoticeEligible) return;
+            if (this.dashboardTourAuto) return;
+            if (this.isMobile() && localStorage.getItem('dashboard_tour_done') !== '1') return;
+
+            this.maybeOpenTrialNotice();
+        },
+
+        maybeOpenTrialNotice() {
+            if (!this.trialNoticeEligible || this.showTrialNotice) return;
+
+            if (this.showIntro) {
+                setTimeout(() => this.maybeOpenTrialNotice(), 300);
+                return;
+            }
+
+            if (this.trialNoticeTimerId) return;
+            this.trialNoticeTimerId = setTimeout(() => {
+                this.showTrialNotice = true;
+                document.body.style.overflow = 'hidden';
+                this.trialNoticeTimerId = null;
+            }, 350);
+        },
+
+        closeTrialNotice() {
+            this.showTrialNotice = false;
+            this.trialNoticeEligible = false;
             document.body.style.overflow = '';
         },
      }"
-     x-init="init()">
+     x-init="init()"
+     @sdfr-page-tour-finished.window="if ($event.detail.storageKey === 'dashboard_tour_done') maybeOpenTrialNotice()">
     @assets
     <style>
         /* ════════ SDFR Dashboard — Cosmic Glass UI ════════ */
@@ -439,7 +481,7 @@
         <div x-data="{ openAdvisorModal: false }">
             {{-- ════════ تور راهنمای داشبورد (اولین ورود + آیکون راهنما) ════════ --}}
             <x-client.page-tour storage-key="dashboard_tour_done"
-                                :auto="(bool) session()->pull('start_dashboard_tour', false)"
+                                :auto="$startDashboardTour"
                                 :steps="[
         /* ── موبایل: اشاره به منوی هدر ── */
         ['el' => '[data-tour=m-menu]',           'title' => 'منوها اینجاست',     'text' => 'با زدن این آیکون در بالای صفحه، به همه‌ی منوها و بخش‌های حساب کاربری‌ات دسترسی داری.',                                                                  'forced' => true],
@@ -461,6 +503,58 @@
         ['el' => '[data-tour=class-schedule]',   'title' => 'برنامه کلاسی مدرسه','text' => 'برنامه هفتگی کلاس‌های مدرسه‌ات رو از اینجا ببین تا با برنامه مطالعه‌ات هماهنگ کنی.',                                                                   'forced' => true],
     ]"
             />
+            <div x-show="showTrialNotice" x-cloak wire:ignore.self
+                 class="fixed inset-0 z-[110] flex items-end justify-center bg-black/70 px-4 py-4 backdrop-blur-sm sm:items-center"
+                 x-transition.opacity>
+                <div class="w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-[#101827]/95 shadow-2xl shadow-sky-950/40"
+                     @click.stop
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 translate-y-6 scale-95"
+                     x-transition:enter-end="opacity-100 translate-y-0 scale-100">
+                    <div class="relative p-5 sm:p-6">
+                        <div class="absolute inset-x-0 top-0 h-1 bg-primary"></div>
+
+                        <div class="mb-5 flex items-start gap-3 text-right">
+                            <div class="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/25">
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2v20"/>
+                                    <path d="m17 5-5-3-5 3"/>
+                                    <path d="m17 19-5 3-5-3"/>
+                                    <path d="M2 12h20"/>
+                                    <path d="m5 7-3 5 3 5"/>
+                                    <path d="m19 7 3 5-3 5"/>
+                                </svg>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-base font-black text-white sm:text-lg">پنل هفته آزمایشی شما فعال شد</p>
+                                <p class="mt-2 text-sm leading-7 text-neutral-300">
+                                    این پنل برای تجربه‌ی یک هفته آزمایشی ساخته شده است. برنامه، گزارش‌ها و امکاناتی که
+                                    اینجا می‌بینی فقط نمونه‌ای کوچک از خدمات کامل SDFR هستند تا با مسیر کار آشنا شوی.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-right">
+                            <p class="text-xs font-bold text-primary">در دوره کامل چه اتفاقی می‌افتد؟</p>
+                            <p class="mt-2 text-xs leading-6 text-neutral-400">
+                                بعد از پایان هفته آزمایشی، برنامه‌ریزی، پیگیری مشاور، تحلیل عملکرد و ابزارهای گزارش‌دهی
+                                به شکل کامل‌تر و اختصاصی‌تر در اختیار شما قرار می‌گیرد.
+                            </p>
+                        </div>
+
+                        <button type="button"
+                                wire:click="acknowledgeTrialWeekPanelNotice"
+                                wire:loading.attr="disabled"
+                                wire:target="acknowledgeTrialWeekPanelNotice"
+                                @click="closeTrialNotice()"
+                                class="mt-5 flex h-12 w-full items-center justify-center rounded-xl bg-primary px-4 text-sm font-black text-white shadow-lg shadow-primary/20 transition hover:brightness-110 disabled:cursor-wait disabled:opacity-70">
+                            <span wire:loading.remove wire:target="acknowledgeTrialWeekPanelNotice">متوجه شدم</span>
+                            <span wire:loading wire:target="acknowledgeTrialWeekPanelNotice">در حال ثبت...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
             <div class="cosmic-bg" wire:ignore aria-hidden="true">
                 {{-- ستاره‌های ثابت چشمک‌زن --}}
                 <span class="twinkle" style="top:12%;left:18%;animation-delay:0s"></span>

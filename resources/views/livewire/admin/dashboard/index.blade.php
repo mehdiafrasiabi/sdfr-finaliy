@@ -13,253 +13,532 @@
             return $minutes . ' دقیقه';
         }
     @endphp
-    <div class="row mt-4 mb-3">
-        <div class="col-12 d-flex align-items-center justify-content-between">
-            <h4 class="mb-0">داشبورد تحلیلی مشاوره</h4>
-            <small class="text-muted">آخرین بروزرسانی: {{ now()->format('Y/m/d H:i') }}</small>
-        </div>
-    </div>
+    @push('link')
+        {{-- Iran Map --}}
+        <style>
+            .dashboard-stat-card .card-body {
+                padding: 1rem;
+            }
 
-    {{-- First Row of Stats --}}
-    <div class="row g-3 mb-4">
-        <div class="col-xl-3 col-md-6">
-            <div class="card card-animate h-100">
-                <div class="card-body">
-                    <p class="text-muted mb-2">کل دانش‌آموزان تحت پوشش</p>
-                    <h3 class="mb-0">{{ number_format($totalStudents) }}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card card-animate h-100">
-                <div class="card-body">
-                    <p class="text-muted mb-2">کل جلسات برگزار شده</p>
-                    <h3 class="mb-0">{{ number_format($totalCounselingSessions) }}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card card-animate h-100">
-                <div class="card-body d-flex flex-column">
-                    <p class="text-muted mb-2">گزارشات در انتظار تایید</p>
-                    <h3 class="mb-1 text-warning">{{ number_format($pendingReportsCount) }}</h3>
-                    <a href="{{ route('admin.student.reportDailyActivities.index') }}" class="btn btn-sm btn-soft-primary mt-auto">مشاهده صفحه گزارشات</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card card-animate h-100">
-                <div class="card-body">
-                     <p class="text-muted mb-2">جلسات مشاوره امروز</p>
-                    <h3 class="mb-0 text-info">{{ number_format($todayCounselingSessions->count()) }}</h3>
-                     <button type="button" class="btn btn-sm btn-soft-info mt-2" data-bs-toggle="collapse" data-bs-target="#collapseTodaySessions">
-                        نمایش جزئیات
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+            .dashboard-stat-card .stat-title {
+                color: #6c757d;
+                font-size: 0.88rem;
+                line-height: 1.8;
+                min-height: 3rem;
+                margin-bottom: 0.75rem;
+            }
 
-    {{-- Second Row of Stats --}}
-    <div class="row g-3 mb-4">
-        <div class="col-xl-3 col-md-6">
-            <div class="card card-animate h-100">
-                <div class="card-body">
-                    <p class="text-muted mb-2">پیام‌های خوانده نشده</p>
-                    <h3 class="mb-0 text-danger">{{ number_format($unreadMessagesCount) }}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card card-animate h-100">
-                <div class="card-body">
-                    <p class="text-muted mb-2">گزارشات ارسال شده (امروز)</p>
-                    <h3 class="mb-0 text-success">{{ number_format($reportsSentTodayCount) }}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card card-animate h-100">
-                <div class="card-body">
-                    <p class="text-muted mb-2">عدم ارسال گزارش (امروز)</p>
-                    <h3 class="mb-0 text-danger">{{ number_format($reportsNotSentTodayCount) }}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card card-animate h-100">
-                <div class="card-body">
-                    <p class="text-muted mb-2">ساعت مطالعه دانش‌آموزان (امروز)</p>
-                    <h3 class="mb-0">{{ formatDuration($totalStudyDurationToday) }}</h3>
-                     <button type="button" class="btn btn-sm btn-soft-secondary mt-2" data-bs-toggle="collapse" data-bs-target="#collapseNoStudyToday">
-                        افرادی که شروع نکرده‌اند ({{$studentsNotStartedStudy->count()}})
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+            .dashboard-stat-card .stat-value {
+                text-align: left;
+                direction: ltr;
+                font-size: 1.45rem;
+                font-weight: 700;
+                line-height: 1.4;
+                margin-bottom: 0.75rem;
+            }
 
-    {{-- Iran Map --}}
-    <style>
-        .iran-map-card {
-            background:
-                radial-gradient(circle at top, rgba(99, 179, 237, 0.18), transparent 30%),
-                linear-gradient(180deg, #1f2431 0%, #161a24 100%);
-            border: 0;
-            overflow: hidden;
-        }
+            .dashboard-stat-card .stat-meta {
+                color: #6c757d;
+                font-size: 0.78rem;
+                min-height: 1.25rem;
+                margin-bottom: 0.75rem;
+            }
 
-        .iran-map-shell {
-            color: #e8eefb;
-        }
+            .dashboard-stat-card .btn {
+                width: 100%;
+            }
 
-        .iran-map-summary {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-        }
+            .iran-map-card {
+                background:
+                    radial-gradient(circle at top, rgba(99, 179, 237, 0.18), transparent 30%),
+                    linear-gradient(180deg, #1f2431 0%, #161a24 100%);
+                border: 0;
+                overflow: hidden;
+            }
 
-        .iran-map-pill {
-            background: rgba(164, 208, 255, 0.12);
-            border: 1px solid rgba(164, 208, 255, 0.18);
-            color: #dcecff;
-            border-radius: 999px;
-            padding: 8px 14px;
-            font-size: 0.85rem;
-        }
+            .iran-map-shell {
+                color: #e8eefb;
+            }
 
-        .iran-map-board {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) 280px;
-            gap: 20px;
-            align-items: center;
-        }
+            .iran-map-summary {
+                display: flex;
+                justify-content: center;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-bottom: 1rem;
+            }
 
-        .iran-map-stage {
-            position: relative;
-            min-height: 560px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 24px;
-            padding: 20px;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-        }
+            .iran-map-pill {
+                background: rgba(164, 208, 255, 0.12);
+                border: 1px solid rgba(164, 208, 255, 0.18);
+                color: #dcecff;
+                border-radius: 999px;
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
 
-        #iran-map-container {
-            width: 100%;
-            max-width: 760px;
-            margin: auto;
-            position: relative;
-        }
-
-        #iran-map-container .iran-map-svg {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        #iran-map-container .iran-map-water {
-            fill: #73b7e6;
-        }
-
-        #iran-map-container .iran-map-border {
-            fill: rgba(255, 255, 255, 0.03);
-            stroke: rgba(255, 255, 255, 0.2);
-            stroke-width: 1.2px;
-        }
-
-        #iran-map-container .province {
-            fill: #d7d9df;
-            stroke: rgba(255, 255, 255, 0.92);
-            stroke-width: 2px;
-            transition: transform 0.2s ease, fill 0.2s ease, filter 0.2s ease, stroke 0.2s ease;
-            transform-origin: center;
-            transform-box: fill-box;
-            cursor: pointer;
-        }
-
-        #iran-map-container .province:hover,
-        #iran-map-container .province.is-active {
-            transform: translateY(-2px);
-            stroke: #ffffff;
-            filter: drop-shadow(0 8px 16px rgba(28, 44, 79, 0.35));
-        }
-
-        .iran-map-sidepanel {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 18px;
-            min-height: 320px;
-        }
-
-        .iran-map-sidepanel .eyebrow {
-            color: #96a6c6;
-            font-size: 0.8rem;
-            margin-bottom: 6px;
-        }
-
-        .iran-map-sidepanel .province-name {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 10px;
-        }
-
-        .iran-map-sidepanel .province-count {
-            font-size: 2.3rem;
-            line-height: 1;
-            font-weight: 800;
-            color: #8fd3ff;
-            margin-bottom: 10px;
-        }
-
-        .iran-map-sidepanel .province-help {
-            color: #9fb0cf;
-            font-size: 0.92rem;
-            line-height: 1.8;
-        }
-
-        .iran-map-toplist {
-            margin-top: 18px;
-            padding-top: 14px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .iran-map-topitem {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 8px 0;
-            color: #d9e6ff;
-            font-size: 0.92rem;
-        }
-
-        .iran-map-topitem .badge {
-            min-width: 42px;
-        }
-
-        .iran-map-footer {
-            margin-top: 18px;
-            text-align: center;
-            color: #98abc9;
-            font-size: 0.92rem;
-        }
-
-        @media (max-width: 991.98px) {
             .iran-map-board {
-                grid-template-columns: 1fr;
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 280px;
+                gap: 20px;
+                align-items: center;
             }
 
             .iran-map-stage {
-                min-height: 0;
+                position: relative;
+                min-height: 560px;
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                border-radius: 24px;
+                padding: 20px;
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
             }
-        }
-    </style>
 
+            #iran-map-container {
+                width: 100%;
+                max-width: 760px;
+                margin: auto;
+                position: relative;
+            }
+
+            #iran-map-container .iran-map-svg {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+
+            #iran-map-container .iran-map-water {
+                fill: #73b7e6;
+            }
+
+            #iran-map-container .iran-map-border {
+                fill: rgba(255, 255, 255, 0.03);
+                stroke: rgba(255, 255, 255, 0.2);
+                stroke-width: 1.2px;
+            }
+
+            #iran-map-container .province {
+                fill: #d7d9df;
+                stroke: rgba(255, 255, 255, 0.92);
+                stroke-width: 2px;
+                transition: transform 0.2s ease, fill 0.2s ease, filter 0.2s ease, stroke 0.2s ease;
+                transform-origin: center;
+                transform-box: fill-box;
+                cursor: pointer;
+            }
+
+            #iran-map-container .province:hover,
+            #iran-map-container .province.is-active {
+                transform: translateY(-2px);
+                stroke: #ffffff;
+                filter: drop-shadow(0 8px 16px rgba(28, 44, 79, 0.35));
+            }
+
+            .iran-map-sidepanel {
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 20px;
+                padding: 18px;
+                min-height: 320px;
+            }
+
+            .iran-map-sidepanel .eyebrow {
+                color: #96a6c6;
+                font-size: 0.8rem;
+                margin-bottom: 6px;
+            }
+
+            .iran-map-sidepanel .province-name {
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #ffffff;
+                margin-bottom: 10px;
+            }
+
+            .iran-map-sidepanel .province-count {
+                font-size: 2.3rem;
+                line-height: 1;
+                font-weight: 800;
+                color: #8fd3ff;
+                margin-bottom: 10px;
+            }
+
+            .iran-map-sidepanel .province-help {
+                color: #9fb0cf;
+                font-size: 0.92rem;
+                line-height: 1.8;
+            }
+
+            .iran-map-toplist {
+                margin-top: 18px;
+                padding-top: 14px;
+                border-top: 1px solid rgba(255, 255, 255, 0.08);
+            }
+
+            .iran-map-topitem {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                padding: 8px 0;
+                color: #d9e6ff;
+                font-size: 0.92rem;
+            }
+
+            .iran-map-topitem .badge {
+                min-width: 42px;
+            }
+
+            .iran-map-footer {
+                margin-top: 18px;
+                text-align: center;
+                color: #98abc9;
+                font-size: 0.92rem;
+            }
+
+            @media (max-width: 991.98px) {
+                .iran-map-board {
+                    grid-template-columns: 1fr;
+                }
+
+                .iran-map-stage {
+                    min-height: 0;
+                }
+            }
+        </style>
+    @endpush
+    <div class="row mt-4 mb-3">
+        <div class="col-12 d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+                <h4 class="mb-0">داشبورد تحلیلی مشاوره</h4>
+                <small class="text-muted">آخرین بروزرسانی: {{ now()->format('Y/m/d H:i') }}</small>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="badge bg-light text-dark">
+                    مبنای آمار گزارش و مطالعه: {{ $metricsDayLabel }} | {{ $metricsDateLabel }}
+                </span>
+                <div class="btn-group btn-group-sm" role="group" aria-label="metrics date toggle">
+                    <button type="button"
+                            wire:click="showPreviousDayMetrics"
+                            class="btn {{ $usePreviousDayMetrics ? 'btn-primary' : 'btn-outline-primary' }}">
+                        روز قبل
+                    </button>
+                    <button type="button"
+                            wire:click="showCurrentDayMetrics"
+                            class="btn {{ !$usePreviousDayMetrics ? 'btn-primary' : 'btn-outline-primary' }}">
+                        بدون یک روز قبل
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @php
+        $dashboardStats = [
+            [
+                'title' => 'کل دانش‌آموزان تحت پوشش',
+                'value' => number_format($totalStudents),
+                'valueClass' => 'text-primary',
+                'meta' => 'صفحه اصلی دانش‌آموزان',
+                'route' => route('admin.student.index'),
+            ],
+            [
+                'title' => 'کل جلسات برگزار شده',
+                'value' => number_format($totalCounselingSessions),
+                'valueClass' => 'text-info',
+                'meta' => 'صفحه اصلی جلسات مشاوره',
+                'route' => route('admin.advising-sessions'),
+            ],
+            [
+                'title' => 'گزارشات در انتظار تایید',
+                'value' => number_format($pendingReportsCount),
+                'valueClass' => 'text-warning',
+                'meta' => 'بررسی و تایید گزارش‌ها',
+                'route' => route('admin.student.reportDailyActivities.index'),
+            ],
+            [
+                'title' => 'جلسات مشاوره امروز',
+                'value' => number_format($todayCounselingSessions->count()),
+                'valueClass' => 'text-info',
+                'meta' => 'مشاهده لیست جلسات',
+                'route' => route('admin.advising-sessions'),
+            ],
+            [
+                'title' => 'پیام‌های خوانده نشده',
+                'value' => number_format($unreadMessagesCount),
+                'valueClass' => 'text-danger',
+                'meta' => 'ورود به گفت‌وگوها',
+                'route' => route('admin.consultant.chats'),
+            ],
+            [
+                'title' => "گزارشات ارسال شده ({$metricsDayLabel})",
+                'value' => number_format($reportsSentTodayCount),
+                'valueClass' => 'text-success',
+                'meta' => "مبنای نمایش: {$metricsDateLabel}",
+                'route' => route('admin.reportStudentDay'),
+            ],
+            [
+                'title' => "عدم ارسال گزارش ({$metricsDayLabel})",
+                'value' => number_format($reportsNotSentTodayCount),
+                'valueClass' => 'text-danger',
+                'meta' => "دانش‌آموزان بدون گزارش در {$metricsDateLabel}",
+                'route' => route('admin.reportStudentDay'),
+            ],
+            [
+                'title' => "ساعت مطالعه دانش‌آموزان ({$metricsDayLabel})",
+                'value' => formatDuration($totalStudyDurationToday),
+                'valueClass' => 'text-dark',
+                'meta' => "شروع نکرده‌اند: {$studentsNotStartedStudy->count()} نفر",
+                'route' => route('admin.student.studySession.index'),
+            ],
+        ];
+    @endphp
+
+    <div class="row g-3 mb-4">
+        @foreach($dashboardStats as $stat)
+            <div class="col-xxl-3 col-xl-4 col-md-6">
+                <div class="card card-animate h-100 dashboard-stat-card">
+                    <div class="card-body d-flex flex-column">
+                        <p class="stat-title">{{ $stat['title'] }}</p>
+                        <div class="stat-value {{ $stat['valueClass'] }}">{{ $stat['value'] }}</div>
+                        <div class="stat-meta">{{ $stat['meta'] }}</div>
+                        <a href="{{ $stat['route'] }}" class="btn btn-sm btn-soft-primary mt-auto">ورود</a>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+
+
+    {{-- Accordion for Details --}}
+    <div class="accordion" id="dashboardAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingPending">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePending">
+                    1) لیست کامل گزارش‌های در انتظار تایید ({{ $pendingReportsCount }})
+                </button>
+            </h2>
+            <div id="collapsePending" class="accordion-collapse collapse" data-bs-parent="#dashboardAccordion">
+                <div class="accordion-body table-responsive">
+                    <table class="table table-sm table-striped align-middle">
+                        <thead>
+                        <tr>
+                            <th>دانش‌آموز</th>
+                            <th>استان</th>
+                            <th>تعداد گزارش در انتظار</th>
+                            <th>آخرین تاریخ گزارش</th>
+                            <th>جزئیات</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @forelse($pendingReportsByStudent as $row)
+                            <tr>
+                                <td>{{ $row['student']?->user?->name ?? '-' }}</td>
+                                <td>{{ $row['student']?->user?->personalInformation?->state?->name ?? '-' }}</td>
+                                <td><span class="badge bg-warning text-dark">{{ $row['pending_count'] }}</span></td>
+                                <td>
+                                    @if($row['latest_report_date'])
+                                        {{ jalali($row['latest_report_date'])->format('Y/m/d') }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($row['student'])
+                                        <a href="{{ route('admin.student.reportDailyActivities.detail', $row['student']->id) }}" class="btn btn-sm btn-soft-primary">
+                                            بررسی و تایید
+                                        </a>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="5" class="text-center text-muted">گزارش در انتظار تاییدی وجود ندارد.</td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingNoProgram">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNoProgram">
+                    2) دانش‌آموزان بدون برنامه/جلسه یا نیازمند جلسه جدید ({{ $studentsWithoutProgramOrSession->count() }})
+                </button>
+            </h2>
+            <div id="collapseNoProgram" class="accordion-collapse collapse" data-bs-parent="#dashboardAccordion">
+                <div class="accordion-body table-responsive">
+                    <table class="table table-sm table-striped align-middle">
+                        <thead><tr><th>دانش‌آموز</th><th>استان</th><th>آخرین جلسه</th><th>توضیح</th><th>جزئیات</th></tr></thead>
+                        <tbody>
+                        @forelse($studentsWithoutProgramOrSession as $student)
+                            @php
+                                $latestSession = $student->advisingSessions->first();
+                                $nextExpected = $latestSession?->activation_date ? \Carbon\Carbon::parse($latestSession->activation_date)->addDays(7) : null;
+                            @endphp
+                            <tr>
+                                <td>{{ $student->user?->name ?? '-' }}</td>
+                                <td>{{ $student->user?->personalInformation?->state?->name ?? '-' }}</td>
+                                <td>
+                                    @if($latestSession?->activation_date)
+                                        {{jalali($latestSession->activation_date)->format('Y/m/d')}}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if(!$student->weeklyPrograms->first())
+                                        <span class="badge bg-danger">بدون برنامه هفتگی</span>
+                                    @elseif(!$latestSession)
+                                        <span class="badge bg-danger">بدون جلسه مشاوره</span>
+                                    @elseif($nextExpected && $nextExpected->lt(now()))
+                                        <span class="badge bg-warning text-white">جلسه جدید باید تا   {{jalali($nextExpected)->format('Y/m/d')}} ثبت می‌شد</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.student.advising-sessions.create', $student->id) }}" class="btn btn-sm btn-soft-warning">
+                                        ایجاد/پیگیری جلسه
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="5" class="text-center text-muted">موردی وجود ندارد.</td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTodaySessionsHeader">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTodaySessions">
+                    3) لیست جلسات مشاوره امروز ({{ $todayCounselingSessions->count() }})
+                </button>
+            </h2>
+            <div id="collapseTodaySessions" class="accordion-collapse collapse" data-bs-parent="#dashboardAccordion">
+                <div class="accordion-body table-responsive">
+                    <table class="table table-sm table-striped align-middle">
+                        <thead><tr><th>دانش‌آموز</th><th>مشاور</th><th>استان</th><th>ساعت</th><th>وضعیت</th><th>جزئیات</th></tr></thead>
+                        <tbody>
+                        @forelse($todayCounselingSessions as $session)
+                            <tr>
+                                <td>{{ $session->student?->user?->name ?? '-' }}</td>
+                                <td>{{ $session->advisor?->user?->name ?? '-' }}</td>
+                                <td>{{ $session->student?->user?->personalInformation?->state?->name ?? '-' }}</td>
+                                <td>{{ $session->session_time?->format('H:i') ?? '-' }}</td>
+                                <td><span class="badge bg-secondary">{{ $session->status_label }}</span></td>
+                                <td>
+                                    <a href="{{ route('admin.student.weekly-program', ['student' => $session->student_id, 'session' => $session->id]) }}" class="btn btn-sm btn-soft-info">
+                                        ورود به جزئیات
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="6" class="text-center text-muted">امروز جلسه‌ای ثبت نشده است.</td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwoDays">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwoDays">
+                    4) دانش‌آموزان بدون ارسال گزارش در ۲ روز متوالی ({{ $studentsWithoutTwoDaysReport->count() }})
+                </button>
+            </h2>
+            <div id="collapseTwoDays" class="accordion-collapse collapse" data-bs-parent="#dashboardAccordion">
+                <div class="accordion-body table-responsive">
+                    <table class="table table-sm table-striped align-middle">
+                        <thead><tr><th>دانش‌آموز</th><th>استان</th><th>توضیح</th><th>جزئیات</th></tr></thead>
+                        <tbody>
+                        @forelse($studentsWithoutTwoDaysReport as $student)
+                            <tr>
+                                <td>{{ $student->user?->name ?? '-' }}</td>
+                                <td>{{ $student->user?->personalInformation?->state?->name ?? '-' }}</td>
+                                <td class="text-danger">در دو روز گذشته گزارشی ارسال نشده است.</td>
+                                <td>
+                                    <a href="{{ route('admin.student.reportDailyActivities.detail', $student->id) }}" class="btn btn-sm btn-soft-danger">
+                                        بررسی گزارش
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="4" class="text-center text-muted">موردی وجود ندارد.</td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingLowCompletion">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLowCompletion">
+                    5) دانش‌آموزان با کمتر از ۵۰٪ انجام برنامه امروز ({{ $lowCompletionRows->count() }})
+                </button>
+            </h2>
+            <div id="collapseLowCompletion" class="accordion-collapse collapse" data-bs-parent="#dashboardAccordion">
+                <div class="accordion-body">
+                    @forelse($lowCompletionRows as $row)
+                        <div class="border rounded p-3 mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong>{{ $row['student']?->user?->name ?? '-' }}</strong>
+                                <small class="text-muted">{{ $row['completed'] }} از {{ $row['planned'] }} پارت</small>
+                            </div>
+                            <div class="progress" role="progressbar" aria-valuenow="{{ $row['percentage'] }}" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar bg-danger" style="width: {{ $row['percentage'] }}%">{{ $row['percentage'] }}%</div>
+                            </div>
+                            @if($row['student'])
+                                <div class="mt-2 text-end">
+                                    <a href="{{ route('admin.student.studySession.detail', $row['student']->id) }}" class="btn btn-sm btn-soft-primary">
+                                        ورود به جزئیات
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                    @empty
+                        <div class="text-muted">هیچ دانش‌آموزی با انجام کمتر از ۵۰٪ برنامه امروز یافت نشد.</div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingNoStudyTodayHeader">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNoStudyToday">
+                    6) دانش‌آموزانی که امروز هیچ ثبت مطالعه‌ای نداشته‌اند ({{ $studentsNotStartedStudy->count() }})
+                </button>
+            </h2>
+            <div id="collapseNoStudyToday" class="accordion-collapse collapse" data-bs-parent="#dashboardAccordion">
+                <div class="accordion-body table-responsive">
+                    <table class="table table-sm table-striped align-middle">
+                        <thead><tr><th>دانش‌آموز</th><th>استان</th><th>جزئیات</th></tr></thead>
+                        <tbody>
+                        @forelse($studentsNotStartedStudy as $student)
+                            <tr>
+                                <td>{{ $student->user?->name ?? '-' }}</td>
+                                <td>{{ $student->user?->personalInformation?->state?->name ?? '-' }}</td>
+                                <td>
+                                    <a href="{{ route('admin.student.studySession.detail', $student->id) }}" class="btn btn-sm btn-soft-secondary">
+                                        ورود به جزئیات
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="3" class="text-center text-muted">همه دانش‌آموزان امروز حداقل یک مطالعه ثبت کرده‌اند.</td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
     <div class="card iran-map-card mb-4">
         <div class="card-header bg-transparent border-0 pt-4 px-4">
             <h5 class="mb-1 text-white">پراکندگی دانش‌آموزان بر اساس استان</h5>
@@ -414,228 +693,6 @@
     </div>
 
 
-    {{-- Accordion for Details --}}
-    <div class="accordion" id="dashboardAccordion">
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingPending">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePending">
-                    ۱) لیست کامل گزارش‌های Pending ({{ $pendingReportsCount }})
-                </button>
-            </h2>
-            <div id="collapsePending" class="accordion-collapse collapse show" data-bs-parent="#dashboardAccordion">
-                <div class="accordion-body table-responsive">
-                    <table class="table table-sm table-striped align-middle">
-                        <thead>
-                        <tr>
-                            <th>دانش‌آموز</th><th>استان</th><th>تعداد گزارش Pending</th><th>آخرین تاریخ گزارش</th><th>جزئیات</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @forelse($pendingReportsByStudent as $row)
-                            <tr>
-                                <td>{{ $row['student']?->user?->name ?? '-' }}</td>
-                                <td>{{ $row['student']?->user?->personalInformation?->state?->name ?? '-' }}</td>
-                                <td><span class="badge bg-warning">{{ $row['pending_count'] }}</span></td>
-                                <td>
-                                    @if($row['latest_report_date'])
-                                        {{jalali($row['latest_report_date'])->format('Y/m/d')}}
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($row['student'])
-                                        <a href="{{ route('admin.student.reportDailyActivities.detail', $row['student']->id) }}" class="btn btn-sm btn-soft-primary">
-                                            بررسی و تایید
-                                        </a>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="5" class="text-center text-muted">گزارش Pending وجود ندارد.</td></tr>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingNoProgram">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNoProgram">
-                    ۲) دانش‌آموزان بدون برنامه/جلسه یا نیازمند جلسه جدید ({{ $studentsWithoutProgramOrSession->count() }})
-                </button>
-            </h2>
-            <div id="collapseNoProgram" class="accordion-collapse collapse" data-bs-parent="#dashboardAccordion">
-                <div class="accordion-body table-responsive">
-                    <table class="table table-sm table-striped align-middle">
-                        <thead><tr><th>دانش‌آموز</th><th>استان</th><th>آخرین جلسه</th><th>توضیح</th><th>جزئیات</th></tr></thead>
-                        <tbody>
-                        @forelse($studentsWithoutProgramOrSession as $student)
-                            @php
-                                $latestSession = $student->advisingSessions->first();
-                                $nextExpected = $latestSession?->activation_date ? \Carbon\Carbon::parse($latestSession->activation_date)->addDays(7) : null;
-                            @endphp
-                            <tr>
-                                <td>{{ $student->user?->name ?? '-' }}</td>
-                                <td>{{ $student->user?->personalInformation?->state?->name ?? '-' }}</td>
-                                <td>
-                                    @if($latestSession?->activation_date)
-                                        {{jalali($latestSession->activation_date)->format('Y/m/d')}}
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td>
-                                    @if(!$student->weeklyPrograms->first())
-                                        <span class="badge bg-danger">بدون برنامه هفتگی</span>
-                                    @elseif(!$latestSession)
-                                        <span class="badge bg-danger">بدون جلسه مشاوره</span>
-                                    @elseif($nextExpected && $nextExpected->lt(now()))
-                                        <span class="badge bg-warning text-white">جلسه جدید باید تا   {{jalali($nextExpected)->format('Y/m/d')}} ثبت می‌شد</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <a href="{{ route('admin.student.advising-sessions.create', $student->id) }}" class="btn btn-sm btn-soft-warning">
-                                        ایجاد/پیگیری جلسه
-                                    </a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="5" class="text-center text-muted">موردی وجود ندارد.</td></tr>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingTodaySessionsHeader">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTodaySessions">
-                    ۳) لیست جلسات مشاوره امروز ({{ $todayCounselingSessions->count() }})
-                </button>
-            </h2>
-            <div id="collapseTodaySessions" class="accordion-collapse collapse" data-bs-parent="#dashboardAccordion">
-                <div class="accordion-body table-responsive">
-                    <table class="table table-sm table-striped align-middle">
-                        <thead><tr><th>دانش‌آموز</th><th>مشاور</th><th>استان</th><th>ساعت</th><th>وضعیت</th><th>جزئیات</th></tr></thead>
-                        <tbody>
-                        @forelse($todayCounselingSessions as $session)
-                            <tr>
-                                <td>{{ $session->student?->user?->name ?? '-' }}</td>
-                                <td>{{ $session->advisor?->user?->name ?? '-' }}</td>
-                                <td>{{ $session->student?->user?->personalInformation?->state?->name ?? '-' }}</td>
-                                <td>{{ $session->session_time?->format('H:i') ?? '-' }}</td>
-                                <td><span class="badge bg-secondary">{{ $session->status_label }}</span></td>
-                                <td>
-                                    <a href="{{ route('admin.student.weekly-program', ['student' => $session->student_id, 'session' => $session->id]) }}" class="btn btn-sm btn-soft-info">
-                                        ورود به جزئیات
-                                    </a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="6" class="text-center text-muted">امروز جلسه‌ای ثبت نشده است.</td></tr>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingTwoDays">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwoDays">
-                    ۴) دانش‌آموزان بدون ارسال گزارش در ۲ روز متوالی ({{ $studentsWithoutTwoDaysReport->count() }})
-                </button>
-            </h2>
-            <div id="collapseTwoDays" class="accordion-collapse collapse" data-bs-parent="#dashboardAccordion">
-                <div class="accordion-body table-responsive">
-                    <table class="table table-sm table-striped align-middle">
-                        <thead><tr><th>دانش‌آموز</th><th>استان</th><th>توضیح</th><th>جزئیات</th></tr></thead>
-                        <tbody>
-                        @forelse($studentsWithoutTwoDaysReport as $student)
-                            <tr>
-                                <td>{{ $student->user?->name ?? '-' }}</td>
-                                <td>{{ $student->user?->personalInformation?->state?->name ?? '-' }}</td>
-                                <td class="text-danger">در دو روز گذشته گزارشی ارسال نشده است.</td>
-                                <td>
-                                    <a href="{{ route('admin.student.reportDailyActivities.detail', $student->id) }}" class="btn btn-sm btn-soft-danger">
-                                        بررسی گزارش
-                                    </a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="4" class="text-center text-muted">موردی وجود ندارد.</td></tr>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingLowCompletion">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLowCompletion">
-                    ۵) دانش‌آموزان با کمتر از ۵۰٪ انجام برنامه امروز ({{ $lowCompletionRows->count() }})
-                </button>
-            </h2>
-            <div id="collapseLowCompletion" class="accordion-collapse collapse" data-bs-parent="#dashboardAccordion">
-                <div class="accordion-body">
-                    @forelse($lowCompletionRows as $row)
-                        <div class="border rounded p-3 mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <strong>{{ $row['student']?->user?->name ?? '-' }}</strong>
-                                <small class="text-muted">{{ $row['completed'] }} از {{ $row['planned'] }} پارت</small>
-                            </div>
-                            <div class="progress" role="progressbar" aria-valuenow="{{ $row['percentage'] }}" aria-valuemin="0" aria-valuemax="100">
-                                <div class="progress-bar bg-danger" style="width: {{ $row['percentage'] }}%">{{ $row['percentage'] }}%</div>
-                            </div>
-                            @if($row['student'])
-                                <div class="mt-2 text-end">
-                                    <a href="{{ route('admin.student.studySession.detail', $row['student']->id) }}" class="btn btn-sm btn-soft-primary">
-                                        ورود به جزئیات
-                                    </a>
-                                </div>
-                            @endif
-                        </div>
-                    @empty
-                        <div class="text-muted">هیچ دانش‌آموزی با انجام کمتر از ۵۰٪ برنامه امروز یافت نشد.</div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingNoStudyTodayHeader">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNoStudyToday">
-                    ۶) دانش‌آموزانی که امروز هیچ ثبت مطالعه‌ای نداشته‌اند ({{ $studentsNotStartedStudy->count() }})
-                </button>
-            </h2>
-            <div id="collapseNoStudyToday" class="accordion-collapse collapse" data-bs-parent="#dashboardAccordion">
-                <div class="accordion-body table-responsive">
-                    <table class="table table-sm table-striped align-middle">
-                        <thead><tr><th>دانش‌آموز</th><th>استان</th><th>جزئیات</th></tr></thead>
-                        <tbody>
-                        @forelse($studentsNotStartedStudy as $student)
-                            <tr>
-                                <td>{{ $student->user?->name ?? '-' }}</td>
-                                <td>{{ $student->user?->personalInformation?->state?->name ?? '-' }}</td>
-                                <td>
-                                    <a href="{{ route('admin.student.studySession.detail', $student->id) }}" class="btn btn-sm btn-soft-secondary">
-                                        ورود به جزئیات
-                                    </a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="3" class="text-center text-muted">همه دانش‌آموزان امروز حداقل یک مطالعه ثبت کرده‌اند.</td></tr>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
     @push('script')
         <script>
             function renderDashboardCharts() {

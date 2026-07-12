@@ -3,6 +3,7 @@
 namespace App\Livewire\Client\Profile\AdvisorSelection;
 
 use App\Models\Admin;
+use App\Models\AdvisorOnboarding;
 use App\Models\AdvisorSelection;
 use App\Models\GeneralSetting;
 use App\Models\Student;
@@ -192,7 +193,7 @@ class Index extends Component
                 ->where('status', AdvisorSelection::STATUS_PENDING)
                 ->delete();
 
-            AdvisorSelection::create([
+            $selection = AdvisorSelection::create([
                 'student_id'     => $student->id,
                 'advisor_id'     => $advisor->id,
                 'weekly_day'     => (int) $this->filterDay,
@@ -206,6 +207,21 @@ class Index extends Component
                 'advisor_id'  => $advisor->id,
                 'session_day' => (int) $this->filterDay,
             ]);
+
+            AdvisorOnboarding::updateOrCreate(
+                ['student_id' => $student->id],
+                [
+                    'advisor_id'               => $advisor->id,
+                    'advisor_selection_id'     => $selection->id,
+                    'contact_documentation_id' => null,
+                    'status'                   => AdvisorOnboarding::STATUS_PENDING_CALL,
+                    'group_link'               => null,
+                    'submitted_at'             => null,
+                    'reviewed_by'              => null,
+                    'reviewed_at'              => null,
+                    'reject_reason'            => null,
+                ]
+            );
         });
     }
 

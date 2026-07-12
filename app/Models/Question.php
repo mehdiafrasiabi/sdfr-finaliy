@@ -54,6 +54,14 @@ class Question extends Model
 
     }
 
+    public function chapter(): BelongsTo
+
+    {
+
+        return $this->belongsTo(CcChapter::class, 'cc_chapter_id');
+
+    }
+
 
     /**
      * محتوای سوال (عکس و توضیحات)

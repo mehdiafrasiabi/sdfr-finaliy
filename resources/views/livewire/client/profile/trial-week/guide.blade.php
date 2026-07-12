@@ -1,5 +1,4 @@
-<div class="max-w-5xl mx-auto px-4 py-6 sm:py-10" dir="rtl"
-     x-data="guidePage()" x-init="init()">
+<div class="max-w-5xl mx-auto px-4 py-6 sm:py-10" dir="rtl">
 
 @assets
         <style>
@@ -208,9 +207,9 @@
             $progressPct = $trialWeek->step >= 4 ? 100 : (($trialWeek->step + 0.5) / 4) * 100;
             $stepTitles = [
                 0 => 'در حال تخصیص مشاور تخصصی',
-                1 => 'نوبت طبقه‌بندی دروس',
-                2 => 'نوبت نیازمندی‌های برنامه',
-                3 => 'نوبت ساخت برنامه',
+                1 => 'طبقه‌بندی دروس',
+                2 => 'نیازمندی‌های برنامه',
+                3 => 'ساخت برنامه',
                 4 => 'هفته آزمایشی فعال شد',
             ];
         @endphp
@@ -224,7 +223,29 @@
                     <div class="font-black text-foreground text-base">{{ $stepTitles[$trialWeek->step] ?? $trialWeek->statusLabel }}</div>
                 </div>
                 <div class="text-left">
-                    <div class="font-black text-2xl text-blue-500" x-data="counter({{ (int)$progressPct }})" x-text="display + '٪'"></div>
+                    <div class="font-black text-2xl text-blue-500"
+                         x-data="{
+                            display: 0,
+                            init() {
+                                const target = {{ (int) $progressPct }};
+                                const duration = 900;
+                                const start = performance.now();
+                                const tick = (now) => {
+                                    const t = Math.min(1, (now - start) / duration);
+                                    const eased = 1 - Math.pow(1 - t, 3);
+                                    this.display = Math.floor(target * eased);
+                                    if (t < 1) {
+                                        requestAnimationFrame(tick);
+                                        return;
+                                    }
+
+                                    this.display = target;
+                                };
+
+                                requestAnimationFrame(tick);
+                            }
+                         }"
+                         x-text="display + '٪'"></div>
                     <div class="text-[11px] text-muted">{{ $trialWeek->step }} از ۴ مرحله</div>
                 </div>
             </div>
@@ -701,7 +722,7 @@
             <div class="m-overlay" wire:click="closeHoursModal"></div>
             <div class="m-sheet" @click.stop>
                 <div class="m-handle"></div>
-                <div class="p-6 text-center overflow-y-auto">
+                <div class="p-6 text-center overflow-visible">
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-500/15 border border-blue-500/30 mb-4">
                         <svg class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -717,7 +738,7 @@
                         <x-ui.select
                             wire:model="dailyStudyHours"
                             :options="collect(range(2,12))->map(fn($i) => ['id' => $i, 'name' => $i . ' ساعت در روز'])->all()"
-                            value-key="id" label-key="name" placeholder="انتخاب ساعت..." />
+                            value-key="id" label-key="name" placeholder="انتخاب ساعت..." :drop-up="true" />
                         @error('dailyStudyHours')<p class="text-xs text-red-500 mt-2">{{ $message }}</p>@enderror
                     </div>
 
@@ -751,36 +772,4 @@
         ['el' => '[data-tour=step3]',    'title' => 'نیازمندی‌های برنامه', 'text' => 'پیش‌جلسه (امتحان‌ها، پارت درخواستی و…) و در صورت نیاز برنامه کلاسی مدرسه را اینجا تکمیل می‌کنی.'],
         ['el' => '[data-tour=step4]',    'title' => 'ساخت برنامه', 'text' => 'بعد از تکمیل مراحل، فقط ساعت مطالعه‌ی روزانه‌ات را انتخاب می‌کنی و برنامه‌ی اختصاصی‌ات همین‌جا ساخته می‌شود.'],
     ]" />
-
-
-
-
-    @script
-    <script>
-        function guidePage() {
-            return {
-                init() {},
-            };
-        }
-        document.addEventListener('alpine:init', () => {
-            if (Alpine.data && !Alpine.__guideCounter) {
-                Alpine.__guideCounter = true;
-                Alpine.data('counter', (target) => ({
-                    display: 0,
-                    init() {
-                        const dur = 900, start = performance.now();
-                        const tick = (now) => {
-                            const t = Math.min(1, (now - start) / dur);
-                            const eased = 1 - Math.pow(1 - t, 3);
-                            this.display = Math.floor(target * eased);
-                            if (t < 1) requestAnimationFrame(tick);
-                            else this.display = target;
-                        };
-                        requestAnimationFrame(tick);
-                    },
-                }));
-            }
-        });
-    </script>
-    @endscript
 </div>

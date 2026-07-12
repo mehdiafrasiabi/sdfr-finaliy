@@ -242,19 +242,10 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <div class="btn-group float-end">
-                                                    <button class="btn btn-white btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
-                                                        <i class="fi fi-rr-menu-dots">
-                                                        </i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <a class="dropdown-item" href="{{ route('admin.student.reportDailyActivities.detail', $student->user_id) }}"
-                                                            >
-                                                               مشاهده گزارش
-                                                            </a>
-                                                        </li>
-                                                    </ul>
+                                                <div class="btn-group float-start">
+                                                    <a class="dropdown-item" href="{{ route('admin.student.reportDailyActivities.detail', $student->user_id) }}">
+                                                        <i class="fi fi-br-eye"></i>
+                                                    </a>
                                                 </div>
                                             </td>
                                         </tr>

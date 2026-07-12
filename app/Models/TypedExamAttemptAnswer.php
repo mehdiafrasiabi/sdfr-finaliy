@@ -93,16 +93,18 @@ class TypedExamAttemptAnswer extends Model
 
 
         $correctOption = $this->question->options()
-
             ->where('is_correct', true)
-
             ->first();
+
+        $correctOptionNumber = $correctOption?->option_number ?? $this->question?->correct_option;
 
 
 
         $this->update([
 
-            'is_correct' => $correctOption && $correctOption->option_number === $this->selected_option
+            'is_correct' => $correctOptionNumber !== null
+                ? (int) $correctOptionNumber === (int) $this->selected_option
+                : false
 
         ]);
 

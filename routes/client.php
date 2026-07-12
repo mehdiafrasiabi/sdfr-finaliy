@@ -15,6 +15,7 @@ use App\Livewire\Client\Profile\Consultation\SessionList as ConsultationSessionL
 use App\Livewire\Client\Profile\Consultation\WeeklyProgramView as ConsultationWeeklyProgramView;
 use App\Livewire\Client\Profile\Dashboard as ProfileDashboard;
 use App\Livewire\Client\Profile\Consultation\ClassScheduleUpload as ConsultationClassScheduleUpload;
+use App\Livewire\Client\Profile\AdvisorChangeRequest\Index as AdvisorChangeRequestIndex;
 use App\Livewire\Client\Profile\Edit as ProfileEdit;
 use App\Livewire\Client\Profile\TrialWeek\Guide as TrialWeekGuide;
 use App\Livewire\Client\Profile\TrialWeek\SessionAnalysis as TrialWeekSessionAnalysis;
@@ -159,6 +160,8 @@ Route::name('client.')->group(function () {
             // انتخاب مشاور تحصیلی (جایگزین صفحه‌ی قدیمیِ تعیین وقت)
             Route::get('/appointment', \App\Livewire\Client\Profile\AdvisorSelection\Index::class)
                 ->name('appointment');
+            Route::get('/advisor-change-request', AdvisorChangeRequestIndex::class)
+                ->name('advisor-change-request');
             // Trial Week Routes (هفته آزمایشی)
             Route::prefix('trial')->name('trial.')->group(function () {
                 Route::get('/guide', TrialWeekGuide::class)->name('guide');

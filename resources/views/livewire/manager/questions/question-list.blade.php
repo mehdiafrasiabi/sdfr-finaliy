@@ -318,6 +318,15 @@
 
                                         <span class="badge bg-secondary">{{ $question->topic->name ?? '-' }}</span>
 
+                                    @elseif($question->chapter)
+
+                                        <span
+                                            class="badge bg-info">{{ $question->chapter->subject->name ?? '-' }}</span>
+
+                                        <span class="badge bg-secondary">{{ $question->chapter->name ?? '-' }}</span>
+
+                                        <span class="badge bg-primary">سوالات جامع</span>
+
                                     @endif
 
                                     <span
@@ -686,146 +695,73 @@
                                         <option value="{{ $value }}">{{ $label }}</option>
 
                                     @endforeach
-
                                 </select>
-
                             </div>
-
                         </div>
-
-
                         <hr class="my-4">
-
-
                         <div class="row g-3">
-
                             <div class="col-12">
-
                                 <div class="form-check">
-
                                     <input type="checkbox"
-
                                            wire:model="pdfExplanationAtEnd"
-
                                            class="form-check-input"
-
                                            id="pdfExplanationAtEnd">
-
                                     <label class="form-check-label" for="pdfExplanationAtEnd">
-
                                         پاسخنامه تشریحی در انتها
-
                                         <small class="text-muted d-block">اگر فعال باشد، پاسخنامه بعد از همه سوالات
                                             نمایش داده می‌شود</small>
-
                                     </label>
-
                                 </div>
-
                             </div>
-
                             <div class="col-12">
-
                                 <div class="form-check">
-
                                     <input type="checkbox"
-
                                            wire:model="pdfSeparateAnswer"
-
                                            class="form-check-input"
-
                                            id="pdfSeparateAnswer">
-
                                     <label class="form-check-label" for="pdfSeparateAnswer">
-
                                         پاسخنامه جدا
-
                                         <small class="text-muted d-block">سوالات و پاسخنامه در دو فایل جدا</small>
-
                                     </label>
-
                                 </div>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="modal-footer">
-
                         <button type="button" class="btn btn-secondary" wire:click="closePdfModal">
-
                             انصراف
-
                         </button>
-
                         <button type="button" class="btn btn-danger" wire:click="generatePdf">
-
                             <i class="ti ti-download me-1"></i>
-
                             دانلود PDF
-
                         </button>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     @endif
-
-
-
     @push('link')
-
         <style>
-
             .question-card {
-
                 transition: box-shadow 0.2s;
-
             }
-
             .question-card:hover {
-
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-
             }
-
             .question-image {
-
                 max-width: 100%;
-
                 height: auto;
-
             }
-
             .dark .modal-content {
-
                 background-color: #1e293b;
-
                 color: #e2e8f0;
-
             }
-
             .dark .modal-header {
-
                 border-bottom-color: #334155;
-
             }
-
             .dark .modal-footer {
-
                 border-top-color: #334155;
-
             }
-
         </style>
-
     @endpush
-
 </div>

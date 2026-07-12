@@ -110,6 +110,16 @@ class Student extends Model
         return $this->hasMany(AdvisorSelection::class);
     }
 
+    public function advisorChangeRequests(): HasMany
+    {
+        return $this->hasMany(AdvisorChangeRequest::class);
+    }
+
+    public function advisorOnboarding()
+    {
+        return $this->hasOne(AdvisorOnboarding::class);
+    }
+
     /** انتخابِ معلقِ جاری (رزروِ در انتظارِ تاییدِ مدیر آموزشی). */
     public function pendingAdvisorSelection()
     {

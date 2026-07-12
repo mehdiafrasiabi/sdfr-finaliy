@@ -51,13 +51,16 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div>
-                                    <div class="text-body-secondary small">تماس جبرانی</div>
-                                    <div class="fs-3 fw-bold text-warning">{{ number_format($dashboard['makeup']) }}</div>
+                                    <div class="text-body-secondary small">تماس اتمام حجت</div>
+                                    <div class="fs-3 fw-bold text-warning">{{ number_format($dashboard['final_confirmation']) }}</div>
                                 </div>
                                 <span class="badge bg-warning-subtle text-warning p-2">
-                                    <i class="material-symbols-outlined">event_repeat</i>
+                                    <i class="material-symbols-outlined">verified_user</i>
                                 </span>
                             </div>
+                            @if($dashboard['makeup'] > 0)
+                                <div class="small text-body-secondary mt-1">{{ number_format($dashboard['makeup']) }} تماس جبرانی</div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -215,6 +218,9 @@
                                     <td>
                                         <div class="fw-semibold d-flex align-items-center gap-2">
                                             {{ $rec->title }}
+                                            @if($rec->is_final_confirmation)
+                                                <span class="badge bg-info-subtle text-info">اتمام حجت</span>
+                                            @endif
                                             @if(str_contains((string) $rec->title, 'جبرانی'))
                                                 <span class="badge bg-warning text-dark">جبرانی</span>
                                             @endif

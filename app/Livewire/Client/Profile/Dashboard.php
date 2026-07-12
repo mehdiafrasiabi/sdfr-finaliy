@@ -24,6 +24,10 @@ class Dashboard extends Component
 
     public $user;
 
+    public bool $startDashboardTour = false;
+
+    public bool $showTrialWeekPanelNotice = false;
+
     /** کش برنامه فعال تا در یک درخواست چند بار کوئری نزنیم */
     protected $activeProgramResolved = false;
     protected $activeProgramCache = null;
@@ -44,6 +48,9 @@ class Dashboard extends Component
 
         $this->student = $this->user?->student ?? null;
 
+        $this->startDashboardTour = (bool) session()->pull('start_dashboard_tour', false);
+        $this->showTrialWeekPanelNotice = $this->shouldShowTrialWeekPanelNotice();
+
     }
 
 
@@ -53,6 +60,38 @@ class Dashboard extends Component
 
         $this->seo()->setTitle('پیشخوان');
 
+    }
+
+    private function shouldShowTrialWeekPanelNotice(): bool
+    {
+        if (!$this->user || !$this->student || !$this->student->is_trial) {
+            return false;
+        }
+
+        if (method_exists($this->user, 'isSchoolStudent') && $this->user->isSchoolStudent()) {
+            return false;
+        }
+
+        return TrialWeek::where('user_id', $this->user->id)
+            ->whereNull('dashboard_notice_acknowledged_at')
+            ->exists();
+    }
+
+    public function acknowledgeTrialWeekPanelNotice(): void
+    {
+        if (!$this->user || !$this->student || !$this->student->is_trial) {
+            $this->showTrialWeekPanelNotice = false;
+            return;
+        }
+
+        $trialWeek = TrialWeek::where('user_id', $this->user->id)
+            ->whereNull('dashboard_notice_acknowledged_at')
+            ->latest()
+            ->first();
+
+        $trialWeek?->update(['dashboard_notice_acknowledged_at' => now()]);
+
+        $this->showTrialWeekPanelNotice = false;
     }
 
 

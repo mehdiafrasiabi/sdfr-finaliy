@@ -67,7 +67,7 @@
                 <div>
                     <h4 class="fw-bold mb-1">کارنامه هوشمند <span class="text-primary">{{ $studentName }}</span></h4>
                     <p class="text-muted small mb-0">
-                        ماه‌های مورد نظر را برای نمایش به دانش‌آموز در این سال فعال کنید. دیتای کارنامه از تاریخ شروع تا پایان همان ماه شمسی خوانده می‌شود.
+                        این صفحه فقط برای مشاهده است. می‌توانید وضعیت ماه‌ها را ببینید و گزارش هر ماه را بدون امکان ویرایش باز کنید.
                     </p>
                 </div>
                 <a href="{{ route('admin.student.smartReportCard.index') }}" class="btn btn-outline-secondary">
@@ -97,7 +97,7 @@
                                 </div>
                                 <span class="src-pill {{ $month['is_active'] ? 'src-pill-active' : 'src-pill-inactive' }}">
                                     <span class="rounded-circle" style="width:.45rem;height:.45rem;background:currentColor;display:inline-block;"></span>
-                                    {{ $month['is_active'] ? 'فعال' : 'غیرفعال' }}
+                                    {{ $month['is_active'] ? 'فعال برای دانش‌آموز' : 'فقط مشاهده مدیریتی' }}
                                 </span>
                             </div>
 
@@ -111,19 +111,6 @@
                                     آخرین تغییر: {{ jdate($month['activated_at'])->format('Y/m/d H:i') }}
                                 </div>
                             @endif
-
-                            <button type="button"
-                                    wire:click="toggleMonth({{ $month['number'] }})"
-                                    wire:loading.attr="disabled"
-                                    wire:target="toggleMonth({{ $month['number'] }})"
-                                    class="btn btn-sm w-100 {{ $month['is_active'] ? 'btn-outline-danger' : 'btn-success' }}">
-                                <span wire:loading.remove wire:target="toggleMonth({{ $month['number'] }})">
-                                    {{ $month['is_active'] ? 'غیرفعال‌سازی' : 'فعال‌سازی کارنامه' }}
-                                </span>
-                                <span wire:loading wire:target="toggleMonth({{ $month['number'] }})">
-                                    در حال انجام...
-                                </span>
-                            </button>
 
                             <a href="{{ route('admin.student.smartReportCard.view', ['student' => $userId, 'year' => $selectedYear, 'month' => $month['number']]) }}"
                                target="_blank" rel="noopener"

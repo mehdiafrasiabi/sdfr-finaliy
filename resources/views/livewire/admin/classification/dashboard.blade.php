@@ -161,8 +161,7 @@
                                         <td>
                                             <a href="{{ route('admin.classification.students', $project->id) }}"
                                                class="btn btn-sm btn-soft-primary">
-                                                <i class="ri-group-line me-1"></i>
-                                                دانش‌آموزان
+                                                <i class="fi fi-br-eye"></i>
                                             </a>
                                         </td>
                                     </tr>

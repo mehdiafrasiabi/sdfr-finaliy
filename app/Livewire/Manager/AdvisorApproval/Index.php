@@ -3,6 +3,7 @@
 namespace App\Livewire\Manager\AdvisorApproval;
 
 use App\Models\Admin;
+use App\Models\AdvisorOnboarding;
 use App\Models\AdvisorSelection;
 use App\Models\AdminWorkSchedule;
 use App\Models\GeneralSetting;
@@ -102,6 +103,8 @@ class Index extends Component
                 ->where('status', AdvisorSelection::STATUS_PENDING)
                 ->where('id', '!=', $sel->id)
                 ->update(['status' => AdvisorSelection::STATUS_REJECTED]);
+
+            $this->syncAdvisorOnboarding($student, $advisor, $sel->id);
         });
 
         $this->notifyAssigned($student, $advisor, $weeklyDay);
@@ -155,7 +158,7 @@ class Index extends Component
 
         DB::transaction(function () use ($student, $advisor, $day) {
             $student->update(['advisor_id' => $advisor->id, 'session_day' => (int) $day]);
-            AdvisorSelection::create([
+            $selection = AdvisorSelection::create([
                 'student_id'  => $student->id,
                 'advisor_id'  => $advisor->id,
                 'weekly_day'  => (int) $day,
@@ -164,6 +167,8 @@ class Index extends Component
                 'reviewed_by' => $this->reviewerId(),
                 'reviewed_at' => now(),
             ]);
+
+            $this->syncAdvisorOnboarding($student, $advisor, $selection->id);
         });
 
         unset($this->manualAdvisor[$studentId], $this->manualDay[$studentId]);
@@ -177,7 +182,25 @@ class Index extends Component
         NotificationService::sendToStudent(
             $student->id,
             'تخصیص مشاور',
-            "مشاورِ شما «{$advisor->name}» تعیین شد. روزِ جلسه‌ی هفتگیِ شما «{$dayName}» است. ساعتِ دقیقِ هر جلسه را مشاور یک روز قبل اعلام می‌کند."
+            "مشاورِ شما «{$advisor->name}» تعیین شد. روزِ جلسه‌ی هفتگیِ شما «{$dayName}» است. ابتدا تماس اتمام حجت و ثبت لینک گروه بله انجام می‌شود و بعد از تایید مدیر آموزشی، زمان دقیق جلسه‌ها توسط مشاور اعلام خواهد شد."
+        );
+    }
+
+    protected function syncAdvisorOnboarding(Student $student, Admin $advisor, ?int $selectionId = null): void
+    {
+        AdvisorOnboarding::updateOrCreate(
+            ['student_id' => $student->id],
+            [
+                'advisor_id'               => $advisor->id,
+                'advisor_selection_id'     => $selectionId,
+                'contact_documentation_id' => null,
+                'status'                   => AdvisorOnboarding::STATUS_PENDING_CALL,
+                'group_link'               => null,
+                'submitted_at'             => null,
+                'reviewed_by'              => null,
+                'reviewed_at'              => null,
+                'reject_reason'            => null,
+            ]
         );
     }
 

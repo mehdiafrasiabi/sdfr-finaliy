@@ -38,7 +38,7 @@ class SendRegistrationLink extends Notification
             'mobile' => $this->mobile,
             // متغیرهای الگو با ; از هم جدا می‌شوند: {name};{link}
             'text'   => $this->name . ';' . $this->link,
-            'bodyId' => self::SMS_BODY_ID,
+            'bodyId' => config('services.melipayamak.registration_link_body_id', self::SMS_BODY_ID),
         ];
     }
 }

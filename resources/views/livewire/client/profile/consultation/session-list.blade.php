@@ -136,11 +136,21 @@
                                                             class="w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold text-sm transition-colors">
                                                             پر کردن پیش‌جلسه
                                                         </button>
+                                                            @if($canReschedule)
+                                                                <button
+                                                                    wire:click="openReschedule({{ $session->id }})"
+                                                                    class="w-full inline-flex items-center justify-center gap-2 px-6 py-2.5  bg-amber-500/10 text-amber-600 hover:bg-amber-500 hover:text-white rounded-xl font-semibold text-sm transition-colors">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg>
+
+                                                                    درخواست جابجایی این جلسه
+                                                                </button>
+                                                            @endif
                                                     @elseif($session->preSession)
                                                         <a wire:navigate wire:ignore href="{{ route('client.profile.consultation.pre-session', $session->id) }}"
                                                            class="w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-500 hover:bg-slate-600 text-white rounded-xl font-semibold text-sm transition-colors">
                                                             مشاهده پیش‌جلسه
                                                         </a>
+
                                                     @endif
 
 
@@ -243,6 +253,15 @@
                                                                 class="inline-flex items-center justify-center gap-2 px-5 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold text-sm transition-colors">
                                                                 پر کردن پیش‌جلسه
                                                             </button>
+                                                            @if($canReschedule)
+                                                                <button
+                                                                    wire:click="openReschedule({{ $session->id }})"
+                                                                    class="inline-flex items-center justify-center gap-2 px-6 py-2.5  bg-amber-500/10 text-amber-600 hover:bg-amber-500 hover:text-white rounded-xl font-semibold text-sm transition-colors">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg>
+
+                                                                    درخواست جابجایی این جلسه
+                                                                </button>
+                                                            @endif
                                                         @elseif($session->preSession)
                                                             <a wire:navigate wire:ignore href="{{ route('client.profile.consultation.pre-session', $session->id) }}"
                                                                class="inline-flex items-center justify-center gap-2 px-5 py-2 bg-secondary hover:bg-secondary text-white rounded-xl font-semibold text-sm transition-colors">
@@ -300,16 +319,6 @@
                                                 @endif
                                             </div>
 
-                                            @if($canReschedule)
-                                                <div class="mt-4 pt-4 border-t border-border">
-                                                    <button wire:click="openReschedule({{ $session->id }})"
-                                                            class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-600 hover:bg-amber-500 hover:text-white rounded-xl font-semibold text-sm transition-colors">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg>
-                                                        درخواست جابجایی این جلسه
-                                                    </button>
-                                                    <p class="text-xs text-muted mt-2">با جابجایی، این جلسه غیبت خورده و یک «جلسه‌ی جبرانی» در روزِ جدید ساخته می‌شود.</p>
-                                                </div>
-                                            @endif
                                         </div>
 
                                     </div>

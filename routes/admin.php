@@ -15,6 +15,7 @@ use App\Livewire\Admin\Student\StudySession\Show as StudentStudySessionShow;
 use App\Livewire\Admin\AdminUser\Index as AdminUserIndex;
 use App\Livewire\Admin\AdminUser\WorkSchedule as AdminUserWorkSchedule;
 use App\Livewire\Admin\ContactDocumentation\Index as ContactDocumentationIndex;
+use App\Livewire\Admin\EducationalManager\AdvisorOnboardingApprovals\Index as AdvisorOnboardingApprovalsIndex;
 use App\Livewire\Admin\Student\SmartReportCard\Index as SmartReportCardIndex;
 use App\Livewire\Admin\Student\SmartReportCard\Show as SmartReportCardShow;
 use Illuminate\Support\Facades\Route;
@@ -89,6 +90,11 @@ Route::name('admin.')->group(function () {
             \App\Livewire\Admin\EducationalManager\Leave\Index::class)
             ->name('educational-manager.leave');
 
+        // مدیر آموزشی — درخواست‌های جابجایی مشاور
+        Route::get('/educational-manager/advisor-change-requests',
+            \App\Livewire\Admin\EducationalManager\AdvisorChangeRequests\Index::class)
+            ->name('educational-manager.advisor-change-requests');
+
         // مدیر آموزشی — دانش‌آموزان جدید (آزمایشی و خرید کرده)
         Route::get('/educational-manager/new-trial-students',
             \App\Livewire\Admin\EducationalManager\NewTrialStudents\Index::class)
@@ -98,6 +104,10 @@ Route::name('admin.')->group(function () {
         Route::get('/educational-manager/incomplete-registrations',
             \App\Livewire\Admin\EducationalManager\IncompleteRegistrations\Index::class)
             ->name('educational-manager.incomplete-registrations');
+
+        // مدیر آموزشی — تایید لینک گروه بله پس از تماس اتمام حجت
+        Route::get('/educational-manager/advisor-onboarding-approvals', AdvisorOnboardingApprovalsIndex::class)
+            ->name('educational-manager.advisor-onboarding-approvals');
 
         // مدیر آموزشی — جذب تلفنی
         Route::prefix('educational-manager/phone-acquisition')
@@ -169,6 +179,7 @@ Route::name('admin.')->group(function () {
         Route::get('/consultant/chats',
             \App\Livewire\Admin\Consultant\Chat\Index::class)
             ->name('consultant.chats');
+
         Route::get('/consultant/chats/{student}',
             \App\Livewire\Admin\Consultant\Chat\Show::class)
             ->name('consultant.chat.show');
@@ -216,7 +227,7 @@ Route::name('admin.')->group(function () {
         Route::get('/contact-documentation', ContactDocumentationIndex::class)->name('contact-documentation.index')
             ->middleware('admin.permission:admin.contact-documentation.view');
         // گزارش‌های ارسال نشده
-        // کارنامه هوشمند
+
         // آزمون‌های تایپی
         Route::get('/typed-exams', \App\Livewire\Admin\TypedExam\ExamIndex::class)->name('typed-exams.index')
             ->middleware('admin.permission:admin.typed-exams.view');

@@ -26,6 +26,7 @@ class InstallmentPlan extends Model
     public const STATUS_ACTIVE    = 'active';     // پیش‌پرداخت انجام شده، اقساط جاری
     public const STATUS_COMPLETED = 'completed';  // همهٔ اقساط تسویه
     public const STATUS_DEFAULTED = 'defaulted';
+    public const STATUS_CANCELLED = 'cancelled';
 
     public function user(): BelongsTo
     {

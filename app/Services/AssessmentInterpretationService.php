@@ -173,11 +173,11 @@ class AssessmentInterpretationService
         }
 
         return match ($flag) {
-            'flag_safety' => [
-                'severity' => 'critical',
-                'title'    => 'هشدار ایمنی جانی',
-                'text'     => 'دانش‌آموز پاسخی داده که نشان از فکر منفی شدید درباره‌ی وجود خود دارد. نیاز به بررسی فوری مشاور/روان‌شناس.',
-            ],
+//            'flag_safety' => [
+//                'severity' => 'critical',
+//                'title'    => 'هشدار ایمنی جانی',
+//                'text'     => 'دانش‌آموز پاسخی داده که نشان از فکر منفی شدید درباره‌ی وجود خود دارد. نیاز به بررسی فوری مشاور/روان‌شناس.',
+//            ],
             'flag' => [
                 'severity' => 'warning',
                 'title'    => 'پرچم بالینی',

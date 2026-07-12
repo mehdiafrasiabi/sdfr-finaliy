@@ -1,15 +1,141 @@
-<div x-data="essayExamApp({
-        remainingSeconds: {{ $remainingSeconds }},
-        pdfUrl: @js($pdfUrl ?? ''),
-     })"
-     x-init="init()"
+<div x-data="{
+        remaining: @js((int) $remainingSeconds),
+        showTimer: true,
+        zoom: 1,
+        pdfBaseUrl: @js($pdfUrl ?? ''),
+        securityActive: false,
+        showSubmitModal: false,
+        showImageModal: false,
+        viewingImageUrl: '',
+        confirmDelete: null,
+        stagedPreviews: [],
+        isUploading: false,
+        uploadProgress: 0,
+        _booted: false,
+
+        get pdfSrc() {
+            if (!this.pdfBaseUrl) return '';
+            const zoomVal = Math.round(this.zoom * 100);
+            const baseUrl = this.pdfBaseUrl.split('#')[0];
+            return baseUrl + '#toolbar=0&navpanes=0&scrollbar=1&zoom=' + zoomVal;
+        },
+
+        boot() {
+            if (this._booted) return;
+            this._booted = true;
+            this.startTimer();
+            this.setupSecurity();
+
+            this.$wire.on('photos-uploaded', () => {
+                this.clearStaged();
+                this.isUploading = false;
+                this.uploadProgress = 0;
+            });
+        },
+
+        startTimer() {
+            if (window._essayTimer) clearInterval(window._essayTimer);
+            window._essayTimer = setInterval(() => {
+                if (this.remaining > 0) {
+                    this.remaining--;
+                    return;
+                }
+
+                clearInterval(window._essayTimer);
+                this.$wire.submitExam();
+            }, 1000);
+        },
+
+        formatTime() {
+            const r = Math.max(0, this.remaining);
+            return {
+                hours: Math.floor(r / 3600).toString().padStart(2, '0'),
+                minutes: Math.floor((r % 3600) / 60).toString().padStart(2, '0'),
+                seconds: (r % 60).toString().padStart(2, '0'),
+            };
+        },
+
+        zoomIn() {
+            this.zoom = Math.min(2, Math.round((this.zoom + 0.25) * 100) / 100);
+        },
+
+        zoomOut() {
+            this.zoom = Math.max(0.5, Math.round((this.zoom - 0.25) * 100) / 100);
+        },
+
+        resetZoom() {
+            this.zoom = 1;
+        },
+
+        setupSecurity() {
+            const trigger = () => { this.securityActive = true; };
+
+            if (window._essaySecurity) {
+                document.removeEventListener('visibilitychange', window._essaySecurity.vis);
+                window.removeEventListener('blur', window._essaySecurity.blur);
+                document.removeEventListener('keydown', window._essaySecurity.key);
+                window.removeEventListener('beforeprint', window._essaySecurity.print);
+            }
+
+            window._essaySecurity = {
+                vis: () => { if (document.hidden) trigger(); },
+                blur: trigger,
+                key: (e) => {
+                    if (e.key === 'PrintScreen') {
+                        trigger();
+                        navigator.clipboard?.writeText('').catch(() => {});
+                    }
+
+                    if ((e.metaKey || e.ctrlKey) && e.shiftKey && ['3', '4', '5', 'S', 's'].includes(e.key)) {
+                        trigger();
+                    }
+                },
+                print: trigger,
+            };
+
+            document.addEventListener('visibilitychange', window._essaySecurity.vis);
+            window.addEventListener('blur', window._essaySecurity.blur);
+            document.addEventListener('keydown', window._essaySecurity.key);
+            window.addEventListener('beforeprint', window._essaySecurity.print);
+        },
+
+        onFileSelect(event) {
+            const files = Array.from(event.target.files || []);
+            this.clearStaged();
+            this.stagedPreviews = files.map((file) => ({
+                name: file.name,
+                url: URL.createObjectURL(file),
+            }));
+            this.isUploading = files.length > 0;
+            this.uploadProgress = 0;
+        },
+
+        onUploadFinish() {
+            this.uploadProgress = 100;
+            this.$wire.uploadPhotos();
+        },
+
+        clearStaged() {
+            this.stagedPreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
+            this.stagedPreviews = [];
+            if (this.$refs.fileInput) {
+                this.$refs.fileInput.value = '';
+            }
+        },
+
+        viewImage(url) {
+            this.viewingImageUrl = url;
+            this.showImageModal = true;
+        },
+
+        closeImage() {
+            this.showImageModal = false;
+            this.viewingImageUrl = '';
+        },
+     }"
+     x-init="boot()"
      @contextmenu.prevent
      class="min-h-screen bg-background" dir="rtl">
-
-    {{-- ════════════════════════════════════════
-         اوورلی سیاه امنیتی — کل صفحه را می‌پوشاند
-         زمانی که اسکرین‌شات/تغییر تب/پرینت تشخیص داده شود
-       ════════════════════════════════════════ --}}
     <div x-show="securityActive" x-cloak
          class="fixed inset-0 z-[99999] bg-black flex items-center justify-center p-4"
          x-transition:enter="transition ease-out duration-100"
@@ -80,7 +206,7 @@
 
                     {{-- باکس‌های زمان --}}
                     <div class="flex items-center justify-end gap-2 transition-all duration-200"
-                         :class="showTimer ? 'timer-blur-glass' : ''">
+                         :class="showTimer ? '' : 'timer-blur-glass'">
                         <div class="flex flex-col items-center bg-background border border-border rounded-xl px-3 py-2 min-w-[50px]">
                             <span class="font-bold text-lg" :class="remaining < 60 ? 'text-red-500' : 'text-foreground'" x-text="formatTime().seconds"></span>
                             <span class="text-[10px] text-muted">ثانیه</span>
@@ -438,156 +564,5 @@
         @media print { body { display: none !important; } }
     </style>
 @endassets
-
-    @script
-    <script>
-        function essayExamApp(config) {
-            return {
-                // Timer
-                remaining: config.remainingSeconds,
-                showTimer: false,
-
-                // PDF
-                zoom: 1,
-                pdfBaseUrl: config.pdfUrl,
-
-                // Security
-                securityActive: false,
-
-                // Modals
-                showSubmitModal: false,
-                showImageModal: false,
-                viewingImageUrl: '',
-                confirmDelete: null,
-
-                // Upload
-                stagedPreviews: [],
-                isUploading: false,
-                uploadProgress: 0,
-
-                get pdfSrc() {
-                    if (!this.pdfBaseUrl) return '';
-                    const zoomVal = Math.round(this.zoom * 100);
-                    return `${this.pdfBaseUrl}#toolbar=0&navpanes=0&scrollbar=1&zoom=${zoomVal}`;
-                },
-
-                init() {
-                    this.startTimer();
-                    this.setupSecurity();
-
-                    // پاک کردن پیشنمایش‌ها بعد از موفقیت آپلود
-                    this.$wire.on('photos-uploaded', () => {
-                        this.clearStaged();
-                        this.isUploading = false;
-                        this.uploadProgress = 0;
-                    });
-                },
-
-                // ─── Timer ───
-                startTimer() {
-                    if (window._essayTimer) clearInterval(window._essayTimer);
-                    window._essayTimer = setInterval(() => {
-                        if (this.remaining > 0) {
-                            this.remaining--;
-                        } else {
-                            clearInterval(window._essayTimer);
-                            this.$wire.submitExam();
-                        }
-                    }, 1000);
-                },
-
-                formatTime() {
-                    const r = Math.max(0, this.remaining);
-                    return {
-                        hours: Math.floor(r / 3600).toString().padStart(2, '0'),
-                        minutes: Math.floor((r % 3600) / 60).toString().padStart(2, '0'),
-                        seconds: (r % 60).toString().padStart(2, '0'),
-                    };
-                },
-
-                // ─── Zoom ───
-                zoomIn() {
-                    this.zoom = Math.min(2, Math.round((this.zoom + 0.25) * 100) / 100);
-                },
-                zoomOut() {
-                    this.zoom = Math.max(0.5, Math.round((this.zoom - 0.25) * 100) / 100);
-                },
-                resetZoom() {
-                    this.zoom = 1;
-                },
-
-                // ─── Security ───
-                setupSecurity() {
-                    const trigger = () => { this.securityActive = true; };
-
-                    if (window._essaySecurity) {
-                        document.removeEventListener('visibilitychange', window._essaySecurity.vis);
-                        window.removeEventListener('blur', window._essaySecurity.blur);
-                        document.removeEventListener('keydown', window._essaySecurity.key);
-                        window.removeEventListener('beforeprint', window._essaySecurity.print);
-                    }
-
-                    window._essaySecurity = {
-                        vis: () => { if (document.hidden) trigger(); },
-                        blur: trigger,
-                        key: (e) => {
-                            if (e.key === 'PrintScreen') {
-                                trigger();
-                                navigator.clipboard?.writeText('').catch(() => {});
-                            }
-                            // Mac: Cmd+Shift+3,4,5
-                            if ((e.metaKey || e.ctrlKey) && e.shiftKey) {
-                                if (['3', '4', '5', 'S', 's'].includes(e.key)) {
-                                    trigger();
-                                }
-                            }
-                        },
-                        print: trigger,
-                    };
-
-                    document.addEventListener('visibilitychange', window._essaySecurity.vis);
-                    window.addEventListener('blur', window._essaySecurity.blur);
-                    document.addEventListener('keydown', window._essaySecurity.key);
-                    window.addEventListener('beforeprint', window._essaySecurity.print);
-                },
-
-                // ─── File Upload ───
-                onFileSelect(event) {
-                    const files = Array.from(event.target.files || []);
-                    this.clearStaged();
-                    this.stagedPreviews = files.map(f => ({
-                        name: f.name,
-                        url: URL.createObjectURL(f),
-                    }));
-                    this.isUploading = true;
-                    this.uploadProgress = 0;
-                },
-
-                onUploadFinish() {
-                    // فایل‌ها در temp storage آماده‌اند؛ پردازش سرور را شروع کن
-                    this.$wire.uploadPhotos();
-                },
-
-                clearStaged() {
-                    this.stagedPreviews.forEach(p => URL.revokeObjectURL(p.url));
-                    this.stagedPreviews = [];
-                    if (this.$refs.fileInput) {
-                        this.$refs.fileInput.value = '';
-                    }
-                },
-
-                // ─── Image Modal ───
-                viewImage(url) {
-                    this.viewingImageUrl = url;
-                    this.showImageModal = true;
-                },
-                closeImage() {
-                    this.showImageModal = false;
-                    this.viewingImageUrl = '';
-                },
-            };
-        }
-    </script>
-    @endscript
 
 </div>

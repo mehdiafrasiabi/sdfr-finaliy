@@ -185,6 +185,18 @@ class TypedExamTest extends Component
                 'answered_at' => now(),
             ]);
     }
+
+    public function selectAnswerByPosition(int $questionId, int $position): void
+    {
+        $questionMeta = collect($this->questionsOrder)->firstWhere('question_id', $questionId);
+        $optionNumber = $questionMeta['options_order'][$position - 1] ?? null;
+
+        if ($optionNumber === null) {
+            return;
+        }
+
+        $this->selectAnswer($questionId, (int) $optionNumber);
+    }
     public function setQuestionMark(int $questionId, ?string $mark): void
     {
         if ($this->questionMarks[$questionId] === $mark) {
@@ -318,11 +330,20 @@ class TypedExamTest extends Component
         $questionGrid = [];
         foreach ($this->questionsOrder as $index => $q) {
             $questionId = $q['question_id'];
+            $selectedOption = $this->answers[$questionId] ?? null;
+            $selectedPosition = null;
+
+            if ($selectedOption !== null) {
+                $position = array_search($selectedOption, $q['options_order'] ?? [], true);
+                $selectedPosition = $position === false ? null : $position + 1;
+            }
+
             $questionGrid[] = [
                 'index' => $index,
                 'question_id' => $questionId,
                 'is_answered' => isset($this->answers[$questionId]) && $this->answers[$questionId] !== null,
-                'selected_option' => $this->answers[$questionId] ?? null,
+                'selected_option' => $selectedOption,
+                'selected_position' => $selectedPosition,
                 'mark' => $this->questionMarks[$questionId] ?? null,
                 'is_current' => $this->currentQuestionIndex === $index,
                 'is_filtered' => in_array($index, $filteredIndices),
@@ -356,6 +377,9 @@ class TypedExamTest extends Component
                 'question' => $question,
                 'options' => $orderedOptions,
                 'selected' => $this->answers[$question->id] ?? null,
+                'selected_position' => ($this->answers[$question->id] ?? null) !== null
+                    ? (($pos = array_search($this->answers[$question->id], $qData['options_order'] ?? [], true)) === false ? null : $pos + 1)
+                    : null,
                 'mark' => $this->questionMarks[$question->id] ?? null,
             ];
         }

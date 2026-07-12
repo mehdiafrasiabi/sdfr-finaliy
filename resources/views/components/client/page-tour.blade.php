@@ -88,7 +88,10 @@ init() {
 
         start() {
             const first = this.firstVisible(0, 1);
-            if (first === -1) return;
+            if (first === -1) {
+                this.forceFinish();
+                return;
+            }
             this.index = first;
             this.active = true;
             this.tipVisible = false;
@@ -142,6 +145,9 @@ init() {
             this.active = false;
             this.tipVisible = false;
             localStorage.setItem(this.storageKey, '1');
+            window.dispatchEvent(new CustomEvent('sdfr-page-tour-finished', {
+                detail: { storageKey: this.storageKey }
+            }));
         },
 
       calcPosition(scroll) {

@@ -39,8 +39,13 @@ class TypedExamAnalysisUpload extends Model
     public function getFullPathAttribute(): string
 
     {
+        $publicPath = public_path($this->file_path);
 
-        return storage_path('app/public/' . $this->file_path);
+        if (file_exists($publicPath)) {
+            return $publicPath;
+        }
+
+        return storage_path('app/public/' . ltrim($this->file_path, '/'));
 
     }
 
@@ -55,8 +60,13 @@ class TypedExamAnalysisUpload extends Model
     public function getUrlAttribute(): string
 
     {
+        $publicPath = public_path($this->file_path);
 
-        return asset('storage/' . $this->file_path);
+        if (file_exists($publicPath)) {
+            return asset($this->file_path);
+        }
+
+        return asset('storage/' . ltrim($this->file_path, '/'));
 
     }
 

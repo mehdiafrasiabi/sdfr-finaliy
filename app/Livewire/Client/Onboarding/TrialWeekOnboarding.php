@@ -10,6 +10,7 @@ use App\Models\PersonalInformation;
 use App\Notifications\SendOtpToUser;
 use App\Traits\NormalizesDigits;
 use Artesaos\SEOTools\Traits\SEOTools;
+use Illuminate\Database\QueryException;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -139,7 +140,7 @@ class TrialWeekOnboarding extends Component
         ], [
             'firstName'    => ['required', 'string', 'min:2', 'max:50', 'regex:/^[\p{Arabic}\s]+$/u'],
             'lastName'     => ['required', 'string', 'min:2', 'max:50', 'regex:/^[\p{Arabic}\s]+$/u'],
-            'codeMell'     => ['required', 'digits:10'],
+            'codeMell'     => ['required', 'digits:10', Rule::unique('personal_information', 'code_mell')],
             'birthDate'    => ['required', 'regex:/^\d{4}\/\d{2}\/\d{2}$/'],
             'gender'       => ['required', 'in:male,female'],
             'avatar'       => [
@@ -156,6 +157,7 @@ class TrialWeekOnboarding extends Component
             'lastName.regex'        => 'نام خانوادگی باید فارسی باشد.',
             'codeMell.required'     => 'کد ملی الزامی است.',
             'codeMell.digits'       => 'کد ملی باید ۱۰ رقم باشد.',
+            'codeMell.unique'       => 'این کد ملی قبلاً ثبت شده است.',
             'birthDate.required'    => 'تاریخ تولد الزامی است.',
             'birthDate.regex'       => 'فرمت تاریخ تولد صحیح نیست (مثال: ۱۳۸۰/۰۱/۰۱).',
 
@@ -227,7 +229,7 @@ class TrialWeekOnboarding extends Component
             'fatherMobile' => $this->fatherMobile,
             'motherMobile' => $this->motherMobile,
         ], [
-            'mobile'       => ['required', 'regex:/^09[0-9]{9}$/', 'unique:users,mobile', 'different:fatherMobile', 'different:motherMobile'],
+            'mobile'       => ['required', 'regex:/^09[0-9]{9}$/', Rule::unique('users', 'mobile'), 'different:fatherMobile', 'different:motherMobile'],
             'password'     => ['required', 'min:8'],
             'passwordConf' => ['required', 'same:password'],
         ], [
@@ -282,6 +284,11 @@ class TrialWeekOnboarding extends Component
 
     private function sendOtp(): void
     {
+        if (! $this->registrationIsAvailable()) {
+            $this->dispatch('step-validation-failed');
+            return;
+        }
+
         $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
         Otp::create([
             'mobile'     => $this->mobile,
@@ -320,6 +327,19 @@ class TrialWeekOnboarding extends Component
         $this->mobile    = $this->convertToEnglishDigits($this->mobile);
         $this->otpInput  = $this->convertToEnglishDigits($this->otpInput);
 
+        $this->validatePersonalInfo();
+        $this->validateParentsGrade();
+        $this->validateLocationPassword();
+
+        if (! $this->registrationIsAvailable() || ! $this->getErrorBag()->isEmpty()) {
+            $this->currentStep = $this->getErrorBag()->has('codeMell') ? 2 : 4;
+            $this->otpError = 'اطلاعات وارد شده قبلاً ثبت شده یا نیاز به اصلاح دارد.';
+            $this->isLoading = false;
+            $this->dispatch('step-validation-failed');
+            $this->dispatch('step-changed', step: $this->currentStep);
+            return;
+        }
+
         $otp = Otp::where('mobile', $this->mobile)
             ->where('code', $this->otpInput)
             ->where('is_used', false)
@@ -343,8 +363,39 @@ class TrialWeekOnboarding extends Component
             return;
         }
 
-        $this->createAccount();
+        try {
+            $this->createAccount();
+        } catch (QueryException $e) {
+            Log::error('Trial onboarding registration error', ['err' => $e->getMessage()]);
+            $this->otpError = 'این شماره موبایل یا کد ملی قبلاً ثبت شده است.';
+            $this->isLoading = false;
+            $this->currentStep = 4;
+            $this->dispatch('step-validation-failed');
+            $this->dispatch('step-changed', step: $this->currentStep);
+            return;
+        }
+
         $this->isLoading = false;
+    }
+
+    private function registrationIsAvailable(): bool
+    {
+        $this->mobile   = $this->convertToEnglishDigits($this->mobile);
+        $this->codeMell = $this->convertToEnglishDigits($this->codeMell);
+
+        $available = true;
+
+        if (preg_match('/^\d{10}$/', $this->codeMell) && PersonalInformation::where('code_mell', $this->codeMell)->exists()) {
+            $this->addError('codeMell', 'این کد ملی قبلاً ثبت شده است.');
+            $available = false;
+        }
+
+        if (preg_match('/^09\d{9}$/', $this->mobile) && User::where('mobile', $this->mobile)->exists()) {
+            $this->addError('mobile', 'این شماره قبلاً ثبت شده است.');
+            $available = false;
+        }
+
+        return $available;
     }
 
     private function createAccount(): void
@@ -352,25 +403,12 @@ class TrialWeekOnboarding extends Component
         $user = DB::transaction(function () {
             $fullName = trim($this->firstName . ' ' . $this->lastName);
 
-            $user = User::query()
-                ->where('mobile', $this->mobile)
-                ->lockForUpdate()
-                ->first();
-
-            if ($user) {
-                $user->fill([
-                    'name'     => $fullName,
-                    'picture'  => $this->avatar ?: $user->picture,
-                    'password' => Hash::make($this->password),
-                ])->save();
-            } else {
-                $user = User::create([
-                    'name'     => $fullName,
-                    'mobile'   => $this->mobile,
-                    'picture'  => $this->avatar ?: null,
-                    'password' => Hash::make($this->password),
-                ]);
-            }
+            $user = User::create([
+                'name'     => $fullName,
+                'mobile'   => $this->mobile,
+                'picture'  => $this->avatar ?: null,
+                'password' => Hash::make($this->password),
+            ]);
 
             UserProfile::updateOrCreate(
                 ['user_id' => $user->id],

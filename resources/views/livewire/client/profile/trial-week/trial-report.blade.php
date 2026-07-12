@@ -20,21 +20,6 @@
             شخصیت‌شناسی
         </h2>
 
-        @if(!empty($personality['mbti']['type']))
-            <div class="rounded-2xl border border-border bg-background p-5 mb-3">
-                <div class="flex items-center gap-3 mb-2 flex-wrap">
-                    <span class="text-lg font-black text-primary tracking-widest">{{ $personality['mbti']['type'] }}</span>
-                    <span class="font-bold text-foreground">{{ $personality['mbti']['title'] }}</span>
-                </div>
-                <p class="text-sm text-muted leading-7">{{ $personality['mbti']['description'] }}</p>
-                @if(!empty($personality['mbti']['study_tip']) && $personality['mbti']['study_tip'] !== '—')
-                    <div class="mt-3 text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 rounded-xl px-3 py-2 leading-6">
-                        💡 {{ $personality['mbti']['study_tip'] }}
-                    </div>
-                @endif
-            </div>
-        @endif
-
         @if(!empty($personality['vark']['profile']))
             <div class="rounded-2xl border border-border bg-background p-5 mb-3">
                 <div class="font-bold text-foreground mb-3">سبک یادگیری (VARK): <span class="text-primary">{{ $personality['vark']['profile'] }}</span></div>

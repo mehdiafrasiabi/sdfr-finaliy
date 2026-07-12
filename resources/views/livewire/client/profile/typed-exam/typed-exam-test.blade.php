@@ -247,6 +247,7 @@
                                 $question = $qItem['question'];
                                 $options  = $qItem['options'];
                                 $selected = $qItem['selected'];
+                                $selectedPosition = $qItem['selected_position'];
                                 $mark     = $qItem['mark'];
                                 $index    = $qItem['index'];
                             @endphp
@@ -310,11 +311,11 @@
                                     <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mt-4" dir="rtl">
                                         @foreach([1, 2, 3, 4] as $optNum)
                                             @php
-                                                $isSelected = $selected === $optNum;
+                                                $isSelected = $selectedPosition === $optNum;
                                                 $optionLabel = ['۱', '۲', '۳', '۴'][$optNum - 1];
                                             @endphp
 
-                                            <button wire:click="selectAnswer({{ $question->id }}, {{ $optNum }})"
+                                            <button wire:click="selectAnswerByPosition({{ $question->id }}, {{ $optNum }})"
                                                     class="flex items-center justify-start gap-2 px-4 py-2.5 rounded-lg border transition-all
                                                     {{ $isSelected
                                                         ? 'border-primary/40 bg-primary/5 text-primary font-bold'
@@ -397,10 +398,10 @@
 
                                 {{-- ۴ گزینه - کلیک = ثبت پاسخ مستقیم --}}
                                 <div class="flex-1 flex items-center justify-between gap-1">
-                                    @for($i = 1; $i <= 4; $i++)
-                                        @php $isSelected = $item['selected_option'] === $i; @endphp
-                                        <button type="button"
-                                                wire:click="selectAnswer({{ $item['question_id'] }}, {{ $i }})"
+                                        @for($i = 1; $i <= 4; $i++)
+                                            @php $isSelected = $item['selected_position'] === $i; @endphp
+                                            <button type="button"
+                                                wire:click="selectAnswerByPosition({{ $item['question_id'] }}, {{ $i }})"
                                                 class="flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-all
                                                        {{ $isSelected
                                                             ? 'bg-blue-500 text-white shadow-md shadow-blue-500/30 scale-105'
@@ -450,9 +451,9 @@
                                 {{-- ۴ گزینه - کلیک = ثبت پاسخ مستقیم --}}
                                 <div class="flex-1 flex items-center justify-between gap-1.5">
                                     @for($i = 1; $i <= 4; $i++)
-                                        @php $isSelected = $item['selected_option'] === $i; @endphp
+                                        @php $isSelected = $item['selected_position'] === $i; @endphp
                                         <button type="button"
-                                                wire:click="selectAnswer({{ $item['question_id'] }}, {{ $i }})"
+                                                wire:click="selectAnswerByPosition({{ $item['question_id'] }}, {{ $i }})"
                                                 class="flex items-center justify-center w-8 h-7 rounded-full text-xs font-bold border transition-all
                                                        {{ $isSelected
                                                             ? 'bg-blue-500 border-blue-500 text-white shadow-sm scale-105'

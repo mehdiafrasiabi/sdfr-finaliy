@@ -9,6 +9,8 @@ class ContactDocumentation extends Model
 {
     use HasFactory;
 
+    public const TITLE_FINAL_CONFIRMATION = 'تماس اتمام حجت';
+
     protected $fillable = [
         'admin_id',
         'student_id',
@@ -94,5 +96,10 @@ class ContactDocumentation extends Model
     public function student()
     {
         return $this->belongsTo(Student::class);
+    }
+
+    public function getIsFinalConfirmationAttribute(): bool
+    {
+        return $this->title === self::TITLE_FINAL_CONFIRMATION;
     }
 }

@@ -15,6 +15,7 @@ class ProjectList extends Component
     public $studentGrade = null;
     public $studentField = null;
     public bool $isTrialUser = false;
+    public bool $hasNormalClassificationAccess = false;
 
     public function mount()
     {
@@ -29,17 +30,22 @@ class ProjectList extends Component
 
     protected function loadStudentInfo()
     {
-        $userId = auth()->id();
+        $user = auth()->user();
+        $userId = $user->id;
         $personalInfo = PersonalInformation::where('user_id', $userId)->first();
         if ($personalInfo) {
             $this->studentGrade = (int) $personalInfo->grade;
             $this->studentField = $personalInfo->field;
         }
-        // Anyone with a TrialWeek record is treated as a trial user — the trial card
-        // is always shown for them, even if they also have a PersonalInformation row.
+
+        $student = $user->student;
+        $this->hasNormalClassificationAccess = $user->isSchoolStudent()
+            || ($student && ! $student->is_trial && $student->hasActivePaidAccess());
+
         $trial = TrialWeek::where('user_id', $userId)->latest()->first();
-        if ($trial) {
-            $this->isTrialUser = true;
+
+        if ($trial && ! $this->hasNormalClassificationAccess && (! $trial->expires_at || $trial->expires_at->isFuture())) {
+            $this->isTrialUser = ! $student || $student->is_trial;
             if (!$this->studentGrade) {
                 $this->studentGrade = $trial->grade >= 10 ? $trial->grade : 10;
                 $this->studentField = $trial->field;
@@ -50,6 +56,12 @@ class ProjectList extends Component
     public function selectProject($projectId)
     {
         $project = ClassificationProject::findOrFail($projectId);
+
+        if ($this->isTrialUser || $project->is_trial) {
+            $this->dispatch('warning', 'این طبقه‌بندی برای حساب شما در دسترس نیست.');
+            return;
+        }
+
         $grade = $this->studentGrade ?: 10;
         return redirect()->route('client.profile.classification.classify', [
             'project' => $project->id,
@@ -59,7 +71,12 @@ class ProjectList extends Component
 
     public function goTrial()
     {
-        $project = ClassificationProject::where('is_trial', true)->first();
+        if (! $this->isTrialUser) {
+            $this->dispatch('warning', 'طبقه‌بندی آزمایشی برای حساب شما در دسترس نیست.');
+            return;
+        }
+
+        $project = ClassificationProject::where('is_trial', true)->where('is_active', true)->first();
         if (!$project) {
             $this->dispatch('warning', 'طبقه‌بندی آزمایشی هنوز پیکربندی نشده است.');
             return;
@@ -73,26 +90,34 @@ class ProjectList extends Component
 
     public function render()
     {
-        $trialProject = ClassificationProject::where('is_trial', true)->first();
+        $trialProject = $this->isTrialUser
+            ? ClassificationProject::where('is_trial', true)->where('is_active', true)->first()
+            : null;
 
         $base = ClassificationProject::query()->where('is_trial', false);
 
-        $activeProjects = (clone $base)
-            ->where('is_active', true)
-            ->where('start_at', '<=', now())
-            ->where('end_at', '>=', now())
-            ->latest()->get();
+        $activeProjects = $this->isTrialUser
+            ? collect()
+            : (clone $base)
+                ->where('is_active', true)
+                ->where('start_at', '<=', now())
+                ->where('end_at', '>=', now())
+                ->latest()->get();
 
-        $upcomingProjects = (clone $base)
-            ->where('is_active', true)
-            ->where('start_at', '>', now())
-            ->latest()->get();
+        $upcomingProjects = $this->isTrialUser
+            ? collect()
+            : (clone $base)
+                ->where('is_active', true)
+                ->where('start_at', '>', now())
+                ->latest()->get();
 
-        $endedProjects = (clone $base)
-            ->where(function ($q) {
-                $q->where('is_active', false)->orWhere('end_at', '<', now());
-            })
-            ->latest()->get();
+        $endedProjects = $this->isTrialUser
+            ? collect()
+            : (clone $base)
+                ->where(function ($q) {
+                    $q->where('is_active', false)->orWhere('end_at', '<', now());
+                })
+                ->latest()->get();
 
         $submissions = StudentClassificationSubmission::where('user_id', auth()->id())
             ->pluck('is_completed', 'classification_project_id')

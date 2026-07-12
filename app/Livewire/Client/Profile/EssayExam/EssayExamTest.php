@@ -135,6 +135,7 @@ class EssayExamTest extends Component
         $this->photos = [];
         $this->attempt->refresh();
         session()->flash('upload_success', 'تصاویر با موفقیت آپلود شدند.');
+        $this->dispatch('photos-uploaded');
     }
 
     public function deleteUpload(int $uploadId): void

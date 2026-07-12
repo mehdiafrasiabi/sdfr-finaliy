@@ -41,6 +41,14 @@ class CcChapter extends Model
 
     }
 
+    public function questions()
+
+    {
+
+        return $this->hasMany(Question::class, 'cc_chapter_id');
+
+    }
+
 
 
     public function classifications()

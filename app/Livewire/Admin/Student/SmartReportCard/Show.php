@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Student\SmartReportCard;
 
+use App\Models\GeneralSetting;
 use App\Models\SmartReportCard;
 use App\Models\User;
 use Artesaos\SEOTools\Traits\SEOTools;
@@ -19,11 +20,22 @@ class Show extends Component
     public int $minYear;
     public int $maxYear;
 
+    public function boot(): void
+    {
+        $this->ensureSmartReportCardAccess();
+    }
+
     public function mount(User $student): void
     {
         if (!$student->student) {
             abort(404, 'Student not found');
         }
+
+        abort_if($student->student->is_trial, 404);
+
+        $admin = auth('admin')->user();
+        $isOwner = (int) $student->student->advisor_id === (int) auth('admin')->id();
+        abort_unless($isOwner || $admin?->hasRole('super admin'), 403);
 
         $this->studentId = $student->student->id;
         $this->userId = $student->id;
@@ -44,48 +56,6 @@ class Show extends Component
             return;
         }
         $this->selectedYear = $year;
-    }
-
-    public function toggleMonth(int $month): void
-    {
-        if ($month < 1 || $month > 12) {
-            $this->dispatch('warning', 'ماه نامعتبر است.');
-            return;
-        }
-
-        $range = SmartReportCard::jalaliMonthRange($this->selectedYear, $month);
-
-        $card = SmartReportCard::where('student_id', $this->studentId)
-            ->where('jalali_year', $this->selectedYear)
-            ->where('jalali_month', $month)
-            ->first();
-
-        if ($card) {
-            $card->update([
-                'is_active' => !$card->is_active,
-                'admin_id' => auth()->id(),
-                'activated_at' => !$card->is_active ? now() : $card->activated_at,
-                'start_date' => $range['start']->toDateString(),
-                'end_date' => $range['end']->toDateString(),
-            ]);
-            $this->dispatch('success', $card->is_active
-                ? 'کارنامه ' . SmartReportCard::MONTH_NAMES[$month] . ' فعال شد.'
-                : 'کارنامه ' . SmartReportCard::MONTH_NAMES[$month] . ' غیرفعال شد.');
-            return;
-        }
-
-        SmartReportCard::create([
-            'student_id' => $this->studentId,
-            'admin_id' => auth()->id(),
-            'jalali_year' => $this->selectedYear,
-            'jalali_month' => $month,
-            'start_date' => $range['start']->toDateString(),
-            'end_date' => $range['end']->toDateString(),
-            'is_active' => true,
-            'activated_at' => now(),
-        ]);
-
-        $this->dispatch('success', 'کارنامه ' . SmartReportCard::MONTH_NAMES[$month] . ' فعال شد.');
     }
 
     public function render()
@@ -116,5 +86,12 @@ class Show extends Component
         return view('livewire.admin.student.smart-report-card.show', [
             'months' => $months,
         ])->layout('layouts.admin.app');
+    }
+
+    private function ensureSmartReportCardAccess(): void
+    {
+        $isEnabled = (bool) GeneralSetting::query()->value('smart_report_card_enabled');
+
+        abort_unless($isEnabled, 403, 'دسترسی به کارنامه هوشمند توسط manager غیرفعال است.');
     }
 }

@@ -12,7 +12,7 @@
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
             <h4 class="mb-0">
                 <span class="text-muted fw-light">تاریخچه‌ی جلسات /</span>
-                {{ $student->user?->personalInformation?->name ?? $student->user?->name ?? 'دانش‌آموز' }}
+                {{ $this->studentDisplayName($student) }}
             </h4>
             <a href="{{ route('admin.advising-sessions') }}" class="btn btn-outline-secondary btn-sm">بازگشت</a>
         </div>
@@ -32,7 +32,7 @@
                         <th>تاریخ و ساعت</th>
                         <th>محل برگزاری</th>
                         <th>وضعیت</th>
-                        <th>نتیجه جلسه</th>
+                        <th>وضعیت جلسه</th>
                         <th>پیش‌جلسه</th>
                         <th class="text-nowrap">برنامه هفتگی</th>
                     </tr>
@@ -94,40 +94,24 @@
                                 @endif
                             </td>
                             <td>
-                                @if($canAccess && ($session->status === 'completed' || $session->status === 'active'))
-                                    @php $programComplete = $this->isProgramComplete($session->id); @endphp
-                                    <select wire:change="updateResultStatus({{$session->id}},$event.target.value)"
-                                            class="form-select form-select-sm">
-                                        <option value="">انتخاب کنید</option>
-                                        <option value="held"
-                                            {{ $session->result_status === 'held' ? 'selected' : '' }}
-                                            {{ !$programComplete ? 'disabled' : '' }}>
-                                            برگزار شد {{ !$programComplete ? '(برنامه تکمیل نشده)' : '' }}
-                                        </option>
-                                        <option value="advisor_absent" {{ $session->result_status === 'advisor_absent' ? 'selected' : '' }}>
-                                            توسط مشاور برگزار نشد
-                                        </option>
-                                        <option value="student_absent" {{ $session->result_status === 'student_absent' ? 'selected' : '' }}>
-                                            دانش‌آموز غیبت داشت
-                                        </option>
-                                    </select>
-                                    @if($this->canMarkStudentAbsentDuringWindow($session->id))
-                                        <button wire:click="markStudentAbsentDuringWindow({{ $session->id }})"
-                                                wire:confirm="غیبت دانش‌آموز برای این جلسه ثبت شود و جلسه جبرانی ساخته شود؟"
-                                                class="btn btn-sm btn-outline-danger mt-2 w-100">
-                                            ثبت غیبت دانش‌آموز
-                                        </button>
-                                    @endif
+                                @if($session->result_status === \App\Models\AdvisingSession::RESULT_HELD)
+                                    <span class="badge bg-success">برگزار شده</span>
+                                @elseif($session->result_status === \App\Models\AdvisingSession::RESULT_STUDENT_ABSENT)
+                                    <span class="badge bg-danger">غیبت دانش‌آموز</span>
+                                @elseif($session->result_status === \App\Models\AdvisingSession::RESULT_ADVISOR_ABSENT)
+                                    <span class="badge bg-warning text-dark">غیبت مشاور</span>
+                                @elseif($this->canMarkStudentAbsentDuringWindow($session->id))
+                                    <button wire:click="markStudentAbsentDuringWindow({{ $session->id }})"
+                                            wire:confirm="غیبت جلسه برای این دانش‌آموز ثبت شود و برنامه هفتگی قفل شود؟"
+                                            class="btn btn-sm btn-outline-danger">
+                                        غیبت جلسه
+                                    </button>
+                                @elseif(!$session->finalized)
+                                    <span class="badge bg-secondary">در انتظار ثبت نهایی</span>
+                                @elseif(!$canAccess)
+                                    <span class="badge bg-info">منتظر زمان جلسه</span>
                                 @else
-                                    @if($this->canMarkStudentAbsentDuringWindow($session->id))
-                                        <button wire:click="markStudentAbsentDuringWindow({{ $session->id }})"
-                                                wire:confirm="غیبت دانش‌آموز برای این جلسه ثبت شود و جلسه جبرانی ساخته شود؟"
-                                                class="btn btn-sm btn-outline-danger">
-                                            ثبت غیبت دانش‌آموز
-                                        </button>
-                                    @else
-                                        <span class="badge bg-label-secondary">قفل</span>
-                                    @endif
+                                    <span class="badge bg-label-secondary">در انتظار تعیین تکلیف</span>
                                 @endif
                             </td>
                             <td>
@@ -142,10 +126,14 @@
                                 @endif
                             </td>
                             <td>
-                                <a href="{{ route('admin.student.weekly-program', ['student' => $student->id, 'session' => $session->id]) }}"
-                                   class="btn btn-sm btn-outline-primary" title="برنامه هفتگی">
-                                    برنامه هفتگی
-                                </a>
+                                @if($this->canOpenWeeklyProgram($session->id))
+                                    <a href="{{ route('admin.student.weekly-program', ['student' => $student->id, 'session' => $session->id]) }}"
+                                       class="btn btn-sm btn-outline-primary" title="برنامه هفتگی">
+                                        برنامه هفتگی
+                                    </a>
+                                @else
+                                    <span class="badge bg-label-secondary">قفل شده</span>
+                                @endif
                             </td>
                         </tr>
                     @empty
