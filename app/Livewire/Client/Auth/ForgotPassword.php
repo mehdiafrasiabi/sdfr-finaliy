@@ -15,7 +15,7 @@ use Livewire\Component;
 
 class ForgotPassword extends Component
 {
-    use SEOTools,NormalizesDigits;
+    use SEOTools, NormalizesDigits;
 
     public $step = 1;
 
@@ -119,6 +119,22 @@ class ForgotPassword extends Component
             return;
         }
 
+        $activeOtp = Otp::forMobile($this->mobile)
+            ->unused()
+            ->latest()
+            ->first();
+
+        if ($activeOtp && ! $activeOtp->isExpired()) {
+            session()->put('reset_mobile', $this->mobile);
+            $this->countdown = $activeOtp->remainingSeconds();
+            $this->step = 2;
+            $this->isLoading = false;
+
+            $this->dispatch('start-countdown');
+            $this->dispatch('success', 'کد قبلی هنوز معتبر است. همان کد را وارد کنید.');
+            return;
+        }
+
         $key = 'forgot-password:' . $this->mobile;
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $this->isLoading = false;
@@ -129,24 +145,24 @@ class ForgotPassword extends Component
 
         RateLimiter::hit($key, 180);
 
-        $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
-
-        Otp::create([
+        $code = Otp::generateCode();
+        $otp = Otp::create([
             'mobile' => $this->mobile,
             'code' => $code,
-            'expires_at' => now()->addMinutes(5),
+            'expires_at' => now()->addSeconds(Otp::TTL_SECONDS),
         ]);
 
         try {
             $user->notify(new SendOtpToUser($this->mobile, $code));
 
             session()->put('reset_mobile', $this->mobile);
-            $this->countdown = 90;
+            $this->countdown = $otp->remainingSeconds();
             $this->step = 2;
 
             $this->dispatch('success', 'کد بازیابی با موفقیت ارسال شد.');
             $this->dispatch('start-countdown');
         } catch (\Exception $e) {
+            $otp->delete();
             Log::error('Send Recovery Code Error', ['error' => $e->getMessage()]);
             $this->errorMessage = 'متاسفانه ارسال پیامک با خطا مواجه شد.';
             $this->dispatch('error', $this->errorMessage);
@@ -203,21 +219,38 @@ class ForgotPassword extends Component
 
         $mobile = session('reset_mobile', $this->mobile);
 
-        $otp = Otp::where('mobile', $mobile)
+        $otp = Otp::forMobile($mobile)
             ->where('code', $this->code)
-            ->where('is_used', false)
-            ->where('expires_at', '>', now())
+            ->unused()
             ->latest()
             ->first();
 
         if (!$otp) {
             $this->isLoading = false;
-            $this->errorMessage = 'کد وارد شده نامعتبر یا منقضی شده است.';
+            $this->errorMessage = 'کد وارد شده صحیح نیست.';
             $this->dispatch('error', $this->errorMessage);
             return;
         }
 
-        $otp->update(['is_used' => true]);
+        if ($otp->isExpired()) {
+            $this->isLoading = false;
+            $this->countdown = 0;
+            $this->errorMessage = 'زمان این کد تمام شده است. دوباره کد بگیرید.';
+            $this->dispatch('error', $this->errorMessage);
+            return;
+        }
+
+        $markedAsUsed = Otp::query()
+            ->whereKey($otp->id)
+            ->where('is_used', false)
+            ->update(['is_used' => true]);
+
+        if (! $markedAsUsed) {
+            $this->isLoading = false;
+            $this->errorMessage = 'این کد قبلاً استفاده شده است. دوباره کد جدید بگیرید.';
+            $this->dispatch('error', $this->errorMessage);
+            return;
+        }
 
         $this->isLoading = false;
         $this->step = 3;

@@ -407,7 +407,7 @@
                         </div>
 
                         {{-- OTP forgot flow --}}
-                        <div x-show="$wire.showForgotPassword" x-cloak class="glass border border-border rounded-2xl p-6 space-y-5">
+                        <div x-show="$wire.showForgotPassword" x-cloak x-data="profileOtpForm()" x-init="init()" class="glass border border-border rounded-2xl p-6 space-y-5">
                             <div class="flex items-center gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
                                 <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clip-rule="evenodd"/>
@@ -422,11 +422,15 @@
                                            :disabled="$wire.otp_verified"
                                            class="flex-1 min-w-0 h-12 !ring-0 bg-secondary border border-border focus:border-primary rounded-xl text-sm text-foreground px-4 transition-all outline-none disabled:opacity-50 text-center tracking-widest font-mono">
 
-                                    <button type="button" wire:click="sendOtp" wire:loading.attr="disabled" wire:target="sendOtp" x-show="!$wire.otp_verified"
+                                    <button type="button" wire:click="sendOtp" wire:loading.attr="disabled" wire:target="sendOtp" x-show="!$wire.otp_verified && countdown === 0"
                                             class="h-12 px-5 bg-primary hover:bg-primary/90 text-white rounded-xl text-sm font-semibold transition-all whitespace-nowrap disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[110px]">
                                         <span wire:loading.remove wire:target="sendOtp">ارسال کد</span>
                                         <span wire:loading wire:target="sendOtp" class="spinner-circle text-white"></span>
                                     </button>
+                                </div>
+
+                                <div x-show="!$wire.otp_verified && countdown > 0" x-cloak class="text-xs text-muted">
+                                    ارسال مجدد تا <span class="font-mono text-primary" x-text="countdown"></span> ثانیه
                                 </div>
 
                                 {{-- کد به محض کامل شدن ۶ رقم خودکار بررسی می‌شود --}}
@@ -485,3 +489,46 @@
     </div>
 
 </div>
+
+@push('script')
+    <script>
+        function profileOtpForm() {
+            return {
+                countdown: 0,
+                timer: null,
+
+                init() {
+                    this.countdown = this.$wire.countdown || 0;
+
+                    if (this.countdown > 0) {
+                        this.startCountdown(this.countdown);
+                    }
+
+                    Livewire.on('start-countdown', () => {
+                        this.startCountdown(this.$wire.countdown || 0);
+                    });
+                },
+
+                startCountdown(seconds) {
+                    if (this.timer) clearInterval(this.timer);
+                    this.countdown = seconds;
+                    this.$wire.set('countdown', this.countdown, false);
+
+                    if (this.countdown <= 0) {
+                        return;
+                    }
+
+                    this.timer = setInterval(() => {
+                        if (this.countdown > 0) {
+                            this.countdown--;
+                            this.$wire.set('countdown', this.countdown, false);
+                        } else {
+                            clearInterval(this.timer);
+                            this.$wire.countdownFinished();
+                        }
+                    }, 1000);
+                }
+            }
+        }
+    </script>
+@endpush

@@ -55,7 +55,7 @@ class Financial extends Component
                 return 'پیش پرداخت طرح اقساطی';
             }
 
-            return($firstItem->name ?? 'خدمات');
+            return($firstItem->name ?? 'خدمات مشاوره');
         }
 
         return 'تراکنش مالی';

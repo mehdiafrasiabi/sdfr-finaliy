@@ -281,7 +281,7 @@
                                             <span x-text="countdown"></span>
                                         </div>
                                     </div>
-                                    <button type="button" x-show="countdown === 0" x-cloak wire:click="resendOtp" @click="startCountdown(90)"
+                                    <button type="button" x-show="countdown === 0" x-cloak wire:click="resendOtp"
                                             class="text-primary font-semibold hover:underline flex items-center gap-2 text-sm">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                                         ارسال مجدد کد
@@ -333,17 +333,30 @@
                         timer: null,
 
                         init() {
+                            this.countdown = this.$wire.countdown || 0;
+
+                            if (this.countdown > 0) {
+                                this.startCountdown(this.countdown);
+                            }
+
                             Livewire.on('start-countdown', () => {
-                                this.startCountdown(90);
+                                this.startCountdown(this.$wire.countdown || 0);
                             });
                         },
 
                         startCountdown(seconds) {
                             if (this.timer) clearInterval(this.timer);
                             this.countdown = seconds;
+                            this.$wire.set('countdown', this.countdown, false);
+
+                            if (this.countdown <= 0) {
+                                return;
+                            }
+
                             this.timer = setInterval(() => {
                                 if (this.countdown > 0) {
                                     this.countdown--;
+                                    this.$wire.set('countdown', this.countdown, false);
                                 } else {
                                     clearInterval(this.timer);
                                     @this.call('countdownFinished');

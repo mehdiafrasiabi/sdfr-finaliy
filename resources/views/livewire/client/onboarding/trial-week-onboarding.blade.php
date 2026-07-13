@@ -45,6 +45,23 @@
                 -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, #000 30%, transparent 90%);
                 mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, #000 30%, transparent 90%);
             }
+            .otp-stage-mode {
+                background: #030303 !important;
+                color: #f8fafc;
+            }
+            .otp-stage-mode .grid-figma {
+                background-image:
+                    linear-gradient(to right, rgba(255,255,255,.055) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255,255,255,.055) 1px, transparent 1px),
+                    linear-gradient(to right, rgba(255,255,255,.035) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255,255,255,.035) 1px, transparent 1px);
+                background-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px;
+                -webkit-mask-image: none;
+                mask-image: none;
+            }
+            .otp-stage-mode .float-orb {
+                display: none;
+            }
             .glass-card {
                 background: hsl(var(--background) / 0.6);
                 backdrop-filter: blur(18px) saturate(140%);
@@ -161,6 +178,144 @@
             @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
             .skeleton { background: linear-gradient(90deg, hsl(var(--secondary)) 25%, hsl(var(--border) / 0.5) 50%, hsl(var(--secondary)) 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 0.5rem; }
 
+            .otp-panel {
+                max-width: 38rem;
+                margin-inline: auto;
+                position: relative;
+                overflow: hidden;
+                background: #0b0b0c;
+                border: 1px solid rgba(148, 163, 184, 0.12);
+                box-shadow: -2px 2px 0 rgba(37, 99, 235, 0.38), 0 30px 70px -45px rgba(37, 99, 235, 0.65);
+            }
+            .otp-panel::before {
+                content: '';
+                position: absolute;
+                inset: -1px auto auto -1px;
+                width: 54%;
+                height: 2px;
+                background: linear-gradient(90deg, rgb(37 99 235), rgb(147 197 253));
+                pointer-events: none;
+            }
+            .otp-panel::after {
+                content: '';
+                position: absolute;
+                inset: -1px auto auto -1px;
+                width: 2px;
+                height: 100%;
+                background: linear-gradient(180deg, rgb(37 99 235), rgba(37, 99, 235, 0));
+                pointer-events: none;
+            }
+            .otp-head-icon {
+                width: 72px;
+                height: 72px;
+                border-radius: 999px;
+                margin-inline: auto;
+                background: rgba(59, 130, 246, 0.18);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: rgb(37 99 235);
+            }
+            .otp-head-phone {
+                width: 32px;
+                height: 40px;
+                border: 4px solid currentColor;
+                border-radius: 8px;
+                position: relative;
+            }
+            .otp-head-phone::after {
+                content: '';
+                position: absolute;
+                bottom: 5px;
+                left: 50%;
+                width: 5px;
+                height: 5px;
+                transform: translateX(-50%);
+                border-radius: 999px;
+                background: currentColor;
+            }
+            .otp-box-grid {
+                direction: ltr;
+                display: grid;
+                grid-template-columns: repeat(6, minmax(0, 3.25rem));
+                justify-content: center;
+                gap: 0.55rem;
+            }
+            .otp-digit-box {
+                width: 100%;
+                height: 3.25rem;
+                border: 1px solid hsl(var(--border));
+                background: hsl(var(--secondary));
+                color: #f8fafc;
+                border-radius: 0.72rem;
+                text-align: center;
+                font-size: 1.35rem;
+                font-weight: 900;
+                letter-spacing: 0;
+                outline: none;
+                transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease, color .15s ease;
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            }
+            .otp-digit-box:focus {
+                border-color: rgb(59 130 246);
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22);
+            }
+            .otp-digit-box--filled {
+                background: rgb(37 99 235);
+                border-color: rgb(37 99 235);
+                color: #fff;
+                box-shadow: 0 12px 24px -18px rgba(59, 130, 246, 0.9);
+            }
+            .otp-digit-box--error {
+                color: rgb(248 113 113);
+            }
+            .otp-edit-link {
+                color: #f8fafc;
+                font-weight: 800;
+            }
+            .otp-note {
+                color: #f8fafc;
+                line-height: 1.9;
+                font-weight: 700;
+            }
+            .otp-countdown {
+                color: #f8fafc;
+                font-weight: 800;
+            }
+            .otp-countdown button {
+                color: #f8fafc;
+                font-weight: 800;
+            }
+            .otp-secondary-btn {
+                height: 3.4rem;
+                padding-inline: 0.75rem;
+                color: #f8fafc;
+                background: transparent;
+                font-weight: 900;
+                white-space: nowrap;
+            }
+            @media (min-width: 768px) {
+                .otp-panel { max-width: 38rem; }
+                .otp-box-grid {
+                    grid-template-columns: repeat(6, minmax(0, 3.75rem));
+                    gap: 0.65rem;
+                }
+                .otp-digit-box {
+                    height: 3.75rem;
+                    font-size: 1.55rem;
+                }
+            }
+            @media (max-width: 380px) {
+                .otp-box-grid {
+                    grid-template-columns: repeat(6, minmax(0, 2.6rem));
+                    gap: 0.4rem;
+                }
+                .otp-digit-box {
+                    height: 2.8rem;
+                    border-radius: 0.6rem;
+                }
+            }
+
             @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
         </style>
     @endassets
@@ -191,7 +346,7 @@
         $girlAvatars = $femaleAvatarOptions;
     @endphp
 
-    <div class="relative min-h-screen overflow-hidden bg-background text-foreground" dir="rtl" x-data="onboardingFlow()">
+    <div class="relative min-h-screen overflow-hidden bg-background text-foreground" dir="rtl" x-data="onboardingFlow()" :class="$wire.currentStep === 5 ? 'otp-stage-mode' : ''">
 
         <div class="absolute inset-0 grid-figma pointer-events-none"></div>
         <div class="absolute top-20 -right-20 w-72 h-72 bg-primary/15 rounded-full blur-3xl float-orb pointer-events-none"></div>
@@ -346,12 +501,12 @@
                                     <form @submit.prevent="goNext()" class="space-y-4">
                                         <div class="relative">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">شماره پدر</label>
-                                            <input wire:model.blur="fatherMobile" type="tel" placeholder="09..." dir="ltr" inputmode="numeric" autocomplete="off" class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono @error('fatherMobile') border-rose-500/60 shake @enderror">
+                                            <input wire:model.blur="fatherMobile" type="tel" maxlength="11" placeholder="09..." dir="ltr" inputmode="numeric" autocomplete="off" class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono @error('fatherMobile') border-rose-500/60 shake @enderror">
                                             @error('fatherMobile')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
                                         <div class="relative">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">شماره مادر</label>
-                                            <input wire:model.blur="motherMobile" type="tel" placeholder="09..." dir="ltr" inputmode="numeric" autocomplete="off" class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono @error('motherMobile') border-rose-500/60 shake @enderror">
+                                            <input wire:model.blur="motherMobile" type="tel" maxlength="11" placeholder="09..." dir="ltr" inputmode="numeric" autocomplete="off" class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono @error('motherMobile') border-rose-500/60 shake @enderror">
                                             @error('motherMobile')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
 
@@ -402,7 +557,7 @@
                                     <form @submit.prevent="goNext()" autocomplete="on" class="space-y-4">
                                         <div class="relative">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">شماره موبایل (برای ورود)</label>
-                                            <input wire:model.blur="mobile" type="tel" placeholder="09..." dir="ltr" inputmode="numeric" autocomplete="username" class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono @error('mobile') border-rose-500/60 shake @enderror">
+                                            <input wire:model.blur="mobile" type="tel" maxlength="11" placeholder="09..." dir="ltr" inputmode="numeric" autocomplete="username" class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono @error('mobile') border-rose-500/60 shake @enderror">
                                             @error('mobile')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
 
@@ -437,25 +592,53 @@
 
                         {{-- STEP 5 — OTP --}}
                         <section x-show="$wire.currentStep === 5">
-                            <div class="train-border">
-                                <div class="glass-card rounded-3xl p-6 text-center">
-                                    <div class="inline-block w-28 h-28 mb-2">{!! $svgOtp !!}</div>
-                                    <h2 class="font-black text-xl mb-2">کد تأیید را وارد کنید</h2>
-                                    <p class="text-sm text-muted mb-5 leading-7">کد ۶ رقمی به شماره‌ی <strong dir="ltr" class="text-primary">{{ $mobile }}</strong> ارسال شد.</p>
+                            <div>
+                                <div class="otp-panel rounded-[2rem] px-6 py-10 text-center">
+                                    <div class="otp-head-icon mb-5">
+                                        <span class="otp-head-phone"></span>
+                                    </div>
+                                    <h2 class="font-black text-2xl text-white mb-4">لطفا کد ارسال شده را وارد کنید</h2>
+                                    <p class="text-sm text-white/40 mb-2">کد تأیید به این شماره ارسال شد</p>
+                                    <button type="button" wire:click="previous" class="otp-edit-link inline-flex text-sm mb-8 text">ویرایش شماره <span dir="ltr" class="mr-1">{{ $mobile }}</span></button>
 
                                     <form @submit.prevent="$wire.verifyOtp()" autocomplete="off">
-                                        <input wire:model="otpInput" type="text" maxlength="6" placeholder="------" inputmode="numeric" dir="ltr" x-init="$el.focus()" autocomplete="one-time-code" class="glass-input w-full text-center tracking-[0.6em] text-2xl font-mono rounded-2xl px-4 py-4 mb-3">
+                                        <div class="otp-box-grid mb-5" x-data="otpCodeBoxes(@entangle('otpInput').live, @entangle('otpError').live)" x-init="init()">
+                                            <template x-for="(_, index) in digits" :key="index">
+                                                <input
+                                                    data-otp-digit
+                                                    type="tel"
+                                                    maxlength="1"
+                                                    inputmode="numeric"
+                                                    autocomplete="one-time-code"
+                                                    class="otp-digit-box"
+                                                    :class="{ 'otp-digit-box--filled': digits[index], 'otp-digit-box--error': digits[index] && errorMessage }"
+                                                    x-model="digits[index]"
+                                                    @input="handleInput(index, $event)"
+                                                    @keydown.backspace="handleBackspace(index, $event)"
+                                                    @paste.prevent="handlePaste($event)"
+                                                    :aria-label="`رقم ${index + 1} کد تایید`"
+                                                >
+                                            </template>
+                                        </div>
 
                                         @if($otpError)<div class="text-rose-500 text-xs mb-3">{{ $otpError }}</div>@endif
 
-                                        <div class="flex items-center justify-between text-sm mb-2">
-                                            @if($countdown > 0)
-                                                <span class="text-muted text-xs">ارسال مجدد تا <span class="text-primary font-mono mx-1" x-text="$wire.countdown"></span> ثانیه</span>
-                                            @else
-                                                <button type="button" wire:click="resendOtp" class="text-primary hover:underline text-xs font-bold">ارسال مجدد کد</button>
-                                            @endif
+                                        <div class="otp-note text-xs mb-5 flex items-start justify-center gap-2 text-right">
+                                            <svg class="w-4 h-4 mt-0.5 flex-none text-blue-200/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 8h.01"></path><path d="M11 12h1v4h1"></path></svg>
+                                            <p>در صورتی که کد تأیید را دریافت نکردید، بخش اسپم پیامک‌های تلفن همراه خود را بررسی کنید.</p>
+                                        </div>
 
-                                            <button type="submit" @mousedown="pressBtn($el)" wire:loading.attr="disabled" wire:target="verifyOtp" class="btn-press px-6 py-2.5 rounded-xl text-sm font-bold">
+                                        <div class="otp-countdown text-sm mb-8">
+                                            @if($countdown > 0)
+                                                <span>ارسال مجدد (<span x-text="$wire.countdown"></span>)</span>
+                                            @else
+                                                <button type="button" wire:click="resendOtp">ارسال مجدد کد</button>
+                                            @endif
+                                        </div>
+
+                                        <div class="flex items-center gap-3">
+                                            <button type="button" wire:click="previous" class="otp-secondary-btn shrink-0">برگشت</button>
+                                            <button type="submit" @mousedown="pressBtn($el)" wire:loading.attr="disabled" wire:target="verifyOtp" class="btn-press h-14 flex-1 rounded-2xl text-lg font-black">
                                                 <span wire:loading.remove wire:target="verifyOtp">تأیید کد</span>
                                                 <span wire:loading wire:target="verifyOtp">در حال بررسی…</span>
                                             </button>
@@ -519,21 +702,52 @@
 
             <div x-show="$wire.currentStep >= 5" class="max-w-2xl mx-auto px-8 py-12">
                 <section x-show="$wire.currentStep === 5">
-                    <div class="train-border">
-                        <div class="glass-card rounded-3xl p-10 text-center">
-                            <div class="inline-block w-32 h-32 mb-3">{!! $svgOtp !!}</div>
-                            <h2 class="font-black text-2xl mb-2">کد تأیید را وارد کنید</h2>
-                            <p class="text-sm text-muted mb-6 leading-7">کد ۶ رقمی به <strong dir="ltr" class="text-primary">{{ $mobile }}</strong> ارسال شد.</p>
+                    <div>
+                        <div class="otp-panel rounded-[2.25rem] px-10 py-16 text-center">
+                            <div class="otp-head-icon mb-6">
+                                <span class="otp-head-phone"></span>
+                            </div>
+                            <h2 class="font-black text-3xl text-white mb-5">لطفا کد ارسال شده را وارد کنید</h2>
+                            <p class="text-base text-white/40 mb-2">کد تأیید به این شماره ارسال شد</p>
+                            <button type="button" wire:click="previous" class="otp-edit-link inline-flex text-base mb-9">ویرایش شماره <span dir="ltr" class="mr-1">{{ $mobile }}</span></button>
                             <form @submit.prevent="$wire.verifyOtp()" autocomplete="off">
-                                <input wire:model="otpInput" type="text" maxlength="6" placeholder="------" inputmode="numeric" dir="ltr" x-init="$el.focus()" autocomplete="one-time-code" class="glass-input w-full text-center tracking-[0.7em] text-3xl font-mono rounded-2xl px-4 py-4 mb-3">
-                                @if($otpError)<div class="text-rose-500 text-xs mb-3">{{ $otpError }}</div>@endif
-                                <div class="flex items-center justify-between mt-5">
+                                <div class="otp-box-grid mb-6" x-data="otpCodeBoxes(@entangle('otpInput').live, @entangle('otpError').live)" x-init="init()">
+                                    <template x-for="(_, index) in digits" :key="index">
+                                        <input
+                                            data-otp-digit
+                                            type="tel"
+                                            maxlength="1"
+                                            inputmode="numeric"
+                                            autocomplete="one-time-code"
+                                            class="otp-digit-box"
+                                            :class="{ 'otp-digit-box--filled': digits[index], 'otp-digit-box--error': digits[index] && errorMessage }"
+                                            x-model="digits[index]"
+                                            @input="handleInput(index, $event)"
+                                            @keydown.backspace="handleBackspace(index, $event)"
+                                            @paste.prevent="handlePaste($event)"
+                                            :aria-label="`رقم ${index + 1} کد تایید`"
+                                        >
+                                    </template>
+                                </div>
+
+                                @if($otpError)<div class="text-rose-500 text-sm mb-4">{{ $otpError }}</div>@endif
+
+                                <div class="otp-note text-sm mb-7 flex items-start justify-center gap-2 text-right max-w-md mx-auto">
+                                    <svg class="w-5 h-5 mt-0.5 flex-none text-blue-200/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 8h.01"></path><path d="M11 12h1v4h1"></path></svg>
+                                    <p>در صورتی که کد تأیید را دریافت نکردید، بخش اسپم پیامک‌های تلفن همراه خود را بررسی کنید.</p>
+                                </div>
+
+                                <div class="otp-countdown text-base mb-8">
                                     @if($countdown > 0)
-                                        <span class="text-muted text-sm">ارسال مجدد تا <span class="text-primary font-mono mx-1" x-text="$wire.countdown"></span> ثانیه</span>
+                                        <span>ارسال مجدد (<span x-text="$wire.countdown"></span>)</span>
                                     @else
-                                        <button type="button" wire:click="resendOtp" class="text-primary hover:underline text-sm font-bold">ارسال مجدد کد</button>
+                                        <button type="button" wire:click="resendOtp">ارسال مجدد کد</button>
                                     @endif
-                                    <button type="submit" @mousedown="pressBtn($el)" wire:loading.attr="disabled" wire:target="verifyOtp" class="btn-press px-8 py-3 rounded-xl font-bold">
+                                </div>
+
+                                <div class="flex items-center gap-4">
+                                    <button type="button" wire:click="previous" class="otp-secondary-btn shrink-0 text-lg">برگشت</button>
+                                    <button type="submit" @mousedown="pressBtn($el)" wire:loading.attr="disabled" wire:target="verifyOtp" class="btn-press h-14 flex-1 rounded-2xl text-lg font-black">
                                         <span wire:loading.remove wire:target="verifyOtp">تأیید کد</span>
                                         <span wire:loading wire:target="verifyOtp">در حال بررسی…</span>
                                     </button>
@@ -643,12 +857,12 @@
                                     <div class="grid grid-cols-2 gap-4">
                                         <div class="relative">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">شماره پدر</label>
-                                            <input wire:model.blur="fatherMobile" type="tel" placeholder="09..." dir="ltr" inputmode="numeric" autocomplete="off" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm font-mono @error('fatherMobile') border-rose-500/60 shake @enderror">
+                                            <input wire:model.blur="fatherMobile" type="tel" maxlength="11" placeholder="09..." dir="ltr" inputmode="numeric" autocomplete="off" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm font-mono @error('fatherMobile') border-rose-500/60 shake @enderror">
                                             @error('fatherMobile')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
                                         <div class="relative">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">شماره مادر</label>
-                                            <input wire:model.blur="motherMobile" type="tel" placeholder="09..." dir="ltr" inputmode="numeric" autocomplete="off" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm font-mono @error('motherMobile') border-rose-500/60 shake @enderror">
+                                            <input wire:model.blur="motherMobile" type="tel" maxlength="11" placeholder="09..." dir="ltr" inputmode="numeric" autocomplete="off" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm font-mono @error('motherMobile') border-rose-500/60 shake @enderror">
                                             @error('motherMobile')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
                                         <div class="relative">
@@ -687,7 +901,7 @@
                                     <div class="grid grid-cols-2 gap-4">
                                         <div class="col-span-2 relative" data-tour="mobile">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">شماره موبایل (برای ورود)</label>
-                                            <input wire:model.blur="mobile" type="tel" placeholder="09..." dir="ltr" inputmode="numeric" autocomplete="username" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm font-mono @error('mobile') border-rose-500/60 shake @enderror">
+                                            <input wire:model.blur="mobile" type="tel" maxlength="11" placeholder="09..." dir="ltr" inputmode="numeric" autocomplete="username" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm font-mono @error('mobile') border-rose-500/60 shake @enderror">
                                             @error('mobile')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
 
@@ -740,6 +954,134 @@
     </div>
     @script
     <script>
+        window.otpCodeBoxes = function (model, errorModel) {
+            return {
+                otpValue: model,
+                errorMessage: errorModel,
+                digits: Array(6).fill(''),
+                verifying: false,
+
+                init() {
+                    this.syncFromValue();
+                    this.$watch('otpValue', () => this.syncFromValue());
+                    this.$nextTick(() => {
+                        if (this.$el.offsetParent !== null) {
+                            this.focusDigit(0);
+                        }
+                    });
+                },
+
+                normalize(value) {
+                    const persian = '۰۱۲۳۴۵۶۷۸۹';
+                    const arabic = '٠١٢٣٤٥٦٧٨٩';
+
+                    return String(value || '')
+                        .replace(/[۰-۹]/g, digit => String(persian.indexOf(digit)))
+                        .replace(/[٠-٩]/g, digit => String(arabic.indexOf(digit)))
+                        .replace(/\D/g, '')
+                        .slice(0, 6);
+                },
+
+                syncFromValue() {
+                    const normalized = this.normalize(this.otpValue);
+                    if (normalized === this.digits.join('')) {
+                        return;
+                    }
+
+                    this.digits = Array.from({ length: 6 }, (_, index) => normalized[index] || '');
+                },
+
+                commit() {
+                    this.otpValue = this.normalize(this.digits.join(''));
+                    this.syncFromValue();
+                },
+
+                clearError() {
+                    if (this.errorMessage) {
+                        this.errorMessage = '';
+                    }
+                },
+
+                focusDigit(index) {
+                    const input = this.$el.querySelectorAll('[data-otp-digit]')[index];
+                    if (!input) {
+                        return;
+                    }
+
+                    input.focus();
+                    input.select();
+                },
+
+                fillFrom(value, startIndex = 0) {
+                    const chars = this.normalize(value).split('');
+                    this.clearError();
+                    chars.forEach((char, offset) => {
+                        const targetIndex = startIndex + offset;
+                        if (targetIndex < this.digits.length) {
+                            this.digits[targetIndex] = char;
+                        }
+                    });
+
+                    this.commit();
+                    this.focusDigit(Math.min(startIndex + chars.length, this.digits.length - 1));
+                    this.maybeAutoSubmit();
+                },
+
+                handleInput(index, event) {
+                    const value = this.normalize(event.target.value);
+                    this.clearError();
+
+                    if (value.length > 1) {
+                        this.fillFrom(value, index);
+                        return;
+                    }
+
+                    this.digits[index] = value;
+                    this.commit();
+
+                    if (value && index < this.digits.length - 1) {
+                        this.focusDigit(index + 1);
+                    }
+
+                    this.maybeAutoSubmit();
+                },
+
+                handleBackspace(index, event) {
+                    this.clearError();
+
+                    if (this.digits[index]) {
+                        event.preventDefault();
+                        this.digits[index] = '';
+                        this.commit();
+                        return;
+                    }
+
+                    if (index > 0) {
+                        event.preventDefault();
+                        this.focusDigit(index - 1);
+                    }
+                },
+
+                handlePaste(event) {
+                    this.digits = Array(6).fill('');
+                    this.fillFrom(event.clipboardData.getData('text'), 0);
+                },
+
+                maybeAutoSubmit() {
+                    if (this.verifying || this.normalize(this.digits.join('')).length !== 6) {
+                        return;
+                    }
+
+                    this.verifying = true;
+                    this.$nextTick(() => {
+                        Promise.resolve(this.$wire.verifyOtp()).finally(() => {
+                            this.verifying = false;
+                        });
+                    });
+                },
+            };
+        };
+
         window.onboardingFlow = function () {
             return {
                 busy: false,

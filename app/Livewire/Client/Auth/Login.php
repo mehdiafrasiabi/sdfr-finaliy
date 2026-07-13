@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Cookie;
 
 class Login extends Component
 {
-    use SEOTools,NormalizesDigits;
+    use SEOTools, NormalizesDigits;
 
     public $loginMethod = 'password';
 
@@ -182,36 +182,41 @@ class Login extends Component
             return;
         }
 
-        $lastOtp = Otp::where('mobile', $this->otpMobile)
-            ->where('created_at', '>', now()->subMinutes(1))
+        $activeOtp = Otp::forMobile($this->otpMobile)
+            ->unused()
             ->latest()
             ->first();
 
-        if ($lastOtp) {
+        if ($activeOtp && ! $activeOtp->isExpired()) {
+            $this->otpStep = 2;
+            $this->countdown = $activeOtp->remainingSeconds();
+            session()->put('login_otp_mobile', $this->otpMobile);
+
             $this->isLoading = false;
-            $this->errorMessage = 'لطفاً یک دقیقه صبر کنید و سپس دوباره تلاش کنید.';
-            $this->dispatch('error', $this->errorMessage);
+            $this->errorMessage = '';
+            $this->dispatch('start-countdown');
+            $this->dispatch('success', 'کد قبلی هنوز معتبر است. همان کد را وارد کنید.');
             return;
         }
 
-        $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
-
-        Otp::create([
+        $code = Otp::generateCode();
+        $otp = Otp::create([
             'mobile' => $this->otpMobile,
             'code' => $code,
-            'expires_at' => now()->addMinutes(5),
+            'expires_at' => now()->addSeconds(Otp::TTL_SECONDS),
         ]);
 
         try {
             $user->notify(new SendOtpToUser($this->otpMobile, $code));
 
             $this->otpStep = 2;
-            $this->countdown = 90;
+            $this->countdown = $otp->remainingSeconds();
             session()->put('login_otp_mobile', $this->otpMobile);
 
             $this->dispatch('success', 'کد تایید با موفقیت ارسال شد.');
             $this->dispatch('start-countdown');
         } catch (\Exception $e) {
+            $otp->delete();
             Log::error('Send OTP Error', ['error' => $e->getMessage()]);
             $this->errorMessage = 'متاسفانه ارسال پیامک با خطا مواجه شد.';
             $this->dispatch('error', $this->errorMessage);
@@ -262,21 +267,38 @@ class Login extends Component
             return;
         }
 
-        $otp = Otp::where('mobile', $mobile)
+        $otp = Otp::forMobile($mobile)
             ->where('code', $this->otpCode)
-            ->where('is_used', false)
-            ->where('expires_at', '>', now())
+            ->unused()
             ->latest()
             ->first();
 
         if (!$otp) {
             $this->isLoading = false;
-            $this->errorMessage = 'کد وارد شده نامعتبر یا منقضی شده است.';
+            $this->errorMessage = 'کد وارد شده صحیح نیست.';
             $this->dispatch('error', $this->errorMessage);
             return;
         }
 
-        $otp->update(['is_used' => true]);
+        if ($otp->isExpired()) {
+            $this->isLoading = false;
+            $this->countdown = 0;
+            $this->errorMessage = 'زمان این کد تمام شده است. دوباره کد بگیرید.';
+            $this->dispatch('error', $this->errorMessage);
+            return;
+        }
+
+        $markedAsUsed = Otp::query()
+            ->whereKey($otp->id)
+            ->where('is_used', false)
+            ->update(['is_used' => true]);
+
+        if (! $markedAsUsed) {
+            $this->isLoading = false;
+            $this->errorMessage = 'این کد قبلاً استفاده شده است. دوباره کد جدید بگیرید.';
+            $this->dispatch('error', $this->errorMessage);
+            return;
+        }
 
         $user = User::where('mobile', $mobile)->first();
         Auth::login($user, true);
@@ -298,6 +320,7 @@ class Login extends Component
         $this->errorMessage = '';
         $this->resetValidation();
     }
+
     private function invalidateOtherSessions(int $currentUserId): void
     {
         // فقط نشست‌های دیگرِ «همین کاربر» را پاک می‌کنیم.

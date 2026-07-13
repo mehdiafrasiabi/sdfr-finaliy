@@ -1,5 +1,9 @@
 <div>
-    @php $admin = auth('admin')->user(); @endphp
+    @php
+        $admin = auth('admin')->user();
+        $generalAdminMenu = $admin?->hasRole('super admin') || $admin?->hasRole('educational-manager') || $admin?->hasRole('مشاور تحصیلی');
+        $acquisitionMenu = $admin?->hasRole('site acquisition') || $admin?->hasRole('مشاور جذب تلفنی') || $admin?->hasRole('super admin');
+    @endphp
         <!-- begin::NexLink Sidebar Menu -->
     <aside class="app-menubar-tabs" id="appMenubar">
         <div class="app-navbar-brand">
@@ -25,10 +29,11 @@
                 @endif
 
 
-                @if($admin?->hasRole('super admin') || $admin?->hasRole('educational-manager') || $admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('site acquisition'))
+                @if($generalAdminMenu || $acquisitionMenu)
+                    @if($generalAdminMenu)
                     <li class="nav-item" data-bs-placement="right" data-bs-title="داشبورد" data-bs-toggle="tooltip">
                         <a aria-controls="dashboardTab" aria-selected="true"
-                           class="menu-link {{ (($admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin')) || request()->routeIs('admin.trial-acquisition.*')) ? '' : 'active' }}"
+                           class="menu-link {{ ((($admin?->hasRole('site acquisition') || $admin?->hasRole('مشاور جذب تلفنی')) && !$admin?->hasRole('super admin')) || request()->routeIs('admin.trial-acquisition.*') || request()->routeIs('admin.phone-acquisition.*')) ? '' : 'active' }}"
                            data-bs-toggle="tab" href="#dashboardTab" role="tab">
                             <svg fill="none" height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -53,11 +58,12 @@
                             </svg>
                         </a>
                     </li>
+                    @endif
 
-                        @if($admin?->hasRole('site acquisition') || $admin?->hasRole('super admin'))
-                            <li class="nav-item" data-bs-placement="right" data-bs-title="جذب یک هفته آزمایشی" data-bs-toggle="tooltip">
+                        @if($acquisitionMenu)
+                            <li class="nav-item" data-bs-placement="right" data-bs-title="مشاوره جذب" data-bs-toggle="tooltip">
                                 <a aria-controls="acquisitionTab" aria-selected="false"
-                                   class="menu-link {{ $admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin') ? 'active' : '' }} {{ request()->routeIs('admin.trial-acquisition.*') ? 'active' : '' }}"
+                                   class="menu-link {{ (($admin?->hasRole('site acquisition') || $admin?->hasRole('مشاور جذب تلفنی')) && !$admin?->hasRole('super admin')) ? 'active' : '' }} {{ request()->routeIs('admin.trial-acquisition.*') || request()->routeIs('admin.phone-acquisition.*') ? 'active' : '' }}"
                                    data-bs-toggle="tab" href="#acquisitionTab" role="tab">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -71,23 +77,9 @@
                                 </a>
                             </li>
                         @endif
-                        @if($admin?->hasRole('مشاور جذب تلفنی') || $admin?->hasRole('super admin'))
-                            <li class="nav-item" data-bs-placement="right" data-bs-title="جذب تلفنی" data-bs-toggle="tooltip">
-                                <a aria-controls="phoneAcquisitionTab" aria-selected="false"
-                                   class="menu-link {{ $admin?->hasRole('مشاور جذب تلفنی') && !$admin?->hasRole('super admin') && !$admin?->hasRole('site acquisition') ? 'active' : '' }} {{ request()->routeIs('admin.phone-acquisition.*') ? 'active' : '' }}"
-                                   data-bs-toggle="tab" href="#phoneAcquisitionTab" role="tab">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round" class="menu-icon">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                        <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2"></path>
-                                    </svg>
-                                </a>
-                            </li>
-                        @endif
 
 
-
+                    @if($generalAdminMenu)
                     <li class="nav-item" data-bs-placement="right" data-bs-title="مدیریت ادمین‌ها"
                         data-bs-toggle="tooltip">
                         <a aria-controls="adminUsersTab" aria-selected="false" class="menu-link" data-bs-toggle="tab"
@@ -116,6 +108,7 @@
                             </svg>
                         </a>
                     </li>
+                    @endif
                 @endif
             </ul>
         </div>
@@ -196,14 +189,15 @@
                             </nav>
                         </div>
                     @endif
-                    @if($admin?->hasRole('site acquisition') || $admin?->hasRole('super admin'))
-                        <div class="tab-pane fade {{ ($admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin')) || request()->routeIs('admin.trial-acquisition.*') ? 'show active' : '' }}"
+                    @if($acquisitionMenu)
+                        <div class="tab-pane fade {{ ((($admin?->hasRole('site acquisition') || $admin?->hasRole('مشاور جذب تلفنی')) && !$admin?->hasRole('super admin')) || request()->routeIs('admin.trial-acquisition.*') || request()->routeIs('admin.phone-acquisition.*')) ? 'show active' : '' }}"
                              id="acquisitionTab" role="tabpanel" tabindex="0">
                             <nav class="app-navbar" data-simplebar="">
                                 <ul class="side-menubar">
                                     <li class="menu-heading">
-                                        <span class="menu-label">پنل جذب آزمایشی</span>
+                                        <span class="menu-label">مشاوره جذب</span>
                                     </li>
+                                    @if($admin?->hasRole('site acquisition') || $admin?->hasRole('super admin'))
                                     <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.trial-acquisition.dashboard') ? 'active' : '' }}"
                                            href="{{ route('admin.trial-acquisition.dashboard') }}">
@@ -218,17 +212,18 @@
                                             <span class="menu-label">دانش‌آموزان و تماس‌ها</span>
                                         </a>
                                     </li>
-                                </ul>
-                            </nav>
-                        </div>
-                    @endif
-                    @if($admin?->hasRole('مشاور جذب تلفنی') || $admin?->hasRole('super admin'))
-                        <div class="tab-pane fade {{ ($admin?->hasRole('مشاور جذب تلفنی') && !$admin?->hasRole('super admin') && !$admin?->hasRole('site acquisition')) || request()->routeIs('admin.phone-acquisition.*') ? 'show active' : '' }}"
-                             id="phoneAcquisitionTab" role="tabpanel" tabindex="0">
-                            <nav class="app-navbar" data-simplebar="">
-                                <ul class="side-menubar">
+{{--                                    <li class="menu-item">--}}
+{{--                                        <a class="menu-link {{ request()->routeIs('admin.trial-acquisition.monitor') ? 'active' : '' }}"--}}
+{{--                                           href="{{ route('admin.trial-acquisition.monitor') }}">--}}
+{{--                                            <i class="fi fi-rr-chart-histogram"></i>--}}
+{{--                                            <span class="menu-label">رصد هفته آزمایشی</span>--}}
+{{--                                        </a>--}}
+{{--                                    </li>--}}
+                                    @endif
+                                    @if($admin?->hasRole('مشاور جذب تلفنی') || $admin?->hasRole('super admin'))
+                                    <li><div class="menu-divider"></div></li>
                                     <li class="menu-heading">
-                                        <span class="menu-label">پنل مشاور جذب تلفنی</span>
+                                        <span class="menu-label">جذب تلفنی</span>
                                     </li>
                                     <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.phone-acquisition.dashboard') ? 'active' : '' }}"
@@ -272,14 +267,16 @@
                                             <span class="menu-label">رسیدهای شارژ</span>
                                         </a>
                                     </li>
+                                    @endif
                                 </ul>
                             </nav>
                         </div>
                     @endif
-                    @if($admin?->hasRole('super admin') || $admin?->hasRole('educational-manager') || $admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('site acquisition'))
+                    @if($generalAdminMenu)
                         @php
-                            $acquisitionActive = ($admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin'))
-                                || request()->routeIs('admin.trial-acquisition.*');
+                            $acquisitionActive = ((($admin?->hasRole('site acquisition') || $admin?->hasRole('مشاور جذب تلفنی')) && !$admin?->hasRole('super admin'))
+                                || request()->routeIs('admin.trial-acquisition.*')
+                                || request()->routeIs('admin.phone-acquisition.*'));
                         @endphp
                         <div class="tab-pane fade {{ $acquisitionActive ? '' : 'show active' }}" id="dashboardTab" role="tabpanel" tabindex="0">
                             <nav class="app-navbar" data-simplebar="">

@@ -1,14 +1,17 @@
 <?php
 
 namespace App\Livewire\Client\Profile;
+
 use App\Models\Avatar;
+use App\Models\Otp;
+use App\Models\City;
+use App\Models\State;
 use App\Notifications\SendOtpToUser;
 use App\Traits\UploadFile;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\City;
-use App\Models\State;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
@@ -51,11 +54,10 @@ class Edit extends Component
 
     public $forgot_new_password_confirmation = '';
 
-    public $generated_otp = null;
-
-    public $otp_sent_at = null;
-
     public $otp_verified = false;
+    public $countdown = 0;
+
+    protected $listeners = ['countdownFinished'];
 
     public function mount()
     {
@@ -184,7 +186,7 @@ class Edit extends Component
         $user->save();
         // پاک کردن فیلدها
         $this->reset(['current_password', 'new_password', 'new_password_confirmation']);
-        $this->dispatch('warning','شماره موبایل در حساب کاربری ثبت نشده است.');
+        $this->dispatch('success','رمز عبور با موفقیت تغییر کرد.');
         session()->flash('password_success', 'رمز عبور با موفقیت تغییر کرد.');
     }
     /**
@@ -193,7 +195,7 @@ class Edit extends Component
     public function toggleForgotPassword()
     {
         $this->showForgotPassword = !$this->showForgotPassword;
-        $this->reset(['otp_code', 'forgot_new_password', 'forgot_new_password_confirmation', 'otp_verified']);
+        $this->reset(['otp_code', 'forgot_new_password', 'forgot_new_password_confirmation', 'otp_verified', 'countdown']);
         $this->resetErrorBag();
     }
     /**
@@ -204,24 +206,43 @@ class Edit extends Component
         $user = Auth::user();
         if (!$user->mobile) {
             $this->addError('otp_code', 'شماره موبایل در حساب کاربری ثبت نشده است.');
-            $this->dispatch('success','رمز عبور با موفقیت تغییر کرد.');
+            $this->dispatch('warning','شماره موبایل در حساب کاربری ثبت نشده است.');
             return;
         }
-        // بررسی محدودیت زمانی (۲ دقیقه)
-        if ($this->otp_sent_at && now()->diffInSeconds($this->otp_sent_at) < 120) {
-            $remaining = 120 - now()->diffInSeconds($this->otp_sent_at);
-            $this->addError('otp_code', "لطفاً {$remaining} ثانیه دیگر تلاش کنید.");
-            $this->dispatch('warning',"لطفاً {$remaining} ثانیه دیگر تلاش کنید.");
+
+        $activeOtp = Otp::forMobile($user->mobile)
+            ->unused()
+            ->latest()
+            ->first();
+
+        if ($activeOtp && ! $activeOtp->isExpired()) {
+            $this->countdown = $activeOtp->remainingSeconds();
+            $this->otp_verified = false;
+            $this->dispatch('start-countdown');
+            $this->dispatch('info', 'کد قبلی هنوز معتبر است. همان کد را وارد کنید.');
             return;
         }
-        // تولید کد ۶ رقمی
-        $this->generated_otp = rand(100000, 999999);
-        $this->otp_sent_at = now();
+
         $this->otp_verified = false;
-        // ارسال SMS
-        $user->notify(new SendOtpToUser($user->mobile, $this->generated_otp));
-        session()->flash('otp_sent', 'کد تایید به شماره موبایل شما ارسال شد.');
-        $this->dispatch('success',"کد تایید به شماره موبایل شما ارسال شد.");
+        $code = Otp::generateCode();
+        $otp = Otp::create([
+            'mobile' => $user->mobile,
+            'code' => $code,
+            'expires_at' => now()->addSeconds(Otp::TTL_SECONDS),
+        ]);
+
+        try {
+            $user->notify(new SendOtpToUser($user->mobile, $code));
+            $this->countdown = $otp->remainingSeconds();
+            session()->flash('otp_sent', 'کد تایید به شماره موبایل شما ارسال شد.');
+            $this->dispatch('start-countdown');
+            $this->dispatch('success',"کد تایید به شماره موبایل شما ارسال شد.");
+        } catch (\Exception $e) {
+            $otp->delete();
+            Log::error('Profile OTP send error', ['error' => $e->getMessage(), 'user_id' => $user->id]);
+            $this->addError('otp_code', 'ارسال کد با خطا مواجه شد. دوباره تلاش کنید.');
+            $this->dispatch('warning', 'ارسال کد با خطا مواجه شد. دوباره تلاش کنید.');
+        }
 
     }
     /**
@@ -245,26 +266,54 @@ class Edit extends Component
      */
     public function verifyOtp()
     {
+        $this->resetErrorBag('otp_code');
+
         $this->validate([
             'otp_code' => ['required', 'digits:6'],
         ], [
             'otp_code.required' => 'وارد کردن کد تایید الزامی است.',
             'otp_code.digits' => 'کد تایید باید ۶ رقم باشد.',
         ]);
-        // بررسی انقضا (۵ دقیقه)
-        if (!$this->otp_sent_at || now()->diffInMinutes($this->otp_sent_at) > 5) {
-            $this->addError('otp_code', 'کد تایید منقضی شده است. لطفاً کد جدید دریافت کنید.');
-            $this->dispatch('warning',"کد تایید منقضی شده است. لطفاً کد جدید دریافت کنید.");
-            return;
-        }
-        if ($this->otp_code != $this->generated_otp) {
+
+        $user = Auth::user();
+        $otp = Otp::forMobile($user->mobile)
+            ->where('code', $this->otp_code)
+            ->unused()
+            ->latest()
+            ->first();
+
+        if (! $otp) {
             $this->addError('otp_code', 'کد تایید صحیح نیست.');
             $this->dispatch('warning',"کد تایید صحیح نیست.");
             return;
         }
+
+        if ($otp->isExpired()) {
+            $this->countdown = 0;
+            $this->addError('otp_code', 'کد تایید منقضی شده است. لطفاً کد جدید دریافت کنید.');
+            $this->dispatch('warning',"کد تایید منقضی شده است. لطفاً کد جدید دریافت کنید.");
+            return;
+        }
+
+        $markedAsUsed = Otp::query()
+            ->whereKey($otp->id)
+            ->where('is_used', false)
+            ->update(['is_used' => true]);
+
+        if (! $markedAsUsed) {
+            $this->addError('otp_code', 'این کد قبلاً استفاده شده است. دوباره کد جدید بگیرید.');
+            $this->dispatch('warning',"این کد قبلاً استفاده شده است. دوباره کد جدید بگیرید.");
+            return;
+        }
+
         $this->otp_verified = true;
         session()->flash('otp_verified', 'کد تایید با موفقیت تایید شد.');
         $this->dispatch('success',"کد تایید با موفقیت تایید شد.");
+    }
+
+    public function countdownFinished(): void
+    {
+        $this->countdown = 0;
     }
     /**
      * تغییر رمز با فراموشی رمز (بعد از تایید OTP)
@@ -299,7 +348,7 @@ class Edit extends Component
         // ریست کردن همه فیلدها
         $this->reset([
             'showForgotPassword', 'otp_code', 'forgot_new_password',
-            'forgot_new_password_confirmation', 'generated_otp', 'otp_sent_at', 'otp_verified'
+            'forgot_new_password_confirmation', 'otp_verified', 'countdown'
         ]);
         $this->dispatch('success',"رمز عبور با موفقیت تغییر کرد.");
         session()->flash('password_success', 'رمز عبور با موفقیت تغییر کرد.');

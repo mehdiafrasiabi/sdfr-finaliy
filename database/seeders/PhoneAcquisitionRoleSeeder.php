@@ -30,6 +30,26 @@ class PhoneAcquisitionRoleSeeder extends Seeder
 
         $role->givePermissionTo('phone-acquisition.consult');
 
+        $sampleAdmin = \App\Models\Admin::query()
+            ->where('email', 'phoneacquisition@gmail.com')
+            ->orWhere('email', 'phone.consultant@test.local')
+            ->orWhere('mobile', '09120000003')
+            ->first();
+
+        if (!$sampleAdmin) {
+            $sampleAdmin = new \App\Models\Admin();
+        }
+
+        $sampleAdmin->fill([
+            'name'     => 'مشاور جذب تلفنی',
+            'email'    => 'phoneacquisition@gmail.com',
+            'mobile'   => '09120000003',
+            'password' => bcrypt('password'),
+        ])->save();
+
+        $sampleAdmin->syncRoles(['مشاور جذب تلفنی']);
+        $sampleAdmin->syncPermissions([]);
+
         // مدیر آموزشی به مدیریت جذب تلفنی دسترسی دارد
         $manager = Role::where('name', 'educational-manager')->where('guard_name', 'admin')->first();
         if ($manager) {

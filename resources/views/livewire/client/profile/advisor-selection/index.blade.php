@@ -159,22 +159,10 @@
                                                         @endif
                                                     </div>
                                                 </div>
-                                                <div class="mt-4 rounded-xl border border-border bg-secondary/45 p-3">
-                                                    <div class="flex items-center justify-between gap-3 text-[11px]">
-                                                        <span class="font-bold text-muted">ظرفیت مشاور</span>
-                                                        <span class="font-black {{ $remaining > 0 ? 'text-primary' : 'text-red-500' }}">
-                                                            {{ $remaining }} نفر مانده از {{ $capacity }}
-                                                        </span>
-                                                    </div>
-                                                    <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-border">
-                                                        <div class="h-full rounded-full {{ $remaining > 0 ? 'bg-primary' : 'bg-red-500' }}"
-                                                             style="width: {{ $capacityPercent }}%"></div>
-                                                    </div>
-                                                </div>
                                                 <div class="flex gap-2 mt-5">
                                                     <button wire:click="openModal({{ $advisor->id }})"
                                                             class="flex-1 h-10 rounded-xl bg-background border border-border text-xs font-bold text-muted hover:text-foreground hover:bg-secondary transition">
-                                                        جزئیات
+                                                      خلاصه معرفی
                                                     </button>
                                                     <button wire:click="openConfirmModal({{ $advisor->id }})"
                                                             class="flex-[2] h-10 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition">
@@ -272,18 +260,6 @@
                 </div>
 
                 <div class="mt-6 max-h-[56vh] space-y-4 overflow-y-auto overscroll-contain rounded-xl border border-border/50 bg-secondary/50 p-4 text-sm sm:max-h-[58vh]">
-                    <div class="rounded-xl border border-border bg-background/70 p-3">
-                        <div class="flex items-center justify-between gap-3">
-                            <span class="text-muted text-xs">ظرفیت پذیرش</span>
-                            <span class="font-black {{ $modalRemaining > 0 ? 'text-primary' : 'text-red-500' }}">
-                                {{ $modalRemaining }} نفر مانده از {{ $modalCapacity }}
-                            </span>
-                        </div>
-                        <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-border">
-                            <div class="h-full rounded-full {{ $modalRemaining > 0 ? 'bg-primary' : 'bg-red-500' }}"
-                                 style="width: {{ $modalCapacityPercent }}%"></div>
-                        </div>
-                    </div>
 
                     <div class="grid gap-3">
                         <div class="flex items-center justify-between gap-4 border-b border-border/50 pb-2">
@@ -294,12 +270,8 @@
                             <span class="text-muted text-xs">تحصیلات</span>
                             <span class="text-left font-bold text-foreground">{{ $modalAdvisor->education ?: '—' }}</span>
                         </div>
-                        <div class="flex items-center justify-between gap-4 border-b border-border/50 pb-2">
-                            <span class="text-muted text-xs">رشته</span>
-                            <span class="text-left font-bold text-foreground">{{ $modalAdvisor->field_of_study ?: '—' }}</span>
-                        </div>
                         <div class="border-b border-border/50 pb-3">
-                            <div class="text-muted text-xs mb-2">توضیحات</div>
+                            <div class="text-muted text-xs mb-2">خلاصه معرفی</div>
                             <p class="leading-7 text-foreground/90 text-justify text-xs">{{ $modalAdvisor->bio ?: 'توضیحاتی برای این مشاور ثبت نشده است.' }}</p>
                         </div>
                     </div>
@@ -383,16 +355,12 @@
                             @endif
                         </div>
                     </div>
-                    <div class="rounded-2xl border border-border bg-secondary/50 p-3 text-center">
-                        <div class="text-[11px] text-muted">ظرفیت باقی‌مانده</div>
-                        <div class="mt-1 text-sm font-black text-primary">{{ $confirmRemaining }} نفر</div>
-                    </div>
                 </div>
 
                 <div class="mt-5 grid gap-3 sm:grid-cols-2">
                     <button wire:click="closeConfirmModal"
                             class="min-h-12 rounded-2xl border border-border bg-red-500 px-5 py-3 text-sm font-black text-foreground shadow-sm transition hover:border-primary/40 hover:bg-secondary">
-                        منصرف شدم
+                       لغو
                     </button>
                     <button wire:click="confirmAdvisorSelection" wire:loading.attr="disabled" wire:target="confirmAdvisorSelection"
                             class="min-h-12 rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground shadow-lg shadow-primary/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60">

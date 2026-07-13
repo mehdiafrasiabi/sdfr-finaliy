@@ -340,7 +340,6 @@
                                     <div class="countdown-circle"><span x-text="countdown"></span></div>
                                 </div>
                                 <button type="button" x-show="countdown === 0" x-cloak wire:click="resendCode"
-                                        @click="startCountdown(90)"
                                         class="text-primary font-semibold hover:underline flex items-center gap-2 text-sm">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -569,21 +568,33 @@
                         timer: null,
 
                         init() {
+                            this.countdown = this.$wire.countdown || 0;
+
+                            if (this.countdown > 0) {
+                                this.startCountdown(this.countdown);
+                            }
+
                             Livewire.on('start-countdown', () => {
-                                this.startCountdown(90);
+                                this.startCountdown(this.$wire.countdown || 0);
                             });
                         },
 
                         startCountdown(seconds) {
                             if (this.timer) clearInterval(this.timer);
                             this.countdown = seconds;
+                            this.$wire.set('countdown', this.countdown, false);
+
+                            if (this.countdown <= 0) {
+                                return;
+                            }
+
                             this.timer = setInterval(() => {
                                 if (this.countdown > 0) {
                                     this.countdown--;
+                                    this.$wire.set('countdown', this.countdown, false);
                                 } else {
                                     clearInterval(this.timer);
-                                    @this.
-                                    call('countdownFinished');
+                                    @this.call('countdownFinished');
                                 }
                             }, 1000);
                         }

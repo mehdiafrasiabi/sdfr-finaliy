@@ -58,9 +58,12 @@ Route::name('admin.')->group(function () {
             ->name('trial-week.index');
 
         // مشاور جذب یک هفته آزمایشی (جریان یکپارچهٔ جدید — جایگزین acquisition-supporter)
-        Route::prefix('trial-acquisition')->name('trial-acquisition.')->group(function () {
+        Route::prefix('trial-acquisition')->name('trial-acquisition.')->middleware('admin.permission:acquisition.dashboard')->group(function () {
             Route::get('/', \App\Livewire\Admin\TrialAcquisition\Index::class)->name('index');
             Route::get('/dashboard', \App\Livewire\Admin\TrialAcquisition\Dashboard::class)->name('dashboard');
+            Route::get('/monitor/{trialWeek?}', \App\Livewire\Admin\TrialAcquisition\Monitor::class)
+                ->name('monitor')
+                ->middleware('admin.permission:acquisition.monitor');
         });
 
         // مدیر مدرسه (نقش school-manager) — قابلیت‌های پنل اختصاصی
@@ -112,6 +115,7 @@ Route::name('admin.')->group(function () {
         // مدیر آموزشی — جذب تلفنی
         Route::prefix('educational-manager/phone-acquisition')
             ->name('educational-manager.phone-acquisition.')
+            ->middleware('admin.permission:phone-acquisition.manage')
             ->group(function () {
                 Route::get('/dashboard',
                     \App\Livewire\Admin\EducationalManager\PhoneAcquisition\Dashboard::class)
@@ -139,6 +143,7 @@ Route::name('admin.')->group(function () {
         // مشاور جذب تلفنی — پنل مشاور
         Route::prefix('phone-acquisition')
             ->name('phone-acquisition.')
+            ->middleware('admin.permission:phone-acquisition.consult')
             ->group(function () {
                 Route::get('/dashboard',
                     \App\Livewire\Admin\PhoneAcquisition\Dashboard\Index::class)

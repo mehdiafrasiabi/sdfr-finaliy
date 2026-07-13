@@ -21,7 +21,7 @@ use Livewire\Component;
 
 class TrialWeekOnboarding extends Component
 {
-    use NormalizesDigits,SEOTools;
+    use NormalizesDigits, SEOTools;
 
     public int $currentStep = 2;
     public int $totalSteps  = 6;
@@ -271,7 +271,11 @@ class TrialWeekOnboarding extends Component
     public function updatedMotherMobile($value): void { $this->motherMobile = $this->convertToEnglishDigits($value); }
     public function updatedCodeMell($value): void     { $this->codeMell = $this->convertToEnglishDigits($value); }
     public function updatedBirthDate($value): void    { $this->birthDate = $this->convertToEnglishDigits($value); }
-    public function updatedOtpInput($value): void     { $this->otpInput = $this->convertToEnglishDigits($value); }
+    public function updatedOtpInput($value): void
+    {
+        $this->otpInput = $this->convertToEnglishDigits($value);
+        $this->otpError = '';
+    }
 
     public function updatedPassword(string $value): void
     {
@@ -289,20 +293,34 @@ class TrialWeekOnboarding extends Component
             return;
         }
 
-        $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
-        Otp::create([
+        $activeOtp = Otp::forMobile($this->mobile)
+            ->unused()
+            ->latest()
+            ->first();
+
+        if ($activeOtp && ! $activeOtp->isExpired()) {
+            $this->otpSent = true;
+            $this->countdown = $activeOtp->remainingSeconds();
+            $this->dispatch('start-countdown');
+            $this->dispatch('show-toast', ['type' => 'info', 'message' => 'کد قبلی هنوز معتبر است. همان کد را وارد کنید.']);
+            return;
+        }
+
+        $code = Otp::generateCode();
+        $otp = Otp::create([
             'mobile'     => $this->mobile,
             'code'       => $code,
-            'expires_at' => now()->addSeconds(90),
+            'expires_at' => now()->addSeconds(Otp::TTL_SECONDS),
         ]);
 
         try {
             (new User(['mobile' => $this->mobile]))->notify(new SendOtpToUser($this->mobile, $code));
             $this->otpSent   = true;
-            $this->countdown = 90;
+            $this->countdown = $otp->remainingSeconds();
             $this->dispatch('start-countdown');
             $this->dispatch('show-toast', ['type' => 'success', 'message' => 'کد تأیید ارسال شد.']);
         } catch (\Exception $e) {
+            $otp->delete();
             Log::error('OTP error', ['err' => $e->getMessage()]);
             $this->generalError = 'خطا در ارسال پیامک. دوباره تلاش کنید.';
         }
@@ -340,14 +358,21 @@ class TrialWeekOnboarding extends Component
             return;
         }
 
-        $otp = Otp::where('mobile', $this->mobile)
+        $otp = Otp::forMobile($this->mobile)
             ->where('code', $this->otpInput)
-            ->where('is_used', false)
-            ->where('expires_at', '>', now())
+            ->unused()
+            ->latest()
             ->first();
 
         if (!$otp) {
-            $this->otpError  = 'کد وارد شده نامعتبر یا منقضی شده است.';
+            $this->otpError  = 'کد وارد شده صحیح نیست.';
+            $this->isLoading = false;
+            return;
+        }
+
+        if ($otp->isExpired()) {
+            $this->countdown = 0;
+            $this->otpError  = 'زمان این کد تمام شده است. دوباره کد جدید بگیرید.';
             $this->isLoading = false;
             return;
         }

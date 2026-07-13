@@ -57,7 +57,7 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <div>
-                                        <h5 class="mb-0">{{ $name }}</h5>
+                                        <h5 class="mb-0">{{ $name }} {{$trial->user?->personalInformation?->name_full}}</h5>
                                         <span class="text-muted small" dir="ltr">{{ $trial->user?->mobile ?? '—' }}</span>
                                     </div>
                                     <div class="text-start">
@@ -117,9 +117,14 @@
                                     </div>
                                 @endif
 
-                                <button wire:click="openEmergency({{ $trial->id }})" class="btn btn-sm btn-outline-danger w-100">
-                                    <i class="fi fi-rr-siren-on"></i> تماس اضطراری
-                                </button>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('admin.trial-acquisition.monitor', $trial->id) }}" class="btn btn-sm btn-outline-primary flex-fill">
+                                        <i class="fi fi-rr-chart-histogram"></i> رصد
+                                    </a>
+                                    <button wire:click="openEmergency({{ $trial->id }})" class="btn btn-sm btn-outline-danger flex-fill">
+                                        <i class="fi fi-rr-siren-on"></i> تماس اضطراری
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

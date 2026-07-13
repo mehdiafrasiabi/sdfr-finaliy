@@ -14,6 +14,8 @@ use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\PersonalInformation;
 use App\Models\State;
+use App\Models\TrialWeek;
+use App\Services\TrialWeekService;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -34,8 +36,10 @@ class Index extends Component
 
     public int  $step          = 1;
     public bool $agreedToTerms = false;
+    public bool $showTrialConfirmModal = false;
 
     public bool   $editingInfo     = false;
+    public string $originalInfoGrade = '';
     public string $infoName         = '';
     public string $infoNameFull     = '';
     public string $infoFatherName   = '';
@@ -82,19 +86,17 @@ class Index extends Component
                 return;
             }
 
-            if (
-                empty(trim($this->infoAddress))
-                || empty(trim($this->infoPlaceOfBirth))
-                || empty($this->infoStateId)
-                || empty($this->infoCityId)
-            ) {
-                $this->dispatch('warning', 'برای ورود به مرحله بعد، تکمیل «استان»، «شهر»، «آدرس» و «محل تولد» الزامی است. لطفاً روی "ویرایش" کلیک کنید.');
+            if ($this->purchaseInfoNeedsCompletion()) {
+                $this->editingInfo = true;
+                $this->resetErrorBag();
+                $this->dispatch('warning', 'برای ورود به مرحله بعد، تکمیل «استان»، «شهر»، «آدرس» و «محل تولد» الزامی است. همین حالا اطلاعات را کامل کنید.');
                 return;
             }
         }
 
         if ($this->step < 3) {
             $this->step++;
+            $this->dispatchStepChanged();
         }
     }
 
@@ -102,8 +104,65 @@ class Index extends Component
     {
         if ($this->step > 1) {
             $this->step--;
+            $this->dispatchStepChanged();
         }
         $this->editingInfo = false;
+    }
+
+    public function openTrialConfirm(): void
+    {
+        $this->showTrialConfirmModal = true;
+    }
+
+    public function closeTrialConfirm(): void
+    {
+        $this->showTrialConfirmModal = false;
+    }
+
+    public function startTrialWeek(TrialWeekService $service)
+    {
+        $user = Auth::user();
+        if (! $user) {
+            return $this->redirect(route('client.auth.login'), navigate: true);
+        }
+
+        $existingTrial = TrialWeek::where('user_id', $user->id)->latest()->first();
+        if ($existingTrial) {
+            $this->showTrialConfirmModal = false;
+            return $this->redirect($this->trialRedirectRouteFor($existingTrial), navigate: true);
+        }
+
+        $pi = PersonalInformation::where('user_id', $user->id)->first();
+        if (! $pi) {
+            $this->showTrialConfirmModal = false;
+            $this->dispatch('error', 'برای شروع یک هفته آزمایشی، اطلاعات کاربری شما باید کامل باشد.');
+            return;
+        }
+
+        if (
+            blank($pi->grade)
+            || blank($pi->father_mobile)
+            || blank($pi->mother_mobile)
+        ) {
+            $this->showTrialConfirmModal = false;
+            $this->dispatch('warning', 'برای شروع یک هفته آزمایشی، پایه و شماره موبایل پدر و مادر باید کامل باشد.');
+            return;
+        }
+
+        $grade = $pi->is_graduate ? TrialWeek::GRADE_GRADUATE : (int) $pi->grade;
+
+        $service->start(
+            $user,
+            $grade,
+            $pi->field,
+            (string) $pi->father_mobile,
+            (string) $pi->mother_mobile,
+            (bool) $pi->attends_school,
+        );
+
+        $this->showTrialConfirmModal = false;
+
+        return $this->redirect(route('client.profile.waiting-for-supporter'), navigate: true);
     }
 
     protected function loadInfo(): void
@@ -124,6 +183,7 @@ class Index extends Component
         $this->infoAddress      = (string) $pi->address;
         $this->infoStateId      = (string) ($pi->state_id ?? '');
         $this->infoCityId       = (string) ($pi->city_id ?? '');
+        $this->originalInfoGrade = (string) ($pi->grade ?? '');
     }
 
     public function updatedInfoStateId($value): void
@@ -136,6 +196,14 @@ class Index extends Component
         $this->couponNotice = null;
         $this->couponError = null;
 
+        if (
+            $this->originalInfoGrade !== ''
+            && (string) $value !== ''
+            && (string) $value !== $this->originalInfoGrade
+        ) {
+            $this->dispatch('warning', 'اگر پایه‌ات را تغییر بدهی، ممکن است مبلغ نهایی خرید هم تغییر کند.');
+        }
+
         if (! $this->gradeRequiresField($value)) {
             $this->infoField = '';
         }
@@ -147,6 +215,33 @@ class Index extends Component
         $this->resetErrorBag();
     }
 
+    public function editInfoField(string $field): void
+    {
+        $allowedFields = [
+            'infoName',
+            'infoNameFull',
+            'infoFatherName',
+            'infoCodeMell',
+            'infoGrade',
+            'infoField',
+            'infoBirthDate',
+            'infoPlaceOfBirth',
+            'infoFatherMobile',
+            'infoMotherMobile',
+            'infoStateId',
+            'infoCityId',
+            'infoAddress',
+        ];
+
+        if (! in_array($field, $allowedFields, true)) {
+            return;
+        }
+
+        $this->editingInfo = true;
+        $this->resetErrorBag();
+        $this->dispatch('purchase-focus-field', field: $field);
+    }
+
     public function cancelEditInfo(): void
     {
         $this->editingInfo = false;
@@ -156,63 +251,22 @@ class Index extends Component
 
     public function saveInfo(): void
     {
-        $pi = PersonalInformation::where('user_id', Auth::id())->first();
-        if (! $pi) {
-            session()->flash('error', 'اطلاعات شخصی یافت نشد.');
+        $this->persistInfo();
+    }
+
+    public function saveInfoAndContinue(): void
+    {
+        if (! $this->persistInfo(advanceToPayment: true)) {
             return;
         }
 
-        $fieldRules = $this->gradeRequiresField($this->infoGrade)
-            ? ['required', Rule::in(array_keys(self::FIELD_OPTIONS))]
-            : ['nullable'];
+        if (! $this->gradePrice()) {
+            $this->dispatch('warning', 'برای پایهٔ انتخابی شما هنوز قیمت فعالی ثبت نشده است.');
+            return;
+        }
 
-        $this->validate([
-            'infoName'         => ['required', 'string', 'max:255'],
-            'infoNameFull'     => ['nullable', 'string', 'max:255'],
-            'infoFatherName'   => ['required', 'string', 'max:255'],
-            'infoCodeMell'     => ['required', 'string', 'max:20', Rule::unique('personal_information', 'code_mell')->ignore($pi->id)],
-            'infoGrade'        => ['required', Rule::in(array_keys(self::GRADE_OPTIONS))],
-            'infoField'        => $fieldRules,
-            'infoBirthDate'    => ['nullable', 'string', 'max:30'],
-            'infoFatherMobile' => ['required', 'string', 'max:20'],
-            'infoMotherMobile' => ['required', 'string', 'max:20'],
-            'infoPlaceOfBirth' => ['required', 'string', 'max:255'], // محل تولد اجباری شد
-            'infoAddress'      => ['required', 'string', 'max:500'], // آدرس اجباری شد
-            'infoStateId'      => ['required', 'integer', 'exists:states,id'],
-            'infoCityId'       => ['required', 'integer', Rule::exists('cities', 'id')->where(fn ($query) => $query->where('state_id', $this->infoStateId))],
-        ], [], [
-            'infoName'         => 'نام',
-            'infoFatherName'   => 'نام پدر',
-            'infoCodeMell'     => 'کد ملی',
-            'infoGrade'        => 'پایه',
-            'infoField'        => 'رشته',
-            'infoBirthDate'    => 'تاریخ تولد',
-            'infoFatherMobile' => 'موبایل پدر',
-            'infoMotherMobile' => 'موبایل مادر',
-            'infoPlaceOfBirth' => 'محل تولد',
-            'infoAddress'      => 'آدرس',
-            'infoStateId'      => 'استان',
-            'infoCityId'       => 'شهر',
-        ]);
-
-        $pi->update([
-            'name'           => $this->infoName,
-            'name_full'      => $this->infoNameFull ?: null,
-            'father_name'    => $this->infoFatherName,
-            'code_mell'      => $this->infoCodeMell,
-            'grade'          => $this->infoGrade,
-            'field'          => $this->gradeRequiresField($this->infoGrade) ? $this->infoField : null,
-            'birth_date'     => $this->infoBirthDate,
-            'father_mobile'  => $this->infoFatherMobile,
-            'mother_mobile'  => $this->infoMotherMobile,
-            'place_of_birth' => $this->infoPlaceOfBirth,
-            'address'        => $this->infoAddress,
-            'state_id'       => $this->infoStateId,
-            'city_id'        => $this->infoCityId,
-        ]);
-
-        $this->editingInfo = false;
-        $this->dispatch('success', 'اطلاعات با موفقیت به‌روزرسانی شد.');
+        $this->step = 3;
+        $this->dispatchStepChanged();
     }
 
     protected function gradePrice(): ?GradePrice
@@ -301,6 +355,10 @@ class Index extends Component
         $price = $pi ? $this->gradePriceForPersonalInfo($pi) : null;
         if (! $price || ! $pi) {
             $this->dispatch('error', 'قیمتی برای پایهٔ شما تعریف نشده یا اطلاعات شخصی کامل نیست.');
+            return;
+        }
+
+        if (! $this->ensureAccessEndsAtKhordad($price)) {
             return;
         }
 
@@ -397,6 +455,10 @@ class Index extends Component
         $price = $pi ? $this->gradePriceForPersonalInfo($pi) : null;
         if (! $price || ! $pi) {
             $this->dispatch('error', 'قیمتی برای پایهٔ شما تعریف نشده یا اطلاعات شخصی کامل نیست.');
+            return;
+        }
+
+        if (! $this->ensureAccessEndsAtKhordad($price)) {
             return;
         }
 
@@ -660,6 +722,120 @@ class Index extends Component
         return true;
     }
 
+    protected function purchaseInfoNeedsCompletion(): bool
+    {
+        return blank(trim($this->infoAddress))
+            || blank(trim($this->infoPlaceOfBirth))
+            || blank($this->infoStateId)
+            || blank($this->infoCityId);
+    }
+
+    protected function ensureAccessEndsAtKhordad(GradePrice $price): bool
+    {
+        if ($this->priceAccessEndsAtKhordad($price)) {
+            return true;
+        }
+
+        $accessEnd = $price->accessEndsAt();
+        $label = $accessEnd
+            ? Jalalian::fromCarbon($accessEnd)->format('Y/m/d')
+            : 'نامشخص';
+
+        $this->dispatch('error', "تاریخ پایان دسترسی این پایه درست ثبت نشده است. تاریخ فعلی: {$label}. قبل از پرداخت باید تا پایان خرداد تنظیم شود.");
+
+        return false;
+    }
+
+    protected function priceAccessEndsAtKhordad(GradePrice $price): bool
+    {
+        $accessEnd = $price->accessEndsAt();
+        if (! $accessEnd) {
+            return false;
+        }
+
+        $jalali = Jalalian::fromCarbon($accessEnd);
+
+        return (int) $jalali->getMonth() === 3 && (int) $jalali->getDay() === 31;
+    }
+
+    protected function dispatchStepChanged(): void
+    {
+        $this->dispatch('purchase-step-changed');
+    }
+
+    protected function trialRedirectRouteFor(TrialWeek $trialWeek): string
+    {
+        return $trialWeek->status === TrialWeek::STATUS_PENDING
+            ? route('client.profile.waiting-for-supporter')
+            : route('client.profile.trial.guide');
+    }
+
+    protected function persistInfo(bool $advanceToPayment = false): bool
+    {
+        $pi = PersonalInformation::where('user_id', Auth::id())->first();
+        if (! $pi) {
+            session()->flash('error', 'اطلاعات شخصی یافت نشد.');
+            return false;
+        }
+
+        $fieldRules = $this->gradeRequiresField($this->infoGrade)
+            ? ['required', Rule::in(array_keys(self::FIELD_OPTIONS))]
+            : ['nullable'];
+
+        $this->validate([
+            'infoName'         => ['required', 'string', 'max:255'],
+            'infoNameFull'     => ['nullable', 'string', 'max:255'],
+            'infoFatherName'   => ['required', 'string', 'max:255'],
+            'infoCodeMell'     => ['required', 'string', 'max:20', Rule::unique('personal_information', 'code_mell')->ignore($pi->id)],
+            'infoGrade'        => ['required', Rule::in(array_keys(self::GRADE_OPTIONS))],
+            'infoField'        => $fieldRules,
+            'infoBirthDate'    => ['nullable', 'string', 'max:30'],
+            'infoFatherMobile' => ['required', 'string', 'max:20'],
+            'infoMotherMobile' => ['required', 'string', 'max:20'],
+            'infoPlaceOfBirth' => ['required', 'string', 'max:255'],
+            'infoAddress'      => ['required', 'string', 'max:500'],
+            'infoStateId'      => ['required', 'integer', 'exists:states,id'],
+            'infoCityId'       => ['required', 'integer', Rule::exists('cities', 'id')->where(fn ($query) => $query->where('state_id', $this->infoStateId))],
+        ], [], [
+            'infoName'         => 'نام',
+            'infoFatherName'   => 'نام پدر',
+            'infoCodeMell'     => 'کد ملی',
+            'infoGrade'        => 'پایه',
+            'infoField'        => 'رشته',
+            'infoBirthDate'    => 'تاریخ تولد',
+            'infoFatherMobile' => 'موبایل پدر',
+            'infoMotherMobile' => 'موبایل مادر',
+            'infoPlaceOfBirth' => 'محل تولد',
+            'infoAddress'      => 'آدرس',
+            'infoStateId'      => 'استان',
+            'infoCityId'       => 'شهر',
+        ]);
+
+        $pi->update([
+            'name'           => $this->infoName,
+            'name_full'      => $this->infoNameFull ?: null,
+            'father_name'    => $this->infoFatherName,
+            'code_mell'      => $this->infoCodeMell,
+            'grade'          => $this->infoGrade,
+            'field'          => $this->gradeRequiresField($this->infoGrade) ? $this->infoField : null,
+            'birth_date'     => $this->infoBirthDate,
+            'father_mobile'  => $this->infoFatherMobile,
+            'mother_mobile'  => $this->infoMotherMobile,
+            'place_of_birth' => $this->infoPlaceOfBirth,
+            'address'        => $this->infoAddress,
+            'state_id'       => $this->infoStateId,
+            'city_id'        => $this->infoCityId,
+        ]);
+
+        $this->editingInfo = false;
+        $this->loadInfo();
+        $this->dispatch('success', $advanceToPayment
+            ? 'اطلاعات با موفقیت ذخیره شد.'
+            : 'اطلاعات با موفقیت به‌روزرسانی شد.');
+
+        return true;
+    }
+
     protected function friendlyPurchaseError(string $fallback, \Throwable $e): string
     {
         $message = trim((string) $e->getMessage());
@@ -690,6 +866,7 @@ class Index extends Component
             (string) $this->infoGrade !== (string) ($pi->grade ?? '')
             || $selectedFieldValue !== $storedFieldValue
         );
+        $requiresInfoCompletion = $this->purchaseInfoNeedsCompletion();
 
         $data = null;
         if ($price) {
@@ -714,6 +891,7 @@ class Index extends Component
                 'access_ends_label' => $price->accessEndsAt()
                     ? Jalalian::fromCarbon($price->accessEndsAt())->format('Y/m/d')
                     : '—',
+                'access_ends_is_khordad' => $this->priceAccessEndsAtKhordad($price),
             ];
         }
 
@@ -730,6 +908,7 @@ class Index extends Component
             'fieldOptions' => self::FIELD_OPTIONS,
             'selectedGradeRequiresField' => $selectedGradeRequiresField,
             'profileSelectionChanged' => $profileSelectionChanged,
+            'requiresInfoCompletion' => $requiresInfoCompletion,
             'gradeSelectOptions' => collect(self::GRADE_OPTIONS)->map(fn ($label, $id) => ['id' => $id, 'name' => $label])->values(),
             'fieldSelectOptions' => collect(self::FIELD_OPTIONS)->map(fn ($label, $id) => ['id' => $id, 'name' => $label])->values(),
             'states'       => $states,

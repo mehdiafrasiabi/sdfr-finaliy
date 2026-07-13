@@ -227,6 +227,21 @@ class AcademicAdvisorPermissionSeeder extends Seeder
 
             ],
 
+
+            'مشاوره جذب' => [
+
+                'داشبورد مشاور جذب یک هفته آزمایشی' => 'acquisition.dashboard',
+
+                'تماس‌ها و دانش‌آموزان جذب آزمایشی' => 'acquisition.contacts',
+
+                'رصد برنامه و گزارش هفته آزمایشی' => 'acquisition.monitor',
+
+                'پنل مشاور جذب تلفنی' => 'phone-acquisition.consult',
+
+                'مدیریت جذب تلفنی' => 'phone-acquisition.manage',
+
+            ],
+
         ];
 
 
@@ -479,6 +494,21 @@ class AcademicAdvisorPermissionSeeder extends Seeder
             'گزارش‌های ارسال نشده' => [
 
                 'مشاهده گزارش‌های ارسال نشده' => 'admin.report-missing.view',
+
+            ],
+
+
+            'مشاوره جذب' => [
+
+                'داشبورد مشاور جذب یک هفته آزمایشی' => 'acquisition.dashboard',
+
+                'تماس‌ها و دانش‌آموزان جذب آزمایشی' => 'acquisition.contacts',
+
+                'رصد برنامه و گزارش هفته آزمایشی' => 'acquisition.monitor',
+
+                'پنل مشاور جذب تلفنی' => 'phone-acquisition.consult',
+
+                'مدیریت جذب تلفنی' => 'phone-acquisition.manage',
 
             ],
 

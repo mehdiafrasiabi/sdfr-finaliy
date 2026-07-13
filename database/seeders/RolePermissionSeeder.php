@@ -13,10 +13,10 @@ use Spatie\Permission\PermissionRegistrar;
  *   1) super admin            (مدیر کل)
  *   2) educational-manager    (مدیر آموزشی)
  *   3) مشاور تحصیلی          (مشاور تحصیلی)
- *   4) site acquisition       (پشتیبان جذب)
+ *   4) site acquisition       (مشاور جذب یک هفته آزمایشی)
  *
  * permission‌های گروه «مشاور تحصیلی» در AcademicAdvisorPermissionSeeder
- * و permission‌های «پشتیبان جذب» در SiteAcquisitionRoleSeeder تعریف می‌شوند.
+ * و permission‌های «مشاور جذب یک هفته آزمایشی» در SiteAcquisitionRoleSeeder تعریف می‌شوند.
  */
 class RolePermissionSeeder extends Seeder
 {
@@ -79,6 +79,14 @@ class RolePermissionSeeder extends Seeder
             'create_exams_for_academic_advisor',
             'publish_exams_for_academic_advisor',
             'upload weekly program',
+
+            // مشاوره جذب
+            'acquisition.dashboard',
+            'acquisition.contacts',
+            'acquisition.student',
+            'acquisition.monitor',
+            'phone-acquisition.consult',
+            'phone-acquisition.manage',
 
             // بانک سوالات
             'manage_questions', 'view_questions',
@@ -146,6 +154,7 @@ class RolePermissionSeeder extends Seeder
             'admin.supporters.view',
             'admin.students.view',
             'view students with support info',
+            'phone-acquisition.manage',
         ]);
 
         // ────────────────────────────────────────────────────────────
@@ -160,10 +169,22 @@ class RolePermissionSeeder extends Seeder
         // ────────────────────────────────────────────────────────────
         // ۴) پشتیبان جذب — permission‌های اختصاصی در SiteAcquisitionRoleSeeder
         // ────────────────────────────────────────────────────────────
-        Role::query()->firstOrCreate([
+        $siteAcquisition = Role::query()->firstOrCreate([
             'name'       => 'site acquisition',
             'guard_name' => 'admin',
         ]);
+        $siteAcquisition->givePermissionTo([
+            'acquisition.dashboard',
+            'acquisition.contacts',
+            'acquisition.student',
+            'acquisition.monitor',
+        ]);
+
+        $phoneAcquisition = Role::query()->firstOrCreate([
+            'name'       => 'مشاور جذب تلفنی',
+            'guard_name' => 'admin',
+        ]);
+        $phoneAcquisition->givePermissionTo('phone-acquisition.consult');
 
         // ────────────────────────────────────────────────────────────
         // ۵) مدیر مدرسه (school-manager) — فقط مشاهدهٔ دانش‌آموزان مدرسهٔ خود
@@ -219,15 +240,39 @@ class RolePermissionSeeder extends Seeder
         );
         $academicAdvisorUser->syncRoles(['مشاور تحصیلی']);
 
-        $siteAcquisitionUser = Admin::query()->firstOrCreate(
-            ['email' => 'siteacquisition@gmail.com'],
-            [
-                'name'     => 'پشتیبان جذب',
-                'password' => bcrypt('password'),
-                'mobile'   => '09120000002',
-            ]
-        );
+        $siteAcquisitionUser = Admin::query()
+            ->where('email', 'trialacquisition@gmail.com')
+            ->orWhere('email', 'siteacquisition@gmail.com')
+            ->orWhere('mobile', '09120000002')
+            ->first();
+        if (!$siteAcquisitionUser) {
+            $siteAcquisitionUser = new Admin();
+        }
+        $siteAcquisitionUser->fill([
+            'name'     => 'مشاور جذب یک هفته آزمایشی',
+            'email'    => 'trialacquisition@gmail.com',
+            'password' => bcrypt('password'),
+            'mobile'   => '09120000002',
+        ])->save();
         $siteAcquisitionUser->syncRoles(['site acquisition']);
+        $siteAcquisitionUser->syncPermissions([]);
+
+        $phoneAcquisitionUser = Admin::query()
+            ->where('email', 'phoneacquisition@gmail.com')
+            ->orWhere('email', 'phone.consultant@test.local')
+            ->orWhere('mobile', '09120000003')
+            ->first();
+        if (!$phoneAcquisitionUser) {
+            $phoneAcquisitionUser = new Admin();
+        }
+        $phoneAcquisitionUser->fill([
+            'name'     => 'مشاور جذب تلفنی',
+            'email'    => 'phoneacquisition@gmail.com',
+            'password' => bcrypt('password'),
+            'mobile'   => '09120000003',
+        ])->save();
+        $phoneAcquisitionUser->syncRoles(['مشاور جذب تلفنی']);
+        $phoneAcquisitionUser->syncPermissions([]);
 
         // پاک‌سازی کش Spatie
         if (app()->bound(PermissionRegistrar::class)) {
