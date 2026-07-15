@@ -5,6 +5,7 @@ use App\Models\ClassificationProject;
 use App\Models\PersonalInformation;
 use App\Models\StudentClassificationSubmission;
 use App\Models\TrialWeek;
+use App\Services\ExamPlanningService;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 
@@ -16,6 +17,7 @@ class ProjectList extends Component
     public $studentField = null;
     public bool $isTrialUser = false;
     public bool $hasNormalClassificationAccess = false;
+    public bool $hideForExamProgramTrialStudent = false;
 
     public function mount()
     {
@@ -32,6 +34,15 @@ class ProjectList extends Component
     {
         $user = auth()->user();
         $userId = $user->id;
+        $this->hideForExamProgramTrialStudent = app(ExamPlanningService::class)
+            ->shouldHideTrialExamProgramSections($user);
+
+        if ($this->hideForExamProgramTrialStudent) {
+            $this->isTrialUser = false;
+            $this->hasNormalClassificationAccess = false;
+            return;
+        }
+
         $personalInfo = PersonalInformation::where('user_id', $userId)->first();
         if ($personalInfo) {
             $this->studentGrade = (int) $personalInfo->grade;
@@ -90,6 +101,18 @@ class ProjectList extends Component
 
     public function render()
     {
+        if ($this->hideForExamProgramTrialStudent) {
+            return view('livewire.client.profile.classification.project-list', [
+                'activeProjects'   => collect(),
+                'upcomingProjects' => collect(),
+                'endedProjects'    => collect(),
+                'submissions'      => [],
+                'trialProject'     => null,
+                'trialSubmitted'   => false,
+                'hideForExamProgramTrialStudent' => true,
+            ])->layout('layouts.client.app');
+        }
+
         $trialProject = $this->isTrialUser
             ? ClassificationProject::where('is_trial', true)->where('is_active', true)->first()
             : null;
@@ -134,6 +157,7 @@ class ProjectList extends Component
             'submissions'      => $submissions,
             'trialProject'     => $trialProject,
             'trialSubmitted'   => $trialSubmitted,
+            'hideForExamProgramTrialStudent' => false,
         ])->layout('layouts.client.app');
     }
 }

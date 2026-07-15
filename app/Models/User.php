@@ -206,6 +206,11 @@ class User extends Authenticatable
         return $this->hasOne(TrialWeek::class);
     }
 
+    public function examSchedules()
+    {
+        return $this->hasMany(StudentExamSchedule::class);
+    }
+
     public function assessmentAttempts()
     {
         return $this->hasMany(StudentAssessmentAttempt::class);

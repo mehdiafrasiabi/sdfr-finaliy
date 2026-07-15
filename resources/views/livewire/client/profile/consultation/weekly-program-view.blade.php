@@ -34,6 +34,12 @@
         $initialSelectedDay = $availableDayDates->contains($todayDate)
             ? $todayDate
             : ($availableDayDates->first() ?? $todayDate);
+        $dayPagerSize = 8;
+        $showExamDayPager = ($isExamProgram ?? false) && $availableDayDates->count() > $dayPagerSize;
+        $initialDaySearch = $availableDayDates->search($initialSelectedDay);
+        $initialDayIndex = $initialDaySearch === false ? 0 : (int) $initialDaySearch;
+        $initialDayPage = $showExamDayPager ? intdiv($initialDayIndex, $dayPagerSize) : 0;
+        $totalDayPages = max(1, (int) ceil(max($availableDayDates->count(), 1) / $dayPagerSize));
     @endphp
 
     <div class="max-w-7xl mx-auto px-3 sm:px-4 "
@@ -41,6 +47,10 @@
              tab: @js($isActiveProgram ? 'study' : 'grid'),
              selectedDay: @js($initialSelectedDay),
              availableDays: @js($availableDayDates->all()),
+             dayPage: {{ $initialDayPage }},
+             dayPagerSize: {{ $dayPagerSize }},
+             totalDayPages: {{ $totalDayPages }},
+             showExamDayPager: @js($showExamDayPager),
              openPartId: null,
              selectedAlarmState: @entangle('selectedAlarm'),
              previewingAlarmId: null,
@@ -57,6 +67,19 @@
                  if (!this.availableDays.includes(this.selectedDay)) {
                      this.selectedDay = this.availableDays[0] ?? this.selectedDay
                  }
+                 if (this.showExamDayPager) {
+                     const idx = this.availableDays.indexOf(this.selectedDay)
+                     this.dayPage = idx >= 0 ? Math.floor(idx / this.dayPagerSize) : 0
+                 }
+             },
+             dayIsVisible(index) {
+                 return !this.showExamDayPager || Math.floor(index / this.dayPagerSize) === this.dayPage
+             },
+             goDayPage(delta) {
+                 if (!this.showExamDayPager) return
+                 this.dayPage = Math.min(Math.max(this.dayPage + delta, 0), this.totalDayPages - 1)
+                 const nextDate = this.availableDays[this.dayPage * this.dayPagerSize]
+                 if (nextDate) this.selectedDay = nextDate
              },
              togglePart(partId) {
                  this.openPartId = this.openPartId === partId ? null : partId
@@ -308,7 +331,7 @@
                                     <img src="/client/assets/images/favicon.svg" class="w-10 h-10" alt="لوگو">
                                 </div>
                                 <div>
-                                    <h1 class=" text-lg sm:text-xl font-bold text-white">برنامه هفتگی تحصیلی</h1>
+                                    <h1 class=" text-lg sm:text-xl font-bold text-white">برنامه مطالعاتی</h1>
                                 </div>
                             </div>
 
@@ -325,7 +348,7 @@
                                     @endif
                                     <button type="button" @click="tab = 'grid'"
                                             :class="tab === 'grid' ? 'bg-white/95 text-slate-900 shadow-sm' : 'text-white/75'"
-                                            class="rounded-full px-3 py-1.5 transition">جدول هفتگی</button>
+                                            class="rounded-full px-3 py-1.5 transition">جدول برنامه</button>
                                     <button type="button" @click="tab = 'archive'"
                                             :class="tab === 'archive' ? 'bg-white/95 text-slate-900 shadow-sm' : 'text-white/75'"
                                             class="rounded-full px-3 py-1.5 transition">آرشیو</button>
@@ -407,10 +430,34 @@
                             <div class="flex items-center gap-2 mb-3 px-1">
                                 <span class="text-[18px] font-bold  text-primary">{{ jdate($program->start_date)->format('d') }} تا {{ jdate($program->end_date)->format('d F') }} ماه</span>
                                 <span class="text-muted text-xs">|</span>
-                                <span class="text-xs text-muted">برنامه هفتگی </span>
+                                <span class="text-xs text-muted">برنامه مطالعاتی</span>
                             </div>
+                            @if($showExamDayPager)
+                                <div class="mb-3 flex items-center justify-between gap-2 rounded-xl bg-secondary/70 px-2.5 py-2">
+                                    <button type="button"
+                                            @click="goDayPage(-1)"
+                                            :disabled="dayPage === 0"
+                                            class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-background text-muted-foreground border border-border transition disabled:opacity-35 disabled:cursor-not-allowed">
+                                        عقب
+                                    </button>
+                                    <div class="text-[11px] font-semibold text-muted-foreground">
+                                        <span x-text="Math.min(dayPage * dayPagerSize + 1, availableDays.length)"></span>
+                                        تا
+                                        <span x-text="Math.min((dayPage + 1) * dayPagerSize, availableDays.length)"></span>
+                                        از
+                                        <span>{{ $availableDayDates->count() }}</span>
+                                        روز
+                                    </div>
+                                    <button type="button"
+                                            @click="goDayPage(1)"
+                                            :disabled="dayPage >= totalDayPages - 1"
+                                            class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-background text-muted-foreground border border-border transition disabled:opacity-35 disabled:cursor-not-allowed">
+                                        جلو
+                                    </button>
+                                </div>
+                            @endif
                             <div class="flex items-center gap-2 ss-scroll overflow-x-auto pb-1">
-                                @foreach($weekDays as $day)
+                                @foreach($weekDays as $dayIndex => $day)
                                     @php
                                         $isToday = $day['date'] === \Carbon\Carbon::today()->toDateString();
                                         $isPast  = $day['date'] < \Carbon\Carbon::today()->toDateString();
@@ -424,6 +471,7 @@
                                         else               $dayCls = 'bg-background text-muted border-border';
                                     @endphp
                                     <button type="button" @click="selectedDay = '{{ $day['date'] }}'"
+                                            @if($showExamDayPager) x-show="dayIsVisible({{ $dayIndex }})" @endif
                                             class="flex-shrink-0 flex flex-col items-center gap-1">
                                         <span class="flex items-center justify-center w-10 h-10 rounded-full font-bold text-[13px] border-2 transition-all"
                                               :class="selectedDay === '{{ $day['date'] }}' ? 'bg-primary text-primary-foreground border-primary' : '{{ $dayCls }}'">
@@ -652,7 +700,7 @@
                     </section>
                 @endif
 
-                {{-- ════════════════ جدول هفتگی ════════════════ --}}
+                {{-- ════════════════ جدول برنامه ════════════════ --}}
                 <section x-show="tab === 'grid'" x-cloak
                          class="rounded-2xl border border-border glass"
                          x-data="{
@@ -714,7 +762,7 @@
                         </button>
                     </div>
 
-                    <div class="flex md:hidden items-center justify-center gap-1.5 px-3 py-2 border-b border-border/50">
+                    <div class="flex md:hidden items-center justify-start gap-1.5 px-3 py-2 border-b border-border/50 overflow-x-auto ss-scroll">
                         @foreach($weekDays as $i => $day)
                             <button type="button" @click="currentDayIndex = {{ $i }}"
                                     :class="currentDayIndex === {{ $i }} ? '{{ $day['is_rest_day'] ? 'bg-emerald-500 w-4' : 'bg-blue-500 w-4' }}' : 'bg-border w-1.5'"
@@ -784,7 +832,7 @@
 
                 <section x-show="tab === 'archive'" x-cloak class="rounded-2xl border border-border glass p-4 sm:p-5">
                     <div class="mb-4 flex items-center justify-between">
-                        <h3 class="text-base font-semibold text-foreground">آرشیو مطالعه این هفته</h3>
+                        <h3 class="text-base font-semibold text-foreground">آرشیو مطالعه این برنامه</h3>
                         <span class="text-[11px] text-muted">{{ jdate($program->start_date)->format('Y/m/d') }} تا {{ jdate($program->end_date)->format('Y/m/d') }}</span>
                     </div>
 

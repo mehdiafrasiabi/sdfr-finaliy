@@ -4,13 +4,16 @@
 <script src="/client/assets/css/toast/toastify-js.js" data-navigate-once></script>
 <script src="/client/assets/js/story-player/story-player.js" data-navigate-once></script>
 <script data-navigate-once>
+    if (!window.__SDFR_TOAST_BOOTSTRAPPED__) {
+        window.__SDFR_TOAST_BOOTSTRAPPED__ = true;
+
     /**
      * Toast System - سیستم مرکزی نمایش پیام‌های Toast
      * سازگار با dispatch های قدیمی و جدید
      */
 
 // تنظیمات پیش‌فرض Toast
-    const TOAST_CONFIG = {
+    const TOAST_CONFIG = window.SDFR_TOAST_CONFIG = {
         duration: 3000,
         gravity: "top",
         position: "center",
@@ -31,7 +34,7 @@
     };
 
     // تم‌های مختلف Toast
-    const TOAST_THEMES = {
+    const TOAST_THEMES = window.SDFR_TOAST_THEMES = {
         success: {
             background: "linear-gradient(135deg, #10b981, #059669)",
             color: "#ffffff",
@@ -62,10 +65,21 @@
         }
     };
 
+    function normalizeToastPayload(detail, fallbackMessage = null) {
+        if (!detail) return fallbackMessage ? { message: fallbackMessage } : null;
+        if (typeof detail === 'string') return { message: detail };
+        if (Array.isArray(detail)) return normalizeToastPayload(detail[0], fallbackMessage);
+        if (typeof detail === 'object') return detail.message ? detail : null;
+
+        return fallbackMessage ? { message: fallbackMessage } : null;
+    }
+
     /**
      * نمایش Toast با تنظیمات سفارشی
      */
     function showToast(message, type = 'success', duration = 3000) {
+        if (!message || typeof Toastify === 'undefined') return;
+
         const theme = TOAST_THEMES[type] || TOAST_THEMES.success;
 
         const config = {
@@ -90,65 +104,51 @@
 
     // Success Toast - سبز
     window.addEventListener('success', function (event) {
-        if (!event.detail) return;
-        const message = typeof event.detail === 'string'
-            ? event.detail
-            : (Array.isArray(event.detail) ? event.detail[0] : event.detail);
-        if (message) showToast(message, 'success', 3000);
+        const data = normalizeToastPayload(event.detail);
+        if (data?.message) showToast(data.message, 'success', data.duration || 3000);
     });
 
     // Warning/Error Toast - قرمز
     window.addEventListener('warning', function (event) {
-        if (!event.detail) return;
-        const message = typeof event.detail === 'string'
-            ? event.detail
-            : (Array.isArray(event.detail) ? event.detail[0] : event.detail);
-        if (message) showToast(message, 'error', 3000);
+        const data = normalizeToastPayload(event.detail);
+        if (data?.message) showToast(data.message, 'error', data.duration || 3000);
     });
 
     // Error Toast (برای dispatch('error', 'message'))
     window.addEventListener('error', function (event) {
-        if (!event.detail) return;
-        const message = typeof event.detail === 'string'
-            ? event.detail
-            : (Array.isArray(event.detail) ? event.detail[0] : event.detail);
-        if (message) showToast(message, 'error', 3000);
+        const data = normalizeToastPayload(event.detail);
+        if (data?.message) showToast(data.message, 'error', data.duration || 3000);
     });
     // Info Toast
 
     window.addEventListener('info', function (event) {
-        if (!event.detail) return;
-        const message = typeof event.detail === 'string'
-            ? event.detail
-            : (Array.isArray(event.detail) ? event.detail[0] : event.detail);
-        if (message) showToast(message, 'info', 3000);
+        const data = normalizeToastPayload(event.detail);
+        if (data?.message) showToast(data.message, 'info', data.duration || 3000);
     });
     // Add to Cart Toast
 
     window.addEventListener('add-to-cart', function (event) {
-        if (!event.detail) return;
-        const message = typeof event.detail === 'string'
-            ? (typeof event.detail === 'string' ? event.detail : event.detail[0])
-            : 'با موفقیت به سبد خرید شما اضافه شد';
-        if (message) showToast(message, 'add-to-cart', 3000);
+        const data = normalizeToastPayload(event.detail, 'با موفقیت به سبد خرید شما اضافه شد');
+        if (data?.message) showToast(data.message, 'success', data.duration || 3000);
     });
     /**
      * Event Listener برای Toast های جدید با فرمت Object
      * مثال: dispatch('show-toast', { type: 'success', message: 'پیام' })
      */
     window.addEventListener('show-toast', function (event) {
-        const data = Array.isArray(event.detail) ? event.detail[0] : event.detail;
-        showToast(data.message, data.type || 'success', data.duration || 3000);
+        const data = normalizeToastPayload(event.detail);
+        if (data?.message) showToast(data.message, data.type || 'success', data.duration || 3000);
     });
 
     /**
      * Livewire Hook برای نمایش Toast بعد از بارگذاری صفحه
      */
     document.addEventListener('livewire:navigated', function() {
-        if (typeof Livewire !== 'undefined') {
+        if (typeof Livewire !== 'undefined' && !window.__SDFR_LIVEWIRE_TOAST_BOOTSTRAPPED__) {
+            window.__SDFR_LIVEWIRE_TOAST_BOOTSTRAPPED__ = true;
             Livewire.on('toast', (data) => {
-                const params = Array.isArray(data) ? data[0] : data;
-                showToast(params.message, params.type || 'success', params.duration || 3000);
+                const params = normalizeToastPayload(data);
+                if (params?.message) showToast(params.message, params.type || 'success', params.duration || 3000);
             });
         }
     });
@@ -158,6 +158,7 @@
      * مثال: window.toast('پیام موفقیت', 'success')
      */
     window.toast = showToast;
+    }
 </script>
 
 @php

@@ -1,4 +1,8 @@
 <div class="max-w-7xl space-y-8 px-4 mx-auto">
+    @php
+        $hideForExamProgramTrialStudent = auth()->check()
+            && app(\App\Services\ExamPlanningService::class)->shouldHideTrialExamProgramSections(auth()->user());
+    @endphp
 
     <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
 
@@ -146,10 +150,12 @@
             <div class="bg-gradient-to-l from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-2xl p-6 text-center">
                 <div class="text-4xl mb-3">✅</div>
                 <h3 class="font-black text-foreground text-lg mb-2">برنامه ساخته شده است</h3>
-                <a wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
-                   class="inline-flex items-center gap-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold mt-3 transition-colors">
-                    مشاهده جلسات و برنامه
-                </a>
+                @unless($hideForExamProgramTrialStudent)
+                    <a wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
+                       class="inline-flex items-center gap-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold mt-3 transition-colors">
+                        مشاهده جلسات و برنامه
+                    </a>
+                @endunless
             </div>
             @endif
 

@@ -65,7 +65,7 @@ class TrialWeekOnboarding extends Component
         // (A4) ذخیره‌ی پلنِ انتخابی از صفحه‌ی اصلی در session تا در مرحله‌ی نتیجه‌ی آزمون
         // (C8) دیگر صفحه‌ی انتخابِ «نقدی یا آزمایشی» به کاربر نمایش داده نشود.
         $plan = request('plan');
-        if (in_array($plan, ['trial', 'cash'], true)) {
+        if (in_array($plan, ['trial', 'exam', 'cash'], true)) {
             session(['intended_plan' => $plan]);
         }
         $this->seo()

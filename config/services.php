@@ -46,7 +46,7 @@ return [
 
     'melipayamak' => [
         'username' => env('MELIPAYAMAK_USERNAME', '9020029757'),
-        'password' => env('MELIPAYAMAK_PASSWORD', 'b1b0fdb-dddd-4c93-b02d-a069edf44693'),
+        'password' => env('MELIPAYAMAK_PASSWORD', '7b1b0fdb-dddd-4c93-b02d-a069edf44693'),
         'endpoint' => env('MELIPAYAMAK_ENDPOINT', 'https://rest.payamak-panel.com/api/SendSMS/BaseServiceNumber'),
         'smart_endpoint' => env('MELIPAYAMAK_SMART_ENDPOINT', 'https://rest.payamak-panel.com/api/SmartSMS/Send'),
         'from' => env('MELIPAYAMAK_FROM'),

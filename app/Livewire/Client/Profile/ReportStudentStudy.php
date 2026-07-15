@@ -4,6 +4,7 @@ namespace App\Livewire\Client\Profile;
 
 use App\Models\ReportMonthly;
 use App\Models\SmartReportCard;
+use App\Services\ExamPlanningService;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -24,6 +25,19 @@ class ReportStudentStudy extends Component
     {
         $user = Auth::user();
         $studentId = $user->student->id ?? null;
+        $hideForExamProgramTrialStudent = app(ExamPlanningService::class)
+            ->shouldHideTrialExamProgramSections($user);
+
+        if ($hideForExamProgramTrialStudent) {
+            return view('livewire.client.profile.report-student-study', [
+                'reportMonthly'  => collect(),
+                'smartCards'     => collect(),
+                'isTrial'        => false,
+                'reportUnlocked' => true,
+                'trialDay'       => null,
+                'hideForExamProgramTrialStudent' => true,
+            ])->layout('layouts.client.app');
+        }
 
         // ── حالتِ یک هفته آزمایشی + قفلِ کارنامه تا روز ششم ──
         $trial = $user->trialWeek;
@@ -58,6 +72,7 @@ class ReportStudentStudy extends Component
             'isTrial'        => $isTrial,
             'reportUnlocked' => $reportUnlocked,
             'trialDay'       => $trialDay,
+            'hideForExamProgramTrialStudent' => false,
         ])->layout('layouts.client.app');
     }
 }

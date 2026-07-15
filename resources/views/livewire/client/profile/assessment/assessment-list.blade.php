@@ -1,59 +1,49 @@
 <div class="min-h-screen bg-background text-foreground relative overflow-x-hidden flex items-center justify-center px-4 py-10" dir="rtl">
     <div class="fixed inset-0 pointer-events-none z-0" style="background:radial-gradient(ellipse 70% 45% at 50% 0%, hsl(var(--primary) / .08) 0%, transparent 70%);"></div>
-    <style>
-        @property --choice-angle {
-            syntax: '<angle>';
-            initial-value: 0deg;
-            inherits: false;
-        }
-
-        .choice-card {
-            position: relative;
-            min-height: 8.5rem;
-            overflow: hidden;
-            isolation: isolate;
-            background:
-                radial-gradient(circle at 12% 0%, hsl(var(--primary) / .14), transparent 16rem),
-                linear-gradient(180deg, hsl(var(--secondary) / .82), hsl(var(--secondary) / .56));
-        }
-
-        .choice-card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            padding: 1px;
-            border-radius: inherit;
-            pointer-events: none;
-            background: conic-gradient(
-                from var(--choice-angle),
-                hsl(var(--border) / .5),
-                hsl(var(--primary) / .9),
-                hsl(var(--border) / .55),
-                hsl(var(--primary) / .45),
-                hsl(var(--border) / .5)
-            );
-            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            mask-composite: exclude;
-            -webkit-mask-composite: xor;
-            animation: choiceBorderSpin 7s linear infinite;
-        }
-
-        .choice-card > * {
-            position: relative;
-            z-index: 1;
-        }
-
-        @keyframes choiceBorderSpin {
-            to { --choice-angle: 360deg; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .choice-card::before {
-                animation: none;
+   @push('link')
+        <style>
+            .choice-card {
+                position: relative;
+                min-height: 8.5rem;
+                overflow: hidden;
+                isolation: isolate;
+                background:
+                    radial-gradient(circle at 12% 0%, hsl(var(--primary) / .14), transparent 16rem),
+                    linear-gradient(180deg, hsl(var(--secondary) / .82), hsl(var(--secondary) / .56));
+                box-shadow:
+                    inset 0 1px 0 hsl(var(--foreground) / .05),
+                    0 18px 40px hsl(var(--background) / .28);
             }
-        }
-    </style>
+
+            .choice-card::before {
+                content: "";
+                position: absolute;
+                inset: 1px;
+                border-radius: calc(1rem - 1px);
+                pointer-events: none;
+                background: linear-gradient(135deg, hsl(var(--primary) / .10), transparent 42%);
+                opacity: .9;
+            }
+
+            .choice-card > * {
+                position: relative;
+                z-index: 1;
+            }
+
+            .choice-card:hover,
+            .choice-card:focus-visible {
+                border-color: hsl(var(--primary) / .5);
+                box-shadow:
+                    inset 0 1px 0 hsl(var(--foreground) / .07),
+                    0 20px 44px hsl(var(--background) / .34);
+            }
+
+            .choice-card:focus-visible {
+                outline: 2px solid hsl(var(--primary) / .75);
+                outline-offset: 3px;
+            }
+        </style>
+   @endpush
 
     <div class="relative z-10 w-full {{ ($isAllDone && !$showChoice) ? 'max-w-4xl' : 'max-w-lg' }}">
 
@@ -82,22 +72,23 @@
                         </div>
                     @endif
 
-                    <button wire:click="confirmTrial" wire:loading.attr="disabled" wire:target="confirmTrial"
+                    <button type="button" wire:click="confirmTrial" wire:loading.attr="disabled" wire:target="confirmTrial"
                             class="choice-card w-full rounded-2xl border border-border p-5 text-right transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-60">
                         <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary rounded-full px-2.5 py-1 mb-3 bg-primary/12">
                             <span class="w-1.5 h-1.5 bg-primary rounded-full"></span> رایگان
                         </div>
-                        <h3 class="font-black text-lg mb-1">شروع ۱ هفته آزمایشی</h3>
+                        <h3 class="font-black text-lg mb-1">{{ $trialChoiceCopy['title'] }}</h3>
                         <p class="text-xs text-muted leading-6">
-                            <span wire:loading.remove wire:target="confirmTrial">تجربه‌ی کامل امکانات بدون پرداخت، با نظارت مشاور اختصاصی</span>
+                            <span wire:loading.remove wire:target="confirmTrial">{{ $trialChoiceCopy['description'] }}</span>
                             <span wire:loading wire:target="confirmTrial" class="inline-flex items-center gap-2">
                                 <span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-current bg-secondary border-t-current animate-spin"></span>
                                 در حال آماده‌سازی…
                             </span>
                         </p>
+                        <span class="mt-3 inline-flex text-[11px] font-black text-primary">{{ $trialChoiceCopy['cta'] }}</span>
                     </button>
 
-                    <button wire:click="goToPurchase" wire:loading.attr="disabled"
+                    <button type="button" wire:click="goToPurchase" wire:loading.attr="disabled"
                             class="choice-card w-full rounded-2xl border border-primary/25 p-5 text-right transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-60">
                         <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary rounded-full px-2.5 py-1 mb-3 bg-primary/12">
                             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -109,7 +100,7 @@
                         <p class="text-xs text-muted leading-6">دسترسی کامل به همه‌ی امکانات از همین امروز</p>
                     </button>
 
-                    <button wire:click="$set('showChoice', false)"
+                    <button type="button" wire:click="$set('showChoice', false)"
                             class="w-full text-center text-xs text-muted hover:text-foreground transition-colors py-1">
                         بازگشت به کارنامه‌ی تحلیلی
                     </button>
@@ -202,16 +193,6 @@
                                 </div>
                             @endif
 
-                            {{-- ───── پرچم‌ها ───── --}}
-                            @foreach($summary['flags'] as $flag)
-                                <div class="rounded-xl p-3.5 bg-background border md:col-span-2 {{ ($flag['severity'] ?? '') === 'critical' ? 'border-rose-500/40 bg-rose-500/8' : 'border-amber-500/40 bg-amber-500/8' }}">
-                                    <div class="text-xs font-bold">{{ $flag['title'] ?? '' }}</div>
-                                    @if(!empty($flag['text']))
-                                        <p class="text-[11px] text-muted leading-5 mt-1">{{ $flag['text'] }}</p>
-                                    @endif
-                                </div>
-                            @endforeach
-
                             {{-- ───── انتخاب: نمایش جزییات یا ادامه ───── --}}
                             <div x-show="!showDetails" class="md:col-span-2 flex gap-3 pt-1">
                                 <button type="button" @click="showDetails = true"
@@ -220,9 +201,15 @@
                                     <span class="whitespace-nowrap">نمایش جزییات</span>
                                 </button>
                                 <button wire:click="continueToChoice" wire:loading.attr="disabled" wire:target="continueToChoice"
-                                        class="flex-1 h-12 px-2 rounded-xl font-bold text-xs sm:text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] inline-flex items-center justify-center gap-1.5 sm:gap-2">
-                                    <span class="whitespace-nowrap">ادامه میدهم</span>
-                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+                                        class="flex-1 h-12 px-2 rounded-xl font-bold text-xs sm:text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-60 inline-flex items-center justify-center gap-1.5 sm:gap-2">
+                                    <span wire:loading.remove wire:target="continueToChoice" class="inline-flex items-center justify-center gap-1.5 sm:gap-2">
+                                        <span class="whitespace-nowrap">ادامه میدهم</span>
+                                        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+                                    </span>
+                                    <span wire:loading wire:target="continueToChoice" class="inline-flex items-center gap-2">
+                                        <span class="inline-block w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+                                        لطفا منتظر بمانید...
+                                    </span>
                                 </button>
                             </div>
 
@@ -264,8 +251,12 @@
                     @endif
 
                     <button x-show="showDetails" x-cloak wire:click="continueToChoice" wire:loading.attr="disabled" wire:target="continueToChoice"
-                            class="w-full md:w-auto md:min-w-[260px] md:mx-auto md:flex h-12 mt-6 rounded-xl font-bold text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] items-center justify-center">
-                        ادامه میدهم
+                            class="w-full md:w-auto md:min-w-[260px] md:mx-auto md:flex h-12 mt-6 rounded-xl font-bold text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-60 items-center justify-center">
+                        <span wire:loading.remove wire:target="continueToChoice">ادامه میدهم</span>
+                        <span wire:loading wire:target="continueToChoice" class="inline-flex items-center gap-2">
+                            <span class="inline-block w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+                            لطفا منتظر بمانید...
+                        </span>
                     </button>
                 </div>
             </div>

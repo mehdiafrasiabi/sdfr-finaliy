@@ -13,7 +13,7 @@ class StudentSmsPlanChannel
         $studentName = $data['studentName'];
         $postData = [
             'username' => config('services.melipayamak.username', '9020029757'),
-            'password' => config('services.melipayamak.password', 'b1b0fdb-dddd-4c93-b02d-a069edf44693'),
+            'password' => config('services.melipayamak.password', '7b1b0fdb-dddd-4c93-b02d-a069edf44693'),
             'text' => "$studentName;$link",
             'to' => $data['mobile'],
             'bodyId' => config('services.melipayamak.student_plan_body_id', 480452),

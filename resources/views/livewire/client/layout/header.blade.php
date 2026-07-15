@@ -666,6 +666,7 @@
                                             ['label' => 'برنامه درسی',     'route' => route('client.profile.plan'),                    'icon' => 'book'],
                                             ['label' => 'گزارش درسی',      'route' => route('client.profile.report'),                  'icon' => 'clipboard'],
                                             ['label' => 'آزمون',           'route' => route('client.profile.typed-exam.list'),         'icon' => 'edit'],
+                                            ...( $showExamPlanningLink ? [['label' => 'برنامه امتحانات', 'route' => route('client.profile.exam-planning'), 'icon' => 'edit']] : []),
                                             ['label' => 'کارنامه وضعیت',   'route' => route('client.profile.reportStudentStudy'),      'icon' => 'file'],
                                             ['label' => 'طبقه‌بندی دروس',  'route' => route('client.profile.classification.projects'), 'icon' => 'layers'],
                                         ],

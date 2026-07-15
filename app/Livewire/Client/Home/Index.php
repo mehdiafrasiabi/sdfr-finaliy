@@ -3,6 +3,7 @@
 namespace App\Livewire\Client\Home;
 
 use App\Models\ContactUs;
+use App\Models\ExamPlanningSetting;
 use App\Models\GradePrice;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
@@ -126,8 +127,62 @@ class Index extends Component
             ->first(fn (array $plan) => (string) $plan['grade'] === $this->selectedFeaturedGrade);
     }
 
+    public function getTrialPlanCopyProperty(): array
+    {
+        return [
+            'plan' => 'trial',
+            'title' => 'هفته‌ی آزمایشی',
+            'subtitle' => 'بدون نیاز به پرداخت، همین حالا شروع کن',
+            'price' => 'رایگان',
+            'duration' => '۷ روز کامل',
+            'items' => [
+                'دسترسی کامل به مدت ۷ روز',
+                'برنامه‌ی هفتگی آزمایشی',
+                'ثبت ساعت مطالعه',
+                'آشنایی با مشاور و پلتفرم',
+            ],
+            'cta' => 'شروع هفته‌ی آزمایشی',
+        ];
+    }
+
+    public function getExamPlanCopyProperty(): array
+    {
+        $grades = ExamPlanningSetting::query()
+            ->active()
+            ->windowOpen(now())
+            ->select('grade')
+            ->distinct()
+            ->orderBy('grade')
+            ->pluck('grade')
+            ->map(fn ($grade) => ExamPlanningSetting::GRADE_LABELS[(int) $grade] ?? "پایه {$grade}")
+            ->values()
+            ->all();
+
+        return [
+            'plan' => 'exam',
+            'title' => 'برنامه امتحانی',
+            'subtitle' => 'ویژه پایه‌هایی که بازه فعال امتحانات دارند',
+            'price' => 'رایگان',
+            'duration' => 'تا پایان امتحانات',
+            'grades' => $grades,
+            'items' => [
+                'ساخت برنامه مخصوص امتحانات',
+                'ثبت تقویم و روزهای امتحان',
+                'ساعت‌دهی درس‌ها و فصل‌ها',
+                'ثبت ساعت مطالعه تا پایان بازه امتحانات',
+            ],
+            'cta' => 'شروع برنامه امتحانی',
+        ];
+    }
+
     public function render()
     {
-        return view('livewire.client.home.index')->layout('layouts.client.app');
+        $trialPlanCopy = $this->getTrialPlanCopyProperty();
+        $examPlanCopy = $this->getExamPlanCopyProperty();
+
+        return view('livewire.client.home.index', [
+            'trialPlanCopy' => $trialPlanCopy,
+            'examPlanCopy' => $examPlanCopy,
+        ])->layout('layouts.client.app');
     }
 }

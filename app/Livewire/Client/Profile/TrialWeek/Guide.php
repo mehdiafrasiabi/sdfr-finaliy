@@ -7,6 +7,7 @@ use App\Models\ClassSchedule;
 use App\Models\StudentClassificationSubmission;
 use App\Models\TrialWeek;
 use App\Services\AssessmentInterpretationService;
+use App\Services\ExamPlanningService;
 use App\Services\TrialWeekService;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Auth;
@@ -22,15 +23,22 @@ class Guide extends Component
     public bool $showHoursModal = false;
     public int $dailyStudyHours = 2;
     public bool $isLocking = false;
+    public bool $examPlanningMode = false;
 
     public function mount(): void
     {
         $this->seo()->setTitle('هفته آزمایشی');
         $this->trialWeek = TrialWeek::where('user_id', Auth::id())->latest()->first();
+        $this->examPlanningMode = app(ExamPlanningService::class)->shouldExposeTrialModule(Auth::user());
 
         if (!$this->trialWeek) {
             redirect()->route('client.profile.dashboard');
         }
+    }
+
+    public function goToExamPlanning()
+    {
+        return redirect()->route('client.profile.exam-planning');
     }
 
     // بررسی تکمیل شدن طبقه‌بندی
@@ -174,6 +182,7 @@ class Guide extends Component
     {
         return view('livewire.client.profile.trial-week.guide', [
             'activeProject' => $this->activeProject,
+            'examPlanningMode' => $this->examPlanningMode,
         ])->layout('layouts.client.app');
     }
 }

@@ -2218,17 +2218,56 @@
             {{-- پلن‌ها — یکی‌یکی X-تور --}}
             <div class="max-w-5xl mx-auto px-4 relative" style="margin-top:-8vh;">
                 <div class="grid md:grid-cols-3 gap-5 items-stretch">
-                    <div class="price-card glass rounded-3xl p-6 flex flex-col space-y-5 reveal-up">
+                    @if(!empty($examPlanCopy['grades']))
+                        <div class="price-card glass rounded-3xl p-6 flex flex-col space-y-5 reveal-up">
+                            <div class="space-y-1">
+                                <h3 class="font-black text-xl text-foreground">{{ $examPlanCopy['title'] }}</h3>
+                                <p class="font-medium text-xs text-muted">{{ $examPlanCopy['subtitle'] }}</p>
+                            </div>
+                            <div class="flex items-end gap-1 border-b border-border pb-5">
+                                <span class="font-black text-3xl text-foreground">{{ $examPlanCopy['price'] }}</span>
+                                <span class="text-xs text-muted pb-1">{{ $examPlanCopy['duration'] }}</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="text-[11px] font-black text-muted">پایه‌های فعال</div>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach($examPlanCopy['grades'] as $gradeLabel)
+                                        <span class="rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-black text-primary">
+                                            {{ $gradeLabel }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <ul class="space-y-3 flex-1 price-ico-row">
+                                @foreach($examPlanCopy['items'] as $it)
+                                    <li class="flex items-center gap-2.5">
+                                        <span
+                                            class="flex items-center justify-center w-5 h-5 bg-brand-soft text-brand border border-brand-soft rounded-md shrink-0">
+                                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                 stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path
+                                                    d="M20 6 9 17l-5-5"/></svg>
+                                        </span>
+                                        <span class="font-semibold text-xs text-foreground">{{ $it }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                            <div class="btn-trial-glow w-full">
+                                <a rel="canonical" href="{{ route('client.onboarding', ['plan' => $examPlanCopy['plan']]) }}" class="btn-ghost w-full">{{ $examPlanCopy['cta'] }}</a>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="price-card glass rounded-3xl p-6 flex flex-col space-y-5 reveal-up rv-d1">
                         <div class="space-y-1">
-                            <h3 class="font-black text-xl text-foreground">هفته‌ی آزمایشی</h3>
-                            <p class="font-medium text-xs text-muted">بدون نیاز به پرداخت، همین حالا شروع کن</p>
+                            <h3 class="font-black text-xl text-foreground">{{ $trialPlanCopy['title'] }}</h3>
+                            <p class="font-medium text-xs text-muted">{{ $trialPlanCopy['subtitle'] }}</p>
                         </div>
                         <div class="flex items-end gap-1 border-b border-border pb-5">
-                            <span class="font-black text-3xl text-foreground">رایگان</span>
-                            <span class="text-xs text-muted pb-1">۷ روز کامل</span>
+                            <span class="font-black text-3xl text-foreground">{{ $trialPlanCopy['price'] }}</span>
+                            <span class="text-xs text-muted pb-1">{{ $trialPlanCopy['duration'] }}</span>
                         </div>
                         <ul class="space-y-3 flex-1 price-ico-row">
-                            @foreach(['دسترسی کامل به مدت ۷ روز','برنامه‌ی هفتگی آزمایشی','ثبت ساعت مطالعه','آشنایی با مشاور و پلتفرم'] as $it)
+                            @foreach($trialPlanCopy['items'] as $it)
                                 <li class="flex items-center gap-2.5">
                                     <span
                                         class="flex items-center justify-center w-5 h-5 bg-brand-soft text-brand border border-brand-soft rounded-md shrink-0">
@@ -2241,8 +2280,7 @@
                             @endforeach
                         </ul>
                         <div class="btn-trial-glow w-full">
-                            <a rel="canonical" href="{{ route('client.onboarding', ['plan' => 'trial']) }}" class="btn-ghost w-full">شروع
-                                هفته‌ی آزمایشی</a>
+                            <a rel="canonical" href="{{ route('client.onboarding', ['plan' => $trialPlanCopy['plan']]) }}" class="btn-ghost w-full">{{ $trialPlanCopy['cta'] }}</a>
                         </div>
                     </div>
 

@@ -34,6 +34,7 @@ class TrialWeek extends Model
     const STATUS_CLASSIFICATION_DONE   = 'classification_done';
     const STATUS_PRE_SESSION_DONE      = 'pre_session_done';
     const STATUS_PROGRAM_BUILT         = 'program_built';
+    const PROGRAM_DAYS                 = 8;
 
     // پایه‌ی ۱۳ = فارغ‌التحصیل (مدرسه‌اش تمام شده، فقط رشته دارد)
     const GRADE_GRADUATE = 13;
@@ -189,7 +190,15 @@ class TrialWeek extends Model
         if (!$this->expires_at || $this->isExpired()) {
             return 0;
         }
-        return (int) Carbon::now()->diffInDays($this->expires_at, false);
+
+        $today = Carbon::now()->startOfDay();
+        $expiresDate = Carbon::parse($this->expires_at)->startOfDay();
+
+        if ($expiresDate->lt($today)) {
+            return 0;
+        }
+
+        return min(self::PROGRAM_DAYS, (int) $today->diffInDays($expiresDate) + 1);
     }
 
     public function canStartClassification(): bool

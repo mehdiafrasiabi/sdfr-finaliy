@@ -11,6 +11,7 @@ use App\Models\SessionFeedback;
 use App\Models\SmartReportCard;
 use App\Models\StudyPartSession;
 use App\Models\WeeklyProgram;
+use App\Services\ExamPlanningService;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +31,9 @@ class SmartReportCardShow extends Component
     public function mount(SmartReportCard $smartReportCard): void
     {
         $studentId = Auth::user()->student->id ?? null;
+        if (app(ExamPlanningService::class)->shouldHideTrialExamProgramSections(Auth::user())) {
+            abort(404);
+        }
 
         // if (!$studentId || $smartReportCard->student_id !== $studentId || !$smartReportCard->is_active) {
         //     abort(404);

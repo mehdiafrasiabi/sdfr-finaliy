@@ -382,7 +382,7 @@ class WeeklyProgramView extends Component
     public function startPart($partId)
     {
         if (!$this->isActiveProgram) {
-            $this->dispatch('error', 'فقط برنامه فعال هفته جاری قابل ثبت مطالعه است.');
+            $this->dispatch('error', 'فقط برنامه فعال فعلی قابل ثبت مطالعه است.');
             return;
         }
 
@@ -881,7 +881,7 @@ class WeeklyProgramView extends Component
     public function openMakeupModal()
     {
         if (!$this->isActiveProgram) {
-            $this->dispatch('error', 'فقط در برنامه فعال هفته جاری امکان ثبت وجود دارد.');
+            $this->dispatch('error', 'فقط در برنامه فعال فعلی امکان ثبت وجود دارد.');
             return;
         }
 
@@ -1321,13 +1321,15 @@ class WeeklyProgramView extends Component
         $days = [];
         $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
         $startDate = $this->weeklyProgram->start_date;
+        $endDate = $this->weeklyProgram->end_date ?: Carbon::parse($startDate)->addDays(7);
+        $totalDays = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate)) + 1;
         $freshParts = ProgramPart::where('weekly_program_id', $this->weeklyProgram->id)
             ->with(['ccSubject', 'ccChapter', 'ccTopic'])
             ->orderBy('part_date')
             ->orderBy('part_order')
             ->get();
 
-        for ($i = 0; $i < 8; $i++) {
+        for ($i = 0; $i < $totalDays; $i++) {
             $date = Carbon::parse($startDate)->addDays($i);
             $jalaliDate = jdate($date);
             $dayOfWeek = $jalaliDate->getDayOfWeek();
@@ -1549,10 +1551,12 @@ class WeeklyProgramView extends Component
         $advisorName = $student?->advisor?->name ?? '-';
 
         $archive = $this->buildArchiveData($program);
+        $isExamProgram = $program->examDays()->exists();
 
         return view('livewire.client.profile.consultation.weekly-program-view', [
             'program' => $program,
             'weekDays' => $this->getProgramDays(),
+            'isExamProgram' => $isExamProgram,
             'stats' => $stats,
             'sourceTypeStats' => $sourceTypeStats,
             'advisorName' => $advisorName,

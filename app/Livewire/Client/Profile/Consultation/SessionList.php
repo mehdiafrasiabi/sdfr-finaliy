@@ -6,6 +6,7 @@ use App\Models\AdvisingSession;
 use App\Models\AdminWorkSchedule;
 use App\Models\WeeklyProgram;
 use App\Models\Student;
+use App\Services\ExamPlanningService;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -152,6 +153,19 @@ class SessionList extends Component
     {
         $user    = auth()->user();
         $student = Student::where('user_id', $user->id)->first();
+        $hideForExamProgramTrialStudent = app(ExamPlanningService::class)
+            ->shouldHideTrialExamProgramSections($user);
+
+        if ($hideForExamProgramTrialStudent) {
+            return view('livewire.client.profile.consultation.session-list', [
+                'sessions'         => collect(),
+                'weeklyPrograms'   => collect(),
+                'student'          => $student,
+                'lockedSessionIds' => [],
+                'weekDays'         => AdminWorkSchedule::DAYS,
+                'hideForExamProgramTrialStudent' => true,
+            ])->layout('layouts.client.app');
+        }
 
         $sessions        = collect();
         $weeklyPrograms  = collect();
@@ -198,6 +212,7 @@ class SessionList extends Component
             'student'          => $student,
             'lockedSessionIds' => $lockedSessionIds,
             'weekDays'         => AdminWorkSchedule::DAYS,
+            'hideForExamProgramTrialStudent' => false,
         ])->layout('layouts.client.app');
     }
 }

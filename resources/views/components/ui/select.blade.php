@@ -79,6 +79,23 @@
                 if (found) { this.selected = found.value; this.selectedLabel = found.label; }
                 else        { this.selected = null; this.selectedLabel = ''; }
             }
+        },
+
+        syncStackLayer() {
+            const stackParent = this.$el.closest('[data-select-stack]');
+
+            if (!stackParent) {
+                return;
+            }
+
+            if (this.open) {
+                stackParent.dataset.selectOpen = 'true';
+                stackParent.style.position = 'relative';
+                stackParent.style.zIndex = '110';
+            } else {
+                stackParent.dataset.selectOpen = 'false';
+                stackParent.style.zIndex = '';
+            }
         }
     }"
         x-init="
@@ -86,9 +103,12 @@
         @if($wireModel)
         $watch('$wire.{{ $wireModel }}', val => syncFromValue(val));
         @endif
+        $watch('open', () => syncStackLayer());
+        syncStackLayer();
         window.addEventListener('close-selects', e => { if (e.detail.except !== '{{ $componentId }}') open = false; });
     "
         @keydown.escape.window="open = false"
+        :class="open ? 'z-[120]' : 'z-0'"
         class="relative w-full"
         dir="rtl"
         id="{{ $componentId }}"
@@ -197,4 +217,3 @@
         </div>
     </div>
 </div>
-

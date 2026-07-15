@@ -14,6 +14,8 @@ use App\Models\ClassSchedule;
 use App\Models\TrialWeek;
 use App\Models\ProgramPart;
 use App\Models\SmartReportCard;
+use App\Services\ExamPlanningService;
+use App\Services\StudentExamDayFeedbackService;
 use Carbon\Carbon;
 
 class Dashboard extends Component
@@ -27,10 +29,13 @@ class Dashboard extends Component
     public bool $startDashboardTour = false;
 
     public bool $showTrialWeekPanelNotice = false;
+    public ?string $examFeedbackDifficulty = null;
+    public ?string $examFeedbackNote = null;
 
     /** کش برنامه فعال تا در یک درخواست چند بار کوئری نزنیم */
     protected $activeProgramResolved = false;
     protected $activeProgramCache = null;
+    protected array $examProgramFlags = [];
 
     /** نام روزهای هفته (0=شنبه تا 6=جمعه) */
     protected array $weekDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
@@ -77,6 +82,47 @@ class Dashboard extends Component
             ->exists();
     }
 
+    private function isExamProgram(?WeeklyProgram $program = null): bool
+    {
+        $program = $program ?: $this->getActiveWeeklyProgram();
+
+        if (! $program) {
+            return false;
+        }
+
+        $programId = (int) $program->id;
+        if (! array_key_exists($programId, $this->examProgramFlags)) {
+            $this->examProgramFlags[$programId] = $program->examDays()->exists();
+        }
+
+        return $this->examProgramFlags[$programId];
+    }
+
+    public function getDashboardPeriodContext(): array
+    {
+        $program = $this->getActiveWeeklyProgram();
+        $isExamProgram = $this->isExamProgram($program);
+
+        return [
+            'is_exam_program' => $isExamProgram,
+            'short_label' => $isExamProgram ? 'کل امتحانات' : 'این هفته',
+            'study_hint' => $isExamProgram
+                ? 'مجموع ساعت مطالعه‌ات نسبت به هدف کل بازه امتحانات'
+                : 'مجموع ساعت مطالعه‌ات نسبت به هدف این هفته',
+            'report_hint' => $isExamProgram
+                ? 'روزهایی که در بازه امتحانات گزارش روزانه ثبت کرده‌ای'
+                : 'تعداد روزهایی که این هفته گزارش روزانه ثبت کرده‌ای',
+            'extra_hint' => $isExamProgram
+                ? 'میزان مطالعهٔ اضافه بر سازمان که در بازه امتحانات ثبت کرده‌ای'
+                : 'میزان مطالعهٔ اضافه بر سازمان که این هفته ثبت کرده‌ای',
+            'daily_chart_title' => $isExamProgram ? 'مطالعه روزانه امتحانات' : 'مطالعه روزانه',
+            'daily_chart_hint' => $isExamProgram
+                ? 'ساعت برنامه‌ریزی‌شده در برابر ساعت واقعی مطالعه در هر روز بازه امتحانات'
+                : 'ساعت برنامه‌ریزی‌شده در برابر ساعت واقعی مطالعه در هر روز هفته',
+            'subject_progress_title' => $isExamProgram ? 'پیشرفت دروس امتحانی' : 'پیشرفت دروس این هفته',
+        ];
+    }
+
     public function acknowledgeTrialWeekPanelNotice(): void
     {
         if (!$this->user || !$this->student || !$this->student->is_trial) {
@@ -92,6 +138,39 @@ class Dashboard extends Component
         $trialWeek?->update(['dashboard_notice_acknowledged_at' => now()]);
 
         $this->showTrialWeekPanelNotice = false;
+    }
+
+    public function submitExamDayFeedback(): void
+    {
+        $feedbackService = app(StudentExamDayFeedbackService::class);
+        $pending = $feedbackService->pendingFeedback($this->user);
+        if (! $pending) {
+            $this->examFeedbackDifficulty = null;
+            $this->examFeedbackNote = null;
+            $this->dispatch('success', 'بازخورد امتحان ثبت شده است.');
+            return;
+        }
+
+        $validated = $this->validate([
+            'examFeedbackDifficulty' => ['required', 'in:easy,medium,hard,failed'],
+            'examFeedbackNote' => ['nullable', 'string', 'max:2000'],
+        ], [
+            'examFeedbackDifficulty.required' => 'وضعیت آزمون امروز را انتخاب کنید.',
+            'examFeedbackDifficulty.in' => 'وضعیت آزمون امروز معتبر نیست.',
+            'examFeedbackNote.max' => 'یادداشت نمی‌تواند بیشتر از ۲۰۰۰ کاراکتر باشد.',
+        ]);
+
+        $feedbackService->submit(
+            $this->user,
+            (int) $pending['schedule_id'],
+            $pending['exam_date'],
+            $validated['examFeedbackDifficulty'],
+            $validated['examFeedbackNote'] ?? null
+        );
+
+        $this->examFeedbackDifficulty = null;
+        $this->examFeedbackNote = null;
+        $this->dispatch('success', 'خسته نباشی! بازخورد امتحان امروز ثبت شد.');
     }
 
 
@@ -287,9 +366,14 @@ class Dashboard extends Component
             return $empty;
         }
 
+        $isExamProgram = $this->isExamProgram($program);
         $start = Carbon::parse($program->start_date)->startOfDay();
         $end = Carbon::parse($program->end_date)->endOfDay();
         $dayCount = $start->diffInDays($end) + 1; // Correct day count for the loop
+
+        if ($this->student?->is_trial) {
+            $dayCount = min($dayCount, TrialWeek::PROGRAM_DAYS);
+        }
 
         $parts = $program->parts()->with(['ccSubject'])->get();
         if ($parts->isEmpty()) {
@@ -317,6 +401,9 @@ class Dashboard extends Component
             $isRest = in_array($i, $restIdx, true) || ($plannedMin === 0 && $dayParts->isEmpty());
             $daily[] = [
                 'label' => $this->weekDayNames[$dayOfWeek],
+                'chart_label' => $isExamProgram
+                    ? $this->weekDayNames[$dayOfWeek] . ' ' . jdate($date)->format('m/d')
+                    : $this->weekDayNames[$dayOfWeek],
                 'date' => jdate($date)->format('j'),
                 'planned_hours' => round($plannedMin / 60, 2),
                 'studied_hours' => round($studiedSec / 3600, 2),
@@ -402,6 +489,7 @@ class Dashboard extends Component
             'part_type_distribution' => $partTypeDist,
             'daily' => $daily,
             'subjects' => $subjects,
+            'is_exam_program' => $isExamProgram,
         ];
     }
 
@@ -558,7 +646,66 @@ class Dashboard extends Component
             ->orderBy('part_order')
             ->get();
 
+        if ($this->isExamProgram($program)) {
+            $examParts = $parts->where('source_type', ProgramPart::SOURCE_EXAM);
+            $summary = [];
+
+            if ($examParts->isNotEmpty()) {
+                $summary[] = [
+                    'source_type' => ProgramPart::SOURCE_EXAM,
+                    'is_summary' => true,
+                    'lesson_name' => 'برنامه امتحانات',
+                    'parts_count' => $examParts->count(),
+                    'duration_minutes' => (int) $examParts->sum('duration_minutes'),
+                    'period_label' => 'کل بازه امتحانات',
+                ];
+            }
+
+            return array_merge(
+                $summary,
+                $parts->where('source_type', '!=', ProgramPart::SOURCE_EXAM)->values()->toArray()
+            );
+        }
+
         return $parts->toArray();
+    }
+
+    public function getExamPlanningCard(): ?array
+    {
+        if (! $this->user || ! $this->student) {
+            return null;
+        }
+
+        $access = app(ExamPlanningService::class)->resolveExamAccess($this->user);
+        if (($access['mode'] ?? null) !== ExamPlanningService::ACCESS_PAID) {
+            return null;
+        }
+
+        /** @var \App\Models\ExamPlanningSetting|null $setting */
+        $setting = $access['setting'] ?? null;
+        if (! $setting) {
+            return null;
+        }
+
+        $schedule = app(ExamPlanningService::class)->prepareScheduleForUser($this->user);
+        $hasManagerCalendar = $schedule?->source_type === \App\Models\StudentExamSchedule::SOURCE_MANAGER;
+        $builtProgramId = $schedule?->weekly_program_id
+            ? WeeklyProgram::query()->whereKey($schedule->weekly_program_id)->value('id')
+            : null;
+
+        return [
+            'title' => 'برنامه امتحانات',
+            'description' => $builtProgramId
+                ? 'برنامه امتحانی تو ساخته شده است و می‌توانی مستقیم همان برنامه را ببینی و مطالعه‌ات را ثبت کنی.'
+                : ($hasManagerCalendar
+                    ? 'تقویم امتحانی پایه و رشته تو آماده است. مستقیم برو ساعت‌دهی درس‌ها و برنامه‌ات را بساز.'
+                    : 'اگر بازه امتحاناتت شروع شده، تقویم امتحان و ساعت مطالعه‌ات را ثبت کن تا برنامه مخصوص امتحاناتت ساخته شود.'),
+            'cta' => $builtProgramId ? 'مشاهده برنامه' : 'ساخت برنامه',
+            'route' => $builtProgramId
+                ? route('client.profile.consultation.weekly-program', $builtProgramId)
+                : route('client.profile.exam-planning'),
+            'badge' => $setting->term_type_label,
+        ];
     }
 
     /**
@@ -736,8 +883,8 @@ class Dashboard extends Component
         $totalMinutes = (int) $activeProgram->parts()->where('is_student_added', false)->sum('duration_minutes');
         $totalHours = $totalMinutes / 60;
 
-        $startDate = Carbon::parse($activeProgram->start_date);
-        $endDate = Carbon::parse($activeProgram->end_date);
+        $startDate = Carbon::parse($activeProgram->start_date)->startOfDay();
+        $endDate = Carbon::parse($activeProgram->end_date)->endOfDay();
 
         $completedMinutes = (int) StudyPartSession::where('student_id', $this->student->id)
             ->where('weekly_program_id', $activeProgram->id)
@@ -774,8 +921,8 @@ class Dashboard extends Component
             return ['has_extra' => false, 'total_seconds' => 0, 'hours' => '0 دقیقه'];
         }
 
-        $startDate = Carbon::parse($activeProgram->start_date);
-        $endDate = Carbon::parse($activeProgram->end_date);
+        $startDate = Carbon::parse($activeProgram->start_date)->startOfDay();
+        $endDate = Carbon::parse($activeProgram->end_date)->endOfDay();
 
         $extraSeconds = (int) StudyPartSession::where('student_id', $this->student->id)
             ->where('weekly_program_id', $activeProgram->id)
@@ -811,30 +958,86 @@ class Dashboard extends Component
         
         $totalDays = $startDate->diffInDays($endDate) + 1;
 
-        // Rule: Only trial students can have an 8-day week view.
-        if (!($this->student && $this->student->is_trial)) {
+        $hasExamFlow = $this->isExamProgram($activeProgram);
+
+        if ($this->student && $this->student->is_trial) {
+            $totalDays = min($totalDays, TrialWeek::PROGRAM_DAYS);
+        }
+
+        // در برنامه‌های عادیِ مشاوره‌ای هنوز نمایش فشرده‌ی ۷روزه حفظ می‌شود،
+        // اما برنامه‌های امتحانی باید کل بازه را نشان بدهند.
+        if (!($this->student && $this->student->is_trial) && ! $hasExamFlow) {
             $totalDays = min($totalDays, 7);
         }
 
-        $submittedReports = DailyReport::where('student_id', $this->student->id)
+        $visibleEndDate = $startDate->copy()->addDays($totalDays - 1)->endOfDay();
+        $submittedDates = DailyReport::where('student_id', $this->student->id)
             ->where('weekly_program_id', $activeProgram->id)
             ->where('is_compensatory', false)
-            ->whereBetween('report_date', [$startDate, $endDate])
-            ->distinct('report_date')
-            ->count();
+            ->whereBetween('report_date', [$startDate, $visibleEndDate])
+            ->pluck('report_date')
+            ->map(fn($date) => Carbon::parse($date)->toDateString())
+            ->unique()
+            ->values()
+            ->all();
 
         // Count non-rest days for percentage calculation
-        $restDayIndices = $activeProgram->restDays()->pluck('day_index')->all();
+        $restDayIndices = $activeProgram->restDays()
+            ->pluck('day_index')
+            ->map(fn($value) => (int) $value)
+            ->filter(fn($value) => $value >= 0 && $value < $totalDays)
+            ->values()
+            ->all();
+
+        $submittedDays = count($submittedDates);
         $programmableDays = $totalDays - count($restDayIndices);
 
-        $percentage = $programmableDays > 0 ? ($submittedReports / $programmableDays) * 100 : 0;
+        $percentage = $programmableDays > 0 ? ($submittedDays / $programmableDays) * 100 : 0;
+        $today = Carbon::today();
+        $days = [];
+
+        for ($i = 0; $i < $totalDays; $i++) {
+            $date = $startDate->copy()->addDays($i);
+            $dateString = $date->toDateString();
+            $isRestDay = in_array($i, $restDayIndices, true);
+            $isSubmitted = in_array($dateString, $submittedDates, true);
+            $isToday = $date->isSameDay($today);
+            $isPast = $date->lt($today);
+
+            if ($isRestDay) {
+                $statusClass = 'bg-green-600/80 border-green-500 text-white';
+            } elseif ($isSubmitted) {
+                $statusClass = 'bg-sky-500 border-sky-400 text-white';
+            } elseif ($isToday && ! $isSubmitted) {
+                $statusClass = 'bg-red-700/80 border-red-600 text-white';
+            } elseif ($isPast && ! $isSubmitted) {
+                $statusClass = 'bg-red-950/60 border-red-800 text-red-300/80';
+            } else {
+                $statusClass = 'bg-white/5 border-white/10 text-neutral-500';
+            }
+
+            $days[] = [
+                'date' => $dateString,
+                'jalali_day' => jdate($date)->format('j'),
+                'day_name' => $this->weekDayNames[jdate($date)->getDayOfWeek()] ?? '',
+                'is_rest' => $isRestDay,
+                'is_submitted' => $isSubmitted,
+                'is_today' => $isToday,
+                'is_past' => $isPast,
+                'status_class' => $statusClass,
+            ];
+        }
 
         return [
             'has_program' => true,
             'total_days' => $totalDays,
-            'submitted_days' => $submittedReports,
+            'submitted_days' => $submittedDays,
             'percentage' => round(min($percentage, 100), 1),
             'start_date' => $startDate->toDateString(),
+            'days' => $days,
+            'days_per_page' => 8,
+            'show_day_pagination' => $hasExamFlow && $totalDays > 8,
+            'is_exam_program' => $hasExamFlow,
         ];
     }
 
@@ -859,7 +1062,12 @@ class Dashboard extends Component
         $weeklyInsights = $this->getWeeklyInsights();
         $monthlyInsights = $this->getMonthlyInsights();
         $weeklySpecialParts = $this->getWeeklySpecialParts();
+        $dashboardPeriod = $this->getDashboardPeriodContext();
         $isGraduateStudent = $this->isGraduateStudent();
+        $examPlanningCard = $this->getExamPlanningCard();
+        $examFeedbackService = app(StudentExamDayFeedbackService::class);
+        $examCountdownCard = $examFeedbackService->nextExamCountdown($this->user);
+        $pendingExamFeedback = $examFeedbackService->pendingFeedback($this->user);
 // برنامه کلاسی
         $classSchedule = null;
         if ($this->student) {
@@ -895,10 +1103,14 @@ class Dashboard extends Component
             'extraOrgProgress' => $extraOrgProgress,
             'weeklyInsights' => $weeklyInsights,
             'monthlyInsights' => $monthlyInsights,
+            'dashboardPeriod' => $dashboardPeriod,
             'classSchedule' => $classSchedule,
             'schoolInfo' => $schoolInfo,
             'weeklySpecialParts' => $weeklySpecialParts,
             'isGraduateStudent' => $isGraduateStudent,
+            'examPlanningCard' => $examPlanningCard,
+            'examCountdownCard' => $examCountdownCard,
+            'pendingExamFeedback' => $pendingExamFeedback,
         ])->layout('layouts.client.app');
 
     }

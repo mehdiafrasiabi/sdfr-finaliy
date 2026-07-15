@@ -3,6 +3,7 @@
 namespace App\Livewire\Client\Profile;
 
 use App\Models\NotificationRecipient;
+use App\Services\ExamPlanningService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\On;
@@ -14,12 +15,21 @@ class Sidebar extends Component
     public $unreadCount = 0;
     public int $advisorUnread = 0;
     public bool $advisorChatLocked = false;
+    public bool $showExamPlanningLink = false;
+    public bool $hideForExamProgramTrialStudent = false;
 
     public function mount()
     {
         $this->loadUnreadCount();
         $this->loadAdvisorChatState();
         $this->loadUserProfileData();
+        $this->hideForExamProgramTrialStudent = Auth::user()
+            ? app(ExamPlanningService::class)->shouldHideTrialExamProgramSections(Auth::user())
+            : false;
+        $this->showExamPlanningLink = Auth::user()
+            ? (app(ExamPlanningService::class)->shouldExposePaidModule(Auth::user())
+                || app(ExamPlanningService::class)->shouldExposeTrialModule(Auth::user()))
+            : false;
     }
 
     /**

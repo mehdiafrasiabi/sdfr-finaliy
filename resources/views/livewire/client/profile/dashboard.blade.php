@@ -506,6 +506,7 @@
             <div x-show="showTrialNotice" x-cloak wire:ignore.self
                  class="fixed inset-0 z-[110] flex items-end justify-center bg-black/70 px-4 py-4 backdrop-blur-sm sm:items-center"
                  x-transition.opacity>
+                <?php $trialNoticeIsExamMode = (bool) ($dashboardPeriod['is_exam_program'] ?? false); ?>
                 <div class="w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-[#101827]/95 shadow-2xl shadow-sky-950/40"
                      @click.stop
                      x-transition:enter="transition ease-out duration-300"
@@ -527,19 +528,33 @@
                                 </svg>
                             </div>
                             <div class="min-w-0">
-                                <p class="text-base font-black text-white sm:text-lg">پنل هفته آزمایشی شما فعال شد</p>
+                                <p class="text-base font-black text-white sm:text-lg">
+                                    {{ $trialNoticeIsExamMode ? 'پنل امتحانات شما فعال شد' : 'پنل هفته آزمایشی شما فعال شد' }}
+                                </p>
                                 <p class="mt-2 text-sm leading-7 text-neutral-300">
-                                    این پنل برای تجربه‌ی یک هفته آزمایشی ساخته شده است. برنامه، گزارش‌ها و امکاناتی که
-                                    اینجا می‌بینی فقط نمونه‌ای کوچک از خدمات کامل SDFR هستند تا با مسیر کار آشنا شوی.
+                                    @if($trialNoticeIsExamMode)
+                                        این پنل برای مدیریت برنامه امتحاناتت فعال شده است. از اینجا می‌توانی برنامه‌ی
+                                        امتحانی، گزارش‌ها و مسیر مطالعه‌ات تا پایان امتحانات را دنبال کنی.
+                                    @else
+                                        این پنل برای تجربه‌ی یک هفته آزمایشی ساخته شده است. برنامه، گزارش‌ها و امکاناتی که
+                                        اینجا می‌بینی فقط نمونه‌ای کوچک از خدمات کامل SDFR هستند تا با مسیر کار آشنا شوی.
+                                    @endif
                                 </p>
                             </div>
                         </div>
 
                         <div class="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-right">
-                            <p class="text-xs font-bold text-primary">در دوره کامل چه اتفاقی می‌افتد؟</p>
+                            <p class="text-xs font-bold text-primary">
+                                {{ $trialNoticeIsExamMode ? 'در مسیر امتحانات چه می‌بینی؟' : 'در دوره کامل چه اتفاقی می‌افتد؟' }}
+                            </p>
                             <p class="mt-2 text-xs leading-6 text-neutral-400">
-                                بعد از پایان هفته آزمایشی، برنامه‌ریزی، پیگیری مشاور، تحلیل عملکرد و ابزارهای گزارش‌دهی
-                                به شکل کامل‌تر و اختصاصی‌تر در اختیار شما قرار می‌گیرد.
+                                @if($trialNoticeIsExamMode)
+                                    برنامه‌ریزی امتحانی، پیگیری روند مطالعه، نمایش برنامه روزانه و گزارش‌گیری این بازه
+                                    از همین‌جا در اختیار تو قرار می‌گیرد تا مسیر امتحاناتت را متمرکزتر جلو ببری.
+                                @else
+                                    بعد از پایان هفته آزمایشی، برنامه‌ریزی، پیگیری مشاور، تحلیل عملکرد و ابزارهای گزارش‌دهی
+                                    به شکل کامل‌تر و اختصاصی‌تر در اختیار شما قرار می‌گیرد.
+                                @endif
                             </p>
                         </div>
 
@@ -555,6 +570,88 @@
                     </div>
                 </div>
             </div>
+
+            @if(!empty($pendingExamFeedback))
+                <div
+                    x-data="{
+                        init() { document.body.style.overflow = 'hidden'; },
+                        destroy() { document.body.style.overflow = ''; }
+                    }"
+                    class="fixed inset-0 z-[130] flex items-end justify-center bg-black/75 px-4 py-4 backdrop-blur-sm sm:items-center"
+                    role="dialog"
+                    aria-modal="true"
+                    wire:key="pending-exam-feedback-{{ $pendingExamFeedback['schedule_id'] }}-{{ $pendingExamFeedback['exam_date'] }}">
+                    <form wire:submit.prevent="submitExamDayFeedback"
+                          class="w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-[#101827] shadow-2xl shadow-red-950/30"
+                          @click.stop>
+                        <div class="relative p-5 sm:p-6">
+                            <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-l from-red-500 via-amber-400 to-emerald-400"></div>
+
+                            <div class="mb-5 text-center">
+                                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20">
+                                    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 21h8m-4-4v4M7 4h10v5a5 5 0 0 1-10 0V4Zm0 1H4v2a3 3 0 0 0 3 3m10-5h3v2a3 3 0 0 1-3 3"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-black text-white">خسته نباشی!</h3>
+                                <p class="mt-2 text-sm leading-7 text-neutral-300">
+                                    آزمون امروزت
+                                    @if(!empty($pendingExamFeedback['subjects']))
+                                        برای <span class="font-bold text-white">{{ implode('، ', $pendingExamFeedback['subjects']) }}</span>
+                                    @endif
+                                    تموم شد. لطفاً وضعیتش رو ثبت کن تا ادامه بدیم.
+                                </p>
+                                <p class="mt-1 text-xs text-neutral-500">
+                                    {{ $pendingExamFeedback['day_name'] }} {{ $pendingExamFeedback['jalali_date'] }}
+                                </p>
+                            </div>
+
+                            <div class="space-y-3">
+                                <label class="block text-xs font-bold text-neutral-300">آزمون امروزت رو چیکار کردی؟</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    @foreach($pendingExamFeedback['difficulty_options'] as $value => $label)
+                                        <label class="group cursor-pointer">
+                                            <input type="radio"
+                                                   wire:model="examFeedbackDifficulty"
+                                                   value="{{ $value }}"
+                                                   class="peer sr-only">
+                                            <span class="flex h-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-3 text-sm font-bold text-neutral-300 transition peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white group-hover:bg-white/[0.07]">
+                                                {{ $label }}
+                                            </span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                @error('examFeedbackDifficulty')
+                                <p class="text-xs font-bold text-red-400">{{ $message }}</p>
+                                @enderror
+
+                                <div>
+                                    <label class="mb-1.5 block text-xs font-bold text-neutral-300">یادداشت</label>
+                                    <textarea wire:model.defer="examFeedbackNote"
+                                              rows="4"
+                                              class="w-full resize-none rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-primary"
+                                              placeholder="اگر نکته‌ای از آزمون امروزت هست، اینجا بنویس..."></textarea>
+                                    @error('examFeedbackNote')
+                                    <p class="mt-1 text-xs font-bold text-red-400">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <button type="submit"
+                                    wire:loading.attr="disabled"
+                                    wire:target="submitExamDayFeedback"
+                                    class="mt-5 flex h-12 w-full items-center justify-center rounded-2xl bg-primary px-4 text-sm font-black text-white shadow-lg shadow-primary/20 transition hover:brightness-110 disabled:cursor-wait disabled:opacity-70">
+                                <span wire:loading.remove wire:target="submitExamDayFeedback">ثبت و ادامه</span>
+                                <span wire:loading wire:target="submitExamDayFeedback" class="inline-flex items-center gap-2">
+                                    <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+                                    در حال ثبت...
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            @endif
+
             <div class="cosmic-bg" wire:ignore aria-hidden="true">
                 {{-- ستاره‌های ثابت چشمک‌زن --}}
                 <span class="twinkle" style="top:12%;left:18%;animation-delay:0s"></span>
@@ -631,11 +728,11 @@
                     <div class="flex-1 min-w-0">
 
                         {{-- ─── Banners ─── --}}
-                        @php
+                        <?php
                             $trialWeek = \App\Models\TrialWeek::where('user_id', $user->id)->latest()->first();
                             $isTrialStudent = $student && $student->is_trial;
                             $showTrialBanner = !$student || $isTrialStudent;
-                        @endphp
+                        ?>
                         <div class="space-y-3 mb-5">
                             @if($showTrialBanner && !$trialWeek)
                                 <div class="glass rise rounded-2xl p-4" style="animation-delay:0s">
@@ -667,7 +764,7 @@
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-2">
-                                        @php
+                                        <?php
                                             // درصد بر اساس روزهای باقی‌مانده محاسبه می‌شود (از ۱۰۰٪ شروع شده و کم می‌شود)
                                             if ($trialWeek->expires_at) {
                                                 $tw_total = $trialWeek->program_built_at
@@ -687,7 +784,7 @@
                                                 // اما اگر ترجیح می‌دهید پر شدن مراحل اولیه (قبل از شروع ۸ روز) مثل قبل از ۰ تا ۱۰۰ بالا برود، خط زیر را فعال نگه دارید:
                                                 // $sp = ($trialWeek->step / 4) * 100;
                                             }
-                                        @endphp
+                                        ?>
                                         <span class="text-xs text-green-400">{{ (int)$sp }}%</span>
                                         <div class="w-14 h-1 rounded-full overflow-hidden bg-green-900/50">
                                             <div class="h-full rounded-full bg-green-400"
@@ -798,6 +895,107 @@
                                 </div>
                             </div>
 
+                            @if(!empty($examPlanningCard))
+                                <a wire:navigate href="{{ $examPlanningCard['route'] }}"
+                                   class="glass card-live rise md:col-span-2 p-4 flex items-center justify-between gap-4"
+                                   style="animation-delay:.12s;margin-top:-20px;margin-bottom: 24px">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10m-11 9h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2Z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                                <div class="font-bold text-white text-base">{{ $examPlanningCard['title'] }}</div>
+                                                <span class="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-bold text-amber-300">{{ $examPlanningCard['badge'] }}</span>
+                                            </div>
+                                            <div class="text-xs text-neutral-400 leading-6">{{ $examPlanningCard['description'] }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-primary font-bold text-sm flex-shrink-0">
+                                        <span>{{ $examPlanningCard['cta'] }}</span>
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </div>
+                                </a>
+                            @endif
+
+                            @if(!empty($examCountdownCard))
+                                <div
+                                    x-data="{
+                                        target: new Date(@js($examCountdownCard['ends_at'])).getTime(),
+                                        now: Date.now(),
+                                        timer: null,
+                                        init() {
+                                            this.tick();
+                                            this.timer = setInterval(() => this.tick(), 1000);
+                                        },
+                                        tick() {
+                                            this.now = Date.now();
+                                            if (this.remaining <= 0) {
+                                                clearInterval(this.timer);
+                                                setTimeout(() => window.location.reload(), 1200);
+                                            }
+                                        },
+                                        destroy() {
+                                            if (this.timer) clearInterval(this.timer);
+                                        },
+                                        get remaining() {
+                                            return Math.max(0, this.target - this.now);
+                                        },
+                                        pad(value) {
+                                            return String(value).padStart(2, '0');
+                                        },
+                                        get hours() {
+                                            return Math.floor(this.remaining / 3600000);
+                                        },
+                                        get minutes() {
+                                            return Math.floor((this.remaining % 3600000) / 60000);
+                                        },
+                                        get seconds() {
+                                            return Math.floor((this.remaining % 60000) / 1000);
+                                        }
+                                    }"
+                                    class="glass card-live rise md:col-span-2 p-4 overflow-hidden"
+                                    style="animation-delay:.13s;margin-top:-20px;margin-bottom: 24px">
+                                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-12 h-12 rounded-2xl bg-red-500/10 text-red-300 flex items-center justify-center flex-shrink-0 ring-1 ring-red-500/20">
+                                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z"/>
+                                                </svg>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="font-black text-white text-base mb-1">زمان باقی‌مانده تا امتحان پیش‌رو</div>
+                                                <div class="text-xs text-neutral-400 leading-6">
+                                                    {{ $examCountdownCard['day_name'] }} {{ $examCountdownCard['jalali_date'] }}
+                                                    @if(!empty($examCountdownCard['subjects']))
+                                                        <span class="text-neutral-500">·</span>
+                                                        {{ implode('، ', $examCountdownCard['subjects']) }}
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-2 min-w-[220px]" dir="ltr">
+                                            <div class="rounded-2xl bg-white/[0.04] ring-1 ring-white/10 px-3 py-2 text-center">
+                                                <div class="font-black text-2xl text-white" x-text="pad(hours)"></div>
+                                                <div class="text-[10px] text-neutral-400 font-bold">ساعت</div>
+                                            </div>
+                                            <div class="rounded-2xl bg-white/[0.04] ring-1 ring-white/10 px-3 py-2 text-center">
+                                                <div class="font-black text-2xl text-white" x-text="pad(minutes)"></div>
+                                                <div class="text-[10px] text-neutral-400 font-bold">دقیقه</div>
+                                            </div>
+                                            <div class="rounded-2xl bg-white/[0.04] ring-1 ring-white/10 px-3 py-2 text-center">
+                                                <div class="font-black text-2xl text-red-300" x-text="pad(seconds)"></div>
+                                                <div class="text-[10px] text-neutral-400 font-bold">ثانیه</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             {{-- ══════ استوری‌های SDFR (بالای گزارش روزانه و ساعت مطالعه) ══════ --}}
                             <div class="md:col-span-2" style="margin-bottom: 12px">
                                 <livewire:client.home.story.index/>
@@ -813,52 +1011,56 @@
 
                                     </div>
                                 </div>
-                                <p class="text-[11px] text-neutral-400 mb-4">تعداد روزهایی که این هفته گزارش روزانه ثبت
-                                    کرده‌ای</p>
+                                <p class="text-[11px] text-neutral-400 mb-4">{{ $dashboardPeriod['report_hint'] }}</p>
 
                                 @if($reportProgress['has_program'])
-                                    @php
-                                        $dayCount = $reportProgress['total_days'];
-                                        $startDate = \Carbon\Carbon::parse($reportProgress['start_date']);
-                                        $activeProgram = $this->getActiveWeeklyProgram();
-                                        $submittedDates = \App\Models\DailyReport::where('student_id', $student->id)
-                                            ->where('weekly_program_id', $activeProgram->id)
-                                            ->where('is_compensatory', false)
-                                            ->whereBetween('report_date', [$startDate, $startDate->copy()->addDays($dayCount - 1)])
-                                            ->pluck('report_date')
-                                            ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
-                                            ->toArray();
-                                        $restDayIndices = $activeProgram->restDays->pluck('day_index')->all();
-                                        $today = \Carbon\Carbon::today();
-                                    @endphp
+                                    <?php
+                                        $reportDays = $reportProgress['days'] ?? [];
+                                        $dayCount = count($reportDays);
+                                        $daysPerPage = max(1, (int) ($reportProgress['days_per_page'] ?? 8));
+                                        $pageCount = max(1, (int) ceil(max($dayCount, 1) / $daysPerPage));
+                                        $gridColumns = min(max($dayCount, 1), $daysPerPage);
+                                    ?>
 
-                                    <div class="flex items-center gap-1.5">
-                                        @for($i = 0; $i < $dayCount; $i++)
-                                            @php
-                                                $currentDate  = $startDate->copy()->addDays($i);
-                                                $dayNum       = jdate($currentDate)->format('j');
-                                                $isToday      = $currentDate->isSameDay($today);
-                                                $isSubmitted  = in_array($currentDate->toDateString(), $submittedDates);
-                                                $isRestDay    = in_array($i, $restDayIndices);
-                                                $isPast       = $currentDate->lt($today);
-
-                                                if ($isRestDay) {
-                                                    $cls = 'bg-green-600/80 border-green-500 text-white';
-                                                } elseif ($isSubmitted) {
-                                                    $cls = 'bg-sky-500 border-sky-400 text-white';
-                                                } elseif ($isToday && !$isSubmitted) {
-                                                    $cls = 'bg-red-700/80 border-red-600 text-white';
-                                                } elseif ($isPast && !$isSubmitted) {
-                                                    $cls = 'bg-red-950/60 border-red-800 text-red-300/80';
-                                                } else {
-                                                    $cls = 'bg-white/5 border-white/10 text-neutral-500';
-                                                }
-                                            @endphp
-                                            <div
-                                                class="flex-1 aspect-square rounded-full border-2 flex items-center justify-center font-bold text-[12px] transition {{ $cls }}">
-                                                {{ $dayNum }}
+                                    <div
+                                        x-data="{ page: 0, total: {{ $pageCount }}, perPage: {{ $daysPerPage }}, days: {{ $dayCount }} }"
+                                        class="space-y-3">
+                                        @if($reportProgress['show_day_pagination'])
+                                            <div class="flex items-center justify-between gap-2 rounded-xl bg-white/[0.03] ring-1 ring-white/10 px-2.5 py-2">
+                                                <button type="button"
+                                                        @click="page = Math.max(page - 1, 0)"
+                                                        :disabled="page === 0"
+                                                        class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-white/5 text-neutral-300 ring-1 ring-white/10 transition disabled:opacity-35 disabled:cursor-not-allowed">
+                                                    عقب
+                                                </button>
+                                                <div class="text-[11px] font-semibold text-neutral-400">
+                                                    <span x-text="Math.min(page * perPage + 1, days)"></span>
+                                                    تا
+                                                    <span x-text="Math.min((page + 1) * perPage, days)"></span>
+                                                    از
+                                                    <span>{{ $dayCount }}</span>
+                                                    روز
+                                                </div>
+                                                <button type="button"
+                                                        @click="page = Math.min(page + 1, total - 1)"
+                                                        :disabled="page >= total - 1"
+                                                        class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-white/5 text-neutral-300 ring-1 ring-white/10 transition disabled:opacity-35 disabled:cursor-not-allowed">
+                                                    جلو
+                                                </button>
                                             </div>
-                                        @endfor
+                                        @endif
+
+                                        <div class="grid items-center gap-1.5 sm:gap-2"
+                                             style="grid-template-columns: repeat({{ $gridColumns }}, minmax(0, 1fr));">
+                                            @foreach($reportDays as $idx => $day)
+                                                <div
+                                                    @if($reportProgress['show_day_pagination']) x-show="page === {{ intdiv($idx, $daysPerPage) }}" @endif
+                                                    title="{{ $day['day_name'] }} {{ $day['jalali_day'] }}"
+                                                    class="aspect-square rounded-full border-2 flex items-center justify-center font-bold text-[12px] transition {{ $day['status_class'] }}">
+                                                    {{ $day['jalali_day'] }}
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 @else
                                     <div class="text-center py-6 text-neutral-500 text-[13px]">هنوز برنامه‌ای برایت ثبت
@@ -878,8 +1080,7 @@
                                         {{ $studyHoursProgress['total_hours'] }}
                                     </div>
                                 </div>
-                                <p class="text-[11px] text-neutral-400 mb-4">مجموع ساعت مطالعه‌ات نسبت به هدف این
-                                    هفته</p>
+                                <p class="text-[11px] text-neutral-400 mb-4">{{ $dashboardPeriod['study_hint'] }}</p>
 
                                 <div class="w-full rounded-full h-[6px] bg-white/10 mb-3 overflow-hidden">
                                     <div
@@ -905,8 +1106,7 @@
                                             {{ $extraOrgProgress['hours'] }}
                                         </div>
                                     </div>
-                                    <p class="text-[11px] text-neutral-400 mb-3">میزان مطالعهٔ اضافه بر سازمان که این
-                                        هفته ثبت کرده‌ای</p>
+                                    <p class="text-[11px] text-neutral-400 mb-3">{{ $dashboardPeriod['extra_hint'] }}</p>
                                     <div
                                         class="text-xs font-semibold px-3 py-2 rounded-xl inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20">
                                         ↑ {{ $extraOrgProgress['hours'] }} اضافه بر سازمان! عالی پیش می‌روی
@@ -966,10 +1166,10 @@
                                              x-ref="carousel"
                                              @scroll.passive="onScroll($event)">
                                             @foreach($todayProgram as $part)
-                                                @php
+                                                <?php
                                                     $minutes = $part->duration_minutes ?? round(($part->duration_hours ?? 0) * 60);
                                                     $testsCount = $part->tests_count ?? $part->test_count ?? 0;
-                                                @endphp
+                                                ?>
                                                 <div
                                                     class="program-card rounded-2xl bg-white/5 ring-1 ring-white/10 px-4 py-3 flex items-center justify-between gap-3 min-h-[72px]">
                                                     <div
@@ -1019,10 +1219,10 @@
                                             class="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-l from-transparent to-[#0a0f1a]/70 z-10 pointer-events-none rounded-l-xl"></div>
                                         <div class="program-scroll-desktop">
                                             @foreach($todayProgram as $part)
-                                                @php
+                                                <?php
                                                     $minutes = $part->duration_minutes ?? round(($part->duration_hours ?? 0) * 60);
                                                     $testsCount = $part->tests_count ?? $part->test_count ?? 0;
-                                                @endphp
+                                                ?>
                                                 <div
                                                     class="flex-shrink-0 rounded-2xl bg-white/5 ring-1 ring-white/10 px-4 py-3 flex items-center justify-between gap-4"
                                                     style="min-width:220px; min-height:72px;">
@@ -1084,14 +1284,14 @@
                             </div>
 
                             {{-- ══════ باکس امتحان / پرسش و پاسخ / تکلیف هفته ══════ --}}
-                            @unless($isGraduateStudent)
+                            @unless($isGraduateStudent || ($dashboardPeriod['is_exam_program'] ?? false))
                                 <div class="glass rise md:col-span-2 p-4"
                                      style="animation-delay:.28s;margin-bottom: 36px">
                                     <div class="flex items-center justify-between gap-2 mb-1">
                                         <div class="flex items-center gap-2">
                                             <span class="font-bold text-white text-[15px]">مدرسه من</span>
                                             <span
-                                                class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/20">این هفته</span>
+                                                class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/20">{{ $dashboardPeriod['short_label'] }}</span>
                                         </div>
                                         {{-- ★ data-tour اضافه شد --}}
                                         <a wire:navigate
@@ -1102,26 +1302,29 @@
                                         </a>
                                     </div>
 
-                                    @php
+                                    <?php
                                         $sourceLabels = [
                                             'exam'     => ['label' => 'امتحان',              'color' => 'text-red-400',    'bg' => 'bg-red-500/10',    'ring' => 'ring-red-500/25'],
                                             'class_qa' => ['label' => 'پرسش و پاسخ کلاسی', 'color' => 'text-sky-400',    'bg' => 'bg-sky-500/10',    'ring' => 'ring-sky-500/25'],
                                             'homework' => ['label' => 'تکلیف',               'color' => 'text-amber-400',  'bg' => 'bg-amber-500/10',  'ring' => 'ring-amber-500/25'],
                                         ];
                                         $weekDayNames = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنج‌شنبه','جمعه'];
-                                    @endphp
+                                    ?>
 
                                     @if(!empty($weeklySpecialParts))
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             @foreach($weeklySpecialParts as $sp)
-                                                @php
+                                                <?php
                                                     $src = $sp['source_type'] ?? 'exam';
                                                     $meta = $sourceLabels[$src] ?? $sourceLabels['exam'];
                                                     $lessonName = $sp['lesson_name'] ?? ($sp['cc_subject']['name'] ?? ($sp['lesson']['name'] ?? 'درس'));
-                                                    $dayName = $weekDayNames[$sp['day_of_week']] ?? '';
+                                                    $dayIndex = $sp['day_of_week'] ?? null;
+                                                    $dayName = $sp['period_label'] ?? ($dayIndex !== null ? ($weekDayNames[$dayIndex] ?? '') : '');
                                                     $minutes = $sp['duration_minutes'] ?? 0;
                                                     $tests   = $sp['test_count'] ?? 0;
-                                                @endphp
+                                                    $isSummary = !empty($sp['is_summary']);
+                                                    $partsCount = (int) ($sp['parts_count'] ?? 0);
+                                                ?>
                                                 <div
                                                     class="rounded-xl bg-white/5 ring-1 ring-white/10 px-4 py-3 flex items-center justify-between gap-3">
                                                     <div class="flex flex-col gap-1">
@@ -1135,9 +1338,13 @@
 
                                                     </div>
                                                     <div class="flex items-center gap-2 flex-shrink-0">
-                                                        <div class="flex flex-col items-center leading-tight">
-                                                        <span
-                                                            class="font-black  text-sm  {{ $meta['color'] }}">{{ $dayName }}</span>
+                                                        <div class="flex flex-col items-center leading-tight text-center">
+                                                            @if($isSummary)
+                                                                <span class="font-black text-lg {{ $meta['color'] }}">{{ $partsCount }}</span>
+                                                                <span class="text-[10px] text-neutral-400 mt-0.5">پارت</span>
+                                                            @else
+                                                                <span class="font-black text-sm {{ $meta['color'] }}">{{ $dayName }}</span>
+                                                            @endif
                                                         </div>
 
                                                     </div>
@@ -1152,7 +1359,7 @@
                             @endunless
 
                             {{-- ══════ آمار کلی هفته (محاسبات) ══════ --}}
-                            @php
+                            <?php
                                 $fmtHm = function ($seconds) {
                                     $seconds = max(0, (int) $seconds);
                                     $h = intdiv($seconds, 3600);
@@ -1162,10 +1369,17 @@
                                     return $m . ' دقیقه';
                                 };
                                 $wi = $weeklyInsights;
-                            @endphp
+                                $dailyChartDays = count($wi['daily'] ?? []);
+                                $dailyChartPerPage = 8;
+                                $dailyChartPageCount = max(1, (int) ceil(max($dailyChartDays, 1) / $dailyChartPerPage));
+                                $showDailyChartPagination = (bool) ($wi['is_exam_program'] ?? false) && $dailyChartDays > $dailyChartPerPage;
+                            ?>
 
                             {{-- ══════ 5) نمودار مطالعه روزانه این هفته (تحلیلی) ══════ --}}
-                            <div class="glass card-data rise p-4" data-tour="chart" style="animation-delay:.3s">
+                            <div class="glass card-data rise p-4"
+                                 data-tour="chart"
+                                 style="animation-delay:.3s"
+                                 x-data="{ page: 0, total: {{ $dailyChartPageCount }} }">
                                 <div class="flex items-center justify-between gap-2 mb-1">
                                     <div class="flex items-center gap-2">
                                         <div class="icon-chip">
@@ -1175,7 +1389,7 @@
                                                       d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75z"/>
                                             </svg>
                                         </div>
-                                        <span class="font-bold text-white text-[15px]">مطالعه روزانه</span>
+                                        <span class="font-bold text-white text-[15px]">{{ $dashboardPeriod['daily_chart_title'] }}</span>
                                         <span
                                             class="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-300 ring-1 ring-sky-500/20">تحلیل</span>
                                     </div>
@@ -1183,12 +1397,32 @@
                                 <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm"
                                                                                    style="background:#3b82f6"></span> برنامه</span>
                                         <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm"
-                                                                                           style="background:#10b981"></span> مطالعه</span>
+                                                                                            style="background:#10b981"></span> مطالعه</span>
                                     </div>
                                 </div>
-                                <p class="text-[11px] text-neutral-400 mb-4">ساعت برنامه‌ریزی‌شده در برابر ساعت واقعی
-                                    مطالعه در
-                                    هر روز هفته</p>
+                                <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <p class="text-[11px] text-neutral-400">{{ $dashboardPeriod['daily_chart_hint'] }}</p>
+                                    @if($showDailyChartPagination)
+                                        <div class="flex items-center justify-between gap-2 rounded-xl bg-white/5 p-1 ring-1 ring-white/10 sm:justify-end"
+                                             dir="rtl">
+                                            <button type="button"
+                                                    class="rounded-lg px-3 py-1.5 text-[11px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-40 hover:bg-white/10"
+                                                    :disabled="page <= 0"
+                                                    @click="page = Math.max(0, page - 1); window.__dashSetDailyChartPage?.(page)">
+                                                قبلی
+                                            </button>
+                                            <span class="min-w-20 text-center text-[11px] font-semibold text-neutral-300">
+                                                صفحه <span x-text="page + 1"></span> از {{ $dailyChartPageCount }}
+                                            </span>
+                                            <button type="button"
+                                                    class="rounded-lg px-3 py-1.5 text-[11px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-40 hover:bg-white/10"
+                                                    :disabled="page >= total - 1"
+                                                    @click="page = Math.min(total - 1, page + 1); window.__dashSetDailyChartPage?.(page)">
+                                                بعدی
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
 
                                 @if($wi['has_data'])
                                     <div class="relative" style="height:170px">
@@ -1212,7 +1446,7 @@
                                                       d="M3.75 3v11.25A2.25 2.25 0 006 16.5h12M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5"/>
                                             </svg>
                                         </div>
-                                        <span class="font-bold text-white text-[15px]">پیشرفت دروس این هفته</span>
+                                        <span class="font-bold text-white text-[15px]">{{ $dashboardPeriod['subject_progress_title'] }}</span>
                                     </div>
                                     <span
                                         class="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-300 ring-1 ring-sky-500/20">تحلیل</span>
@@ -1223,11 +1457,11 @@
                                 @if($wi['has_data'] && !empty($wi['subjects']))
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
                                         @foreach($wi['subjects'] as $subj)
-                                            @php
+                                            <?php
                                                 $pct = $subj['percent'];
                                                 $barColor = $pct >= 100 ? 'bg-green-500' : ($pct >= 70 ? 'bg-emerald-500' : ($pct >= 40 ? 'bg-amber-500' : ($pct > 0 ? 'bg-orange-500' : 'bg-red-500')));
                                                 $txtColor = $pct >= 70 ? 'text-emerald-400' : ($pct >= 40 ? 'text-amber-400' : ($pct > 0 ? 'text-orange-400' : 'text-red-400'));
-                                            @endphp
+                                            ?>
                                             <div>
                                                 <div class="flex items-center justify-between mb-1.5">
                                             <span
@@ -1367,6 +1601,9 @@
                         monthly: @json($monthlyInsights['weeks'] ?? []),
                     };
                     window.__dashCharts = window.__dashCharts || {};
+                    window.__dashDailyChartPage = 0;
+                    window.__dashDailyChartPerPage = 8;
+                    window.__dashDailyChartPaginate = @json((bool) (($weeklyInsights['is_exam_program'] ?? false) && count($weeklyInsights['daily'] ?? []) > 8));
 
                     function destroy(id) {
                         if (window.__dashCharts[id]) {
@@ -1393,12 +1630,20 @@
                         const el = document.getElementById('dash-chart-daily');
                         if (!el || typeof Chart === 'undefined') return;
                         destroy('daily');
-                        const d = window.__dashChartData.daily || [];
+                        const allDays = window.__dashChartData.daily || [];
+                        const pageCount = Math.max(1, Math.ceil(allDays.length / window.__dashDailyChartPerPage));
+                        window.__dashDailyChartPage = Math.min(Math.max(0, window.__dashDailyChartPage || 0), pageCount - 1);
+                        const d = window.__dashDailyChartPaginate
+                            ? allDays.slice(
+                                window.__dashDailyChartPage * window.__dashDailyChartPerPage,
+                                (window.__dashDailyChartPage + 1) * window.__dashDailyChartPerPage
+                            )
+                            : allDays;
                         if (!d.length) return;
                         window.__dashCharts['daily'] = new Chart(el, {
                             type: 'bar',
                             data: {
-                                labels: d.map(x => x.label),
+                                labels: d.map(x => x.chart_label || x.label),
                                 datasets: [
                                     {
                                         label: 'برنامه',
@@ -1426,6 +1671,11 @@
                             }
                         });
                     }
+
+                    window.__dashSetDailyChartPage = function (page) {
+                        window.__dashDailyChartPage = Math.max(0, Number(page) || 0);
+                        initDaily();
+                    };
 
                     function initPartType() {
                         const el = document.getElementById('dash-chart-parttype');
@@ -1513,6 +1763,9 @@
                             return;
                         }
                         initAll();
+                        setTimeout(() => {
+                            initAll();
+                        }, 180);
                     }
 
                     if (document.readyState === 'loading') {
@@ -1520,6 +1773,10 @@
                     } else {
                         boot();
                     }
+
+                    document.addEventListener('livewire:initialized', () => {
+                        requestAnimationFrame(() => requestAnimationFrame(() => window.__dashInitCharts && window.__dashInitCharts()));
+                    });
 
                     document.addEventListener('livewire:navigated', () => {
                         requestAnimationFrame(() => requestAnimationFrame(() => window.__dashInitCharts && window.__dashInitCharts()));

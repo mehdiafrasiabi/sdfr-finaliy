@@ -185,6 +185,11 @@ class Student extends Model
         return $this->hasOne(\App\Models\TrialWeek::class);
     }
 
+    public function examSchedules(): HasMany
+    {
+        return $this->hasMany(StudentExamSchedule::class);
+    }
+
     public function school()
     {
         return $this->belongsTo(School::class);

@@ -23,6 +23,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'installments.current' => \App\Http\Middleware\EnsureInstallmentsCurrent::class,
             'student.panel.open' => \App\Http\Middleware\EnsureStudentPanelOpen::class,
             'advisor.selected' => \App\Http\Middleware\EnsureAdvisorSelected::class,
+            'exam.planning' => \App\Http\Middleware\EnsureExamPlanningAvailable::class,
+            'exam.feedback.required' => \App\Http\Middleware\EnsureExamDayFeedbackSubmitted::class,
         ]);
 
         $middleware->redirectGuestsTo(function () {

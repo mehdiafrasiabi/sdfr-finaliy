@@ -6,6 +6,7 @@ use App\Models\StudentAssessmentAttempt;
 use App\Models\TrialWeek;
 use App\Services\AssessmentInterpretationService;
 use App\Services\AssessmentService;
+use App\Services\ExamPlanningService;
 use App\Services\TrialWeekService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -22,6 +23,8 @@ class AssessmentList extends Component
     public bool $showChoice = false;
 
     public bool $isStartingTrial = false;
+
+    public array $trialChoiceCopy = [];
 
     /**
      * شروع/ادامهٔ آزمون جاری — کاربر را مستقیم به اولین سوال بی‌پاسخ می‌برد.
@@ -63,6 +66,11 @@ class AssessmentList extends Component
         // (C8) اگر کاربر از صفحهٔ اصلی با دکمهٔ مشخص (آزمایشی/نقدی) آمده باشد،
         // صفحهٔ انتخابِ مسیر نمایش داده نمی‌شود و همان مسیر مستقیم دنبال می‌شود.
         $intended = session('intended_plan');
+        if ($intended === 'exam') {
+            session()->forget('intended_plan');
+            $this->confirmTrial($service);
+            return;
+        }
         if ($intended === 'trial') {
             session()->forget('intended_plan');
             $this->confirmTrial($service);
@@ -124,6 +132,7 @@ class AssessmentList extends Component
     public function render(AssessmentService $service, AssessmentInterpretationService $interpreter): \Illuminate\Contracts\View\View
     {
         $user = Auth::user();
+        $this->trialChoiceCopy = $this->resolveTrialChoiceCopy($user);
 
         $stageAssessments = $service->studentAssessmentsInStageOrder();
 
@@ -161,6 +170,41 @@ class AssessmentList extends Component
             'answeredTotal'  => $answeredTotal,
             'summary'        => $summary,
             'hasTrial'       => (bool) $user->trialWeek,
+            'trialChoiceCopy'=> $this->trialChoiceCopy,
         ])->layout('layouts.client.app');
+    }
+
+    private function resolveTrialChoiceCopy($user): array
+    {
+        $default = [
+            'plan' => 'trial',
+            'title' => 'شروع ۱ هفته آزمایشی',
+            'description' => 'تجربه‌ی کامل امکانات بدون پرداخت، با نظارت مشاور اختصاصی',
+            'cta' => 'ادامه به هفته‌ی آزمایشی',
+        ];
+
+        $info = $user?->personalInformation;
+        if (! $info || $info->grade === null) {
+            return $default;
+        }
+
+        $grade = $info->is_graduate ? TrialWeek::GRADE_GRADUATE : (int) $info->grade;
+        $field = (int) $grade === 9 ? null : $info->field;
+        $setting = app(ExamPlanningService::class)->resolveActiveSettingForGradeField($grade, $field);
+
+        if (! $setting) {
+            return $default;
+        }
+
+        $termTitle = $setting->term_type_label === 'امتحانات'
+            ? 'امتحانات'
+            : 'امتحانات ' . $setting->term_type_label;
+
+        return [
+            'plan' => 'exam',
+            'title' => 'شروع برنامه ' . $termTitle,
+            'description' => 'مسیر رایگان امتحانی؛ ساخت برنامه مخصوص امتحانات و ثبت ساعت مطالعه تا پایان بازه امتحانات',
+            'cta' => 'ادامه به برنامه امتحانی',
+        ];
     }
 }

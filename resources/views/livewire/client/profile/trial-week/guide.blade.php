@@ -1,4 +1,8 @@
 <div class="max-w-5xl mx-auto px-4 py-6 sm:py-10" dir="rtl">
+    @php
+        $hideForExamProgramTrialStudent = auth()->check()
+            && app(\App\Services\ExamPlanningService::class)->shouldHideTrialExamProgramSections(auth()->user());
+    @endphp
 
 @assets
         <style>
@@ -163,6 +167,53 @@
             }
         </style>
 @endassets
+    @if($examPlanningMode)
+        <div class="rise r1 rounded-3xl border border-border glass p-6 mb-5">
+            <div class="flex items-start justify-between gap-4 flex-wrap">
+                <div>
+                    <h1 class="text-xl font-black text-primary mb-2">تجربه هوشمند برنامه امتحانی</h1>
+                    <p class="text-sm text-muted leading-7 max-w-2xl">
+                        تقویم امتحانت را تکمیل می‌کنی، ساعت مطالعه‌ی درس‌ها را می‌دهی و برنامه مخصوص امتحاناتت رو از SDFR تحویل میگیری.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-3 mt-5">
+                <div class="rounded-2xl border border-border bg-background p-4">
+                    <div class="text-[20px] font-bold text-white mb-1">گــــــــام ۱</div>
+                    <div class="font-black text-primary mb-2">تقویم امتحان</div>
+                </div>
+                <div class="rounded-2xl border border-border bg-background p-4">
+                    <div class="text-[20px] font-bold text-white mb-1">گــــــــام 2</div>
+                    <div class="font-black te text-primary mb-2">ساعت‌ مطالعه هر درس</div>
+                </div>
+                <div class="rounded-2xl border border-border bg-background p-4">
+                    <div class="text-[20px] font-bold text-white mb-1">گــــــــام 3</div>
+                    <div class="font-black text-primary mb-2">ساخت برنامه</div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex flex-wrap gap-3 justify-center md:justify-end">
+                <button type="button" wire:click="goToExamPlanning" wire:loading.attr="disabled" wire:target="goToExamPlanning"
+                   class="press btn-primary inline-flex w-full md:w-auto items-center justify-center gap-2 px-6 py-4 md:px-5 md:py-3 rounded-2xl text-base md:text-sm font-bold disabled:opacity-60">
+                    <span wire:loading.remove wire:target="goToExamPlanning" class="inline-flex items-center justify-center gap-2">
+                        <span>ساخت برنامه</span>
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                    </span>
+                    <span wire:loading wire:target="goToExamPlanning" class="inline-flex items-center gap-2">
+                        <span class="inline-block w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+                        در حال انتقال...
+                    </span>
+                </button>
+{{--                <a wire:navigate href="{{ route('client.profile.dashboard') }}"--}}
+{{--                   class="press btn-soft inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold">--}}
+{{--                    بازگشت به داشبورد--}}
+{{--                </a>--}}
+            </div>
+        </div>
+    @else
     {{-- ═══════════ سرتیتر + تایمر انقضا ═══════════ --}}
     <div class="rise r1 flex items-center justify-between gap-3 mb-5 flex-wrap">
         <div class="flex items-center gap-2.5">
@@ -643,29 +694,31 @@
                     <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ $trialWeek->daysRemaining }} روز</span>
                     باقی‌مانده از تمام امکانات استفاده کن.
                 </p>
-                <div class="relative flex justify-center gap-3 flex-wrap">
-                    <a wire:navigate href="{{ route('client.profile.trial.report') }}"
-                       class="press btn-primary inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
-                        </svg>
-                        مشاهده کارنامه
-                    </a>
-                    <a wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
-                       class="press btn-soft inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
-                        </svg>
-                        مشاهده جلسات
-                    </a>
-                    <a wire:navigate href="{{ route('client.profile.classification.projects') }}"
-                       class="press btn-soft inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
-                        </svg>
-                        مشاهده طبقه‌بندی
-                    </a>
-                </div>
+                @unless($hideForExamProgramTrialStudent)
+                    <div class="relative flex justify-center gap-3 flex-wrap">
+                        <a wire:navigate href="{{ route('client.profile.trial.report') }}"
+                           class="press btn-primary inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+                            </svg>
+                            مشاهده کارنامه
+                        </a>
+                        <a wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
+                           class="press btn-soft inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                            </svg>
+                            مشاهده جلسات
+                        </a>
+                        <a wire:navigate href="{{ route('client.profile.classification.projects') }}"
+                           class="press btn-soft inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+                            </svg>
+                            مشاهده طبقه‌بندی
+                        </a>
+                    </div>
+                @endunless
             </div>
         @endif
     @endif
@@ -772,4 +825,5 @@
         ['el' => '[data-tour=step3]',    'title' => 'نیازمندی‌های برنامه', 'text' => 'پیش‌جلسه (امتحان‌ها، پارت درخواستی و…) و در صورت نیاز برنامه کلاسی مدرسه را اینجا تکمیل می‌کنی.'],
         ['el' => '[data-tour=step4]',    'title' => 'ساخت برنامه', 'text' => 'بعد از تکمیل مراحل، فقط ساعت مطالعه‌ی روزانه‌ات را انتخاب می‌کنی و برنامه‌ی اختصاصی‌ات همین‌جا ساخته می‌شود.'],
     ]" />
+    @endif
 </div>

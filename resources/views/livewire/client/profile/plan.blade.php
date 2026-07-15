@@ -43,7 +43,7 @@
                                                         {{-- اطلاعات --}}
                                                         <div class="p-4 space-y-3" dir="rtl">
                                                             <h3 class="font-bold text-foreground text-base">
-                                                                برنامه هفته {{ jdate($program->start_date)->format('d %B') }}
+                                                                {{ $this->programTitle($program) }}
                                                             </h3>
                                                         </div>
 
@@ -84,7 +84,7 @@
                                                             {{-- راست: عنوان + تاریخ + بج‌ها --}}
                                                             <div class="space-y-2 flex-1 min-w-0">
                                                                 <h3 class="font-bold text-foreground text-base">
-                                                                    برنامه هفته {{ jdate($program->start_date)->format('d %B') }}
+                                                                    {{ $this->programTitle($program) }}
                                                                 </h3>
 
                                                             </div>

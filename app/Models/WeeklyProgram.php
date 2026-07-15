@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 
@@ -82,6 +83,11 @@ class WeeklyProgram extends Model
     public function examDays(): HasMany
     {
         return $this->hasMany(WeeklyProgramExamDay::class);
+    }
+
+    public function examSchedule(): HasOne
+    {
+        return $this->hasOne(StudentExamSchedule::class, 'weekly_program_id');
     }
 
     /**
@@ -281,8 +287,6 @@ class WeeklyProgram extends Model
 
     // آرایه روزهای هفته با تاریخ شمسی
 
-    // آرایه روزهای هفته با تاریخ شمسی (8 روز)
-
     public function getWeekDays(): array
 
     {
@@ -291,10 +295,13 @@ class WeeklyProgram extends Model
 
         $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
 
+        $start = Carbon::parse($this->start_date);
+        $end = Carbon::parse($this->end_date);
+        $totalDays = $start->diffInDays($end) + 1;
 
-        for ($i = 0; $i < 8; $i++) {
+        for ($i = 0; $i < $totalDays; $i++) {
 
-            $date = Carbon::parse($this->start_date)->addDays($i);
+            $date = $start->copy()->addDays($i);
 
             $jalaliDate = jdate($date);
 

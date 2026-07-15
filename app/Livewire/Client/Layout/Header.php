@@ -5,6 +5,7 @@ namespace App\Livewire\Client\Layout;
 use App\Models\Cart;
 use App\Models\Notification;
 use App\Models\TrialWeek;
+use App\Services\ExamPlanningService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\On;
@@ -20,12 +21,14 @@ class Header extends Component
 
     /** اطلاعات مشاور/پشتیبان برای نمایش در مودال موبایل */
     public ?array $advisorInfo = null;
+    public bool $showExamPlanningLink = false;
 
     public function mount()
     {
         $this->loadUnreadCount();
         $this->loadUserProfileData();
         $this->loadAdvisorInfo();
+        $this->loadExamPlanningState();
         $this->cart = Cart::query()
             ->where('user_id', Auth()->id())->count();
     }
@@ -106,6 +109,18 @@ class Header extends Component
         }
 
         $this->advisorInfo = null;
+    }
+
+    public function loadExamPlanningState(): void
+    {
+        $user = Auth::user();
+        if (! $user) {
+            $this->showExamPlanningLink = false;
+            return;
+        }
+
+        $this->showExamPlanningLink = app(ExamPlanningService::class)->shouldExposePaidModule($user)
+            || app(ExamPlanningService::class)->shouldExposeTrialModule($user);
     }
 
     protected function resolveUserPictureUrl($user): ?string

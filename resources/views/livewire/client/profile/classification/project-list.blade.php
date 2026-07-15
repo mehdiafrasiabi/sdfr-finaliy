@@ -10,6 +10,17 @@
             {{-- ═══ محتوای اصلی ═══ --}}
             <div class="lg:col-span-9 md:col-span-8" dir="rtl">
                 <div class="space-y-10">
+                    @if($hideForExamProgramTrialStudent)
+                        <div class="flex flex-col items-center justify-center py-20 space-y-5">
+                            <img src="/client/svg/empty2.svg"
+                                 class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
+                                 alt="پیامی وجود ندارد"/>
+                            <div class="text-center space-y-1.5">
+                                <h2 class="font-bold text-lg text-foreground">پروژه‌ای در دسترس نیست</h2>
+                                <p class="text-sm text-muted">در حال حاضر پروژه طبقه‌بندی فعالی وجود ندارد.</p>
+                            </div>
+                        </div>
+                    @else
 
                     {{-- سربرگ --}}
                     <div class="flex items-center gap-3">
@@ -128,6 +139,7 @@
                                 <p class="text-sm text-muted">در حال حاضر پروژه طبقه‌بندی فعالی وجود ندارد.</p>
                             </div>
                         </div>
+                    @endif
                     @endif
 
                 </div>

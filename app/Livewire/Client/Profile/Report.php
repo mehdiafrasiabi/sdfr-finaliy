@@ -244,8 +244,12 @@ class Report extends Component
             ? Carbon::yesterday()
             : Carbon::today();
 
-        for ($i = 0; $i < 8; $i++) {
-            $date = Carbon::parse($this->currentProgram->start_date)->addDays($i);
+        $start = Carbon::parse($this->currentProgram->start_date);
+        $end = Carbon::parse($this->currentProgram->end_date);
+        $totalDays = $start->diffInDays($end) + 1;
+
+        for ($i = 0; $i < $totalDays; $i++) {
+            $date = $start->copy()->addDays($i);
             $jalaliDate = jdate($date);
             $actualDayOfWeek = $jalaliDate->getDayOfWeek();
 

@@ -15,6 +15,19 @@
 
             <div class="lg:col-span-9 md:col-span-8">
                 <div class="space-y-10">
+                    @if($hideForExamProgramTrialStudent)
+                        <div class="flex flex-col items-center justify-center space-y-12 py-16">
+                            <img src="/client/svg/empty2.svg"
+                                 class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
+                                 alt="پیامی وجود ندارد"/>
+                            <div class="text-center space-y-3">
+                                <h2 class="font-bold text-xl text-foreground">
+                                    جلسه‌ای وجود ندارد!
+                                </h2>
+                                <p class="text-muted text-sm">هنوز جلسه‌ای برای شما ثبت نشده است.</p>
+                            </div>
+                        </div>
+                    @else
                     <div class="space-y-5">
 
                         <!-- section:title -->
@@ -333,6 +346,7 @@
                         @endif
 
                     </div>
+                    @endif
                 </div>
             </div>
         </div>

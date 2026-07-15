@@ -17,6 +17,7 @@ use App\Livewire\Client\Profile\Dashboard as ProfileDashboard;
 use App\Livewire\Client\Profile\Consultation\ClassScheduleUpload as ConsultationClassScheduleUpload;
 use App\Livewire\Client\Profile\AdvisorChangeRequest\Index as AdvisorChangeRequestIndex;
 use App\Livewire\Client\Profile\Edit as ProfileEdit;
+use App\Livewire\Client\Profile\ExamPlanning\Builder as ExamPlanningBuilder;
 use App\Livewire\Client\Profile\TrialWeek\Guide as TrialWeekGuide;
 use App\Livewire\Client\Profile\TrialWeek\SessionAnalysis as TrialWeekSessionAnalysis;
 use App\Livewire\Client\Profile\Financial as ProfileFinancial;
@@ -121,7 +122,7 @@ Route::name('client.')->group(function () {
             ->name('profile.advisor-chat');
 
 
-        Route::prefix('profile')->name('profile.')->middleware(['student.panel.open', 'assessments.required', 'client.active', 'advisor.selected', 'installments.current', 'trial.step', 'block.during.study'])->group(function () {
+        Route::prefix('profile')->name('profile.')->middleware(['student.panel.open', 'assessments.required', 'client.active', 'advisor.selected', 'installments.current', 'trial.step', 'block.during.study', 'exam.feedback.required'])->group(function () {
             //Profile
             Route::get('/dashboard',ProfileDashboard::class)->name('dashboard');
             Route::get('/reportStudentStudy',ProfileReportStudentStudy::class)->name('reportStudentStudy');
@@ -157,6 +158,9 @@ Route::name('client.')->group(function () {
             // Classification Routes
             Route::get('/classification', ProjectList::class)->name('classification.projects');
             Route::get('/{project}/classify/{grade}', Classify::class)->name('classification.classify');
+            Route::get('/exam-planning', ExamPlanningBuilder::class)
+                ->middleware('exam.planning')
+                ->name('exam-planning');
             // انتخاب مشاور تحصیلی (جایگزین صفحه‌ی قدیمیِ تعیین وقت)
             Route::get('/appointment', \App\Livewire\Client\Profile\AdvisorSelection\Index::class)
                 ->name('appointment');

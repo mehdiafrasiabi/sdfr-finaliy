@@ -216,6 +216,14 @@
                                                     هفته‌های آزمایشی
                                                 </a>
                                             </li>
+                                            <li class="nav-item">
+                                                <a href="{{ route('manager.student-exams.index') }}"
+                                                   class="nav-link {{ request()->routeIs('manager.student-exams.*') ? 'active' : '' }}"
+                                                   data-key="t-basic">
+                                                    <i class="ri-book-open-line me-1 text-primary"></i>
+                                                    امتحانات دانش‌آموزان
+                                                </a>
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>

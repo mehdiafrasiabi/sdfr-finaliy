@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use App\Models\TrialWeek;
+use App\Services\ExamPlanningService;
+use App\Services\TrialWeekService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -59,9 +61,44 @@ class EnsureTrialStepUnlocked
             return $next($request);
         }
 
-        // اگر برنامه ساخته شده، دسترسی کامل.
+        $builtExamSchedule = $user->examSchedules()
+            ->whereNotNull('weekly_program_id')
+            ->whereNotNull('program_built_at')
+            ->latest('program_built_at')
+            ->first();
+
+        if ($builtExamSchedule && $trial->status !== TrialWeek::STATUS_PROGRAM_BUILT) {
+            $trialProgramBuiltAt = $builtExamSchedule->program_built_at ?? $trial->program_built_at ?? now();
+
+            $trial->update([
+                'status' => TrialWeek::STATUS_PROGRAM_BUILT,
+                'daily_study_hours' => $builtExamSchedule->max_daily_study_hours ?: $trial->daily_study_hours,
+                'program_built_at' => $trialProgramBuiltAt,
+                'expires_at' => TrialWeekService::trialAccessExpiresAt($trialProgramBuiltAt),
+            ]);
+
+            $trial->refresh();
+        }
+
         if ($trial->status === TrialWeek::STATUS_PROGRAM_BUILT) {
             return $next($request);
+        }
+
+        $examPlanning = app(ExamPlanningService::class)->resolveExamAccess($user);
+        if ($examPlanning['mode'] === ExamPlanningService::ACCESS_TRIAL) {
+            $current = $request->route()?->getName();
+            $allowed = [
+                'client.profile.trial.guide',
+                'client.profile.exam-planning',
+            ];
+
+            if ($current && in_array($current, $allowed, true)) {
+                return $next($request);
+            }
+
+            return redirect()
+                ->route('client.profile.trial.guide')
+                ->with('error', 'در بازه امتحانات، مسیر ساخت برنامه امتحانی برای شما فعال است.');
         }
 
         // مرحلهٔ pending: هیچ‌چیز در /profile باز نباشد.

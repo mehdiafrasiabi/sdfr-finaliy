@@ -156,6 +156,10 @@ class TrialWeekService
     public function buildProgram(TrialWeek $trialWeek, int $dailyHours): WeeklyProgram
     {
         return DB::transaction(function () use ($trialWeek, $dailyHours) {
+            $now = Carbon::now();
+            $programStart = $now->copy()->startOfDay();
+            $programEnd = $programStart->copy()->addDays(self::TRIAL_PROGRAM_DAYS - 1);
+
             // برنامه به جلسهٔ آزمایشی پیوند می‌خورد و جلسه «برگزارشده»/زندهٔ امروز علامت می‌خورد تا
             // در /profile/plan و /profile/studySession و /profile/report (که روی result_status='held'
             // و جلسهٔ جاری فیلتر دارند) نمایش داده شود و دانش‌آموز بتواند گزارش بدهد و ساعت مطالعه ثبت کند.
@@ -165,8 +169,8 @@ class TrialWeekService
                     'result_status'   => AdvisingSession::RESULT_HELD,
                     'status'          => AdvisingSession::STATUS_COMPLETED,
                     'is_active'       => true,
-                    'activation_date' => Carbon::now()->toDateString(),
-                    'session_time'    => $session->session_time ?? Carbon::now()->format('H:i:s'),
+                    'activation_date' => $now->toDateString(),
+                    'session_time'    => $session->session_time ?? $now->format('H:i:s'),
                 ]);
             }
 
@@ -174,8 +178,8 @@ class TrialWeekService
                 'student_id'          => $trialWeek->student_id,
                 'advisor_id'          => null,
                 'advising_session_id' => $session?->id,
-                'start_date'          => Carbon::now()->toDateString(),
-                'end_date'            => Carbon::now()->addDays(self::TRIAL_PROGRAM_DAYS - 1)->toDateString(),
+                'start_date'          => $programStart->toDateString(),
+                'end_date'            => $programEnd->toDateString(),
                 'is_active'           => true,
             ]);
 
@@ -185,8 +189,8 @@ class TrialWeekService
             $trialWeek->update([
                 'daily_study_hours' => $dailyHours,
                 'status'            => TrialWeek::STATUS_PROGRAM_BUILT,
-                'program_built_at'  => Carbon::now(),
-                'expires_at'        => Carbon::now()->addDays(8),
+                'program_built_at'  => $now,
+                'expires_at'        => self::trialAccessExpiresAt($now),
             ]);
 
             // کارنامهٔ هوشمند برای نمایش در /profile/reportStudentStudy (تحلیل زنده در طول هفتهٔ آزمایشی).
@@ -194,6 +198,13 @@ class TrialWeekService
 
             return $program;
         });
+    }
+
+    public static function trialAccessExpiresAt(?Carbon $anchor = null): Carbon
+    {
+        $start = ($anchor ?: Carbon::now())->copy()->startOfDay();
+
+        return $start->addDays(self::TRIAL_PROGRAM_DAYS - 1)->endOfDay();
     }
 
     /**
@@ -213,7 +224,7 @@ class TrialWeekService
         }
 
         $start = Carbon::parse($program->start_date)->startOfDay();
-        $end   = ($trialWeek->expires_at ? Carbon::parse($trialWeek->expires_at) : $start->copy()->addDays(7))->endOfDay();
+        $end   = $start->copy()->addDays(self::TRIAL_PROGRAM_DAYS - 1)->endOfDay();
 
         $jStart = jdate($start);
 
@@ -289,7 +300,7 @@ class TrialWeekService
         ];
     }
 
-    const TRIAL_PROGRAM_DAYS = 8;   // امروز + ۷ روز بعد
+    const TRIAL_PROGRAM_DAYS = TrialWeek::PROGRAM_DAYS;   // امروز + ۷ روز بعد
     const MIN_PART_MINUTES = 15;    // حداقل قدیمی برای مسیرهای غیرآزمایشی
     const MIN_DAILY_MINUTES = 120; // حداقل ۲ ساعت مطالعه در روز
 

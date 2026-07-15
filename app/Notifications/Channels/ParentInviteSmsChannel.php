@@ -22,7 +22,7 @@ class ParentInviteSmsChannel
 
         $postData = [
             'username' => config('services.melipayamak.username', '9020029757'),
-            'password' => config('services.melipayamak.password', 'b1b0fdb-dddd-4c93-b02d-a069edf44693'),
+            'password' => config('services.melipayamak.password', '7b1b0fdb-dddd-4c93-b02d-a069edf44693'),
             // فرمت template: "نام دانش‌آموز;لینک"
             'text'     => ($data['studentName'] ?? '') . ';' . ($data['link'] ?? ''),
             'to'       => $data['mobile'],

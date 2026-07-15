@@ -152,7 +152,7 @@
 
             {{-- (C6) راهنمای چند/تک انتخابی --}}
             @if($isMulti)
-                <div class="flex items-center gap-2 mb-4 px-4 py-2.5 rounded-xl bg-primary border border-primary text-xs font-semibold text-white">
+                <div class="flex items-center gap-2 mb-4 px-4 py-2.5 rounded-xl bg-yellow-600 border border-white text-[14px] font-semibold text-white">
                     <svg class="w-4 h-4 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                     در این آزمون می‌توانید برای هر سوال چند گزینه انتخاب کنید.
                 </div>
