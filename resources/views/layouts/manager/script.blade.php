@@ -25,29 +25,47 @@
 <script src="/manager/assets/js/pages/sweetalerts.init.js"></script>
 
 <script>
+    function managerToastMessage(detail) {
+        if (Array.isArray(detail)) {
+            return detail[0] ?? '';
+        }
+
+        if (detail && typeof detail === 'object') {
+            return detail.message ?? detail.title ?? '';
+        }
+
+        return detail ?? '';
+    }
+
     window.addEventListener('success', function(event) {
+        if (!(event instanceof CustomEvent) || !event.__livewire) return;
+
         Swal.fire({
             position: 'center',
             icon: 'success',
-            title: event.detail,
+            title: managerToastMessage(event.detail),
             showConfirmButton: false,
             timer: 1500
         })
     });
     window.addEventListener('error', function(event) {
+        if (!(event instanceof CustomEvent) || !event.__livewire) return;
+
         Swal.fire({
             position: 'center',
             icon: 'error',
-            title: event.detail,
+            title: managerToastMessage(event.detail),
             showConfirmButton: false,
             timer: 3500,
         })
     });
     window.addEventListener('warning', function(event) {
+        if (!(event instanceof CustomEvent) || !event.__livewire) return;
+
         Swal.fire({
             position: 'center',
             icon: 'error',
-            title: event.detail,
+            title: managerToastMessage(event.detail),
             showConfirmButton: false,
             timer: 5000,
         })

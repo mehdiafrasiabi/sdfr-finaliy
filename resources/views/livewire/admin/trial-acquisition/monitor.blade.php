@@ -45,100 +45,130 @@
                     $programParts = $weeklyProgram?->parts?->count() ?? 0;
                     $programMinutes = $weeklyProgram?->parts?->sum('duration_minutes') ?? 0;
                 @endphp
+                @if($monitorLocked)
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center py-5">
+                            <div class="mb-3">
+                                <span class="badge bg-secondary-subtle text-secondary border px-3 py-2">رصد قفل است</span>
+                            </div>
+                            <h4 class="mb-2">برای رصد، اول باید تماس را بگیری.</h4>
+                            <p class="text-muted mb-0">تا وقتی تماس موفق ثبت نشده باشد، گزارش‌ها و جزئیات این دانش‌آموز نمایش داده نمی‌شود.</p>
+                        </div>
+                    </div>
+                @else
+                    <div class="card border-0 shadow-sm mb-3 trial-student-summary">
+                        <div class="card-body">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 trial-student-summary-inner">
+                                <div>
+                                    <h4 class="mb-1">{{ $studentName }}</h4>
+                                    <div class="text-muted small">
+                                        {{ $selectedTrial->grade_label }} / {{ $selectedTrial->field_label }}
+                                        <span class="mx-2">•</span>
+                                        <span dir="ltr">{{ $selectedTrial->user?->mobile ?? '—' }}</span>
+                                    </div>
+                                    <div class="text-muted small mt-1 d-flex flex-wrap gap-2">
+                                        <span>پدر: <span dir="ltr">{{ $selectedTrial->father_mobile ?? '—' }}</span></span>
+                                        <span>مادر: <span dir="ltr">{{ $selectedTrial->mother_mobile ?? '—' }}</span></span>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2 trial-status-pills">
+                                    @if($examProgramSummary)
+                                        <span class="badge bg-warning text-dark px-3 py-2">برنامه امتحانی</span>
+                                    @endif
+                                    <span class="badge bg-{{ $selectedTrial->status_color }} px-3 py-2">{{ $selectedTrial->status_label }}</span>
+                                    @if($selectedTrial->expires_at)
+                                        <span class="badge bg-light text-dark border px-3 py-2">
+                                            {{ $selectedTrial->isExpired() ? 'منقضی شده' : $selectedTrial->days_remaining . ' روز مانده' }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="card border-0 shadow-sm mb-3 trial-student-summary">
-                    <div class="card-body">
-                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 trial-student-summary-inner">
+                    @if($examProgramSummary)
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-body d-flex flex-wrap gap-2 align-items-center">
+                                <span class="badge bg-warning text-dark">برنامه امتحانی</span>
+                                <span class="fw-semibold">{{ $examProgramSummary['title'] }}</span>
+                                <span class="text-muted small">تاریخ‌ها: {{ $examProgramSummary['exam_range'] }}</span>
+                                <span class="text-muted small">ثبت برنامه: {{ $examProgramSummary['program_built_at'] }}</span>
+                                <span class="text-muted small">تعداد روزها: {{ $examProgramSummary['days_count'] }}</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="row g-3 mb-3 trial-stats-row">
+                        <div class="col-6 col-lg-3">
+                            <div class="card border-0 shadow-sm h-100"><div class="card-body">
+                                <div class="text-muted small">پارت برنامه</div>
+                                <h3 class="mb-0">{{ number_format($programParts) }}</h3>
+                            </div></div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <div class="card border-0 shadow-sm h-100"><div class="card-body">
+                                <div class="text-muted small">زمان کل برنامه</div>
+                                <h3 class="mb-0">{{ $this->formatMinutes($programMinutes) }}</h3>
+                            </div></div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <div class="card border-0 shadow-sm h-100"><div class="card-body">
+                                <div class="text-muted small">گزارش‌های بدون ارسال</div>
+                                <h3 class="mb-0 text-danger">{{ count($missingReports) }}</h3>
+                            </div></div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <div class="card border-0 shadow-sm h-100"><div class="card-body">
+                                <div class="text-muted small">گزارش انتخاب‌شده</div>
+                                <h3 class="mb-0 text-info">{{ count($selectedReports) }}</h3>
+                            </div></div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm mb-3 trial-section-card">
+                        <div class="card-header bg-white trial-section-header">
                             <div>
-                                <h4 class="mb-1">{{ $studentName }}</h4>
-                                <div class="text-muted small">
-                                    {{ $selectedTrial->grade_label }} / {{ $selectedTrial->field_label }}
-                                    <span class="mx-2">•</span>
-                                    <span dir="ltr">{{ $selectedTrial->user?->mobile ?? '—' }}</span>
-                                </div>
-                            </div>
-                            <div class="d-flex flex-wrap gap-2 trial-status-pills">
-                                <span class="badge bg-{{ $selectedTrial->status_color }} px-3 py-2">{{ $selectedTrial->status_label }}</span>
-                                @if($selectedTrial->expires_at)
-                                    <span class="badge bg-light text-dark border px-3 py-2">
-                                        {{ $selectedTrial->isExpired() ? 'منقضی شده' : $selectedTrial->days_remaining . ' روز مانده' }}
-                                    </span>
-                                @endif
+                                <strong>خلاصه عملکرد تا الان</strong>
+                                <div class="small text-muted">بر اساس برنامه فعال، گزارش‌های ثبت‌شده و زمان‌های مطالعه ثبت‌شده</div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="row g-3 mb-3 trial-stats-row">
-                    <div class="col-6 col-lg-3">
-                        <div class="card border-0 shadow-sm h-100"><div class="card-body">
-                            <div class="text-muted small">پارت برنامه</div>
-                            <h3 class="mb-0">{{ number_format($programParts) }}</h3>
-                        </div></div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="card border-0 shadow-sm h-100"><div class="card-body">
-                            <div class="text-muted small">زمان کل برنامه</div>
-                            <h3 class="mb-0">{{ $this->formatMinutes($programMinutes) }}</h3>
-                        </div></div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="card border-0 shadow-sm h-100"><div class="card-body">
-                            <div class="text-muted small">گزارش‌های بدون ارسال</div>
-                            <h3 class="mb-0 text-danger">{{ count($missingReports) }}</h3>
-                        </div></div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="card border-0 shadow-sm h-100"><div class="card-body">
-                            <div class="text-muted small">گزارش انتخاب‌شده</div>
-                            <h3 class="mb-0 text-info">{{ count($selectedReports) }}</h3>
-                        </div></div>
-                    </div>
-                </div>
-
-                <div class="card border-0 shadow-sm mb-3 trial-section-card">
-                    <div class="card-header bg-white trial-section-header">
-                        <div>
-                            <strong>خلاصه عملکرد تا الان</strong>
-                            <div class="small text-muted">بر اساس برنامه فعال، گزارش‌های ثبت‌شده و زمان‌های مطالعه ثبت‌شده</div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3 trial-live-stats">
-                            <div class="col-6 col-lg">
-                                <div class="border rounded-3 p-3 h-100">
-                                    <div class="text-muted small">ساعت مطالعه تا الان</div>
-                                    <div class="h5 mb-0 text-primary">{{ $monitorSummary['study_until_now'] }}</div>
+                        <div class="card-body">
+                            <div class="row g-3 trial-live-stats">
+                                <div class="col-6 col-lg">
+                                    <div class="border rounded-3 p-3 h-100">
+                                        <div class="text-muted small">ساعت مطالعه تا الان</div>
+                                        <div class="h5 mb-0 text-primary">{{ $monitorSummary['study_until_now'] }}</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-6 col-lg">
-                                <div class="border rounded-3 p-3 h-100">
-                                    <div class="text-muted small">ساعت مطالعه امروز</div>
-                                    <div class="h5 mb-0 text-info">{{ $monitorSummary['study_today'] }}</div>
+                                <div class="col-6 col-lg">
+                                    <div class="border rounded-3 p-3 h-100">
+                                        <div class="text-muted small">ساعت مطالعه امروز</div>
+                                        <div class="h5 mb-0 text-info">{{ $monitorSummary['study_today'] }}</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-6 col-lg">
-                                <div class="border rounded-3 p-3 h-100">
-                                    <div class="text-muted small">گزارش ارسال تا الان</div>
-                                    <div class="h5 mb-0 text-success">{{ number_format($monitorSummary['sent_reports_until_now']) }}</div>
+                                <div class="col-6 col-lg">
+                                    <div class="border rounded-3 p-3 h-100">
+                                        <div class="text-muted small">گزارش ارسال تا الان</div>
+                                        <div class="h5 mb-0 text-success">{{ number_format($monitorSummary['sent_reports_until_now']) }}</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-6 col-lg">
-                                <div class="border rounded-3 p-3 h-100">
-                                    <div class="text-muted small">عدم گزارش تا الان</div>
-                                    <div class="h5 mb-0 text-danger">{{ number_format($monitorSummary['missing_reports_until_now']) }}</div>
+                                <div class="col-6 col-lg">
+                                    <div class="border rounded-3 p-3 h-100">
+                                        <div class="text-muted small">عدم گزارش تا الان</div>
+                                        <div class="h5 mb-0 text-danger">{{ number_format($monitorSummary['missing_reports_until_now']) }}</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-12 col-lg">
-                                <div class="border rounded-3 p-3 h-100">
-                                    <div class="text-muted small">تمام بخش‌ها</div>
-                                    <div class="h5 mb-0 text-dark">{{ number_format($monitorSummary['done_parts']) }} / {{ number_format($monitorSummary['total_parts']) }}</div>
-                                    <div class="small text-muted mt-1">انجام شده / کل</div>
+                                <div class="col-12 col-lg">
+                                    <div class="border rounded-3 p-3 h-100">
+                                        <div class="text-muted small">تمام بخش‌ها</div>
+                                        <div class="h5 mb-0 text-dark">{{ number_format($monitorSummary['done_parts']) }} / {{ number_format($monitorSummary['total_parts']) }}</div>
+                                        <div class="small text-muted mt-1">انجام شده / کل</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                @endif
 
                 {{-- PRE-SESSIONS --}}
                 @if($preSessions->count() > 0)
@@ -462,6 +492,7 @@
                         @endif
                     </div>
                 </div>
+                @endif
             @else
                 <div class="card border-0 shadow-sm"><div class="card-body text-center text-muted py-5">دانش‌آموزی برای رصد انتخاب نشده است.</div></div>
             @endif

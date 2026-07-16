@@ -43,6 +43,8 @@
                     @php
                         $calls = $trial->trialAcquisitionCalls;
                         $byStage = $calls->groupBy('stage');
+                        $hasMonitorAccess = $calls->contains(fn ($call) => (bool) $call->answered);
+                        $hasExamProgram = $trial->student?->examSchedules?->isNotEmpty() ?? false;
                         $days = (int) \Carbon\Carbon::parse($trial->created_at)->startOfDay()->diffInDays($now->copy()->startOfDay());
                         $stageMeta = [
                             'day1' => ['label' => 'روز اول', 'due' => $days >= 0],
@@ -61,6 +63,9 @@
                                         <span class="text-muted small" dir="ltr">{{ $trial->user?->mobile ?? '—' }}</span>
                                     </div>
                                     <div class="text-start">
+                                        @if($hasExamProgram)
+                                            <span class="badge bg-warning text-dark">برنامه امتحانی</span>
+                                        @endif
                                         @if($trial->acq_confirmed)
                                             <span class="badge bg-success">ثبت‌نام قطعی</span>
                                         @endif
@@ -68,8 +73,10 @@
                                     </div>
                                 </div>
 
-                                <div class="text-muted small mb-2">
-                                    {{ $trial->grade_label }} / {{ $trial->field_label }}
+                                <div class="text-muted small mb-2 d-flex flex-wrap gap-2">
+                                    <span>{{ $trial->grade_label }} / {{ $trial->field_label }}</span>
+                                    <span>پدر: <span dir="ltr">{{ $trial->father_mobile ?? '—' }}</span></span>
+                                    <span>مادر: <span dir="ltr">{{ $trial->mother_mobile ?? '—' }}</span></span>
                                 </div>
 
                                 {{-- مراحل تماس --}}
@@ -118,13 +125,22 @@
                                 @endif
 
                                 <div class="d-flex gap-2">
-                                    <a href="{{ route('admin.trial-acquisition.monitor', $trial->id) }}" class="btn btn-sm btn-outline-primary flex-fill">
-                                        <i class="fi fi-rr-chart-histogram"></i> رصد
-                                    </a>
+                                    @if($hasMonitorAccess)
+                                        <a href="{{ route('admin.trial-acquisition.monitor', $trial->id) }}" class="btn btn-sm btn-outline-primary flex-fill">
+                                            <i class="fi fi-rr-chart-histogram"></i> رصد
+                                        </a>
+                                    @else
+                                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" disabled>
+                                            <i class="fi fi-rr-lock"></i> رصد
+                                        </button>
+                                    @endif
                                     <button wire:click="openEmergency({{ $trial->id }})" class="btn btn-sm btn-outline-danger flex-fill">
                                         <i class="fi fi-rr-siren-on"></i> تماس اضطراری
                                     </button>
                                 </div>
+                                @unless($hasMonitorAccess)
+                                    <div class="small text-danger mt-2 fw-semibold">برای رصد باید اول شما تماس را بگیری.</div>
+                                @endunless
                             </div>
                         </div>
                     </div>

@@ -144,6 +144,139 @@
                     </div>
                 </div>
             </div>
+            @if(!$isEditMode)
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card border-info">
+                            <div class="card-header bg-info bg-opacity-10 d-flex align-items-center justify-content-between gap-3">
+                                <div>
+                                    <h5 class="card-title mb-1 text-info">
+                                        <i class="ti ti-copy me-1"></i>
+                                        آپلود دو درسه
+                                    </h5>
+                                    <small class="text-muted">
+                                        همین عکس‌ها برای یک مقصد آموزشی دوم هم به صورت سوال جدا ذخیره می‌شوند.
+                                    </small>
+                                </div>
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           role="switch"
+                                           id="duplicateForSecondCourse"
+                                           wire:model.live="duplicateForSecondCourse">
+                                    <label class="form-check-label fw-semibold" for="duplicateForSecondCourse">
+                                        فعال
+                                    </label>
+                                </div>
+                            </div>
+                            @if($duplicateForSecondCourse)
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-4 col-lg-2">
+                                            <label class="form-label">دوره مقصد دوم <span class="text-danger">*</span></label>
+                                            <select wire:model.live="secondEducationLevelId" class="form-select select2-search">
+                                                <option value="">انتخاب کنید...</option>
+                                                @foreach($educationLevels as $level)
+                                                    <option value="{{ $level->id }}">{{ $level->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('secondEducationLevelId')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        @if($secondShowFieldSelect)
+                                            <div class="col-md-4 col-lg-2">
+                                                <label class="form-label">رشته مقصد دوم <span class="text-danger">*</span></label>
+                                                <select wire:model.live="secondFieldId"
+                                                        class="form-select select2-search" {{ empty($secondFields) ? 'disabled' : '' }}>
+                                                    <option value="">انتخاب کنید...</option>
+                                                    @foreach($secondFields as $field)
+                                                        <option value="{{ $field->id }}">{{ $field->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @error('secondFieldId')
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        @endif
+                                        <div class="col-md-4 col-lg-2">
+                                            <label class="form-label">پایه مقصد دوم <span class="text-danger">*</span></label>
+                                            <select wire:model.live="secondGradeId"
+                                                    class="form-select select2-search" {{ empty($secondGrades) ? 'disabled' : '' }}>
+                                                <option value="">انتخاب کنید...</option>
+                                                @foreach($secondGrades as $grade)
+                                                    <option value="{{ $grade->id }}">{{ $grade->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('secondGradeId')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-4 col-lg-2">
+                                            <label class="form-label">درس مقصد دوم <span class="text-danger">*</span></label>
+                                            <select wire:model.live="secondSubjectId"
+                                                    class="form-select select2-search" {{ empty($secondSubjects) ? 'disabled' : '' }}>
+                                                <option value="">انتخاب کنید...</option>
+                                                @foreach($secondSubjects as $subject)
+                                                    <option value="{{ $subject->id }}">{{ $subject->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('secondSubjectId')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-4 col-lg-2">
+                                            <label class="form-label">فصل مقصد دوم <span class="text-danger">*</span></label>
+                                            <select wire:model.live="secondChapterId"
+                                                    class="form-select select2-search" {{ empty($secondChapters) ? 'disabled' : '' }}>
+                                                <option value="">انتخاب کنید...</option>
+                                                @foreach($secondChapters as $chapter)
+                                                    <option value="{{ $chapter->id }}">{{ $chapter->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('secondChapterId')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-4 col-lg-2">
+                                            <label class="form-label">مبحث مقصد دوم @if(!$secondIsComprehensive)<span class="text-danger">*</span>@endif</label>
+                                            <select wire:model.live="secondTopicId"
+                                                    class="form-select select2-search" {{ empty($secondTopics) || $secondIsComprehensive ? 'disabled' : '' }}>
+                                                <option value="">انتخاب کنید...</option>
+                                                @foreach($secondTopics as $topic)
+                                                    <option value="{{ $topic->id }}">{{ $topic->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('secondTopicId')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-4 col-lg-2">
+                                            <label class="form-label d-block">نوع مقصد دوم</label>
+                                            <div class="btn-group w-100" role="group" aria-label="نوع دسته‌بندی مقصد دوم">
+                                                <button type="button"
+                                                        wire:click="setSecondTopicMode"
+                                                        class="btn {{ $secondIsComprehensive ? 'btn-outline-info' : 'btn-info' }}">
+                                                    مبحثی
+                                                </button>
+                                                <button type="button"
+                                                        wire:click="setSecondComprehensiveMode"
+                                                        @disabled(!$secondChapterId)
+                                                        class="btn {{ $secondIsComprehensive ? 'btn-info' : 'btn-outline-info' }}">
+                                                    جامع
+                                                </button>
+                                            </div>
+                                            <small class="text-muted d-block mt-1">
+                                                مقصد دوم باید با دسته‌بندی اصلی متفاوت باشد.
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
             @if($isEditMode)
                 {{-- ==================== حالت ویرایش: یک سوال ====================  --}}
                 <!-- Basic Info Card -->
@@ -210,8 +343,15 @@
                                      :class="{ 'border-primary bg-primary-subtle': isDragging }">
                                     @if($questionImage)
                                         <div class="position-relative d-inline-block">
-                                            <img src="{{ $questionImage->temporaryUrl() }}" alt="پیش‌نمایش"
-                                                 class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+                                            @php($questionPreviewUrl = $this->temporaryPreviewUrl($questionImage))
+                                            @if($questionPreviewUrl)
+                                                <img src="{{ $questionPreviewUrl }}" alt="پیش‌نمایش"
+                                                     class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+                                            @else
+                                                <div class="alert alert-warning mb-0">
+                                                    فایل انتخاب شد، اما پیش‌نمایش آن قابل نمایش نیست. در زمان ذخیره تصویر اعتبارسنجی می‌شود.
+                                                </div>
+                                            @endif
                                             <button type="button" wire:click="removeQuestionImage"
                                                     class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2">
                                                 <i class="ti ti-x"></i>
@@ -266,8 +406,15 @@
                                      :class="{ 'border-primary bg-primary-subtle': isDragging }">
                                     @if($explanationImage)
                                         <div class="position-relative d-inline-block">
-                                            <img src="{{ $explanationImage->temporaryUrl() }}" alt="پیش‌نمایش"
-                                                 class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+                                            @php($explanationPreviewUrl = $this->temporaryPreviewUrl($explanationImage))
+                                            @if($explanationPreviewUrl)
+                                                <img src="{{ $explanationPreviewUrl }}" alt="پیش‌نمایش"
+                                                     class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+                                            @else
+                                                <div class="alert alert-warning mb-0">
+                                                    فایل انتخاب شد، اما پیش‌نمایش آن قابل نمایش نیست. در زمان ذخیره تصویر اعتبارسنجی می‌شود.
+                                                </div>
+                                            @endif
                                             <button type="button" wire:click="removeExplanationImage"
                                                     class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2">
                                                 <i class="ti ti-x"></i>
@@ -347,6 +494,13 @@
                                             <i class="ti ti-info-circle me-1"></i>
                                             تمام سوالات زیر در همان دسته‌بندی انتخاب‌شده بالا ذخیره می‌شوند.
                                             هر سوال می‌تواند سختی و گزینه صحیح جداگانه داشته باشد.
+                                            @if($duplicateForSecondCourse)
+                                                با مقصد دوم، مجموعا {{ $createdQuestionCount }} سوال ساخته می‌شود.
+                                            @endif
+                                        </div>
+                                        <div class="alert alert-light border mt-2 mb-0 py-2 small text-muted">
+                                            اگر تبدیل تصویر خطا داد، پیام جدید نام سوال و نوع عکس را نشان می‌دهد.
+                                            معمولا با ذخیره دوباره فایل به صورت JPG یا PNG و صبر برای تکمیل آپلود حل می‌شود.
                                         </div>
                                     </div>
                                 </div>
@@ -429,10 +583,17 @@
                                                  style="min-height: 160px;">
                                                 @if(isset($questionImages[$i]) && $questionImages[$i])
                                                     <div class="position-relative d-inline-block">
-                                                        <img src="{{ $questionImages[$i]->temporaryUrl() }}"
-                                                             alt="پیش‌نمایش سوال {{ $i + 1 }}"
-                                                             class="img-fluid rounded shadow-sm"
-                                                             style="max-height: 260px;">
+                                                        @php($questionPreviewUrl = $this->temporaryPreviewUrl($questionImages[$i]))
+                                                        @if($questionPreviewUrl)
+                                                            <img src="{{ $questionPreviewUrl }}"
+                                                                 alt="پیش‌نمایش سوال {{ $i + 1 }}"
+                                                                 class="img-fluid rounded shadow-sm"
+                                                                 style="max-height: 260px;">
+                                                        @else
+                                                            <div class="alert alert-warning mb-0 small">
+                                                                فایل انتخاب شد، اما پیش‌نمایش آن قابل نمایش نیست.
+                                                            </div>
+                                                        @endif
                                                         <button type="button"
                                                                 wire:click="removeQuestionImageAt({{ $i }})"
                                                                 class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2">
@@ -480,10 +641,17 @@
                                                  style="min-height: 160px;">
                                                 @if(isset($explanationImages[$i]) && $explanationImages[$i])
                                                     <div class="position-relative d-inline-block">
-                                                        <img src="{{ $explanationImages[$i]->temporaryUrl() }}"
-                                                             alt="پیش‌نمایش پاسخ {{ $i + 1 }}"
-                                                             class="img-fluid rounded shadow-sm"
-                                                             style="max-height: 260px;">
+                                                        @php($explanationPreviewUrl = $this->temporaryPreviewUrl($explanationImages[$i]))
+                                                        @if($explanationPreviewUrl)
+                                                            <img src="{{ $explanationPreviewUrl }}"
+                                                                 alt="پیش‌نمایش پاسخ {{ $i + 1 }}"
+                                                                 class="img-fluid rounded shadow-sm"
+                                                                 style="max-height: 260px;">
+                                                        @else
+                                                            <div class="alert alert-warning mb-0 small">
+                                                                فایل انتخاب شد، اما پیش‌نمایش آن قابل نمایش نیست.
+                                                            </div>
+                                                        @endif
                                                         <button type="button"
                                                                 wire:click="removeExplanationImageAt({{ $i }})"
                                                                 class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2">
@@ -533,8 +701,8 @@
                                     <i class="ti ti-device-floppy me-1"></i>
                                     @if($isEditMode)
                                         ذخیره تغییرات
-                                    @elseif($questionCount > 1)
-                                        ذخیره {{ $questionCount }} سوال
+                                    @elseif($createdQuestionCount > 1)
+                                        ذخیره {{ $createdQuestionCount }} سوال
                                     @else
                                         ذخیره سوال
                                     @endif
@@ -578,16 +746,29 @@
                 initSelect2();
             });
             function initSelect2() {
-                $('.select2-search').select2({
-                    theme: 'bootstrap-5',
-                    width: '100%',
-                    allowClear: true,
-                    dir: 'rtl',
-                    language: {
-                        noResults: function () {
-                            return "نتیجه‌ای یافت نشد";
-                        }
+                if (!window.jQuery || !window.jQuery.fn || !window.jQuery.fn.select2) {
+                    return;
+                }
+
+                const $ = window.jQuery;
+                $('.select2-search').each(function () {
+                    const $select = $(this);
+
+                    if ($select.data('select2')) {
+                        $select.select2('destroy');
                     }
+
+                    $select.select2({
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        allowClear: true,
+                        dir: 'rtl',
+                        language: {
+                            noResults: function () {
+                                return "نتیجه‌ای یافت نشد";
+                            }
+                        }
+                    });
                 });
             }
         </script>

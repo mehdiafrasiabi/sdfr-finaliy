@@ -52,6 +52,11 @@ class ExamPlanningSetting extends Model
         return $this->hasMany(StudentExamSchedule::class)->latest('id');
     }
 
+    public function sampleQuestions(): HasMany
+    {
+        return $this->hasMany(ExamSampleQuestion::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

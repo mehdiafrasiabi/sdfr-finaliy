@@ -67,7 +67,7 @@ class AssessmentIndex extends Component
             'f_name_fa'       => ['required', 'string', 'max:150'],
             'f_kind'          => ['required', 'in:mbti,vark,custom'],
             'f_question_type' => ['required', 'in:mbti_binary,vark_multi,mixed,likert5,yes_no'],
-            'f_audience'      => ['required', 'in:student,parent'],
+            'f_audience'      => ['required', 'in:student'],
             'f_display_order' => ['required', 'integer', 'min:0'],
         ], [
             'f_slug.regex' => 'slug فقط می‌تواند شامل حروف انگلیسی کوچک، عدد و خط تیره باشد.',

@@ -643,6 +643,9 @@
                                     'money'     => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>',
                                     'chat'      => '<path d="M17.98 10.79V14.79C17.98 15.05 17.97 15.3 17.94 15.54C17.71 18.24 16.12 19.58 13.19 19.58H12.79C12.54 19.58 12.3 19.7 12.15 19.9L10.95 21.5C10.42 22.21 9.56 22.21 9.03 21.5L7.82999 19.9C7.69999 19.73 7.41 19.58 7.19 19.58H6.79001C3.60001 19.58 2 18.79 2 14.79V10.79C2 7.86001 3.35001 6.27001 6.04001 6.04001C6.28001 6.01001 6.53001 6 6.79001 6H13.19C16.38 6 17.98 7.60001 17.98 10.79Z" stroke-linecap="round" stroke-linejoin="round"/>',
                                     'settings'  => '<path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Z"/>',
+                                    'sample-questions'  => ' <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 16h6"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"></path>',
                                     'advisorChange'  => '   <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h10M7 12h6m-6 5h8" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 3l4 4l-4 4" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M7 21l-4-4l4-4" />',
@@ -665,9 +668,9 @@
                                             ['label' => 'اتاق مشاوره',     'route' => route('client.profile.consultation.sessions'),   'icon' => 'screen'],
                                             ['label' => 'برنامه درسی',     'route' => route('client.profile.plan'),                    'icon' => 'book'],
                                             ['label' => 'گزارش درسی',      'route' => route('client.profile.report'),                  'icon' => 'clipboard'],
+                                            ...( $showSampleQuestionsLink ? [ ['label' => 'نمونه سوالات امتحانی',           'route' => route('client.profile.sample-questions'), 'icon' => 'sample-questions']] : []),
                                             ['label' => 'آزمون',           'route' => route('client.profile.typed-exam.list'),         'icon' => 'edit'],
-                                            ...( $showExamPlanningLink ? [['label' => 'برنامه امتحانات', 'route' => route('client.profile.exam-planning'), 'icon' => 'edit']] : []),
-                                            ['label' => 'کارنامه وضعیت',   'route' => route('client.profile.reportStudentStudy'),      'icon' => 'file'],
+                                             ['label' => 'کارنامه وضعیت',   'route' => route('client.profile.reportStudentStudy'),      'icon' => 'file'],
                                             ['label' => 'طبقه‌بندی دروس',  'route' => route('client.profile.classification.projects'), 'icon' => 'layers'],
                                         ],
                                     ],

@@ -369,9 +369,9 @@ class Dashboard extends Component
         $isExamProgram = $this->isExamProgram($program);
         $start = Carbon::parse($program->start_date)->startOfDay();
         $end = Carbon::parse($program->end_date)->endOfDay();
-        $dayCount = $start->diffInDays($end) + 1; // Correct day count for the loop
+        $dayCount = (int) $start->diffInDays(Carbon::parse($program->end_date)->startOfDay()) + 1;
 
-        if ($this->student?->is_trial) {
+        if ($this->student?->is_trial && ! $isExamProgram) {
             $dayCount = min($dayCount, TrialWeek::PROGRAM_DAYS);
         }
 
@@ -956,11 +956,11 @@ class Dashboard extends Component
         $startDate = Carbon::parse($activeProgram->start_date)->startOfDay();
         $endDate = Carbon::parse($activeProgram->end_date)->endOfDay();
         
-        $totalDays = $startDate->diffInDays($endDate) + 1;
+        $totalDays = (int) $startDate->diffInDays(Carbon::parse($activeProgram->end_date)->startOfDay()) + 1;
 
         $hasExamFlow = $this->isExamProgram($activeProgram);
 
-        if ($this->student && $this->student->is_trial) {
+        if ($this->student && $this->student->is_trial && ! $hasExamFlow) {
             $totalDays = min($totalDays, TrialWeek::PROGRAM_DAYS);
         }
 

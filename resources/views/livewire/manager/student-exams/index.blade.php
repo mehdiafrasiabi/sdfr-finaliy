@@ -5,10 +5,16 @@
                 <h4 class="mb-1">امتحانات دانش‌آموزان</h4>
                 <p class="text-muted mb-0">تنظیم بازه فعال‌سازی، نوع ثبت و ظرفیت مطالعه هر پایه و رشته را از اینجا مدیریت کنید.</p>
             </div>
-            <button class="btn btn-primary" wire:click="openModal">
-                <i class="ri-add-line me-1"></i>
-                تنظیم جدید
-            </button>
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-soft-info" wire:click="openSampleModal">
+                    <i class="ri-upload-2-line me-1"></i>
+                    آپلود نمونه سوالات
+                </button>
+                <button class="btn btn-primary" wire:click="openModal">
+                    <i class="ri-add-line me-1"></i>
+                    تنظیم جدید
+                </button>
+            </div>
         </div>
     </div>
 
@@ -25,6 +31,7 @@
                         <th>بازه امتحانات</th>
                         <th>سقف روزانه</th>
                         <th>جزئیات</th>
+                        <th>نمونه سوالات</th>
                         <th>وضعیت</th>
                         <th class="text-end">عملیات</th>
                     </tr>
@@ -64,6 +71,12 @@
                                 @endif
                             </td>
                             <td>
+                                <button type="button" class="btn btn-sm btn-soft-secondary"
+                                        wire:click="openSampleModal({{ $setting->id }})">
+                                    {{ $setting->sample_questions_count }} فایل
+                                </button>
+                            </td>
+                            <td>
                                 <button class="btn btn-sm {{ $setting->is_active ? 'btn-success' : 'btn-outline-secondary' }}"
                                         wire:click="toggleActive({{ $setting->id }})">
                                     {{ $setting->is_active ? 'فعال' : 'غیرفعال' }}
@@ -83,7 +96,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center py-5 text-muted">هنوز تنظیم امتحانی ثبت نشده است.</td>
+                            <td colspan="10" class="text-center py-5 text-muted">هنوز تنظیم امتحانی ثبت نشده است.</td>
                         </tr>
                     @endforelse
                     </tbody>
@@ -93,6 +106,118 @@
             {{ $settings->links() }}
         </div>
     </div>
+
+    @if($showSampleModal)
+        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.55);">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div>
+                            <h5 class="modal-title">آپلود نمونه سوالات تشریحی</h5>
+                            @if($sampleSelectedSetting)
+                                <div class="text-muted small">{{ $sampleSelectedSetting->grade_label }} - {{ $sampleSelectedSetting->field_label }}</div>
+                            @endif
+                        </div>
+                        <button type="button" class="btn-close" wire:click="closeSampleModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">تنظیم امتحان</label>
+                                <select class="form-select" wire:model.live="sampleSettingId">
+                                    <option value="">انتخاب کنید</option>
+                                    @foreach($sampleSettings as $setting)
+                                        <option value="{{ $setting->id }}">
+                                            {{ $setting->grade_label }} - {{ $setting->field_label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('sampleSettingId') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">درس‌های قابل انتخاب</label>
+                                <div class="rounded border p-2 bg-light d-flex flex-wrap gap-2 min-h-100">
+                                    @forelse($sampleSubjects as $subject)
+                                        <span class="badge bg-secondary-subtle text-dark">
+                                            {{ $subject['name'] }} ({{ $subject['type'] === 'general' ? 'عمومی' : 'تخصصی' }})
+                                        </span>
+                                    @empty
+                                        <span class="text-muted small">ابتدا یک تنظیم امتحان را انتخاب کنید.</span>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="text-muted small">برای هر فایل یک ردیف بسازید. هر فایل فقط PDF و تا 20 مگابایت.</div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" wire:click="addSampleRow">
+                                <i class="ri-add-line me-1"></i>
+                                ردیف جدید
+                            </button>
+                        </div>
+
+                        @error('sampleRows') <div class="alert alert-danger py-2">{{ $message }}</div> @enderror
+
+                        <div class="d-grid gap-3">
+                            @foreach($sampleRows as $index => $row)
+                                <div wire:key="sample-row-{{ $index }}" class="border rounded-3 p-3 bg-body-tertiary">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="fw-semibold">فایل {{ $index + 1 }}</div>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" wire:click="removeSampleRow({{ $index }})" @disabled(count($sampleRows) === 1)>
+                                            حذف
+                                        </button>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-lg-4">
+                                            <label class="form-label">عنوان</label>
+                                            <input type="text" class="form-control" wire:model="sampleRows.{{ $index }}.title" placeholder="نمونه: فیزیک دوازدهم فصل ۱">
+                                            @error('sampleRows.' . $index . '.title') <small class="text-danger">{{ $message }}</small> @enderror
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <label class="form-label">درس</label>
+                                            <select class="form-select" wire:model="sampleRows.{{ $index }}.cc_subject_id">
+                                                <option value="">انتخاب کنید</option>
+                                                @foreach($sampleSubjects as $subject)
+                                                    <option value="{{ $subject['id'] }}">
+                                                        {{ $subject['name'] }} ({{ $subject['type'] === 'general' ? 'عمومی' : 'تخصصی' }})
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error('sampleRows.' . $index . '.cc_subject_id') <small class="text-danger">{{ $message }}</small> @enderror
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <label class="form-label">زمان (دقیقه)</label>
+                                            <input type="number" min="1" max="720" class="form-control" wire:model="sampleRows.{{ $index }}.duration_minutes" dir="ltr">
+                                            @error('sampleRows.' . $index . '.duration_minutes') <small class="text-danger">{{ $message }}</small> @enderror
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <label class="form-label">فایل PDF</label>
+                                            <input type="file" class="form-control" wire:model="sampleRows.{{ $index }}.file" accept="application/pdf">
+                                            @error('sampleRows.' . $index . '.file') <small class="text-danger">{{ $message }}</small> @enderror
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" wire:model="sampleRows.{{ $index }}.is_main" id="sample-main-{{ $index }}">
+                                                <label class="form-check-label" for="sample-main-{{ $index }}">
+                                                    این فایل به عنوان اصلی ذخیره شود
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-light" wire:click="closeSampleModal">انصراف</button>
+                        <button class="btn btn-primary" wire:click="saveSampleQuestions">
+                            ذخیره نمونه سوالات
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     @if($showModal)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.55);">

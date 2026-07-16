@@ -22,6 +22,7 @@ class Header extends Component
     /** اطلاعات مشاور/پشتیبان برای نمایش در مودال موبایل */
     public ?array $advisorInfo = null;
     public bool $showExamPlanningLink = false;
+    public bool $showSampleQuestionsLink = false;
 
     public function mount()
     {
@@ -115,11 +116,14 @@ class Header extends Component
     {
         $user = Auth::user();
         if (! $user) {
-            $this->showExamPlanningLink = false;
-            return;
-        }
+        $this->showExamPlanningLink = false;
+        $this->showSampleQuestionsLink = false;
+        return;
+    }
 
         $this->showExamPlanningLink = app(ExamPlanningService::class)->shouldExposePaidModule($user)
+            || app(ExamPlanningService::class)->shouldExposeTrialModule($user);
+        $this->showSampleQuestionsLink = app(ExamPlanningService::class)->shouldExposePaidModule($user)
             || app(ExamPlanningService::class)->shouldExposeTrialModule($user);
     }
 

@@ -14,6 +14,9 @@ use Livewire\Component;
 class CkUpload extends Component
 {
     use UploadFile;
+
+    protected const QUESTION_IMAGE_WIDTH = 1080;
+
     public function upload(Request $request)
     {
         $request->validate([
@@ -29,21 +32,33 @@ class CkUpload extends Component
         $filename = uniqid() . '-' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
         $realPath = $file->getRealPath();
         $finalPath = "{$path}/{$filename}";
-        $manager->read($realPath)
-            ->scale(1080)
-            ->toWebp(85)
-            ->save($finalPath);
+        try {
+            $manager->read($realPath)
+                ->scale(width: self::QUESTION_IMAGE_WIDTH)
+                ->toWebp(85)
+                ->save($finalPath);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            if (File::exists($finalPath)) {
+                File::delete($finalPath);
+            }
+
+            return response()->json([
+                'uploaded' => 0,
+                'error' => ['message' => 'تصویر داخل ادیتور قابل تبدیل نبود. فایل را با فرمت JPG یا PNG ذخیره و دوباره آپلود کنید.'],
+            ], 422);
+        }
+
         $info = getimagesize($finalPath);
-        if (!$info || ($info['mime'] ?? null) !== 'image/webp' || (int)$info[0] !== 1080) {
+        if (!$info || ($info['mime'] ?? null) !== 'image/webp' || (int)$info[0] !== self::QUESTION_IMAGE_WIDTH) {
             File::delete($finalPath);
             return response()->json([
                 'uploaded' => 0,
-                'error' => ['message' => 'تصویر به WebP با عرض ۱۰۸۰ تبدیل نشد.'],
+                'error' => ['message' => 'تصویر داخل ادیتور به WebP با عرض ۱۰۸۰ تبدیل نشد. فایل را با فرمت JPG/PNG/WebP معمولی دوباره ذخیره کنید.'],
             ], 422);
         }
-        if ($realPath && file_exists($realPath)) {
-            @unlink($realPath);
-        }
+
         $url = asset("questions/{$questionId}/images/{$filename}");
         // CKEditor 5 response format
         return response()->json([

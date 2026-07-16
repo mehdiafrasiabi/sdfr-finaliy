@@ -2,6 +2,7 @@
 
 use App\Models\AdvisingSession;
 use App\Models\Payment;
+use App\Models\StudentExamSchedule;
 use App\Models\TrialWeek;
 use App\Services\TrialLifecycleSmsService;
 use Illuminate\Foundation\Inspiring;
@@ -32,6 +33,38 @@ Artisan::command('sms:send-lifecycle-notifications', function () {
             }
         });
 
+    $examProgramStarted = 0;
+    StudentExamSchedule::query()
+        ->whereNotNull('weekly_program_id')
+        ->whereNotNull('program_built_at')
+        ->whereNull('exam_program_started_sms_sent_at')
+        ->whereHas('student', fn ($query) => $query->where('is_trial', true))
+        ->with(['user', 'student'])
+        ->chunkById(100, function ($schedules) use ($sms, &$examProgramStarted) {
+            foreach ($schedules as $schedule) {
+                if ($sms->trySendExamProgramStarted($schedule)) {
+                    $examProgramStarted++;
+                }
+            }
+        });
+
+    $examProgramEnded = 0;
+    StudentExamSchedule::query()
+        ->whereNotNull('weekly_program_id')
+        ->whereNotNull('program_built_at')
+        ->whereNotNull('access_expires_at')
+        ->where('access_expires_at', '<=', now())
+        ->whereNull('exam_program_ended_sms_sent_at')
+        ->whereHas('student', fn ($query) => $query->where('is_trial', true))
+        ->with(['user.personalInformation', 'student'])
+        ->chunkById(100, function ($schedules) use ($sms, &$examProgramEnded) {
+            foreach ($schedules as $schedule) {
+                if ($sms->trySendExamProgramEnded($schedule)) {
+                    $examProgramEnded++;
+                }
+            }
+        });
+
     $ended = 0;
     TrialWeek::query()
         ->where('status', TrialWeek::STATUS_PROGRAM_BUILT)
@@ -39,6 +72,10 @@ Artisan::command('sms:send-lifecycle-notifications', function () {
         ->where('expires_at', '<=', now())
         ->whereNull('trial_ended_sms_sent_at')
         ->whereHas('student', fn ($query) => $query->where('is_trial', true))
+        ->whereDoesntHave('user.examSchedules', function ($query) {
+            $query->whereNotNull('weekly_program_id')
+                ->whereNotNull('program_built_at');
+        })
         ->with(['user.personalInformation', 'student'])
         ->chunkById(100, function ($trials) use ($sms, &$ended) {
             foreach ($trials as $trial) {
@@ -68,7 +105,7 @@ Artisan::command('sms:send-lifecycle-notifications', function () {
             }
         });
 
-    $this->info("Lifecycle SMS sent: started={$started}, ended={$ended}, purchases={$purchases}.");
+    $this->info("Lifecycle SMS sent: started={$started}, exam_program_started={$examProgramStarted}, exam_program_ended={$examProgramEnded}, ended={$ended}, purchases={$purchases}.");
 })->purpose('Send and retry required lifecycle SMS notifications');
 
 Schedule::command('advising-sessions:mark-advisor-absent')->everyFiveMinutes();

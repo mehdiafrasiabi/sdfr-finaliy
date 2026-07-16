@@ -27,9 +27,6 @@ use App\Livewire\Client\Profile\ReportStudentStudy as ProfileReportStudentStudy;
 use App\Livewire\Client\Profile\Ticket\Create as ProfileTicketCreate;
 use App\Livewire\Client\Profile\Ticket\Index as ProfileTicketIndex;
 use App\Livewire\Client\Profile\Ticket\Show as ProfileTicketShow;
-use App\Livewire\Client\ParentAssessment\ParentAssessmentEntry;
-use App\Livewire\Client\ParentAssessment\ParentAssessmentList as ParentAssessmentListPage;
-use App\Livewire\Client\ParentAssessment\ParentAssessmentTake as ParentAssessmentTakePage;
 use App\Livewire\Client\Profile\Assessment\AssessmentList;
 use App\Livewire\Client\Profile\Assessment\AssessmentTake;
 use App\Livewire\Client\Profile\TypedExam\TypedExamList;
@@ -94,13 +91,6 @@ Route::name('client.')->group(function () {
         Route::get('/dashboard', \App\Livewire\Client\Parent\ParentDashboard::class)->name('dashboard');
     });
 
-    // مسیر عمومی تست‌های والدینی — بدون auth، با token validation داخل خود components
-    Route::prefix('parent/assessment')->name('parent.assessment.')->group(function () {
-        Route::get('/{token}', ParentAssessmentEntry::class)->name('entry');
-        Route::get('/{token}/list', ParentAssessmentListPage::class)->name('list');
-        Route::get('/{token}/{slug}/take', ParentAssessmentTakePage::class)->name('take');
-    });
-
     // B-2: صفحهٔ پرداخت اختصاصی (auth + گِیت آزمون‌ها + گِیت بستن پنل)
     Route::get('/purchase',
         \App\Livewire\Client\Purchase\Index::class)
@@ -117,10 +107,13 @@ Route::name('client.')->group(function () {
         // تا دانش‌آموزِ هفته‌ی آزمایشیِ فعال به‌جای ریدایرکت، صفحه‌ی «عدم دسترسی/قفل» را ببیند.
         // client.active نگه داشته می‌شود تا دانش‌آموزِ منقضی/بدون‌دسترسی به خرید هدایت شود
         // (و دانش‌آموزِ آزمایشیِ فعال همچنان عبور کرده و قفل را می‌بیند).
-        Route::get('/profile/advisor-chat', \App\Livewire\Client\Profile\AdvisorChat::class)
+    Route::get('/profile/advisor-chat', \App\Livewire\Client\Profile\AdvisorChat::class)
             ->middleware(['student.panel.open', 'client.active'])
             ->name('profile.advisor-chat');
 
+        Route::get('/profile/sample-questions', \App\Livewire\Client\Profile\SampleQuestions\Index::class)
+            ->middleware(['student.panel.open'])
+            ->name('profile.sample-questions');
 
         Route::prefix('profile')->name('profile.')->middleware(['student.panel.open', 'assessments.required', 'client.active', 'advisor.selected', 'installments.current', 'trial.step', 'block.during.study', 'exam.feedback.required'])->group(function () {
             //Profile

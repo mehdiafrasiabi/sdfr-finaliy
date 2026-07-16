@@ -39,7 +39,7 @@
                         <td class="font-medium">{{ $a->name_fa }}</td>
                         <td><code class="text-xs">{{ $a->slug }}</code></td>
                         <td>{{ $a->kind_label }}</td>
-                        <td>{{ $a->audience === 'student' ? 'دانش‌آموز' : 'والد' }}</td>
+                        <td>دانش‌آموز</td>
                         <td>{{ $a->questions_count }} / {{ $a->expected_question_count ?? '—' }}</td>
                         <td>
                             <button wire:click="toggleActive({{ $a->id }})"
@@ -106,10 +106,7 @@
                     </div>
                     <div>
                         <label class="label"><span class="label-text">مخاطب</span></label>
-                        <select wire:model="f_audience" class="select select-bordered w-full">
-                            <option value="student">دانش‌آموز</option>
-                            <option value="parent">والد (فاز ۲)</option>
-                        </select>
+                        <input type="text" value="دانش‌آموز" class="input input-bordered w-full" disabled />
                     </div>
                     <div>
                         <label class="label"><span class="label-text">ترتیب نمایش</span></label>

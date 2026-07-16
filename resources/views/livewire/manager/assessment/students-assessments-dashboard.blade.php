@@ -22,7 +22,6 @@
                     <th>موبایل</th>
                     <th>پایه/رشته</th>
                     <th>پیشرفت دانش‌آموز</th>
-                    <th>پاسخ والدین</th>
                     <th>وضعیت</th>
                     <th>عملیات</th>
                 </tr>
@@ -53,17 +52,6 @@
                             @endif
                         </td>
                         <td>{{ $row->completed }} / {{ $row->total }}</td>
-                        <td>
-                            @php
-                                $parentBadge = match (true) {
-                                    $row->parentCompleted >= $row->parentTotal && $row->parentTotal > 0 => 'badge-success',
-                                    $row->parentCompleted > 0                                          => 'badge-warning',
-                                    $row->parentTotal === 0                                            => 'badge-ghost',
-                                    default                                                            => 'badge-error',
-                                };
-                            @endphp
-                            <span class="badge {{ $parentBadge }}">{{ $row->parentCompleted }} / {{ $row->parentTotal }}</span>
-                        </td>
                         <td><span class="badge {{ $badgeClass }}">{{ $badgeLabel }}</span></td>
                         <td>
                             <a href="{{ route('manager.students-assessments.show', $row->user->id) }}"
@@ -71,7 +59,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="text-center py-8 text-base-content/60">دانش‌آموزی یافت نشد.</td></tr>
+                    <tr><td colspan="6" class="text-center py-8 text-base-content/60">دانش‌آموزی یافت نشد.</td></tr>
                 @endforelse
             </tbody>
         </table>

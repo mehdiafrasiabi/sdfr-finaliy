@@ -3,8 +3,11 @@
 namespace App\Services;
 
 use App\Models\Payment;
+use App\Models\StudentExamSchedule;
 use App\Models\TrialWeek;
 use App\Models\User;
+use App\Notifications\ExamProgramEndedSms;
+use App\Notifications\ExamProgramStartedSms;
 use App\Notifications\PurchaseCompletedSms;
 use App\Notifications\TrialEndedSms;
 use App\Notifications\TrialStartedSms;
@@ -42,6 +45,10 @@ class TrialLifecycleSmsService
             return false;
         }
 
+        if ($this->hasBuiltExamProgram($trialWeek->user)) {
+            return false;
+        }
+
         $user = $trialWeek->user;
         $mobile = $this->mobileFor($user);
         $studentName = $this->studentNameFor($user);
@@ -52,6 +59,52 @@ class TrialLifecycleSmsService
             ->whereKey($trialWeek->id)
             ->whereNull('trial_ended_sms_sent_at')
             ->update(['trial_ended_sms_sent_at' => now()]);
+    }
+
+    public function sendExamProgramStarted(StudentExamSchedule $schedule): bool
+    {
+        $schedule->loadMissing(['user', 'student']);
+        if (
+            $schedule->exam_program_started_sms_sent_at
+            || ! $schedule->program_built_at
+            || ! $this->isTrialExamSchedule($schedule)
+        ) {
+            return false;
+        }
+
+        $user = $schedule->user;
+        $mobile = $this->mobileFor($user);
+
+        $user->notify(new ExamProgramStartedSms($mobile));
+
+        return (bool) StudentExamSchedule::query()
+            ->whereKey($schedule->id)
+            ->whereNull('exam_program_started_sms_sent_at')
+            ->update(['exam_program_started_sms_sent_at' => now()]);
+    }
+
+    public function sendExamProgramEnded(StudentExamSchedule $schedule): bool
+    {
+        $schedule->loadMissing(['user.personalInformation', 'student']);
+        if (
+            $schedule->exam_program_ended_sms_sent_at
+            || ! $schedule->access_expires_at
+            || $schedule->access_expires_at->isFuture()
+            || ! $this->isTrialExamSchedule($schedule)
+        ) {
+            return false;
+        }
+
+        $user = $schedule->user;
+        $mobile = $this->mobileFor($user);
+        $studentName = $this->studentNameFor($user);
+
+        $user->notify(new ExamProgramEndedSms($mobile, $studentName, $this->dashboardUrl()));
+
+        return (bool) StudentExamSchedule::query()
+            ->whereKey($schedule->id)
+            ->whereNull('exam_program_ended_sms_sent_at')
+            ->update(['exam_program_ended_sms_sent_at' => now()]);
     }
 
     public function sendPurchaseCompleted(Payment $payment): bool
@@ -102,6 +155,36 @@ class TrialLifecycleSmsService
         }
     }
 
+    public function trySendExamProgramStarted(StudentExamSchedule $schedule): bool
+    {
+        try {
+            return $this->sendExamProgramStarted($schedule);
+        } catch (\Throwable $e) {
+            Log::critical('Failed to send exam program started SMS', [
+                'student_exam_schedule_id' => $schedule->id,
+                'user_id' => $schedule->user_id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
+    public function trySendExamProgramEnded(StudentExamSchedule $schedule): bool
+    {
+        try {
+            return $this->sendExamProgramEnded($schedule);
+        } catch (\Throwable $e) {
+            Log::critical('Failed to send exam program ended SMS', [
+                'student_exam_schedule_id' => $schedule->id,
+                'user_id' => $schedule->user_id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
     public function trySendPurchaseCompleted(Payment $payment): bool
     {
         try {
@@ -132,6 +215,25 @@ class TrialLifecycleSmsService
         $name = trim((string) ($info?->name ?: $user->name));
 
         return $name !== '' ? $name : 'دانش‌آموز';
+    }
+
+    protected function isTrialExamSchedule(StudentExamSchedule $schedule): bool
+    {
+        $student = $schedule->student;
+
+        return (bool) (
+            $student
+            && $student->is_trial
+            && ! $student->hasActivePaidAccess()
+        );
+    }
+
+    protected function hasBuiltExamProgram(?User $user): bool
+    {
+        return (bool) $user?->examSchedules()
+            ->whereNotNull('weekly_program_id')
+            ->whereNotNull('program_built_at')
+            ->exists();
     }
 
     protected function dashboardUrl(): string

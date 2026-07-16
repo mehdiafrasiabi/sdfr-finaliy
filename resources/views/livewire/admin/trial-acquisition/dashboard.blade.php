@@ -60,6 +60,39 @@
             </div>
         </div>
 
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-secondary-subtle"><strong class="text-secondary">در انتظار تماس</strong></div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height:300px;overflow:auto">
+                        <table class="table table-sm table-bordered mb-0 align-middle">
+                            <thead><tr><th>دانش‌آموز</th><th>وضعیت</th><th>رصد</th></tr></thead>
+                            <tbody>
+                            @forelse($waitingForCall as $trial)
+                                @php $hasExamProgram = $trial->student?->examSchedules?->isNotEmpty() ?? false; @endphp
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">{{ $trial->user?->name ?? '—' }}</div>
+                                        <div class="small text-muted" dir="ltr">{{ $trial->user?->mobile ?? '—' }}</div>
+                                    </td>
+                                    <td>
+                                        @if($hasExamProgram)
+                                            <span class="badge bg-warning text-dark">آزمونی</span>
+                                        @endif
+                                        <span class="badge bg-light text-dark border">{{ $trial->grade_label }}</span>
+                                    </td>
+                                    <td class="text-danger small fw-semibold">اول باید تماس بگیرید</td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="3" class="text-center text-muted py-3">همهٔ دانش‌آموزها حداقل یک تماس موفق دارند.</td></tr>
+                            @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- یادآورها --}}
         <div class="col-md-6">
             <div class="card border-0 shadow-sm h-100">

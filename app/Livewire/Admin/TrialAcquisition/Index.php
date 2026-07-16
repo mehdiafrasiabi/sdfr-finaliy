@@ -130,6 +130,12 @@ class Index extends Component
         return TrialWeek::where('acquisition_supporter_id', Auth::guard('admin')->id())->find($trialId);
     }
 
+    protected function hasSuccessfulCall(TrialWeek $trial): bool
+    {
+        return $trial->trialAcquisitionCalls
+            ->contains(fn (TrialAcquisitionCall $call) => (bool) $call->answered);
+    }
+
     public function logCall(): void
     {
         $trial = $this->loadTrial($this->activeTrialId);
@@ -236,7 +242,14 @@ class Index extends Component
         $adminId = Auth::guard('admin')->id();
 
         $trials = TrialWeek::query()
-            ->with(['user.personalInformation', 'trialAcquisitionCalls'])
+            ->with([
+                'user.personalInformation',
+                'trialAcquisitionCalls',
+                'student.examSchedules' => fn ($query) => $query
+                    ->whereNotNull('weekly_program_id')
+                    ->whereNotNull('program_built_at')
+                    ->latest('program_built_at'),
+            ])
             ->where('acquisition_supporter_id', $adminId)
             ->when($this->search, fn ($q) => $q->whereHas('user', fn ($u) =>
                 $u->where('name', 'like', "%{$this->search}%")
@@ -248,13 +261,23 @@ class Index extends Component
             ->latest()
             ->paginate(12);
 
-        $activeTrial = $this->activeTrialId ? TrialWeek::find($this->activeTrialId) : null;
+        $activeTrial = $this->activeTrialId
+            ? TrialWeek::with([
+                'user.personalInformation',
+                'trialAcquisitionCalls',
+                'student.examSchedules' => fn ($query) => $query
+                    ->whereNotNull('weekly_program_id')
+                    ->whereNotNull('program_built_at')
+                    ->latest('program_built_at'),
+            ])->find($this->activeTrialId)
+            : null;
 
         return view('livewire.admin.trial-acquisition.index', [
             'trials'         => $trials,
             'activeTrial'    => $activeTrial,
             'checklistItems' => $this->activeStage ? self::checklistItems($this->activeStage) : [],
             'now'            => now(),
+            'hasActiveTrialCall' => $activeTrial ? $this->hasSuccessfulCall($activeTrial) : false,
         ])->layout('layouts.admin.app');
     }
 }

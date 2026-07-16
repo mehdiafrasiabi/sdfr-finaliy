@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
  *
  * Seeder با updateOrCreate روی (assessment_id, order) کار می‌کند و چون روی این
  * ستون‌ها unique index وجود ندارد، رکوردهای تکراری قدیمی باقی می‌مانند. این باعث
- * می‌شد در آزمون والدین، گزینه‌ها چند بار نمایش داده شوند و تعداد سوالِ مورد انتظار
+ * می‌شد گزینه‌ها چند بار نمایش داده شوند و تعداد سوالِ مورد انتظار
  * (برای تشخیص «تکمیل شدن») بیشتر از واقعیت شمرده شود؛ در نتیجه attempt هیچ‌وقت کامل
  * نمی‌شد.
  *
@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\DB;
  */
 return new class extends Migration
 {
-    private array $answerTables = ['parent_assessment_answers', 'student_assessment_answers'];
+    private array $answerTables = ['student_assessment_answers'];
 
     public function up(): void
     {

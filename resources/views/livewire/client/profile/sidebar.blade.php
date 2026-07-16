@@ -146,6 +146,19 @@
                 <span class="font-semibold text-xs">آزمون ها</span>
             </a>
         </li>
+        @if($showSampleQuestionsLink)
+            <li>
+                <a wire:navigate href="{{route('client.profile.sample-questions')}}"
+                   class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.sample-questions') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 16h6"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/>
+                    </svg>
+                    <span class="font-semibold text-xs">نمونه سوالات</span>
+                </a>
+            </li>
+        @endif
         <li>
             <a wire:navigate data-tour="sb-smart-report" href="{{route('client.profile.reportStudentStudy')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.reportStudentStudy') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">

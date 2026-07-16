@@ -3,6 +3,7 @@
 namespace App\Livewire\Client\Onboarding;
 
 use App\Models\Avatar;
+use App\Models\ExamPlanningSetting;
 use App\Models\Otp;
 use App\Models\User;
 use App\Models\UserProfile;
@@ -42,6 +43,8 @@ class TrialWeekOnboarding extends Component
     public string $password     = '';
     public string $passwordConf = '';
 
+    public bool   $examPlanMode = false;
+
     public string $otpInput     = '';
     public string $otpError     = '';
     public bool   $otpSent      = false;
@@ -67,6 +70,11 @@ class TrialWeekOnboarding extends Component
         $plan = request('plan');
         if (in_array($plan, ['trial', 'exam', 'cash'], true)) {
             session(['intended_plan' => $plan]);
+        }
+        $this->examPlanMode = $plan === 'exam';
+        if ($this->examPlanMode) {
+            $this->attendsSchool = true;
+            $this->normalizeExamPlanSelection();
         }
         $this->seo()
             ->setTitle('ثبتنام');
@@ -184,10 +192,10 @@ class TrialWeekOnboarding extends Component
         $rules = [
             'fatherMobile' => ['required', 'regex:/^09[0-9]{9}$/'],
             'motherMobile' => ['required', 'regex:/^09[0-9]{9}$/', 'different:fatherMobile'],
-            'grade'        => ['required', 'in:9,10,11,12,graduate'],
+            'grade'        => ['required', Rule::in($this->availableGradeValues())],
         ];
         if ($this->grade !== '9') {
-            $rules['field'] = ['required', 'in:math,experimental,human'];
+            $rules['field'] = ['required', Rule::in($this->availableFieldValues())];
         }
 
         $v = Validator::make([
@@ -257,6 +265,10 @@ class TrialWeekOnboarding extends Component
         if ($value === 'graduate') {
             $this->attendsSchool = false;
         }
+
+        if ($this->examPlanMode) {
+            $this->normalizeExamPlanSelection();
+        }
     }
 
     // (B1) با تغییرِ جنسیت، آواتارِ انتخابی پاک می‌شود تا آواتارِ هم‌جنسِ درست انتخاب شود.
@@ -273,7 +285,7 @@ class TrialWeekOnboarding extends Component
     public function updatedBirthDate($value): void    { $this->birthDate = $this->convertToEnglishDigits($value); }
     public function updatedOtpInput($value): void
     {
-        $this->otpInput = $this->convertToEnglishDigits($value);
+        $this->otpInput = $this->normalizeOtpInput($value);
         $this->otpError = '';
     }
 
@@ -338,12 +350,24 @@ class TrialWeekOnboarding extends Component
         $this->countdown = 0;
     }
 
-    public function verifyOtp(): void
+    private function normalizeOtpInput($value): string
     {
+        return preg_replace('/\D+/', '', $this->convertToEnglishDigits($value)) ?? '';
+    }
+
+    public function verifyOtp(?string $otpInput = null): void
+    {
+        $this->resetValidation();
         $this->isLoading = true;
         $this->otpError  = '';
         $this->mobile    = $this->convertToEnglishDigits($this->mobile);
-        $this->otpInput  = $this->convertToEnglishDigits($this->otpInput);
+        $this->otpInput  = $this->normalizeOtpInput($otpInput ?? $this->otpInput);
+
+        if (strlen($this->otpInput) !== 6) {
+            $this->otpError  = 'کد تایید باید ۶ رقم باشد.';
+            $this->isLoading = false;
+            return;
+        }
 
         $this->validatePersonalInfo();
         $this->validateParentsGrade();
@@ -510,6 +534,103 @@ class TrialWeekOnboarding extends Component
     public function render(): \Illuminate\Contracts\View\View
     {
         return view('livewire.client.onboarding.trial-week-onboarding')
+            ->with([
+                'gradeOptions' => $this->availableGradeOptions(),
+                'fieldOptions' => $this->availableFieldOptions(),
+            ])
             ->layout('layouts.client.app-auth');
+    }
+
+    private function availableGradeOptions(): array
+    {
+        if (! $this->examPlanMode) {
+            $gradeLabels = ['9'=>'نهم','10'=>'دهم','11'=>'یازدهم','12'=>'دوازدهم','graduate'=>'فارغ‌التحصیل'];
+            return array_map(
+                fn ($value, $label) => ['id' => (string) $value, 'name' => $label],
+                array_keys($gradeLabels),
+                array_values($gradeLabels)
+            );
+        }
+
+        return ExamPlanningSetting::query()
+            ->active()
+            ->windowOpen()
+            ->whereIn('grade', [9, 10, 11, 12])
+            ->orderBy('grade')
+            ->orderBy('field')
+            ->get()
+            ->pluck('grade')
+            ->map(fn ($grade) => (int) $grade)
+            ->unique()
+            ->values()
+            ->map(fn (int $grade) => [
+                'id' => (string) $grade,
+                'name' => ExamPlanningSetting::GRADE_LABELS[$grade] ?? "پایه {$grade}",
+            ])
+            ->all();
+    }
+
+    private function availableFieldOptions(): array
+    {
+        if (! $this->examPlanMode) {
+            return [
+                ['id' => 'math', 'name' => 'ریاضی'],
+                ['id' => 'experimental', 'name' => 'تجربی'],
+                ['id' => 'human', 'name' => 'انسانی'],
+            ];
+        }
+
+        $grade = (int) $this->grade;
+        if ($grade === 9) {
+            return [];
+        }
+
+        return ExamPlanningSetting::query()
+            ->active()
+            ->windowOpen()
+            ->where('grade', $grade)
+            ->whereNotNull('field')
+            ->orderBy('field')
+            ->get()
+            ->pluck('field')
+            ->filter()
+            ->unique()
+            ->values()
+            ->map(fn (string $field) => [
+                'id' => $field,
+                'name' => ExamPlanningSetting::FIELD_LABELS[$field] ?? $field,
+            ])
+            ->all();
+    }
+
+    private function availableGradeValues(): array
+    {
+        return array_map(fn ($option) => (string) $option['id'], $this->availableGradeOptions());
+    }
+
+    private function availableFieldValues(): array
+    {
+        return array_map(fn ($option) => (string) $option['id'], $this->availableFieldOptions());
+    }
+
+    private function normalizeExamPlanSelection(): void
+    {
+        $gradeValues = $this->availableGradeValues();
+        if (! in_array((string) $this->grade, $gradeValues, true) && ! empty($gradeValues)) {
+            $this->grade = (int) $gradeValues[0];
+        }
+
+        if ((int) $this->grade === 9) {
+            $this->field = 'math';
+            $this->attendsSchool = true;
+            return;
+        }
+
+        $fieldValues = $this->availableFieldValues();
+        if (! in_array($this->field, $fieldValues, true) && ! empty($fieldValues)) {
+            $this->field = $fieldValues[0];
+        }
+
+        $this->attendsSchool = true;
     }
 }

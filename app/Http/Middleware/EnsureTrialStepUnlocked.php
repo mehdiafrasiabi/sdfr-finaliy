@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use App\Models\TrialWeek;
 use App\Services\ExamPlanningService;
-use App\Services\TrialWeekService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -74,7 +73,7 @@ class EnsureTrialStepUnlocked
                 'status' => TrialWeek::STATUS_PROGRAM_BUILT,
                 'daily_study_hours' => $builtExamSchedule->max_daily_study_hours ?: $trial->daily_study_hours,
                 'program_built_at' => $trialProgramBuiltAt,
-                'expires_at' => TrialWeekService::trialAccessExpiresAt($trialProgramBuiltAt),
+                'expires_at' => $builtExamSchedule->access_expires_at ?? $trial->expires_at,
             ]);
 
             $trial->refresh();
@@ -90,6 +89,7 @@ class EnsureTrialStepUnlocked
             $allowed = [
                 'client.profile.trial.guide',
                 'client.profile.exam-planning',
+                'client.profile.sample-questions',
             ];
 
             if ($current && in_array($current, $allowed, true)) {

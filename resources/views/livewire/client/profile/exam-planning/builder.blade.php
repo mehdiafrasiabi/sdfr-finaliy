@@ -282,25 +282,6 @@
                     </div>
                 @endif
 
-                @if(!empty($missingStudyChapters))
-                    <div class="rounded-2xl border border-red-500/20 bg-red-500/10 glass px-4 py-3 text-sm text-red-600 mb-4">
-                        <div class="font-black">این فصل‌ها هنوز ساعت مطالعه ندارند:</div>
-                        <div class="mt-2 space-y-2">
-                            @foreach($missingStudyChapters as $item)
-                                <div class="rounded-xl border border-red-500/15 bg-background/60 px-3 py-2">
-                                    <div class="font-bold text-xs">{{ $item['subject'] }}</div>
-                                    <div class="mt-1 flex flex-wrap gap-2">
-                                        @foreach($item['chapters'] as $chapterName)
-                                            <span class="inline-flex rounded-lg border border-red-500/20 bg-red-500/5 px-2.5 py-1 text-[11px] font-bold text-red-600">
-                                                {{ $chapterName }}
-                                            </span>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
 
                 <div x-data="{ activeType: @entangle('activeType'), examsModal: false }"
                      x-effect="document.body.classList.toggle('overflow-hidden', examsModal)">
@@ -624,7 +605,7 @@
                 <button wire:click="buildProgram"
                         wire:loading.attr="disabled" wire:target="buildProgram"
                         @disabled(!$canBuildProgram)
-                        class="inline-flex w-full sm:w-auto items-center justify-center self-stretch sm:self-start rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-black text-white shadow-sm hover:bg-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed gap-2">
+                        class="inline-flex w-full sm:w-auto items-center justify-center self-stretch sm:self-end rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-black text-white shadow-sm hover:bg-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed gap-2">
                     <span wire:loading.remove wire:target="buildProgram">ساخت برنامه</span>
                     <span wire:loading wire:target="buildProgram" class="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin"></span>
                 </button>

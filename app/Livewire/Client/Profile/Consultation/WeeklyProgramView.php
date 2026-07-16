@@ -14,6 +14,7 @@ use App\Models\CcField;
 use App\Models\CcGrade;
 use App\Models\CcSubject;
 use App\Models\CcTopic;
+use App\Models\ExamSampleQuestion;
 use App\Models\MakeupSession;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Carbon\Carbon;
@@ -79,6 +80,7 @@ class WeeklyProgramView extends Component
     // پارت/تایمر pending (برای شروع خودکار بعد از دسترسی)
     public $pendingStartPartId = null;
     public $pendingStartMakeup = false;
+    public array $mainSampleQuestionsBySubject = [];
 
     // --- مطالعه جبرانی ---
     public $showMakeupModal = false;
@@ -171,7 +173,7 @@ class WeeklyProgramView extends Component
 
     public function loadProgram()
     {
-        $this->weeklyProgram = WeeklyProgram::find($this->programId);
+        $this->weeklyProgram = WeeklyProgram::with(['examSchedule.setting'])->find($this->programId);
         if (!$this->weeklyProgram) return;
 
         $this->programParts = ProgramPart::where('weekly_program_id', $this->weeklyProgram->id)
@@ -187,6 +189,7 @@ class WeeklyProgramView extends Component
 
         $this->loadCompletedParts();
         $this->checkIsActiveProgram();
+        $this->loadMainSampleQuestions();
     }
 
     protected function checkIsActiveProgram(): void
@@ -213,6 +216,32 @@ class WeeklyProgramView extends Component
             ->first();
 
         $this->isActiveProgram = $latestProgram && (int)$latestProgram->id === (int)$this->weeklyProgram->id;
+    }
+
+    protected function loadMainSampleQuestions(): void
+    {
+        $this->mainSampleQuestionsBySubject = [];
+
+        $setting = $this->weeklyProgram?->examSchedule?->setting;
+        if (! $setting) {
+            return;
+        }
+
+        ExamSampleQuestion::query()
+            ->with('subject')
+            ->where('exam_planning_setting_id', $setting->id)
+            ->main()
+            ->orderByDesc('sort_order')
+            ->orderByDesc('id')
+            ->get()
+            ->each(function (ExamSampleQuestion $sampleQuestion) {
+                $this->mainSampleQuestionsBySubject[(int) $sampleQuestion->cc_subject_id] = [
+                    'id' => $sampleQuestion->id,
+                    'title' => $sampleQuestion->title,
+                    'download_url' => $sampleQuestion->download_url,
+                    'duration_minutes' => (int) $sampleQuestion->duration_minutes,
+                ];
+            });
     }
 
     public function loadCompletedParts()

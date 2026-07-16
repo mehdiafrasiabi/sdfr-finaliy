@@ -16,6 +16,7 @@ class Sidebar extends Component
     public int $advisorUnread = 0;
     public bool $advisorChatLocked = false;
     public bool $showExamPlanningLink = false;
+    public bool $showSampleQuestionsLink = false;
     public bool $hideForExamProgramTrialStudent = false;
 
     public function mount()
@@ -27,6 +28,10 @@ class Sidebar extends Component
             ? app(ExamPlanningService::class)->shouldHideTrialExamProgramSections(Auth::user())
             : false;
         $this->showExamPlanningLink = Auth::user()
+            ? (app(ExamPlanningService::class)->shouldExposePaidModule(Auth::user())
+                || app(ExamPlanningService::class)->shouldExposeTrialModule(Auth::user()))
+            : false;
+        $this->showSampleQuestionsLink = Auth::user()
             ? (app(ExamPlanningService::class)->shouldExposePaidModule(Auth::user())
                 || app(ExamPlanningService::class)->shouldExposeTrialModule(Auth::user()))
             : false;

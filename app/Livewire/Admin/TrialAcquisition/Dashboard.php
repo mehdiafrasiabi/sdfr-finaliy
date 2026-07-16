@@ -25,6 +25,13 @@ class Dashboard extends Component
         $notCalled = $total - $calledStudents;
         $confirmed = (clone $base)->where('acq_confirmed', true)->count();
 
+        $waitingForCall = (clone $base)
+            ->with(['user.personalInformation', 'student.examSchedules'])
+            ->whereDoesntHave('trialAcquisitionCalls', fn ($q) => $q->where('answered', true))
+            ->latest()
+            ->limit(8)
+            ->get();
+
         // پیشرفت هر مرحله (دانش‌آموزانی که تماس موفق آن مرحله ثبت شده)
         $stageProgress = [];
         foreach (['day1', 'day3', 'day7'] as $stage) {
@@ -61,6 +68,7 @@ class Dashboard extends Component
             'avgProbability' => $avgProbability,
             'dueReminders'   => $dueReminders,
             'emergencyCalls' => $emergencyCalls,
+            'waitingForCall' => $waitingForCall,
             'now'            => now(),
         ])->layout('layouts.admin.app');
     }

@@ -437,6 +437,14 @@ class ExamPlanningService
                 continue;
             }
 
+            $hasWholeAllocation = $schedule->allocations
+                ->where('cc_subject_id', $subject->id)
+                ->contains(fn ($allocation) => $allocation->ratable_type === CcSubject::class && (int) $allocation->planned_minutes > 0);
+
+            if ($hasWholeAllocation) {
+                continue;
+            }
+
             $chapterMinutes = [];
 
             foreach ($schedule->allocations->where('cc_subject_id', $subject->id) as $allocation) {
@@ -618,7 +626,7 @@ class ExamPlanningService
         $capacityData = $this->buildCapacityData($schedule);
         $this->assertBuildable($schedule, $capacityData);
 
-        return DB::transaction(function () use ($schedule, $capacityData) {
+        $program = DB::transaction(function () use ($schedule, $capacityData) {
             $user = $schedule->user;
             $student = $schedule->student;
             $trial = $user->trialWeek;
@@ -654,14 +662,13 @@ class ExamPlanningService
 
             if ($trial && ! $student->hasActivePaidAccess()) {
                 $trialProgramBuiltAt = $trial->program_built_at ?: now();
-                $trialAccessExpiresAt = TrialWeekService::trialAccessExpiresAt(Carbon::parse($trialProgramBuiltAt));
 
                 $trial->update([
                     'advising_session_id' => $session->id,
                     'daily_study_hours' => $schedule->max_daily_study_hours,
                     'status' => TrialWeek::STATUS_PROGRAM_BUILT,
                     'program_built_at' => $trialProgramBuiltAt,
-                    'expires_at' => $trialAccessExpiresAt,
+                    'expires_at' => $accessExpiresAt,
                 ]);
 
                 app(TrialWeekService::class)->generateSmartReportCard($trial, $program);
@@ -669,6 +676,12 @@ class ExamPlanningService
 
             return $program;
         });
+
+        app(TrialLifecycleSmsService::class)->trySendExamProgramStarted(
+            $schedule->fresh(['user', 'student'])
+        );
+
+        return $program;
     }
 
     public function subjectOptionsForUser(User $user): array

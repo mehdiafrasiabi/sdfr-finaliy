@@ -549,6 +549,12 @@
                                                 $isMissed = !$isDone && $day['date'] < \Carbon\Carbon::today()->toDateString();
                                                 $typeStyle = $part->part_type === 'test' ? 'bg-sky-500/10 text-sky-500'
                                                     : ($part->part_type === 'descriptive' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500');
+                                                $sampleQuestion = (
+                                                    ($part->part_mode ?? 'normal') === \App\Models\ProgramPart::PART_MODE_WHOLE_BOOK
+                                                    && $part->part_type === \App\Models\ProgramPart::PART_TYPE_DESCRIPTIVE
+                                                )
+                                                    ? ($mainSampleQuestionsBySubject[(int) $part->cc_subject_id] ?? null)
+                                                    : null;
                                             @endphp
 
                                             <div wire:key="part-card-{{ $part->id }}"
@@ -653,6 +659,16 @@
                                                         @if($part->description)
                                                             <p class="text-xs text-muted leading-relaxed text-center">{{ $part->description }}</p>
                                                         @endif
+                                                        @if($sampleQuestion)
+                                                            <div class="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-600 text-center">
+                                                                <span class="font-bold">نمونه سؤال اصلی:</span>
+                                                                <span>{{ $sampleQuestion['title'] }}</span>
+                                                                @if($sampleQuestion['duration_minutes'] > 0)
+                                                                    <span class="mx-1 text-emerald-500/60">|</span>
+                                                                    <span>{{ $sampleQuestion['duration_minutes'] }} دقیقه</span>
+                                                                @endif
+                                                            </div>
+                                                        @endif
 
                                                         @if($isDone)
                                                             @php $meta = $completedPartsMeta[$part->id] ?? null; @endphp
@@ -664,25 +680,41 @@
                                                         @elseif($isActive)
                                                             <div class="text-xs font-bold py-2.5 rounded-xl bg-primary/10 text-primary text-center">در حال مطالعه...</div>
                                                         @elseif($isMissed)
-                                                            <button wire:click="startPart({{ $part->id }})"
-                                                                    wire:loading.attr="disabled" wire:target="startPart({{ $part->id }})"
-                                                                    class="w-full h-11 rounded-xl font-bold text-sm bg-amber-500 hover:bg-amber-600 text-white transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                                                            @if($sampleQuestion)
+                                                                <button type="button"
+                                                                        @click="window.startSampleQuestionPart && window.startSampleQuestionPart({{ $part->id }}, @js($sampleQuestion['download_url']), @js($sampleQuestion['title']))"
+                                                                        class="w-full h-11 rounded-xl font-bold text-sm bg-amber-500 hover:bg-amber-600 text-white transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                                                                    دانلود و ثبت جبرانی بعد از ۳۰ ثانیه
+                                                                </button>
+                                                            @else
+                                                                <button wire:click="startPart({{ $part->id }})"
+                                                                        wire:loading.attr="disabled" wire:target="startPart({{ $part->id }})"
+                                                                        class="w-full h-11 rounded-xl font-bold text-sm bg-amber-500 hover:bg-amber-600 text-white transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
         <span wire:loading.remove wire:target="startPart({{ $part->id }})" class="flex items-center gap-1.5">
             <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.667 0l3.181-3.183m-4.991-2.696v-.001h4.992m-4.992 0L21 4.356"/>
             </svg>
             ثبت جبرانی
         </span>
-                                                                <span wire:loading wire:target="startPart({{ $part->id }})" class="spinner-circle"></span>
-                                                            </button>
+                                                                    <span wire:loading wire:target="startPart({{ $part->id }})" class="spinner-circle"></span>
+                                                                </button>
+                                                            @endif
                                                             <p class="text-[10px] text-amber-500/80 text-center mt-1">این پارت در روزهای گذشته بوده — می‌توانی الان جبرانش کنی</p>
                                                         @elseif(!$timerActive)
-                                                            <button wire:click="startPart({{ $part->id }})"
-                                                                    wire:loading.attr="disabled" wire:target="startPart({{ $part->id }})"
-                                                                    class="w-full h-11 rounded-xl font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
-                                                                <span wire:loading.remove wire:target="startPart({{ $part->id }})">شروع مطالعه</span>
-                                                                <span wire:loading wire:target="startPart({{ $part->id }})" class="spinner-circle"></span>
-                                                            </button>
+                                                            @if($sampleQuestion)
+                                                                <button type="button"
+                                                                        @click="window.startSampleQuestionPart && window.startSampleQuestionPart({{ $part->id }}, @js($sampleQuestion['download_url']), @js($sampleQuestion['title']))"
+                                                                        class="w-full h-11 rounded-xl font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                                                                    دانلود و شروع بعد از ۳۰ ثانیه
+                                                                </button>
+                                                            @else
+                                                                <button wire:click="startPart({{ $part->id }})"
+                                                                        wire:loading.attr="disabled" wire:target="startPart({{ $part->id }})"
+                                                                        class="w-full h-11 rounded-xl font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                                                                    <span wire:loading.remove wire:target="startPart({{ $part->id }})">شروع مطالعه</span>
+                                                                    <span wire:loading wire:target="startPart({{ $part->id }})" class="spinner-circle"></span>
+                                                                </button>
+                                                            @endif
                                                         @endif
                                                     </div>
                                                 </div>
@@ -1316,6 +1348,7 @@
             let clientTimerInterval = null
             let syncInterval = null
             let componentAlive = true
+            let sampleQuestionStartTimer = null
 
             let lastSyncedEndsAt = null
             let lastMakeupEndsAt = null
@@ -1689,6 +1722,35 @@
 
             window.unlockStudyPermissions.__weeklyProgramTimer = true
 
+            window.startSampleQuestionPart = function (partId, downloadUrl) {
+                try {
+                    if (sampleQuestionStartTimer) {
+                        clearTimeout(sampleQuestionStartTimer)
+                        sampleQuestionStartTimer = null
+                    }
+
+                    if (downloadUrl) {
+                        const link = document.createElement('a')
+                        link.href = downloadUrl
+                        link.download = ''
+                        link.target = '_blank'
+                        link.rel = 'noopener'
+                        document.body.appendChild(link)
+                        link.click()
+                        link.remove()
+                    }
+
+                    sampleQuestionStartTimer = setTimeout(() => {
+                        sampleQuestionStartTimer = null
+                        safeWireCall('startPart', partId)
+                    }, 30000)
+                } catch (e) {
+                    console.warn(e)
+                }
+            }
+
+            window.startSampleQuestionPart.__weeklyProgramTimer = true
+
             window.stopAlarmPreview = stopAlarmPreview
             window.stopAlarmPreview.__weeklyProgramTimer = true
 
@@ -1788,6 +1850,11 @@
                 if (syncInterval) {
                     clearInterval(syncInterval)
                     syncInterval = null
+                }
+
+                if (sampleQuestionStartTimer) {
+                    clearTimeout(sampleQuestionStartTimer)
+                    sampleQuestionStartTimer = null
                 }
 
                 while (cleanups.length) {

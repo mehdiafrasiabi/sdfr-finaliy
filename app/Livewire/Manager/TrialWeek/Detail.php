@@ -3,9 +3,7 @@
 namespace App\Livewire\Manager\TrialWeek;
 
 use App\Models\Admin;
-use App\Models\ParentAssessmentInvitation;
 use App\Models\TrialWeek;
-use App\Services\ParentInvitationService;
 use App\Services\TrialWeekService;
 use Livewire\Component;
 
@@ -17,17 +15,7 @@ class Detail extends Component
 
     public function mount(int $id): void
     {
-        $this->trialWeek = TrialWeek::with(['user', 'supporter', 'student', 'parentAssessmentInvitations'])->findOrFail($id);
-    }
-
-    public function resendParentInvite(int $invitationId, ParentInvitationService $svc): void
-    {
-        $inv = ParentAssessmentInvitation::where('id', $invitationId)
-            ->where('trial_week_id', $this->trialWeek->id)
-            ->firstOrFail();
-        $svc->resend($inv);
-        $this->trialWeek->refresh();
-        session()->flash('success', 'لینک تازه‌ای به ' . $inv->parent_role_label . ' ارسال شد.');
+        $this->trialWeek = TrialWeek::with(['user', 'supporter', 'student'])->findOrFail($id);
     }
 
     public function openAssignModal(): void

@@ -156,16 +156,6 @@ class TrialWeek extends Model
         return $this->assessments_completed_at !== null;
     }
 
-    public function parentAssessmentInvitations(): \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(ParentAssessmentInvitation::class);
-    }
-
-    public function hasAnyParentCompleted(): bool
-    {
-        return $this->parentAssessmentInvitations()->whereNotNull('completed_at')->exists();
-    }
-
     public function isGraduate(): bool
     {
         return (int) $this->grade === self::GRADE_GRADUATE;
@@ -198,7 +188,7 @@ class TrialWeek extends Model
             return 0;
         }
 
-        return min(self::PROGRAM_DAYS, (int) $today->diffInDays($expiresDate) + 1);
+        return (int) $today->diffInDays($expiresDate) + 1;
     }
 
     public function canStartClassification(): bool

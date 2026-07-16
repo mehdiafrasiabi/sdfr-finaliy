@@ -8,6 +8,7 @@ use App\Models\DailyReportDetail;
 use App\Models\MakeupSession;
 use App\Models\ProgramPart;
 use App\Models\Student;
+use App\Models\StudentExamSchedule;
 use App\Models\StudyPartSession;
 use App\Models\TrialWeek;
 use App\Models\WeeklyProgram;
@@ -85,7 +86,16 @@ class Monitor extends Component
 
     protected function baseTrialQuery(): Builder
     {
-        $query = TrialWeek::query()->with(['user.personalInformation', 'student', 'acquisitionSupporter']);
+        $query = TrialWeek::query()->with([
+            'user.personalInformation',
+            'student',
+            'trialAcquisitionCalls',
+            'acquisitionSupporter',
+            'student.examSchedules' => fn ($scheduleQuery) => $scheduleQuery
+                ->whereNotNull('weekly_program_id')
+                ->whereNotNull('program_built_at')
+                ->latest('program_built_at'),
+        ]);
 
         if (! Auth::guard('admin')->user()?->hasRole('super admin')) {
             $query->where('acquisition_supporter_id', Auth::guard('admin')->id());
@@ -98,6 +108,44 @@ class Monitor extends Component
     {
         return Auth::guard('admin')->user()?->hasRole('super admin')
             || (int) $trialWeek->acquisition_supporter_id === (int) Auth::guard('admin')->id();
+    }
+
+    protected function hasSuccessfulCall(?TrialWeek $trialWeek): bool
+    {
+        if (! $trialWeek) {
+            return false;
+        }
+
+        return $trialWeek->trialAcquisitionCalls
+            ->contains(fn ($call) => (bool) $call->answered);
+    }
+
+    protected function examProgramSummary(?TrialWeek $trialWeek): ?array
+    {
+        if (! $trialWeek?->student_id) {
+            return null;
+        }
+
+        $schedule = StudentExamSchedule::query()
+            ->with(['setting', 'days'])
+            ->where('student_id', $trialWeek->student_id)
+            ->whereNotNull('weekly_program_id')
+            ->whereNotNull('program_built_at')
+            ->latest('program_built_at')
+            ->first();
+
+        if (! $schedule) {
+            return null;
+        }
+
+        return [
+            'title' => $schedule->setting?->title ?? 'برنامه امتحانی',
+            'days_count' => $schedule->days->count(),
+            'exam_range' => $schedule->exam_starts_at && $schedule->exam_ends_at
+                ? jdate($schedule->exam_starts_at)->format('Y/m/d') . ' تا ' . jdate($schedule->exam_ends_at)->format('Y/m/d')
+                : 'بازه ثبت نشده',
+            'program_built_at' => $schedule->program_built_at ? jdate($schedule->program_built_at)->format('Y/m/d H:i') : '-',
+        ];
     }
 
     protected function scopedStudentIds()
@@ -636,7 +684,7 @@ class Monitor extends Component
         $sentReportDates = DailyReport::where('student_id', $studentId)
             ->where('weekly_program_id', $weeklyProgram->id)
             ->where('is_compensatory', false)
-            ->whereDate('report_date', '>=', $startDate)
+            ->whereDate('report_date', '>=', $startDate->copy()->subDay())
             ->whereDate('report_date', '<=', $lastDueDate)
             ->pluck('report_date')
             ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
@@ -746,8 +794,11 @@ class Monitor extends Component
 
         $reportDate = $this->getReportDate();
         $studentsWithReports = DailyReport::whereIn('student_id', $studentIds)
-            ->whereDate('report_date', $reportDate)
             ->where('is_compensatory', false)
+            ->where(function ($query) use ($reportDate) {
+                $query->whereDate('report_date', $reportDate)
+                    ->orWhereDate('report_date', $reportDate->copy()->subDay());
+            })
             ->pluck('student_id')
             ->toArray();
 
@@ -845,11 +896,14 @@ class Monitor extends Component
         $studentIds = $this->scopedStudentIds()->map(fn ($id) => (int) $id)->toArray();
         $reportDate = $this->getReportDate();
         $effectiveToday = $this->getEffectiveToday();
+        $monitorLocked = ! $this->hasSuccessfulCall($selectedTrial);
 
         return view('livewire.admin.trial-acquisition.monitor', [
             'trials' => $trials,
             'selectedTrial' => $selectedTrial,
             'weeklyProgram' => $weeklyProgram,
+            'monitorLocked' => $monitorLocked,
+            'examProgramSummary' => $this->examProgramSummary($selectedTrial),
             'monitorSummary' => $this->monitorSummary($selectedTrial, $weeklyProgram),
             'weekDays' => $this->weekDays($weeklyProgram, $selectedTrial?->student_id ? (int) $selectedTrial->student_id : null),
             'preSessions' => $preSessions,

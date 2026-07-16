@@ -44,7 +44,6 @@ class Assessment extends Model
     const KIND_CUSTOM = 'custom';
 
     const AUDIENCE_STUDENT = 'student';
-    const AUDIENCE_PARENT  = 'parent';
 
     public function questions(): HasMany
     {

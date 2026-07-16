@@ -18,6 +18,8 @@ use App\Models\User;
  */
 class AssessmentInterpretationService
 {
+    private const EXCLUDED_ASSESSMENT_SLUGS = ['mood-state'];
+
     /**
      * کارنامهٔ تحلیلی کامل دانش‌آموز از آزمون‌های تکمیل‌شده.
      * فقط آزمون‌هایی که هنوز «فعال» هستند لحاظ می‌شوند.
@@ -41,6 +43,9 @@ class AssessmentInterpretationService
         foreach ($attempts as $attempt) {
             $assessment = $attempt->assessment;
             if (! $assessment) {
+                continue;
+            }
+            if (in_array($assessment->slug, self::EXCLUDED_ASSESSMENT_SLUGS, true)) {
                 continue;
             }
             $cr = $attempt->computed_result;
@@ -173,11 +178,6 @@ class AssessmentInterpretationService
         }
 
         return match ($flag) {
-//            'flag_safety' => [
-//                'severity' => 'critical',
-//                'title'    => 'هشدار ایمنی جانی',
-//                'text'     => 'دانش‌آموز پاسخی داده که نشان از فکر منفی شدید درباره‌ی وجود خود دارد. نیاز به بررسی فوری مشاور/روان‌شناس.',
-//            ],
 //            'flag' => [
 //                'severity' => 'warning',
 //                'title'    => 'پرچم بالینی',

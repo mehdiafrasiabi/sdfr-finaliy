@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Assessment;
-use App\Models\ParentAssessmentAttempt;
 use App\Models\StudentAssessmentAttempt;
 
 class AssessmentScoringService
@@ -15,9 +14,8 @@ class AssessmentScoringService
 
     /**
      * Dispatch بر اساس kind آزمون. خروجی JSON-serializable یا null.
-     * هم برای StudentAssessmentAttempt و هم ParentAssessmentAttempt کار می‌کند.
      */
-    public function score(StudentAssessmentAttempt|ParentAssessmentAttempt $attempt): ?array
+    public function score(StudentAssessmentAttempt $attempt): ?array
     {
         $attempt->loadMissing('assessment', 'answers.option', 'assessment.questions.options');
 
@@ -32,7 +30,7 @@ class AssessmentScoringService
      * نمره‌دهی facet-based برای تست‌های اختصاصی.
      * خروجی شامل facets (با درصد و سطح) + flags + overall.
      */
-    public function scoreCustom(StudentAssessmentAttempt|ParentAssessmentAttempt $attempt): array
+    public function scoreCustom(StudentAssessmentAttempt $attempt): array
     {
         $attempt->loadMissing('assessment.questions.options', 'answers.option');
 
