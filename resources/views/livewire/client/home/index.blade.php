@@ -2241,9 +2241,7 @@
                                     </li>
                                 @endforeach
                             </ul>
-                            <div class="btn-trial-glow w-full">
-                                <a rel="canonical" href="{{ route('client.onboarding', ['plan' => $examPlanCopy['plan']]) }}" class="btn-ghost w-full">{{ $examPlanCopy['cta'] }}</a>
-                            </div>
+                            <a rel="canonical" href="{{ route('client.onboarding', ['plan' => $examPlanCopy['plan']]) }}" class="btn-brand w-full">{{ $examPlanCopy['cta'] }}</a>
                         </div>
                     @endif
 

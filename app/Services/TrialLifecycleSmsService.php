@@ -16,7 +16,7 @@ use RuntimeException;
 
 class TrialLifecycleSmsService
 {
-    public function sendTrialStarted(TrialWeek $trialWeek): bool
+    public function sendTrialStarted(TrialWeek $trialWeek, string $plan = 'trial'): bool
     {
         $trialWeek->refresh();
         if ($trialWeek->trial_started_sms_sent_at) {
@@ -26,7 +26,12 @@ class TrialLifecycleSmsService
         $user = $trialWeek->user;
         $mobile = $this->mobileFor($user);
 
-        $user->notify(new TrialStartedSms($mobile));
+        if ($plan === 'exam') {
+            $notification = new ExamProgramStartedSms($mobile);
+        } else {
+            $notification = new TrialStartedSms($mobile);
+        }
+        $user->notify($notification);
 
         return (bool) TrialWeek::query()
             ->whereKey($trialWeek->id)
@@ -125,10 +130,10 @@ class TrialLifecycleSmsService
             ->update(['purchase_completed_sms_sent_at' => now()]);
     }
 
-    public function trySendTrialStarted(TrialWeek $trialWeek): bool
+    public function trySendTrialStarted(TrialWeek $trialWeek, string $plan = 'trial'): bool
     {
         try {
-            return $this->sendTrialStarted($trialWeek);
+            return $this->sendTrialStarted($trialWeek, $plan);
         } catch (\Throwable $e) {
             Log::critical('Failed to send trial started SMS', [
                 'trial_week_id' => $trialWeek->id,

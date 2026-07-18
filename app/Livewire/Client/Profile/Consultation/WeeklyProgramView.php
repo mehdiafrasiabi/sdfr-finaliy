@@ -617,13 +617,7 @@ class WeeklyProgramView extends Component
         $this->pausedAtTs              = null;
         $this->pendingExtraTargetSeconds = null;
 
-        if (!in_array($this->currentPartId, $this->completedParts)) {
-            $this->completedParts[] = $this->currentPartId;
-        }
-        $this->completedPartsMeta[$this->currentPartId] = [
-            'is_early_finish' => false,
-            'extra_seconds'   => 0,
-        ];
+        $this->loadCompletedParts();
 
         $this->saveTimerState();
         $this->dispatch('success', '🎓 تایم اصلی تموم شد! تایم اضافه بر مشاور شروع شد.');
@@ -696,13 +690,7 @@ class WeeklyProgramView extends Component
             'is_early_finish'  => $isEarly,
         ]);
 
-        if (!in_array($this->currentPartId, $this->completedParts)) {
-            $this->completedParts[] = $this->currentPartId;
-        }
-        $this->completedPartsMeta[$this->currentPartId] = [
-            'is_early_finish' => $isEarly,
-            'extra_seconds'   => 0,
-        ];
+        $this->loadCompletedParts();
 
         $this->resetTimer();
         $this->showFinishModal = false;

@@ -40,12 +40,27 @@
         $initialDayIndex = $initialDaySearch === false ? 0 : (int) $initialDaySearch;
         $initialDayPage = $showExamDayPager ? intdiv($initialDayIndex, $dayPagerSize) : 0;
         $totalDayPages = max(1, (int) ceil(max($availableDayDates->count(), 1) / $dayPagerSize));
-    @endphp
+        $jalaliDayLabels = collect($weekDays ?? [])->map(fn($day) => jdate(\Carbon\Carbon::parse($day['date']))->format('d F'));
+        @endphp
 
-    <div class="max-w-7xl mx-auto px-3 sm:px-4 "
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 "
          x-data="{
-             tab: @js($isActiveProgram ? 'study' : 'grid'),
-             selectedDay: @js($initialSelectedDay),
+             jalaliDayLabels: @js($jalaliDayLabels->all()),
+             currentPageDateRange() {
+                if (!this.showExamDayPager || this.jalaliDayLabels.length === 0) {
+                    return `{{ jdate($program->start_date)->format('d F') }} تا {{ jdate($program->end_date)->format('d F') }}`;
+                }
+                const startIndex = this.dayPage * this.dayPagerSize;
+                const endIndex = Math.min(startIndex + this.dayPagerSize - 1, this.jalaliDayLabels.length - 1);
+                const startDate = this.jalaliDayLabels[startIndex];
+                const endDate = this.jalaliDayLabels[endIndex];
+                if (startDate && endDate) {
+                    if (startDate === endDate) return startDate;
+                    return `${startDate} تا ${endDate}`;
+                }
+                return '...';
+             },
+             tab: @js($isActiveProgram ? 'study' : 'grid'),             selectedDay: @js($initialSelectedDay),
              availableDays: @js($availableDayDates->all()),
              dayPage: {{ $initialDayPage }},
              dayPagerSize: {{ $dayPagerSize }},
@@ -428,7 +443,7 @@
 
                         <div class="glass border border-border rounded-2xl p-3">
                             <div class="flex items-center gap-2 mb-3 px-1">
-                                <span class="text-[18px] font-bold  text-primary">{{ jdate($program->start_date)->format('d') }} تا {{ jdate($program->end_date)->format('d F') }} ماه</span>
+                                <span class="text-[18px] font-bold text-primary" x-text="currentPageDateRange()"></span>
                                 <span class="text-muted text-xs">|</span>
                                 <span class="text-xs text-muted">برنامه مطالعاتی</span>
                             </div>
@@ -437,26 +452,22 @@
                                     <button type="button"
                                             @click="goDayPage(-1)"
                                             :disabled="dayPage === 0"
-                                            class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-background text-muted-foreground border border-border transition disabled:opacity-35 disabled:cursor-not-allowed">
-                                        عقب
+                                            class="flex items-center justify-center w-9 h-9 rounded-xl border border-border glass text-foreground transition-all shrink-0 disabled:opacity-35 disabled:cursor-not-allowed">
+                                        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                                        </svg>
                                     </button>
-                                    <div class="text-[11px] font-semibold text-muted-foreground">
-                                        <span x-text="Math.min(dayPage * dayPagerSize + 1, availableDays.length)"></span>
-                                        تا
-                                        <span x-text="Math.min((dayPage + 1) * dayPagerSize, availableDays.length)"></span>
-                                        از
-                                        <span>{{ $availableDayDates->count() }}</span>
-                                        روز
-                                    </div>
                                     <button type="button"
                                             @click="goDayPage(1)"
                                             :disabled="dayPage >= totalDayPages - 1"
-                                            class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-background text-muted-foreground border border-border transition disabled:opacity-35 disabled:cursor-not-allowed">
-                                        جلو
+                                            class="flex items-center justify-center w-9 h-9 rounded-xl border border-border glass text-foreground transition-all shrink-0 disabled:opacity-35 disabled:cursor-not-allowed">
+                                        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+                                        </svg>
                                     </button>
                                 </div>
                             @endif
-                            <div class="flex items-center gap-2 ss-scroll overflow-x-auto pb-1">
+                            <div class="flex items-center md:justify-center gap-2 ss-scroll overflow-x-auto pb-1">
                                 @foreach($weekDays as $dayIndex => $day)
                                     @php
                                         $isToday = $day['date'] === \Carbon\Carbon::today()->toDateString();
@@ -473,7 +484,7 @@
                                     <button type="button" @click="selectedDay = '{{ $day['date'] }}'"
                                             @if($showExamDayPager) x-show="dayIsVisible({{ $dayIndex }})" @endif
                                             class="flex-shrink-0 flex flex-col items-center gap-1">
-                                        <span class="flex items-center justify-center w-10 h-10 rounded-full font-bold text-[13px] border-2 transition-all"
+                                        <span class="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-full font-bold text-[13px] md:text-sm lg:text-base border-2 transition-all"
                                               :class="selectedDay === '{{ $day['date'] }}' ? 'bg-primary text-primary-foreground border-primary' : '{{ $dayCls }}'">
                                             {{ $jalDay }}
                                         </span>

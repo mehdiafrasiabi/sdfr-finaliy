@@ -47,6 +47,7 @@
         .opt-card--on .opt-mark { background: hsl(var(--primary)); border-color: hsl(var(--primary)); }
     </style>
 @endassets
+
     <div
         x-data="assessmentTake({
             picks: @js($answers),

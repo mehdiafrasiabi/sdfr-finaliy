@@ -51,11 +51,10 @@
                         $hasMonitorAccess = $calls->contains(fn ($call) => (bool) $call->answered && $call->stage !== \App\Models\TrialAcquisitionCall::STAGE_EXTRA);
                         $hasExamProgram = $trial->student?->examSchedules?->isNotEmpty() ?? false;
                         $stageMeta = $this->stageMetaFor($trial, $now);
-                        $day1SubjectOptions = \App\Livewire\Admin\TrialAcquisition\Index::callSubjectOptions();
                         $reminderDue = $trial->acq_reminder_at && $trial->acq_reminder_at->lte($now);
                         $name = $trial->user?->personalInformation?->name ?? $trial->user?->name ?? '—';
                     @endphp
-                    <div class="col-md-6">
+                    <div class="col-md-6" wire:key="trial-card-{{ $trial->id }}">
                         <div class="card h-100 border {{ $reminderDue ? 'border-danger' : '' }}" style="{{ $reminderDue ? 'border-right-width:5px;' : '' }}">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
@@ -88,34 +87,14 @@
                                         @php
                                             $sCalls = $byStage->get($stage, collect());
                                             $done = $sCalls->where('answered', true)->isNotEmpty();
-                                            $attempts = $sCalls->count();
+                                            $attempts = $sCalls->where('answered', false)->count();
                                         @endphp
-                                        @if($this->requiresCallSubject($stage))
-                                            @foreach($day1SubjectOptions as $subject => $subjectLabel)
-                                                @php
-                                                    $subjectCalls = $sCalls->where('call_subject', $subject);
-                                                    $subjectDone = $subjectCalls->where('answered', true)->isNotEmpty();
-                                                    $subjectAttempts = $subjectCalls->count();
-                                                @endphp
-                                                @if($subjectDone)
-                                                    <button wire:click="promptCall({{ $trial->id }}, '{{ $stage }}', '{{ $subject }}')" class="btn btn-sm btn-success">
-                                                        <i class="fi fi-rr-phone-call"></i> {{ $subjectLabel }} ✓
-                                                    </button>
-                                                @elseif($meta['due'])
-                                                    <button wire:click="promptCall({{ $trial->id }}, '{{ $stage }}', '{{ $subject }}')" class="btn btn-sm btn-primary">
-                                                        <i class="fi fi-rr-phone-call"></i> {{ $subjectLabel }}
-                                                        @if($subjectAttempts > 0)<span class="badge bg-light text-dark ms-1">تلاش {{ $subjectAttempts }}</span>@endif
-                                                    </button>
-                                                @else
-                                                    <button class="btn btn-sm btn-outline-secondary" disabled>{{ $subjectLabel }} (قفل)</button>
-                                                @endif
-                                            @endforeach
-                                        @elseif($done)
-                                            <button wire:click="promptCall({{ $trial->id }}, '{{ $stage }}')" class="btn btn-sm btn-success">
+                                        @if($done)
+                                            <button class="btn btn-sm btn-success" disabled>
                                                 <i class="fi fi-rr-phone-call"></i> {{ $meta['label'] }} ✓
                                             </button>
                                         @elseif($meta['due'])
-                                            <button wire:click="promptCall({{ $trial->id }}, '{{ $stage }}')" class="btn btn-sm btn-primary">
+                                            <button wire:click="promptCall('{{ $trial->id }}', '{{ $stage }}')" class="btn btn-sm btn-primary">
                                                 <i class="fi fi-rr-phone-call"></i> {{ $meta['label'] }}
                                                 @if($attempts > 0)<span class="badge bg-light text-dark ms-1">تلاش {{ $attempts }}</span>@endif
                                             </button>
@@ -125,42 +104,7 @@
                                     @endforeach
                                 </div>
 
-                                {{-- احتمال ثبت‌نام --}}
-                                @if($trial->acq_probability !== null)
-                                    @php $p = $trial->acq_probability; $pc = $p >= 60 ? 'success' : ($p >= 30 ? 'warning' : 'danger'); @endphp
-                                    <div class="mb-2">
-                                        <div class="d-flex justify-content-between small mb-1">
-                                            <span>احتمال ثبت‌نام</span>
-                                            <span class="fw-bold text-{{ $pc }}">{{ $p }}٪</span>
-                                        </div>
-                                        <div class="progress" style="height:8px">
-                                            <div class="progress-bar bg-{{ $pc }}" style="width: {{ $p }}%"></div>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                {{-- یادآور --}}
-                                @if($trial->acq_reminder_at)
-                                    <div class="small mb-2 {{ $reminderDue ? 'text-danger fw-bold' : 'text-muted' }}">
-                                        <i class="fi fi-rr-bell"></i> یادآور: {{ jalali($trial->acq_reminder_at)->format('%d %B %Y، ساعت %H:%M') }}
-                                        @if($reminderDue) (سررسید شد) @endif
-                                    </div>
-                                @endif
-
-                                <div class="d-flex gap-2">
-                                    @if($hasMonitorAccess)
-                                        <a href="{{ route('admin.trial-acquisition.monitor', $trial->id) }}" class="btn btn-sm btn-outline-primary flex-fill">
-                                            <i class="fi fi-rr-chart-histogram"></i> رصد
-                                        </a>
-                                    @else
-                                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" disabled>
-                                            <i class="fi fi-rr-lock"></i> رصد
-                                        </button>
-                                    @endif
-                                </div>
-                                @unless($hasMonitorAccess)
-                                    <div class="small text-danger mt-2 fw-semibold">برای رصد باید اول شما تماس را بگیری.</div>
-                                @endunless
+                                {{-- Other info sections --}}
                             </div>
                         </div>
                     </div>
@@ -173,197 +117,191 @@
         </div>
     </div>
 
-    {{-- ───── مودال ثبت تماس (انیمیشن ۱۵ ثانیه‌ای) ───── --}}
-    @if ($activeTrialId && $activeTrial)
-        @php $stageLabel = $this->stageLabel($activeStage); @endphp
+    {{-- Pre-call Modal for Day 1 --}}
+    @if ($showPreCallModal)
+    <div class="modal d-block" tabindex="-1" style="background:rgba(0,0,0,.6)">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">راهنمای تماس روز اول</h5>
+                    <button type="button" class="btn-close" wire:click="cancelCallPrompt"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="fw-bold">لطفاً در این تماس موارد زیر را به اطلاع دانش‌آموز و والدین برسانید:</p>
+                    <ul>
+                        <li>خوش‌آمدگویی و معرفی خود به عنوان مشاور پشتیبان در هفته آزمایشی.</li>
+                        <li>شرح روند کلی هفته آزمایشی و هدف آن.</li>
+                        <li>توضیح نحوه ارسال گزارش کار روزانه و اهمیت آن.</li>
+                        <li>اعلام زمان‌بندی تماس‌های بعدی (روز سوم و هفتم).</li>
+                        <li>پاسخ به سوالات اولیه دانش‌آموز و والدین.</li>
+                    </ul>
+                    <p>پس از مطالعه، برای شروع فرآیند تماس، دکمه زیر را بزنید.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" wire:click="cancelCallPrompt">انصراف</button>
+                    <button type="button" class="btn btn-primary" wire:click="continueFromPreCall">ادامه و شروع تماس</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- Call Confirmation Modal --}}
+    @if($showCallConfirmModal)
         <div class="modal d-block" tabindex="-1" style="background:rgba(0,0,0,.6)">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content ta-call-modal-content"
-                     wire:key="call-modal-{{ $activeTrialId }}-{{ $callPhase }}"
-                     x-data="{
-                        phase: '{{ $callPhase }}',
-                        secondsLeft: 15,
-                        talkSeconds: 0,
-                        _t: null,
-                        start(){ if (this.phase === 'ringing') { this._t = setInterval(() => { if (this.secondsLeft > 0) { this.secondsLeft--; } if (this.secondsLeft <= 0) { this.stop(); } }, 1000); } if (this.phase === 'talking') { this.startTalk(); } },
-                        startTalk(){ this.stop(); this.talkSeconds = 0; this._t = setInterval(() => this.talkSeconds++, 1000); },
-                        stop(){ if (this._t) { clearInterval(this._t); this._t = null; } },
-                        answerNow(){ this.stop(); $wire.markCallAnswered(); },
-                        noAnswerNow(){ this.stop(); $wire.markNoAnswer(); },
-                        endTalk(){ this.stop(); $wire.endConversation(this.talkSeconds); },
-                        fmt(s){ return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); },
-                     }"
-                     x-init="start()">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content ta-call-modal-content">
                     <div class="modal-header ta-call-modal-header border-0">
-                        <div class="text-end">
-                            <h5 class="modal-title text-white mb-0">{{ $stageLabel }} — {{ $activeTrial->user?->name ?? '' }}</h5>
-                            <div class="small ta-call-muted" dir="ltr">{{ $activeTrial->user?->mobile ?? '' }}</div>
-                        </div>
+                        <h5 class="modal-title text-white">تأیید شروع تماس</h5>
+                        <button type="button" class="btn-close btn-close-white" wire:click="cancelCallPrompt"></button>
                     </div>
-                    <div class="modal-body ta-call-modal-body">
-                        @if($callPhase === 'ringing')
-                        <div class="text-center py-4">
-                            <div class="ta-call-icon mb-3"><i class="fi fi-rr-phone-call"></i></div>
-                            <h5 class="mb-1 text-white">در حال تماس…</h5>
-                            <p class="ta-call-muted mb-3" dir="ltr">{{ $activeTrial->user?->mobile ?? '' }}</p>
-                            <div class="display-4 fw-bold text-primary" dir="ltr" x-text="String(secondsLeft).padStart(2, '0')"></div>
-                            <p class="ta-call-muted small mt-2">اگر پاسخ داد، پاسخ کاربر را بزنید. عدم پاسخ را هم از همین‌جا ثبت کنید.</p>
-                        </div>
-                        @elseif($callPhase === 'talking')
-                        <div class="text-center py-4">
-                            <div class="ta-call-icon mb-3"><i class="fi fi-rr-comment-alt"></i></div>
-                            <h5 class="mb-1 text-white">در حال مکالمه…</h5>
-                            <p class="ta-call-muted mb-3" dir="ltr">{{ $activeTrial->user?->mobile ?? '' }}</p>
-                            <div class="display-3 fw-bold text-success" dir="ltr" x-text="fmt(talkSeconds)"></div>
-                            <p class="ta-call-muted small mt-2">پس از پایان مکالمه، «اتمام مکالمه» را بزنید تا وارد فرم پاسخ شوید.</p>
-                        </div>
-                        @else
-                        <div>
-                            @if($answered)
-                                <div class="bg-body text-dark rounded-4 p-3">
-                                    <div class="alert alert-primary py-2 mb-3">
-                                        مدت تماس ثبت شد: <strong dir="ltr">{{ sprintf('%02d:%02d', intdiv((int) ($talkSeconds ?? 0), 60), (int) ($talkSeconds ?? 0) % 60) }}</strong>
-                                    </div>
-                                    @if ($activeStage !== 'emergency')
-                                        <div class="mb-3">
-                                            <label class="form-label">با چه شخصی صحبت شد؟ <span class="text-danger">*</span></label>
-                                            <div class="row g-2">
-                                                @foreach (['father' => 'پدر', 'mother' => 'مادر', 'student' => 'دانش‌آموز', 'other' => 'سایر'] as $key => $label)
-                                                    <div class="col-6 col-md-3">
-                                                        <label class="form-check border rounded-3 p-2 h-100 mb-0">
-                                                            <input type="checkbox" class="form-check-input" wire:model.live="spokeWith" value="{{ $key }}">
-                                                            <span class="form-check-label">{{ $label }}</span>
-                                                        </label>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                            @error('spokeWith')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                                            @error('spokeWithOther')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                                            @if (in_array('other', $spokeWith, true))
-                                                <div class="mt-3">
-                                                    <input type="text" wire:model="spokeWithOther" class="form-control" placeholder="نام شخص دیگر را بنویسید">
-                                                </div>
-                                            @endif
-                                        </div>
-                                        @if ($this->requiresCallSubject($activeStage))
-                                            <div class="mb-3">
-                                                <label class="form-label">موضوع تماس</label>
-                                                <div class="border rounded-3 p-2 bg-light fw-semibold">
-                                                    {{ \App\Livewire\Admin\TrialAcquisition\Index::callSubjectOptions()[$callSubject] ?? '—' }}
-                                                </div>
-                                                @error('callSubject')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                                            </div>
-                                        @endif
-                                        @if ($this->requiresProbability($activeStage))
-                                            <div class="mb-3">
-                                                <label class="form-label">درصد احتمال ثبت‌نام (۰ تا ۱۰۰) <span class="text-danger">*</span></label>
-                                                <input type="number" min="0" max="100" wire:model="probability" class="form-control" placeholder="مثلاً ۷۰">
-                                                @error('probability')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">توضیحات احتمال ثبت‌نام <span class="text-danger">*</span></label>
-                                                <textarea wire:model="probabilityNote" rows="2" class="form-control"></textarea>
-                                                @error('probabilityNote')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                                            </div>
-                                        @endif
-                                        @if ($this->requiresDefinitiveConfirmation($activeStage))
-                                            <div class="mb-3 p-2 rounded border border-success-subtle bg-success-subtle">
-                                                <label class="form-check">
-                                                    <input type="checkbox" class="form-check-input" wire:model="isDefinitive" value="1">
-                                                    <span class="form-check-label">با همین درصد و توضیحات، مطمئنم که ثبت‌نام می‌کند (تأیید قطعی).</span>
-                                                </label>
-                                                @error('isDefinitive')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                                            </div>
-                                        @endif
-                                    @else
-                                        <div class="mb-3">
-                                            <label class="form-label">علت تماس اضطراری <span class="text-danger">*</span></label>
-                                            <textarea wire:model="emergencyReason" rows="3" class="form-control" placeholder="مثلاً عدم پیشروی طبق برنامه، انجام‌ندادن ساعت مطالعه، عدم ارسال گزارش…"></textarea>
-                                            @error('emergencyReason')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                                        </div>
-                                    @endif
-                                    <div class="mb-2">
-                                        <label class="form-label">توضیحات / خلاصهٔ گفتگو</label>
-                                        <textarea wire:model="notes" rows="2" class="form-control"></textarea>
-                                    </div>
-                                </div>
-                            @else
-                                <div class="bg-body text-dark rounded-4 p-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">علت عدم پاسخ <span class="text-danger">*</span></label>
-                                        <select wire:model="failReason" class="form-select">
-                                            <option value="">— انتخاب کنید —</option>
-                                            <option value="no_answer">عدم پاسخ</option>
-                                            <option value="off">خاموش</option>
-                                            <option value="rejected">رد تماس</option>
-                                        </select>
-                                        @error('failReason')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                        @endif
+                    <div class="modal-body ta-call-modal-body py-5 text-center">
+                        <div class="ta-call-icon mb-4"><i class="fi fi-rr-phone-call"></i></div>
+                        <h5 class="text-white mb-2">آیا برای شروع تماس آماده‌اید؟</h5>
+                        <p class="ta-call-muted mb-0">با ادامه، فرآیند ثبت تماس برای این دانش‌آموز آغاز می‌شود.</p>
                     </div>
-                    <div class="modal-footer ta-call-modal-footer">
-                        @if($callPhase === 'ringing')
-                        <span class="ta-call-muted small">لطفاً تا پایان تماس صبر کنید…</span>
-                        <button class="btn btn-success" @click="answerNow()">
-                            <i class="fi fi-rr-phone-call"></i> پاسخ کاربر
+                    <div class="modal-footer ta-call-modal-footer border-0">
+                        <button type="button" class="btn btn-light" wire:click="cancelCallPrompt">لغو</button>
+                        <button type="button" class="btn btn-success btn-lg" wire:click="continueCallPrompt">
+                            <i class="fi fi-rr-phone-call"></i> بله، تماس را شروع کن
                         </button>
-                        <button class="btn btn-outline-danger" @click="noAnswerNow()">
-                            <i class="fi fi-rr-phone-slash"></i> عدم پاسخ
-                        </button>
-                        <button class="btn btn-outline-light" wire:click="closeCallForm">لغو</button>
-                        @elseif($callPhase === 'talking')
-                        <button type="button" class="btn btn-danger btn-lg w-100" @click="endTalk()">
-                            <i class="fi fi-rr-phone-slash"></i> اتمام مکالمه
-                        </button>
-                        @else
-                        @if ($answered === true)
-                            <button class="btn btn-primary" wire:click="logCall">ثبت تماس</button>
-                            <button class="btn btn-secondary" wire:click="closeCallForm">انصراف</button>
-                        @elseif($answered === false)
-                            <button class="btn btn-primary" wire:click="logCall">ثبت عدم پاسخ</button>
-                            <button class="btn btn-secondary" wire:click="closeCallForm">انصراف</button>
-                        @endif
-                        @endif
                     </div>
                 </div>
             </div>
         </div>
     @endif
 
-    @if($showCallConfirmModal)
-        <div class="modal d-block" tabindex="-1" style="background:rgba(0,0,0,.6)">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content ta-call-modal-content">
-                    <div class="modal-header ta-call-modal-header border-0">
-                        <h5 class="modal-title text-white">تأیید شروع تماس</h5>
-                        <button type="button" class="btn-close btn-close-white" wire:click="cancelCallPrompt"></button>
+    {{-- Main Call Modal --}}
+    @if ($activeTrialId && $activeTrial)
+        <div class="modal d-block" tabindex="-1" style="background:rgba(0,0,0,.6)" wire:ignore.self>
+            @php $stageLabel = $this->stageLabel($activeStage); @endphp
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content ta-call-modal-content"
+                     x-data="{
+                        phase: @entangle('callPhase'),
+                        secondsLeft: 15,
+                        talkSeconds: 0,
+                        timer: null,
+                        init() {
+                            this.$watch('phase', (value) => this.handlePhaseChange(value));
+                            this.handlePhaseChange(this.phase);
+                        },
+                        stopTimer() {
+                            if (this.timer) clearInterval(this.timer);
+                            this.timer = null;
+                        },
+                        handlePhaseChange(currentPhase) {
+                            this.stopTimer();
+                            if (currentPhase === 'ringing') {
+                                this.secondsLeft = 15;
+                                this.timer = setInterval(() => {
+                                    if (this.secondsLeft > 0) this.secondsLeft--;
+                                    else this.stopTimer();
+                                }, 1000);
+                            } else if (currentPhase === 'talking') {
+                                this.talkSeconds = 0;
+                                this.timer = setInterval(() => { this.talkSeconds++; }, 1000);
+                            }
+                        },
+                        formatTime(s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); },
+                        endTalkAndSync() {
+                            this.stopTimer();
+                            $wire.endConversation(this.talkSeconds);
+                        }
+                     }"
+                     x-init="init()"
+                >
+                    <div class="modal-header ta-call-modal-header text-end">
+                        <div>
+                            <h5 class="modal-title text-white mb-0">موضوع تماس: {{ $stageLabel }}</h5>
+                            <div class="small ta-call-muted" dir="ltr">{{ $activeTrial->user?->mobile ?? '' }} ({{ $activeTrial->user?->name ?? '' }})</div>
+                        </div>
                     </div>
-                    <div class="modal-body ta-call-modal-body py-5">
-                        <div class="text-center">
-                            <div class="ta-call-icon mb-4"><i class="fi fi-rr-phone-call"></i></div>
-                            <h5 class="text-white mb-2">مطمئنی می‌خوای الان تماس بگیری؟</h5>
-                            @if($this->requiresCallSubject($pendingCallStage) && $pendingCallSubject)
-                                <div class="bg-body text-dark rounded-4 p-3 mt-3 text-end">
-                                    <div class="fw-bold mb-2">
-                                        موضوع تماس: {{ \App\Livewire\Admin\TrialAcquisition\Index::callSubjectOptions()[$pendingCallSubject] ?? '—' }}
+                    <div class="modal-body ta-call-modal-body">
+                        
+                        <div x-show="phase === 'ringing'" x-cloak class="text-center py-4">
+                            <div class="ta-call-icon mb-3"><i class="fi fi-rr-phone-call"></i></div>
+                            <h5 class="mb-1 text-white">در حال تماس…</h5>
+                            <div class="display-4 fw-bold text-primary" dir="ltr" x-text="secondsLeft"></div>
+                        </div>
+
+                        <div x-show="phase === 'talking'" x-cloak class="text-center py-4">
+                            <div class="ta-call-icon mb-3"><i class="fi fi-rr-comment-alt"></i></div>
+                            <h5 class="mb-1 text-white">در حال مکالمه…</h5>
+                            <div class="display-3 fw-bold text-success" dir="ltr" x-text="formatTime(talkSeconds)"></div>
+                        </div>
+
+                        <div x-show="phase !== 'ringing' && phase !== 'talking'" x-cloak>
+                            @if($answered)
+                                <div class="bg-body text-dark rounded-4 p-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">با چه شخصی صحبت شد؟ <span class="text-danger">*</span></label>
+                                        <div class="row g-2">
+                                            @foreach (['father' => 'پدر', 'mother' => 'مادر', 'student' => 'دانش‌آموز', 'other' => 'سایر'] as $key => $label)
+                                                <div class="col-6 col-md-3">
+                                                    <label class="form-check p-2 h-100 mb-0">
+                                                        <input type="checkbox" class="form-check-input" wire:model.live="spokeWith" value="{{ $key }}">
+                                                        <span class="form-check-label">{{ $label }}</span>
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        @error('spokeWith')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                                     </div>
-                                    <div class="small text-muted">
-                                        {{ $callSubjectInstructions[$pendingCallSubject] ?? '' }}
+
+                                    @if ($activeStage === 'day1')
+                                        <div class="mb-3">
+                                            <label class="form-label">خلاصه تماس خوش آمد گویی <span class="text-danger">*</span></label>
+                                            <textarea wire:model="welcomeCallSummary" rows="4" class="form-control"></textarea>
+                                            @error('welcomeCallSummary')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                        </div>
+                                    @endif
+                                    
+                                    @if($activeStage !== 'day1')
+                                    <div class="mb-2">
+                                        <label class="form-label">توضیحات / خلاصهٔ گفتگو (اختیاری)</label>
+                                        <textarea wire:model="notes" rows="2" class="form-control"></textarea>
                                     </div>
+                                    @endif
                                 </div>
                             @else
-                                <p class="ta-call-muted mb-0">با ادامه، فرم ثبت تماس همین دانش‌آموز باز می‌شود.</p>
+                                <div class="bg-body text-dark rounded-4 p-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">علت عدم پاسخ <span class="text-danger">*</span></label>
+                                        <select wire:model.live="failReason" class="form-select">
+                                            <option value="">— انتخاب کنید —</option>
+                                            <option value="no_answer">عدم پاسخ</option>
+                                            <option value="off">خاموش</option>
+                                            <option value="rejected">رد تماس</option>
+                                            <option value="unavailable">عدم دسترس</option>
+                                            <option value="other">سایر</option>
+                                        </select>
+                                        @error('failReason')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                    </div>
+                                    @if($failReason === 'other')
+                                    <div class="mb-3">
+                                        <label class="form-label">توضیح علت <span class="text-danger">*</span></label>
+                                        <input type="text" wire:model="otherFailReason" class="form-control" maxlength="100">
+                                        @error('otherFailReason')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                    </div>
+                                    @endif
+                                </div>
                             @endif
                         </div>
                     </div>
-                    <div class="modal-footer ta-call-modal-footer border-0 justify-content-start gap-2">
-                        <button type="button" class="btn btn-light" wire:click="cancelCallPrompt">لغو</button>
-                        <button type="button" class="btn btn-success btn-lg" wire:click="continueCallPrompt">
-                            <i class="fi fi-rr-phone-call"></i> ادامه تماس
-                        </button>
+                    <div class="modal-footer ta-call-modal-footer">
+                        <div x-show="phase === 'ringing'" x-cloak>
+                            <button class="btn btn-success" wire:click="markCallAnswered()">پاسخ داد</button>
+                            <button class="btn btn-outline-danger" wire:click="markNoAnswer()">پاسخ نداد</button>
+                            <button class="btn btn-outline-light" wire:click="closeCallForm">لغو</button>
+                        </div>
+                        <div x-show="phase === 'talking'" x-cloak>
+                            <button type="button" class="btn btn-danger btn-lg w-100" @click="endTalkAndSync()">اتمام مکالمه</button>
+                        </div>
+                        <div x-show="phase !== 'ringing' && phase !== 'talking'" x-cloak>
+                            <button class="btn btn-primary" wire:click="logCall">ثبت</button>
+                            <button class="btn btn-secondary" wire:click="closeCallForm">انصراف</button>
+                        </div>
                     </div>
                 </div>
             </div>

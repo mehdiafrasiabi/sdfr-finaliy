@@ -48,15 +48,15 @@ class PhoneCall extends Model
 
     // نتیجهٔ تماس موفق
     const RESULT_REGISTERED  = 'registered';
-    const RESULT_REGISTRATION_FOLLOW_UP = 'registration_follow_up';
-    const RESULT_FOLLOW_UP   = 'follow_up';
-    const RESULT_NO_INTEREST = 'no_interest';
+    const RESULT_REGISTRATION_FOLLOW_UP = 'reg_fu';
+    const RESULT_FOLLOW_UP   = 'fu';
+    const RESULT_NO_INTEREST = 'no_int';
 
     const RESULT_LABELS = [
-        'registered'             => 'ثبت‌نام',
-        'registration_follow_up' => 'نیاز به پیگیری مجدد ثبت نام',
-        'follow_up'              => 'نیاز به پیگیری مجدد جذب تلفنی',
-        'no_interest'            => 'عدم تمایل',
+        'registered' => 'ثبت‌نام',
+        'reg_fu'     => 'نیاز به پیگیری مجدد ثبت نام',
+        'fu'         => 'نیاز به پیگیری مجدد جذب تلفنی',
+        'no_int'     => 'عدم تمایل',
     ];
 
     public function lead(): BelongsTo

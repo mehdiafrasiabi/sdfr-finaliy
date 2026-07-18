@@ -112,6 +112,8 @@ class AssessmentList extends Component
 
         $grade = $info->is_graduate ? TrialWeek::GRADE_GRADUATE : (int) $info->grade;
 
+        $plan = $this->trialChoiceCopy['plan'] ?? 'trial';
+
         $service->start(
             $user,
             $grade,
@@ -119,6 +121,7 @@ class AssessmentList extends Component
             $info->father_mobile,
             $info->mother_mobile,
             (bool) $info->attends_school,
+            $plan,
         );
 
         $this->redirect(route('client.profile.waiting-for-supporter'), navigate: true);

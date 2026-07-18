@@ -1,0 +1,83 @@
+<div>
+    <div class="app-page-head">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard.index') }}">صفحه اصلی</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.phone-acquisition.dashboard') }}">جذب تلفنی</a></li>
+                <li class="breadcrumb-item active">نیاز پیگیری مجدد ثبت نام</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="statbox widget box box-shadow">
+        <div class="widget-header">
+            <div class="row align-items-center g-2">
+                <div class="col-md-7">
+                    <h4 class="mb-0">نیاز پیگیری مجدد ثبت نام</h4>
+                    <p class="small text-muted mb-0">
+                        {{ number_format($totalCount) }} مورد در این دسته هستند.
+                        {{ number_format($dueCount) }} مورد سررسید شده‌اند.
+                    </p>
+                </div>
+                <div class="col-md-5">
+                    <input type="text" wire:model.live.debounce.400ms="search" class="form-control" placeholder="جستجو بر اساس نام یا موبایل…">
+                </div>
+            </div>
+        </div>
+
+        <div class="widget-content widget-content-area">
+            <div class="row g-3">
+                @forelse ($leads as $lead)
+                    @php $color = $lead->color; @endphp
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card h-100 border-{{ $color }}" style="border-right-width:5px;">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2 gap-2">
+                                    <h5 class="mb-0" dir="ltr">{{ $lead->mobile }}</h5>
+                                    <span class="badge bg-{{ $color }}">تماس {{ $lead->attempts_count }}</span>
+                                </div>
+                                <div class="text-muted small mb-1">
+                                    <i class="fi fi-rr-user"></i> {{ $lead->full_name ?: 'بدون نام' }}
+                                </div>
+                                <div class="text-muted small mb-1">
+                                    {{ $lead->grade_label }} / {{ $lead->field_label }}
+                                </div>
+                                <div class="text-muted small mb-2">
+                                    {{ $lead->state?->name ?? '—' }}{{ $lead->city ? '، ' . $lead->city->name : '' }}
+                                </div>
+
+                                @if ($lead->next_call_at)
+                                    <div class="mb-2 small">
+                                        <i class="fi fi-rr-calendar-clock text-danger"></i>
+                                        موعد: {{ jalali($lead->next_call_at)->format('%d %B، %H:%M') }}
+                                    </div>
+                                @endif
+
+                                @if ($lead->calls->first())
+                                    <div class="mb-2">
+                                        <span class="badge bg-light text-dark border">
+                                            آخرین نتیجه: {{ \App\Models\PhoneCall::RESULT_LABELS[\App\Models\PhoneCall::RESULT_REGISTRATION_FOLLOW_UP] }}
+                                        </span>
+                                    </div>
+                                @endif
+
+                                <button wire:click="promptCall({{ $lead->id }})"
+                                        class="btn btn-sm btn-{{ $color }} w-100">
+                                    <i class="fi fi-rr-phone-call"></i> ثبت تماس
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-12">
+                        <p class="text-center text-muted py-4">موردی برای پیگیری مجدد ثبت نام نیست.</p>
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="mt-3">{{ $leads->links() }}</div>
+        </div>
+    </div>
+
+    @include('livewire.admin.phone-acquisition._call-form')
+</div>

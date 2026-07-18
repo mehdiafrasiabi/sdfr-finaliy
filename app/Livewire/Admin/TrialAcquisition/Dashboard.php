@@ -23,15 +23,10 @@ class Dashboard extends Component
     public string $pendingCallSubject = '';
     public bool $showCallConfirmModal = false;
 
-    public function promptCall(int $trialId, string $stage, string $subject = ''): void
+    public function promptCall(int $trialId, string $stage): void
     {
         if (! array_key_exists($stage, TrialAcquisitionCall::STAGE_DUE_DAY)) {
             $this->dispatch('warning', 'مرحله تماس معتبر نیست.');
-            return;
-        }
-
-        if ($stage === TrialAcquisitionCall::STAGE_DAY1 && ! array_key_exists($subject, \App\Livewire\Admin\TrialAcquisition\Index::callSubjectOptions())) {
-            $this->dispatch('warning', 'موضوع تماس روز اول معتبر نیست.');
             return;
         }
 
@@ -46,7 +41,7 @@ class Dashboard extends Component
 
         $this->pendingCallTrialId = $trialId;
         $this->pendingCallStage = $stage;
-        $this->pendingCallSubject = $subject;
+        $this->pendingCallSubject = ''; // Subject is no longer used
         $this->showCallConfirmModal = true;
     }
 
@@ -65,7 +60,6 @@ class Dashboard extends Component
         return redirect()->route('admin.trial-acquisition.index', [
             'callTrialId' => $this->pendingCallTrialId,
             'callStage' => $this->pendingCallStage,
-            'subject' => $this->pendingCallSubject,
         ]);
     }
 
@@ -94,43 +88,24 @@ class Dashboard extends Component
 
                 return collect(TrialAcquisitionCall::STAGE_DUE_DAY)
                     ->filter(fn (int $dueDay) => $daysSinceRegistration >= $dueDay)
-                    ->flatMap(function (int $dueDay, string $stage) use ($trial, $daysSinceRegistration) {
-                        if ($stage === TrialAcquisitionCall::STAGE_DAY1) {
-                            return collect(\App\Livewire\Admin\TrialAcquisition\Index::callSubjectOptions())
-                                ->reject(function (string $label, string $subject) use ($trial, $stage) {
-                                    return $trial->trialAcquisitionCalls
-                                        ->where('stage', $stage)
-                                        ->where('call_subject', $subject)
-                                        ->where('answered', true)
-                                        ->isNotEmpty();
-                                })
-                                ->map(fn (string $label, string $subject) => [
-                                    'trial' => $trial,
-                                    'stage' => $stage,
-                                    'subject' => $subject,
-                                    'stage_label' => $label,
-                                    'days_overdue' => max(0, $daysSinceRegistration - $dueDay),
-                                    'is_due_today' => $daysSinceRegistration === $dueDay,
-                                ]);
-                        }
-
+                    ->map(function (int $dueDay, string $stage) use ($trial, $daysSinceRegistration) {
                         if ($trial->trialAcquisitionCalls
                             ->where('stage', $stage)
                             ->where('answered', true)
                             ->isNotEmpty()) {
-                            return [];
+                            return null;
                         }
 
-                        return [[
-                                'trial' => $trial,
-                                'stage' => $stage,
-                                'subject' => '',
-                                'stage_label' => TrialAcquisitionCall::STAGE_LABELS[$stage] ?? $stage,
-                                'days_overdue' => max(0, $daysSinceRegistration - $dueDay),
-                                'is_due_today' => $daysSinceRegistration === $dueDay,
-                            ]];
+                        return [
+                            'trial' => $trial,
+                            'stage' => $stage,
+                            'subject' => '',
+                            'stage_label' => TrialAcquisitionCall::STAGE_LABELS[$stage] ?? $stage,
+                            'days_overdue' => max(0, $daysSinceRegistration - $dueDay),
+                            'is_due_today' => $daysSinceRegistration === $dueDay,
+                        ];
                     })
-                    ->values();
+                    ->filter(); // Remove nulls
             })
             ->sortByDesc('days_overdue')
             ->values()

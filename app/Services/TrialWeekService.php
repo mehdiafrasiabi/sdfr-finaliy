@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 class TrialWeekService
 {
     // ایجاد هفته آزمایشی جدید + رکورد Student برای استفاده از سیستم موجود
-    public function start(User $user, int $grade, ?string $field, string $fatherMobile, string $motherMobile, bool $attendsSchool = true): TrialWeek
+    public function start(User $user, int $grade, ?string $field, string $fatherMobile, string $motherMobile, bool $attendsSchool = true, string $plan = 'trial'): TrialWeek
     {
         $trial = DB::transaction(function () use ($user, $grade, $field, $fatherMobile, $motherMobile, $attendsSchool) {
             $student = Student::firstOrCreate(
@@ -46,7 +46,7 @@ class TrialWeekService
             $trial->update(['assessments_completed_at' => Carbon::now()]);
         }
 
-        app(TrialLifecycleSmsService::class)->trySendTrialStarted($trial);
+        app(TrialLifecycleSmsService::class)->trySendTrialStarted($trial, $plan);
 
         return $trial;
     }
