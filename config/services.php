@@ -57,6 +57,7 @@ return [
         'registration_link_body_id' => env('MELIPAYAMAK_REGISTRATION_LINK_BODY_ID', 480452),
         'student_plan_body_id' => env('MELIPAYAMAK_STUDENT_PLAN_BODY_ID', 480452),
         'parent_invite_body_id' => env('MELIPAYAMAK_PARENT_INVITE_BODY_ID', 480452),
+        'public_url' => env('SDFR_PUBLIC_URL', 'https://sdfr.me'),
         'dashboard_url' => env('SDFR_DASHBOARD_URL', 'https://sdfr.me/profile/dashboard'),
     ],
 

@@ -20,6 +20,7 @@ class PhoneCall extends Model
         'attempt_number'        => 'integer',
         'willingness'           => 'integer',
         'talk_duration_seconds' => 'integer',
+        'spoke_with_people'     => 'array',
         'called_at'             => 'datetime',
         'answered_at'           => 'datetime',
         'follow_up_at'          => 'datetime',
@@ -47,13 +48,15 @@ class PhoneCall extends Model
 
     // نتیجهٔ تماس موفق
     const RESULT_REGISTERED  = 'registered';
+    const RESULT_REGISTRATION_FOLLOW_UP = 'registration_follow_up';
     const RESULT_FOLLOW_UP   = 'follow_up';
     const RESULT_NO_INTEREST = 'no_interest';
 
     const RESULT_LABELS = [
-        'registered'  => 'ثبت‌نام',
-        'follow_up'   => 'پیگیری',
-        'no_interest' => 'عدم تمایل',
+        'registered'             => 'ثبت‌نام',
+        'registration_follow_up' => 'نیاز به پیگیری مجدد ثبت نام',
+        'follow_up'              => 'نیاز به پیگیری مجدد جذب تلفنی',
+        'no_interest'            => 'عدم تمایل',
     ];
 
     public function lead(): BelongsTo
@@ -81,9 +84,22 @@ class PhoneCall extends Model
      */
     public function getSpokeWithLabelAttribute(): string
     {
+        $people = collect($this->spoke_with_people ?? [])->filter()->values();
+
+        if ($people->isNotEmpty()) {
+            return $people->map(function ($person) {
+                if ($person === 'other') {
+                    return $this->spoke_with_other ?: 'سایر';
+                }
+
+                return AcquisitionContact::FOLLOW_UP_LABELS[$person] ?? $person;
+            })->implode('، ');
+        }
+
         if (! $this->spoke_with) {
             return '—';
         }
+
         return AcquisitionContact::FOLLOW_UP_LABELS[$this->spoke_with] ?? $this->spoke_with;
     }
 

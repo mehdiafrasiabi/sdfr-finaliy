@@ -24,6 +24,7 @@ use App\Livewire\Manager\Story\Edit as StoryEdit;
 use App\Livewire\Manager\Student\Index as StudentIndex;
 use App\Livewire\Manager\StudentExams\Detail as StudentExamDetail;
 use App\Livewire\Manager\StudentExams\Index as StudentExamIndex;
+use App\Livewire\Manager\StudentExams\SampleQuestions as StudentExamSampleQuestions;
 use App\Livewire\Manager\Supports\Supporter as SupportIndex;
 use App\Livewire\Manager\Supports\SupporterStudent;
 use App\Livewire\Manager\Supports\SupporterStudentDetail;
@@ -152,6 +153,7 @@ Route::name('manager.')->group(function () {
 
         Route::prefix('student-exams')->name('student-exams.')->group(function () {
             Route::get('/', StudentExamIndex::class)->name('index');
+            Route::get('/{settingId}/sample-questions', StudentExamSampleQuestions::class)->name('sample-questions');
             Route::get('/{settingId}', StudentExamDetail::class)->name('detail');
         });
 

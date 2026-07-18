@@ -996,6 +996,7 @@
                                 </div>
                             @endif
 
+
                             {{-- ══════ استوری‌های SDFR (بالای گزارش روزانه و ساعت مطالعه) ══════ --}}
                             <div class="md:col-span-2" style="margin-bottom: 12px">
                                 <livewire:client.home.story.index/>
@@ -1093,7 +1094,29 @@
                                         از {{ $studyHoursProgress['total_hours'] }}</div>
                                 </div>
                             </div>
-
+<br>
+                            <a wire:navigate href="{{ route('client.profile.sample-questions') }}"
+                               class="glass card-live rise md:col-span-2 p-4 flex items-center justify-between gap-4"
+                               style="animation-delay:.14s;margin-top:-20px;margin-bottom: 24px">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-2xl bg-sky-500/10 text-sky-300 flex items-center justify-center flex-shrink-0 ring-1 ring-sky-500/20">
+                                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 4.5h7.25L19.5 9.25V19.5a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.5 4.75V9.5h4.75M8.5 13h7M8.5 16h5"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-black text-white text-base mb-1">نمونه سوالات امتحانی</div>
+                                        <div class="text-xs text-neutral-400 leading-6">نمونه سوالات تشریحی را بر اساس کتاب، نوبت امتحانی و سال ببین و دانلود کن.</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 text-primary font-bold text-sm flex-shrink-0">
+                                    <span>مشاهده نمونه سوالات</span>
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                                    </svg>
+                                </div>
+                            </a>
                             {{-- ══════ 3.5) اضافه بر سازمان (فقط در صورت وجود) ══════ --}}
                             @if($extraOrgProgress['has_extra'])
                                 <div class="glass rise p-4" style="animation-delay:.22s">

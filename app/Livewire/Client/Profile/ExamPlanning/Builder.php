@@ -371,7 +371,7 @@ class Builder extends Component
             return;
         }
 
-        if (! $this->schedule) {
+        if (! $this->schedule || ! $this->scheduleHasSubject($subjectId)) {
             return;
         }
 
@@ -383,7 +383,7 @@ class Builder extends Component
 
     public function setGeneralStudyChapterMode(int $subjectId, ExamPlanningService $service): void
     {
-        if ($this->programAlreadyBuilt() || ! $this->schedule) {
+        if ($this->programAlreadyBuilt() || ! $this->schedule || ! $this->scheduleHasSubject($subjectId)) {
             return;
         }
 
@@ -396,7 +396,7 @@ class Builder extends Component
 
     public function openGeneralWholeModal(int $subjectId): void
     {
-        if ($this->programAlreadyBuilt() || ! $this->schedule) {
+        if ($this->programAlreadyBuilt() || ! $this->schedule || ! $this->scheduleHasSubject($subjectId)) {
             return;
         }
 
@@ -416,7 +416,12 @@ class Builder extends Component
 
     public function saveGeneralWholeMode(ExamPlanningService $service): void
     {
-        if ($this->programAlreadyBuilt() || ! $this->schedule || ! $this->selectedGeneralWholeSubjectId) {
+        if (
+            $this->programAlreadyBuilt()
+            || ! $this->schedule
+            || ! $this->selectedGeneralWholeSubjectId
+            || ! $this->scheduleHasSubject($this->selectedGeneralWholeSubjectId)
+        ) {
             return;
         }
 
@@ -513,6 +518,8 @@ class Builder extends Component
         $subjectOptions = $service->subjectOptionsForUser(auth()->user());
         $subjectOptionsByDay = $this->buildSubjectOptionsByDay($calendarDays, $subjectOptions);
         $capacityData = $this->schedule ? $service->buildCapacityData($this->schedule) : ['subjects' => [], 'segments' => []];
+        $curriculum = $this->filterCurriculumToScheduledSubjects($curriculum);
+        $this->normalizeActiveStudyTab($curriculum);
         $subjectMeta = $this->buildSubjectMeta($curriculum, $capacityData);
         $missingStudySubjects = $this->missingStudySubjects($capacityData);
         $missingStudyChapters = $this->schedule ? $service->missingStudyChapters($this->schedule) : [];
@@ -561,7 +568,7 @@ class Builder extends Component
             return;
         }
 
-        if (! $this->schedule) {
+        if (! $this->schedule || ! $this->scheduleHasSubject($subjectId)) {
             return;
         }
 
@@ -698,6 +705,53 @@ class Builder extends Component
         return $meta;
     }
 
+    private function filterCurriculumToScheduledSubjects(array $curriculum): array
+    {
+        $scheduledSubjectIds = $this->schedule?->days
+            ? $this->schedule->days
+                ->pluck('cc_subject_id')
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values()
+                ->all()
+            : [];
+
+        if (empty($scheduledSubjectIds)) {
+            return $curriculum;
+        }
+
+        $filterSubjects = fn (array $subjects): array => collect($subjects)
+            ->filter(fn (array $subject) => in_array((int) $subject['id'], $scheduledSubjectIds, true))
+            ->values()
+            ->all();
+
+        $curriculum['general_subjects'] = $filterSubjects($curriculum['general_subjects'] ?? []);
+        $curriculum['specialized_subjects'] = $filterSubjects($curriculum['specialized_subjects'] ?? []);
+
+        return $curriculum;
+    }
+
+    private function normalizeActiveStudyTab(array $curriculum): void
+    {
+        $specializedCount = count($curriculum['specialized_subjects'] ?? []);
+        $generalCount = count($curriculum['general_subjects'] ?? []);
+        $activeCount = $this->activeType === 'general' ? $generalCount : $specializedCount;
+
+        if ($activeCount === 0) {
+            if ($this->activeType === 'general' && $specializedCount > 0) {
+                $this->activeType = 'specialized';
+                $activeCount = $specializedCount;
+            } elseif ($this->activeType === 'specialized' && $generalCount > 0) {
+                $this->activeType = 'general';
+                $activeCount = $generalCount;
+            }
+        }
+
+        $this->activeSubject = $activeCount > 0
+            ? max(0, min($this->activeSubject, $activeCount - 1))
+            : 0;
+    }
+
     private function buildSubjectOptionsByDay(array $calendarDays, array $subjectOptions): array
     {
         $registeredSubjectIds = $this->schedule?->days
@@ -739,6 +793,18 @@ class Builder extends Component
         }
 
         return $optionsByDay;
+    }
+
+    private function scheduleHasSubject(int $subjectId): bool
+    {
+        if (! $this->schedule) {
+            return false;
+        }
+
+        $this->schedule->loadMissing('days');
+
+        return $this->schedule->days
+            ->contains(fn ($day) => (int) $day->cc_subject_id === (int) $subjectId);
     }
 
     private function missingStudySubjects(array $capacityData): array

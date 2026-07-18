@@ -146,7 +146,7 @@
                 <span class="font-semibold text-xs">آزمون ها</span>
             </a>
         </li>
-        @if($showSampleQuestionsLink)
+
             <li>
                 <a wire:navigate href="{{route('client.profile.sample-questions')}}"
                    class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.sample-questions') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
@@ -158,7 +158,6 @@
                     <span class="font-semibold text-xs">نمونه سوالات</span>
                 </a>
             </li>
-        @endif
         <li>
             <a wire:navigate data-tour="sb-smart-report" href="{{route('client.profile.reportStudentStudy')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.reportStudentStudy') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">

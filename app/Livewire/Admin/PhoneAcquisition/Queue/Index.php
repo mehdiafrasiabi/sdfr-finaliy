@@ -37,10 +37,13 @@ class Index extends Component
                 $q->where('admin_id', $adminId)
                     ->where('status', PhoneLeadAssignment::STATUS_ACTIVE);
             })
-            // پیگیری‌های زمان‌بندی‌شده برای آینده اینجا نمایش داده نمی‌شوند (در صفحهٔ پیگیری‌ها)
+            // پیگیری‌های زمان‌بندی‌شده برای آینده و هر دو شاخهٔ پیگیری در صفحات جداگانه نمایش داده می‌شوند.
             ->where(function ($q) {
                 $q->whereNull('last_outcome')
-                    ->orWhere('last_outcome', '!=', \App\Models\PhoneCall::RESULT_FOLLOW_UP);
+                    ->orWhereNotIn('last_outcome', [
+                        \App\Models\PhoneCall::RESULT_FOLLOW_UP,
+                        \App\Models\PhoneCall::RESULT_REGISTRATION_FOLLOW_UP,
+                    ]);
             })
             // تماس‌های ناموفقِ موکول‌شده به فردا، تا فرارسیدن موعد در صف نمایش داده نمی‌شوند
             ->where(function ($q) {

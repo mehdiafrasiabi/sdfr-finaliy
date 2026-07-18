@@ -19,44 +19,64 @@ class Index extends Component
 
     public string $search = '';
     public string $filter = ''; // '' | reminders | not_called | confirmed
+    public ?int $callTrialId = null;
+    public string $callStage = '';
+    public string $subject = '';
+    public ?int $pendingCallTrialId = null;
+    public string $pendingCallStage = '';
+    public string $pendingCallSubject = '';
+    public bool $showCallConfirmModal = false;
 
     // ───── وضعیت فرم تماس ─────
     public ?int $activeTrialId = null;
     public string $activeStage = '';        // day1 | day3 | day7 | emergency
+    public ?int $activeCallId = null;
+    public ?int $talkSeconds = null;
+    public string $callPhase = 'ringing';   // ringing | talking | answerForm | noAnswerForm
     public $answered = null;                // null تا انتخاب نشده، سپس true/false
 
-    public string $spokeWith = '';
-    public string $followUp = '';           // father | mother (روز اول)
-    public array $checklist = [];           // کلیدهای کارهای انجام‌شده
+    public array $spokeWith = [];
+    public string $spokeWithOther = '';
+    public string $callSubject = '';
     public $probability = null;             // درصد احتمال ثبت‌نام
     public string $probabilityNote = '';
     public bool $isDefinitive = false;      // تأیید قطعی (روز هفتم)
     public string $emergencyReason = '';
-    public bool $wantsReminder = false;
-    public string $reminderAt = '';         // میلادی "Y-m-d H:i" از تقویم شمسی
+    public string $failReason = '';
     public string $notes = '';
 
-    protected $queryString = ['search'];
+    protected $queryString = [
+        'search',
+        'callTrialId' => ['except' => null],
+        'callStage' => ['except' => ''],
+        'subject' => ['except' => ''],
+    ];
 
-    /** آیتم‌های چک‌لیست هر مرحله. */
-    public static function checklistItems(string $stage): array
+    public function mount(): void
     {
-        return match ($stage) {
-            TrialAcquisitionCall::STAGE_DAY1 => [
-                'welcome_student' => 'خوش‌آمدگویی و توضیحات به دانش‌آموز',
-                'welcome_parents' => 'خوش‌آمدگویی و توضیحات به والدین',
-            ],
-            TrialAcquisitionCall::STAGE_DAY3 => [
-                'checkup_student'  => 'حال‌واحوال و پیگیری دانش‌آموز',
-                'report_followup'  => 'گزارش به پیگیر آموزشی',
-            ],
-            TrialAcquisitionCall::STAGE_DAY7 => [
-                'well_done_student' => 'خسته‌نباشید، بازخورد و توضیح ادامهٔ مسیر',
-                'report_parents'    => 'ارائهٔ گزارش به اولیا',
-                'financial_talk'    => 'صحبت مالی',
-            ],
-            default => [],
-        };
+        if ($this->callTrialId && $this->callStage) {
+            $this->openCallForm((int) $this->callTrialId, $this->callStage, $this->subject);
+            $this->callTrialId = null;
+            $this->callStage = '';
+            $this->subject = '';
+        }
+    }
+
+    /** گزینه‌های موضوع تماس روز اول. */
+    public static function callSubjectOptions(): array
+    {
+        return [
+            'parent_welcome' => 'توضیحات و خوش‌آمدگویی والدین',
+            'student_welcome' => 'توضیحات و خوش‌آمدگویی دانش‌آموز',
+        ];
+    }
+
+    public static function callSubjectInstructions(): array
+    {
+        return [
+            'parent_welcome' => 'در این تماس، روند هفته آزمایشی، نقش والدین، زمان‌بندی پیگیری‌ها و مسیر گزارش‌دهی را برای والدین توضیح بده.',
+            'student_welcome' => 'در این تماس، به دانش‌آموز خوش‌آمد بگو، مسیر هفته آزمایشی، انتظارات روزانه و نحوه ارتباط با تیم را توضیح بده.',
+        ];
     }
 
     public function updatingSearch(): void
@@ -69,20 +89,69 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function openCallForm(int $trialId, string $stage): void
+    public function promptCall(int $trialId, string $stage, string $subject = ''): void
+    {
+        if (! $this->isAllowedCallStage($stage)) {
+            $this->dispatch('warning', 'مرحله تماس معتبر نیست.');
+            return;
+        }
+
+        if ($this->requiresCallSubject($stage) && ! array_key_exists($subject, self::callSubjectOptions())) {
+            $this->dispatch('warning', 'موضوع تماس روز اول معتبر نیست.');
+            return;
+        }
+
+        $belongsToSupporter = $this->applyStudentTypeScope(
+            TrialWeek::where('acquisition_supporter_id', Auth::guard('admin')->id())
+                ->whereHas('student', fn ($query) => $query->where('is_trial', true))
+        )
+            ->whereKey($trialId)
+            ->exists();
+
+        if (! $belongsToSupporter) {
+            $this->dispatch('warning', 'دانش‌آموز یافت نشد یا به شما تخصیص ندارد.');
+            return;
+        }
+
+        $this->pendingCallTrialId = $trialId;
+        $this->pendingCallStage = $stage;
+        $this->pendingCallSubject = $subject;
+        $this->showCallConfirmModal = true;
+    }
+
+    public function cancelCallPrompt(): void
+    {
+        $this->reset(['pendingCallTrialId', 'pendingCallStage', 'pendingCallSubject', 'showCallConfirmModal']);
+    }
+
+    public function continueCallPrompt(): void
+    {
+        if (! $this->pendingCallTrialId || ! $this->pendingCallStage) {
+            $this->cancelCallPrompt();
+            return;
+        }
+
+        $this->openCallForm((int) $this->pendingCallTrialId, $this->pendingCallStage, $this->pendingCallSubject);
+        $this->cancelCallPrompt();
+    }
+
+    public function openCallForm(int $trialId, string $stage, string $subject = ''): void
     {
         $this->resetCallForm();
         $this->activeTrialId = $trialId;
-        $this->activeStage = in_array($stage, ['day1', 'day3', 'day7', 'emergency'], true) ? $stage : 'day1';
+        $this->activeStage = $this->isAllowedCallStage($stage) ? $stage : TrialAcquisitionCall::STAGE_DAY1;
+        $this->callSubject = $this->requiresCallSubject($this->activeStage) && array_key_exists($subject, self::callSubjectOptions())
+            ? $subject
+            : '';
 
         // مقادیر قبلی را به‌عنوان پیش‌فرض بیاور
         $trial = $this->loadTrial($trialId);
         if ($trial) {
-            $this->followUp = $trial->acq_follow_up ?? '';
             $this->probability = $trial->acq_probability;
             $this->probabilityNote = $trial->acq_probability_note ?? '';
         }
 
+        $this->callPhase = 'ringing';
         $this->dispatch('trial-call-form-opened');
     }
 
@@ -99,26 +168,48 @@ class Index extends Component
     protected function resetCallForm(): void
     {
         $this->reset([
-            'activeTrialId', 'activeStage', 'answered', 'spokeWith', 'followUp',
-            'checklist', 'probability', 'probabilityNote', 'isDefinitive',
-            'emergencyReason', 'wantsReminder', 'reminderAt', 'notes',
+            'activeTrialId', 'activeStage', 'activeCallId', 'talkSeconds',
+            'callPhase', 'answered', 'spokeWith', 'spokeWithOther',
+            'callSubject', 'probability', 'probabilityNote', 'isDefinitive',
+            'emergencyReason', 'failReason', 'notes',
         ]);
         $this->resetErrorBag();
     }
 
-    public function setAnswered(bool $value): void
+    public function markCallAnswered(): void
     {
-        $this->answered = $value;
+        $trial = $this->loadTrial($this->activeTrialId);
+        if (! $trial) {
+            $this->dispatch('warning', 'دانش‌آموز یافت نشد یا به شما تخصیص ندارد.');
+            $this->closeCallForm();
+            return;
+        }
+
+        $this->answered = true;
+        $this->talkSeconds = 0;
+        $this->callPhase = 'talking';
         $this->resetErrorBag();
     }
 
-    public function updatedWantsReminder($value): void
+    public function endConversation(int $seconds): void
     {
-        if ($value) {
-            // پس از نمایش تقویم، آن را در سمت کلاینت مقداردهی کن
-            $this->dispatch('trial-call-form-opened');
-        } else {
-            $this->reminderAt = '';
+        $this->talkSeconds = max(0, $seconds);
+        $this->callPhase = 'answerForm';
+        $this->dispatch('trial-call-form-opened');
+    }
+
+    public function markNoAnswer(): void
+    {
+        $this->answered = false;
+        $this->callPhase = 'noAnswerForm';
+        $this->failReason = $this->failReason ?: TrialAcquisitionCall::FAIL_NO_ANSWER;
+        $this->resetErrorBag();
+    }
+
+    public function cancelRing(): void
+    {
+        if ($this->callPhase === 'ringing') {
+            $this->closeCallForm();
         }
     }
 
@@ -127,13 +218,17 @@ class Index extends Component
         if (! $trialId) {
             return null;
         }
-        return TrialWeek::where('acquisition_supporter_id', Auth::guard('admin')->id())->find($trialId);
+
+        return $this->applyStudentTypeScope(
+            TrialWeek::where('acquisition_supporter_id', Auth::guard('admin')->id())
+                ->whereHas('student', fn ($query) => $query->where('is_trial', true))
+        )->find($trialId);
     }
 
     protected function hasSuccessfulCall(TrialWeek $trial): bool
     {
         return $trial->trialAcquisitionCalls
-            ->contains(fn (TrialAcquisitionCall $call) => (bool) $call->answered);
+            ->contains(fn (TrialAcquisitionCall $call) => (bool) $call->answered && $call->stage !== TrialAcquisitionCall::STAGE_EXTRA);
     }
 
     public function logCall(): void
@@ -152,40 +247,43 @@ class Index extends Component
 
         $isEmergency = $this->activeStage === TrialAcquisitionCall::STAGE_EMERGENCY;
 
-        // ───── اعتبارسنجی ─────
         $rules = ['notes' => ['nullable', 'string', 'max:5000']];
         $messages = [];
 
-        if ($this->wantsReminder) {
-            $rules['reminderAt'] = ['required', 'date'];
-            $messages['reminderAt.required'] = 'برای یادآور، تاریخ و ساعت را مشخص کنید.';
-        }
+        if ($this->answered) {
+            if ($isEmergency) {
+                $rules['emergencyReason'] = ['required', 'string', 'max:2000'];
+                $messages['emergencyReason.required'] = 'علت تماس اضطراری را بنویسید.';
+            } else {
+                $rules['spokeWith'] = ['required', 'array', 'min:1'];
+                $rules['spokeWith.*'] = ['required', 'in:father,mother,student,other'];
+                $messages['spokeWith.required'] = 'حداقل یک گزینه برای صحبت‌شده‌ها انتخاب کنید.';
 
-        if ($this->answered && $isEmergency) {
-            $rules['emergencyReason'] = ['required', 'string', 'max:2000'];
-            $messages['emergencyReason.required'] = 'علت تماس اضطراری را بنویسید.';
-        }
+                if (in_array('other', $this->spokeWith, true)) {
+                    $rules['spokeWithOther'] = ['required', 'string', 'max:255'];
+                    $messages['spokeWithOther.required'] = 'نام شخص دیگر را بنویسید.';
+                }
 
-        if ($this->answered && ! $isEmergency) {
-            $rules['spokeWith'] = ['required', 'in:father,mother,student,other'];
-            $messages['spokeWith.required'] = 'تعیین کنید با چه شخصی صحبت شده است.';
+                if ($this->requiresCallSubject($this->activeStage)) {
+                    $rules['callSubject'] = ['required', 'in:parent_welcome,student_welcome'];
+                    $messages['callSubject.required'] = 'موضوع تماس را انتخاب کنید.';
+                }
 
-            if ($this->activeStage === TrialAcquisitionCall::STAGE_DAY1) {
-                $rules['followUp'] = ['required', 'in:father,mother'];
-                $messages['followUp.required'] = 'پیگیر آموزشی (پدر/مادر) را انتخاب کنید.';
+                if ($this->requiresProbability($this->activeStage)) {
+                    $rules['probability'] = ['required', 'integer', 'between:0,100'];
+                    $rules['probabilityNote'] = ['required', 'string', 'max:2000'];
+                    $messages['probability.required'] = 'درصد احتمال ثبت‌نام را وارد کنید.';
+                    $messages['probabilityNote.required'] = 'توضیحات احتمال ثبت‌نام را بنویسید.';
+                }
             }
-
-            if (in_array($this->activeStage, [TrialAcquisitionCall::STAGE_DAY3, TrialAcquisitionCall::STAGE_DAY7], true)) {
-                $rules['probability'] = ['required', 'integer', 'between:0,100'];
-                $rules['probabilityNote'] = ['required', 'string', 'max:2000'];
-                $messages['probability.required'] = 'درصد احتمال ثبت‌نام را وارد کنید.';
-                $messages['probabilityNote.required'] = 'توضیحات احتمال ثبت‌نام را بنویسید.';
-            }
+        } else {
+            $rules['failReason'] = ['required', 'in:no_answer,off,rejected'];
+            $messages['failReason.required'] = 'علت عدم پاسخ را انتخاب کنید.';
         }
 
         $this->validate($rules, $messages);
 
-        if ($this->answered && $this->activeStage === TrialAcquisitionCall::STAGE_DAY7 && ! $this->isDefinitive) {
+        if ($this->answered && $this->requiresDefinitiveConfirmation($this->activeStage) && ! $this->isDefinitive) {
             $this->addError('isDefinitive', 'برای ثبت نهایی، احتمال ثبت‌نام را به‌صورت قطعی تأیید کنید.');
             return;
         }
@@ -196,39 +294,32 @@ class Index extends Component
                 ->count() + 1;
 
             TrialAcquisitionCall::create([
-                'trial_week_id'            => $trial->id,
-                'admin_id'                 => Auth::guard('admin')->id(),
-                'stage'                    => $this->activeStage,
-                'attempt_number'           => $attempt,
-                'answered'                 => $this->answered,
-                'spoke_with'               => $this->answered && ! $isEmergency ? ($this->spokeWith ?: null) : null,
-                'educational_follow_up'    => $this->answered && $this->activeStage === TrialAcquisitionCall::STAGE_DAY1 ? ($this->followUp ?: null) : null,
-                'checklist'                => $this->answered && ! $isEmergency ? array_keys(array_filter($this->checklist)) : null,
+                'trial_week_id'         => $trial->id,
+                'admin_id'              => Auth::guard('admin')->id(),
+                'stage'                 => $this->activeStage,
+                'attempt_number'        => $attempt,
+                'answered'              => $this->answered,
+                'talk_duration_seconds' => $this->answered ? (int) ($this->talkSeconds ?? 0) : null,
+                'fail_reason'           => $this->answered ? null : $this->failReason,
+                'spoke_with_people'     => $this->answered && ! $isEmergency ? array_values(array_filter($this->spokeWith)) : null,
+                'spoke_with_other'      => $this->answered && ! $isEmergency && in_array('other', $this->spokeWith, true) ? ($this->spokeWithOther ?: null) : null,
+                'spoke_with'            => $this->answered && ! $isEmergency ? (array_values(array_filter($this->spokeWith))[0] ?? null) : null,
+                'call_subject'          => $this->answered && $this->requiresCallSubject($this->activeStage) ? ($this->callSubject ?: null) : null,
                 'registration_probability' => $this->answered && ! $isEmergency && $this->probability !== null && $this->probability !== '' ? (int) $this->probability : null,
-                'probability_note'         => $this->answered && ! $isEmergency ? ($this->probabilityNote ?: null) : null,
-                'is_definitive'            => $this->answered && $this->activeStage === TrialAcquisitionCall::STAGE_DAY7 ? $this->isDefinitive : false,
-                'emergency_reason'         => $this->answered && $isEmergency ? ($this->emergencyReason ?: null) : null,
-                'reminder_at'              => $this->wantsReminder ? $this->reminderAt : null,
-                'notes'                    => $this->notes ?: null,
-                'called_at'                => now(),
+                'probability_note'      => $this->answered && ! $isEmergency ? ($this->probabilityNote ?: null) : null,
+                'is_definitive'         => $this->answered && $this->requiresDefinitiveConfirmation($this->activeStage) ? $this->isDefinitive : false,
+                'emergency_reason'      => $this->answered && $isEmergency ? ($this->emergencyReason ?: null) : null,
+                'notes'                 => $this->answered ? ($this->notes ?: null) : null,
+                'called_at'             => now(),
             ]);
 
             // ───── به‌روزرسانی فیلدهای denormalized روی trial_week ─────
-            if ($this->answered && $this->activeStage === TrialAcquisitionCall::STAGE_DAY1 && $this->followUp) {
-                $trial->acq_follow_up = $this->followUp;
-            }
             if ($this->answered && ! $isEmergency && $this->probability !== null && $this->probability !== '') {
                 $trial->acq_probability = (int) $this->probability;
                 $trial->acq_probability_note = $this->probabilityNote ?: null;
             }
-            if ($this->answered && $this->activeStage === TrialAcquisitionCall::STAGE_DAY7 && $this->isDefinitive) {
+            if ($this->answered && $this->requiresDefinitiveConfirmation($this->activeStage) && $this->isDefinitive) {
                 $trial->acq_confirmed = true;
-            }
-            if ($this->wantsReminder) {
-                $trial->acq_reminder_at = $this->reminderAt;
-            } elseif ($this->answered) {
-                // تماس برقرار شد و یادآوری جدیدی نیست → یادآور قبلی پاک می‌شود
-                $trial->acq_reminder_at = null;
             }
             $trial->save();
         });
@@ -237,47 +328,125 @@ class Index extends Component
         $this->closeCallForm();
     }
 
+    protected function builtExamProgramConstraint($query): void
+    {
+        $query->whereNotNull('weekly_program_id')
+            ->whereNotNull('program_built_at');
+    }
+
+    protected function applyStudentTypeScope($query)
+    {
+        return $query->whereDoesntHave(
+            'student.examSchedules',
+            fn ($scheduleQuery) => $this->builtExamProgramConstraint($scheduleQuery)
+        );
+    }
+
+    protected function pageView(): string
+    {
+        return 'livewire.admin.trial-acquisition.index';
+    }
+
+    protected function pageMeta(): array
+    {
+        return [
+            'pageBreadcrumb' => 'جذب یک هفته آزمایشی',
+            'pageTitle' => 'دانش‌آموزان جذب آزمایشی من',
+            'pageSubtitle' => 'فقط دانش‌آموزان هفته آزمایشی ۸ روزه. مراحل تماس بر اساس روزهای هفتهٔ آزمایشی: روز اول، روز سوم، روز هفتم.',
+            'emptyMessage' => 'دانش‌آموز هفته آزمایشی ۸ روزه‌ای به شما تخصیص نیافته است.',
+        ];
+    }
+
+    protected function isAllowedCallStage(string $stage): bool
+    {
+        return $stage === TrialAcquisitionCall::STAGE_EMERGENCY
+            || array_key_exists($stage, TrialAcquisitionCall::STAGE_DUE_DAY);
+    }
+
+    public function requiresCallSubject(string $stage): bool
+    {
+        return $stage === TrialAcquisitionCall::STAGE_DAY1;
+    }
+
+    public function requiresProbability(string $stage): bool
+    {
+        return in_array($stage, [TrialAcquisitionCall::STAGE_DAY3, TrialAcquisitionCall::STAGE_DAY7], true);
+    }
+
+    public function requiresDefinitiveConfirmation(string $stage): bool
+    {
+        return $stage === TrialAcquisitionCall::STAGE_DAY7;
+    }
+
+    public function stageLabel(string $stage): string
+    {
+        return TrialAcquisitionCall::STAGE_LABELS[$stage] ?? $stage;
+    }
+
+    public function stageMetaFor(TrialWeek $trial, $now): array
+    {
+        $days = (int) \Carbon\Carbon::parse($trial->created_at)->startOfDay()->diffInDays($now->copy()->startOfDay());
+
+        return [
+            TrialAcquisitionCall::STAGE_DAY1 => ['label' => 'روز اول', 'due' => $days >= 0],
+            TrialAcquisitionCall::STAGE_DAY3 => ['label' => 'روز سوم', 'due' => $days >= 2],
+            TrialAcquisitionCall::STAGE_DAY7 => ['label' => 'روز هفتم', 'due' => $days >= 6],
+        ];
+    }
+
     public function render()
     {
         $adminId = Auth::guard('admin')->id();
 
-        $trials = TrialWeek::query()
-            ->with([
-                'user.personalInformation',
-                'trialAcquisitionCalls',
-                'student.examSchedules' => fn ($query) => $query
-                    ->whereNotNull('weekly_program_id')
-                    ->whereNotNull('program_built_at')
-                    ->latest('program_built_at'),
-            ])
-            ->where('acquisition_supporter_id', $adminId)
+        $trials = $this->applyStudentTypeScope(
+            TrialWeek::query()
+                ->with([
+                    'user.personalInformation',
+                    'trialAcquisitionCalls',
+                    'student.examSchedules' => fn ($query) => $query
+                        ->with(['setting', 'days', 'weeklyProgram'])
+                        ->whereNotNull('weekly_program_id')
+                        ->whereNotNull('program_built_at')
+                        ->latest('program_built_at'),
+                ])
+                ->where('acquisition_supporter_id', $adminId)
+                ->whereHas('student', fn ($query) => $query->where('is_trial', true))
+        )
             ->when($this->search, fn ($q) => $q->whereHas('user', fn ($u) =>
                 $u->where('name', 'like', "%{$this->search}%")
                     ->orWhere('mobile', 'like', "%{$this->search}%")
             ))
             ->when($this->filter === 'reminders', fn ($q) => $q->whereNotNull('acq_reminder_at'))
             ->when($this->filter === 'confirmed', fn ($q) => $q->where('acq_confirmed', true))
-            ->when($this->filter === 'not_called', fn ($q) => $q->whereDoesntHave('trialAcquisitionCalls', fn ($c) => $c->where('answered', true)))
+            ->when($this->filter === 'not_called', fn ($q) => $q->whereDoesntHave('trialAcquisitionCalls', fn ($c) => $c
+                ->where('answered', true)
+                ->where('stage', '!=', TrialAcquisitionCall::STAGE_EXTRA)
+            ))
             ->latest()
             ->paginate(12);
 
         $activeTrial = $this->activeTrialId
-            ? TrialWeek::with([
-                'user.personalInformation',
-                'trialAcquisitionCalls',
-                'student.examSchedules' => fn ($query) => $query
-                    ->whereNotNull('weekly_program_id')
-                    ->whereNotNull('program_built_at')
-                    ->latest('program_built_at'),
-            ])->find($this->activeTrialId)
+            ? $this->applyStudentTypeScope(
+                TrialWeek::with([
+                    'user.personalInformation',
+                    'trialAcquisitionCalls',
+                    'student.examSchedules' => fn ($query) => $query
+                        ->with(['setting', 'days', 'weeklyProgram'])
+                        ->whereNotNull('weekly_program_id')
+                        ->whereNotNull('program_built_at')
+                        ->latest('program_built_at'),
+                ])->where('acquisition_supporter_id', $adminId)
+                    ->whereHas('student', fn ($query) => $query->where('is_trial', true))
+            )->find($this->activeTrialId)
             : null;
 
-        return view('livewire.admin.trial-acquisition.index', [
+        return view($this->pageView(), [
             'trials'         => $trials,
             'activeTrial'    => $activeTrial,
-            'checklistItems' => $this->activeStage ? self::checklistItems($this->activeStage) : [],
             'now'            => now(),
+            'callSubjectInstructions' => self::callSubjectInstructions(),
             'hasActiveTrialCall' => $activeTrial ? $this->hasSuccessfulCall($activeTrial) : false,
+            ...$this->pageMeta(),
         ])->layout('layouts.admin.app');
     }
 }

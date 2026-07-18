@@ -2,19 +2,14 @@
 
 namespace App\Livewire\Manager\StudentExams;
 
-use App\Helpers\FileHelper;
 use App\Models\ExamPlanningSetting;
-use App\Models\ExamSampleQuestion;
-use App\Services\ExamPlanningService;
-use Illuminate\Support\Facades\DB;
-use Livewire\Features\SupportFileUploads\WithFileUploads;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Morilog\Jalali\Jalalian;
 
 class Index extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination;
 
     public bool $showModal = false;
     public ?int $editingId = null;
@@ -30,51 +25,10 @@ class Index extends Component
     public int $max_daily_study_hours = 12;
     public bool $is_active = true;
 
-    public bool $showSampleModal = false;
-    public ?int $sampleSettingId = null;
-    public array $sampleRows = [];
-
     public function mount(): void
     {
         $this->activation_starts_at = jdate(now())->format('Y/m/d');
         $this->activation_ends_at = jdate(now()->addMonth())->format('Y/m/d');
-    }
-
-    public function openSampleModal(?int $settingId = null): void
-    {
-        $this->resetValidation();
-        $this->sampleSettingId = $settingId ?: ExamPlanningSetting::query()
-            ->active()
-            ->orderByDesc('activation_starts_at')
-            ->value('id');
-        $this->sampleRows = [$this->blankSampleRow()];
-        $this->showSampleModal = true;
-    }
-
-    public function closeSampleModal(): void
-    {
-        $this->showSampleModal = false;
-        $this->sampleSettingId = null;
-        $this->sampleRows = [];
-        $this->resetErrorBag();
-    }
-
-    public function addSampleRow(): void
-    {
-        $this->sampleRows[] = $this->blankSampleRow();
-    }
-
-    public function removeSampleRow(int $index): void
-    {
-        if (! isset($this->sampleRows[$index])) {
-            return;
-        }
-
-        array_splice($this->sampleRows, $index, 1);
-
-        if (empty($this->sampleRows)) {
-            $this->sampleRows[] = $this->blankSampleRow();
-        }
     }
 
     public function updatedGrade($value): void
@@ -214,98 +168,7 @@ class Index extends Component
         $this->dispatch('success', 'تنظیم انتخاب‌شده حذف شد.');
     }
 
-    public function saveSampleQuestions(ExamPlanningService $service): void
-    {
-        $this->resetValidation();
-
-        if (! $this->sampleSettingId) {
-            $this->addError('sampleSettingId', 'ابتدا یک تنظیم امتحان را انتخاب کنید.');
-            return;
-        }
-
-        $setting = ExamPlanningSetting::query()->find($this->sampleSettingId);
-        if (! $setting) {
-            $this->addError('sampleSettingId', 'تنظیم امتحان پیدا نشد.');
-            return;
-        }
-
-        $curriculum = $service->curriculumForSetting($setting);
-        $allowedSubjectIds = collect($curriculum['general_subjects'] ?? [])
-            ->concat($curriculum['specialized_subjects'] ?? [])
-            ->pluck('id')
-            ->map(fn ($id) => (int) $id)
-            ->unique()
-            ->values()
-            ->all();
-
-        $this->validate([
-            'sampleRows' => ['required', 'array', 'min:1'],
-            'sampleRows.*.title' => ['required', 'string', 'max:200'],
-            'sampleRows.*.file' => ['required', 'file', 'mimes:pdf', 'max:20480'],
-            'sampleRows.*.duration_minutes' => ['required', 'integer', 'min:1', 'max:720'],
-            'sampleRows.*.cc_subject_id' => ['required', 'integer'],
-            'sampleRows.*.is_main' => ['boolean'],
-        ], [
-            'sampleRows.required' => 'حداقل یک نمونه سوال اضافه کنید.',
-            'sampleRows.*.title.required' => 'عنوان نمونه سوال الزامی است.',
-            'sampleRows.*.file.required' => 'فایل PDF الزامی است.',
-            'sampleRows.*.file.mimes' => 'فقط فایل PDF مجاز است.',
-            'sampleRows.*.file.max' => 'حجم هر فایل نباید بیشتر از 20 مگابایت باشد.',
-            'sampleRows.*.duration_minutes.required' => 'مدت زمان آزمون الزامی است.',
-            'sampleRows.*.cc_subject_id.required' => 'انتخاب درس الزامی است.',
-        ]);
-
-        foreach ($this->sampleRows as $index => $row) {
-            $subjectId = (int) ($row['cc_subject_id'] ?? 0);
-            if (! in_array($subjectId, $allowedSubjectIds, true)) {
-                $this->addError("sampleRows.{$index}.cc_subject_id", 'درس انتخاب‌شده برای این پایه و رشته معتبر نیست.');
-                return;
-            }
-        }
-
-        if (! collect($this->sampleRows)->contains(fn (array $row) => (bool) ($row['is_main'] ?? false))) {
-            $this->addError('sampleRows', 'حداقل یکی از فایل‌ها را به عنوان اصلی مشخص کنید.');
-            return;
-        }
-
-        $mainGroups = collect($this->sampleRows)
-            ->filter(fn (array $row) => (bool) ($row['is_main'] ?? false))
-            ->groupBy(fn (array $row) => (int) ($row['cc_subject_id'] ?? 0))
-            ->filter(fn ($group) => $group->count() > 1);
-
-        if ($mainGroups->isNotEmpty()) {
-            $this->addError('sampleRows', 'برای هر درس فقط یک فایل اصلی می‌تواند وجود داشته باشد.');
-            return;
-        }
-
-        DB::transaction(function () use ($setting) {
-            foreach ($this->sampleRows as $index => $row) {
-                $file = $row['file'];
-                $subjectId = (int) $row['cc_subject_id'];
-
-                $relativePath = FileHelper::uploadToPublicHtml(
-                    $file,
-                    'exam-sample-questions/setting-' . $setting->id,
-                    true
-                );
-
-                ExamSampleQuestion::create([
-                    'exam_planning_setting_id' => $setting->id,
-                    'cc_subject_id' => $subjectId,
-                    'title' => $row['title'],
-                    'pdf_path' => $relativePath,
-                    'duration_minutes' => (int) $row['duration_minutes'],
-                    'is_main' => (bool) ($row['is_main'] ?? false),
-                    'sort_order' => $index + 1,
-                ]);
-            }
-        });
-
-        $this->dispatch('success', 'نمونه سوالات با موفقیت ذخیره شد.');
-        $this->closeSampleModal();
-    }
-
-    public function render(ExamPlanningService $service)
+    public function render()
     {
         $settings = ExamPlanningSetting::query()
             ->withCount(['days', 'sampleQuestions'])
@@ -313,42 +176,8 @@ class Index extends Component
             ->orderByDesc('id')
             ->paginate(12);
 
-        $sampleSettings = ExamPlanningSetting::query()
-            ->active()
-            ->withCount('sampleQuestions')
-            ->orderByDesc('activation_starts_at')
-            ->orderByDesc('id')
-            ->get();
-
-        $sampleSetting = $this->sampleSettingId
-            ? ExamPlanningSetting::query()->find($this->sampleSettingId)
-            : null;
-        $sampleSubjects = [];
-        if ($sampleSetting) {
-            $curriculum = $service->curriculumForSetting($sampleSetting);
-            $sampleSubjects = collect($curriculum['general_subjects'] ?? [])
-                ->map(fn (array $subject) => [
-                    'id' => $subject['id'],
-                    'name' => $subject['name'],
-                    'type' => 'general',
-                ])
-                ->concat(
-                    collect($curriculum['specialized_subjects'] ?? [])
-                        ->map(fn (array $subject) => [
-                            'id' => $subject['id'],
-                            'name' => $subject['name'],
-                            'type' => 'specialized',
-                        ])
-                )
-                ->values()
-                ->all();
-        }
-
         return view('livewire.manager.student-exams.index', [
             'settings' => $settings,
-            'sampleSettings' => $sampleSettings,
-            'sampleSelectedSetting' => $sampleSetting,
-            'sampleSubjects' => $sampleSubjects,
             'gradeOptions' => ExamPlanningSetting::GRADE_LABELS,
             'fieldOptions' => ExamPlanningSetting::FIELD_LABELS,
         ])->layout('layouts.manager.app');
@@ -372,17 +201,6 @@ class Index extends Component
         $this->max_daily_study_hours = 12;
         $this->is_active = true;
         $this->resetErrorBag();
-    }
-
-    private function blankSampleRow(): array
-    {
-        return [
-            'title' => '',
-            'file' => null,
-            'duration_minutes' => 30,
-            'cc_subject_id' => null,
-            'is_main' => false,
-        ];
     }
 
     private function fromJalali(?string $value): ?string

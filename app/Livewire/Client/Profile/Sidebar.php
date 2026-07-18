@@ -31,10 +31,7 @@ class Sidebar extends Component
             ? (app(ExamPlanningService::class)->shouldExposePaidModule(Auth::user())
                 || app(ExamPlanningService::class)->shouldExposeTrialModule(Auth::user()))
             : false;
-        $this->showSampleQuestionsLink = Auth::user()
-            ? (app(ExamPlanningService::class)->shouldExposePaidModule(Auth::user())
-                || app(ExamPlanningService::class)->shouldExposeTrialModule(Auth::user()))
-            : false;
+        $this->showSampleQuestionsLink = (bool) Auth::user();
     }
 
     /**

@@ -2,16 +2,73 @@
 
 namespace App\Livewire\Admin\TrialAcquisition;
 
+use App\Models\AdminNotification;
 use App\Models\TrialAcquisitionCall;
 use App\Models\TrialWeek;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 /**
  * داشبورد «مشاور جذب یک هفته آزمایشی».
  */
 class Dashboard extends Component
 {
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap';
+
+    public ?int $pendingCallTrialId = null;
+    public string $pendingCallStage = '';
+    public string $pendingCallSubject = '';
+    public bool $showCallConfirmModal = false;
+
+    public function promptCall(int $trialId, string $stage, string $subject = ''): void
+    {
+        if (! array_key_exists($stage, TrialAcquisitionCall::STAGE_DUE_DAY)) {
+            $this->dispatch('warning', 'مرحله تماس معتبر نیست.');
+            return;
+        }
+
+        if ($stage === TrialAcquisitionCall::STAGE_DAY1 && ! array_key_exists($subject, \App\Livewire\Admin\TrialAcquisition\Index::callSubjectOptions())) {
+            $this->dispatch('warning', 'موضوع تماس روز اول معتبر نیست.');
+            return;
+        }
+
+        $belongsToSupporter = TrialWeek::where('acquisition_supporter_id', Auth::guard('admin')->id())
+            ->whereKey($trialId)
+            ->exists();
+
+        if (! $belongsToSupporter) {
+            $this->dispatch('warning', 'دانش‌آموز یافت نشد یا به شما تخصیص ندارد.');
+            return;
+        }
+
+        $this->pendingCallTrialId = $trialId;
+        $this->pendingCallStage = $stage;
+        $this->pendingCallSubject = $subject;
+        $this->showCallConfirmModal = true;
+    }
+
+    public function cancelCallPrompt(): void
+    {
+        $this->reset(['pendingCallTrialId', 'pendingCallStage', 'pendingCallSubject', 'showCallConfirmModal']);
+    }
+
+    public function continueCallPrompt()
+    {
+        if (! $this->pendingCallTrialId || ! $this->pendingCallStage) {
+            $this->cancelCallPrompt();
+            return null;
+        }
+
+        return redirect()->route('admin.trial-acquisition.index', [
+            'callTrialId' => $this->pendingCallTrialId,
+            'callStage' => $this->pendingCallStage,
+            'subject' => $this->pendingCallSubject,
+        ]);
+    }
+
     public function render()
     {
         $adminId = Auth::guard('admin')->id();
@@ -20,28 +77,64 @@ class Dashboard extends Component
 
         $total = (clone $base)->count();
         $calledStudents = (clone $base)
-            ->whereHas('trialAcquisitionCalls', fn ($q) => $q->where('answered', true))
+            ->whereHas('trialAcquisitionCalls', fn ($q) => $q
+                ->where('answered', true)
+                ->where('stage', '!=', TrialAcquisitionCall::STAGE_EXTRA)
+            )
             ->count();
         $notCalled = $total - $calledStudents;
         $confirmed = (clone $base)->where('acq_confirmed', true)->count();
 
         $waitingForCall = (clone $base)
-            ->with(['user.personalInformation', 'student.examSchedules'])
-            ->whereDoesntHave('trialAcquisitionCalls', fn ($q) => $q->where('answered', true))
+            ->with(['user.personalInformation', 'student.examSchedules', 'trialAcquisitionCalls'])
             ->latest()
-            ->limit(8)
-            ->get();
+            ->get()
+            ->flatMap(function (TrialWeek $trial) {
+                $daysSinceRegistration = $trial->daysSinceAcquisitionStart();
 
-        // پیشرفت هر مرحله (دانش‌آموزانی که تماس موفق آن مرحله ثبت شده)
-        $stageProgress = [];
-        foreach (['day1', 'day3', 'day7'] as $stage) {
-            $stageProgress[$stage] = (clone $base)
-                ->whereHas('trialAcquisitionCalls', fn ($q) => $q->where('stage', $stage)->where('answered', true))
-                ->count();
-        }
+                return collect(TrialAcquisitionCall::STAGE_DUE_DAY)
+                    ->filter(fn (int $dueDay) => $daysSinceRegistration >= $dueDay)
+                    ->flatMap(function (int $dueDay, string $stage) use ($trial, $daysSinceRegistration) {
+                        if ($stage === TrialAcquisitionCall::STAGE_DAY1) {
+                            return collect(\App\Livewire\Admin\TrialAcquisition\Index::callSubjectOptions())
+                                ->reject(function (string $label, string $subject) use ($trial, $stage) {
+                                    return $trial->trialAcquisitionCalls
+                                        ->where('stage', $stage)
+                                        ->where('call_subject', $subject)
+                                        ->where('answered', true)
+                                        ->isNotEmpty();
+                                })
+                                ->map(fn (string $label, string $subject) => [
+                                    'trial' => $trial,
+                                    'stage' => $stage,
+                                    'subject' => $subject,
+                                    'stage_label' => $label,
+                                    'days_overdue' => max(0, $daysSinceRegistration - $dueDay),
+                                    'is_due_today' => $daysSinceRegistration === $dueDay,
+                                ]);
+                        }
 
-        // میانگین احتمال ثبت‌نام
-        $avgProbability = (int) round((clone $base)->whereNotNull('acq_probability')->avg('acq_probability') ?? 0);
+                        if ($trial->trialAcquisitionCalls
+                            ->where('stage', $stage)
+                            ->where('answered', true)
+                            ->isNotEmpty()) {
+                            return [];
+                        }
+
+                        return [[
+                                'trial' => $trial,
+                                'stage' => $stage,
+                                'subject' => '',
+                                'stage_label' => TrialAcquisitionCall::STAGE_LABELS[$stage] ?? $stage,
+                                'days_overdue' => max(0, $daysSinceRegistration - $dueDay),
+                                'is_due_today' => $daysSinceRegistration === $dueDay,
+                            ]];
+                    })
+                    ->values();
+            })
+            ->sortByDesc('days_overdue')
+            ->values()
+            ->take(12);
 
         // یادآورهای سررسیده
         $dueReminders = (clone $base)
@@ -51,24 +144,18 @@ class Dashboard extends Component
             ->limit(50)
             ->get();
 
-        // تماس‌های اضطراری اخیر
-        $emergencyCalls = TrialAcquisitionCall::where('admin_id', $adminId)
-            ->where('stage', TrialAcquisitionCall::STAGE_EMERGENCY)
-            ->with('trialWeek.user:id,name,mobile')
-            ->latest('called_at')
-            ->limit(50)
-            ->get();
+        $notifications = AdminNotification::where('admin_id', $adminId)
+            ->latest()
+            ->paginate(20);
 
         return view('livewire.admin.trial-acquisition.dashboard', [
             'total'          => $total,
             'calledStudents' => $calledStudents,
             'notCalled'      => $notCalled,
             'confirmed'      => $confirmed,
-            'stageProgress'  => $stageProgress,
-            'avgProbability' => $avgProbability,
             'dueReminders'   => $dueReminders,
-            'emergencyCalls' => $emergencyCalls,
             'waitingForCall' => $waitingForCall,
+            'notifications'  => $notifications,
             'now'            => now(),
         ])->layout('layouts.admin.app');
     }

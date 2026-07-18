@@ -19,7 +19,7 @@
         <div class="modal-dialog modal-lg">
             {{-- فاز تماس از سمت سرور کنترل می‌شود (قطعی)؛ Alpine فقط تایمرها را می‌چرخاند. --}}
             <div class="modal-content"
-                 wire:key="call-modal-{{ $activeLeadId }}"
+                 wire:key="call-modal-{{ $activeLeadId }}-{{ $callPhase }}"
                  x-data="{
                     elapsed: 0, talk: 0, _r: null, _t: null,
                     startRing(){ this.stop(); this.elapsed = 0; this._r = setInterval(() => this.elapsed++, 1000); },
@@ -60,9 +60,20 @@
                                     <a href="{{ $sentLinkUrl }}" target="_blank" dir="ltr">{{ $sentLinkUrl }}</a>
                                 </div>
                             @else
-                                <button type="button" class="btn btn-outline-info btn-sm" wire:click="sendRegistrationLink">
-                                    <i class="fi fi-rr-paper-plane"></i> ارسال لینک ثبت‌نام
-                                </button>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="btn btn-outline-info btn-sm" wire:click="sendRegistrationLink('default')">
+                                        <i class="fi fi-rr-paper-plane"></i> ارسال لینک عمومی
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" wire:click="sendRegistrationLink('trial')">
+                                        <i class="fi fi-rr-paper-plane"></i> ارسال لینک یک هفته آزمایشی
+                                    </button>
+                                    <button type="button" class="btn btn-outline-warning btn-sm" wire:click="sendRegistrationLink('exam')">
+                                        <i class="fi fi-rr-paper-plane"></i> ارسال لینک برنامه امتحانی
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" wire:click="sendTestSms">
+                                        <i class="fi fi-rr-flask"></i> ارسال تست به 09940682693
+                                    </button>
+                                </div>
                             @endif
                         </div>
 
@@ -83,22 +94,43 @@
                                     <a href="{{ $sentLinkUrl }}" target="_blank" dir="ltr">{{ $sentLinkUrl }}</a>
                                 </div>
                             @else
-                                <button type="button" class="btn btn-outline-info btn-sm" wire:click="sendRegistrationLink">
-                                    <i class="fi fi-rr-paper-plane"></i> ارسال لینک ثبت‌نام
-                                </button>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="btn btn-outline-info btn-sm" wire:click="sendRegistrationLink('default')">
+                                        <i class="fi fi-rr-paper-plane"></i> ارسال لینک عمومی
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" wire:click="sendRegistrationLink('trial')">
+                                        <i class="fi fi-rr-paper-plane"></i> ارسال لینک یک هفته آزمایشی
+                                    </button>
+                                    <button type="button" class="btn btn-outline-warning btn-sm" wire:click="sendRegistrationLink('exam')">
+                                        <i class="fi fi-rr-paper-plane"></i> ارسال لینک برنامه امتحانی
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" wire:click="sendTestSms">
+                                        <i class="fi fi-rr-flask"></i> ارسال تست به 09940682693
+                                    </button>
+                                </div>
                             @endif
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">با چه شخصی صحبت شد؟ <span class="text-danger">*</span></label>
-                            <select wire:model="spokeWith" class="form-select">
-                                <option value="">— انتخاب کنید —</option>
-                                <option value="student">خود دانش‌آموز</option>
-                                <option value="father">پدر</option>
-                                <option value="mother">مادر</option>
-                                <option value="other">سایر</option>
-                            </select>
+                            <div class="row g-2">
+                                @foreach (['student' => 'خود دانش‌آموز', 'father' => 'پدر', 'mother' => 'مادر', 'other' => 'سایر'] as $key => $label)
+                                    <div class="col-6 col-md-3">
+                                        <label class="form-check border rounded-3 p-2 h-100 mb-0">
+                                            <input type="checkbox" class="form-check-input" wire:model.live="spokeWith" value="{{ $key }}">
+                                            <span class="form-check-label">{{ $label }}</span>
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
                             @error('spokeWith')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                            @error('spokeWith.*')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                            @if (in_array('other', $spokeWith, true))
+                                <div class="mt-3">
+                                    <input type="text" wire:model="spokeWithOther" class="form-control" placeholder="نام شخص دیگر را بنویسید">
+                                    @error('spokeWithOther')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                </div>
+                            @endif
                         </div>
 
                         <div class="mb-3">
@@ -126,14 +158,14 @@
                             <label class="form-label">نتیجهٔ تماس <span class="text-danger">*</span></label>
                             <select wire:model.live="result" class="form-select">
                                 <option value="">— انتخاب کنید —</option>
-                                <option value="registered">ثبت‌نام</option>
+                                <option value="registration_follow_up">نیاز به پیگیری مجدد ثبت نام</option>
                                 <option value="follow_up">نیاز به پیگیری مجدد جذب تلفنی</option>
                                 <option value="no_interest">عدم تمایل</option>
                             </select>
                             @error('result')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
 
-                        <div class="mb-3" @if ($result !== 'follow_up') style="display:none" @endif>
+                        <div class="mb-3" @if (! in_array($result, ['registration_follow_up', 'follow_up'], true)) style="display:none" @endif>
                             <label class="form-label">تاریخ و ساعت پیگیری <span class="text-danger">*</span></label>
                             <div wire:ignore>
                                 <input type="text" id="jdp-followup" data-jdp
@@ -184,7 +216,7 @@
                         </button>
                     @elseif ($callPhase === 'talking')
                         <button type="button" class="btn btn-danger btn-lg w-100"
-                                @click="stop(); $wire.endConversation(talk)">
+                                @click="stop(); $wire.endConversation(Number(talk || 0))">
                             <i class="fi fi-rr-phone-slash"></i> اتمام مکالمه
                         </button>
                     @else
@@ -193,6 +225,32 @@
                             <i class="fi fi-rr-disk"></i> ثبت تماس
                         </button>
                     @endif
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
+
+@if ($showCallConfirmModal)
+    <div class="modal d-block" tabindex="-1" style="background:rgba(0,0,0,.55)" wire:click.self="cancelCallPrompt">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title">تأیید شروع تماس</h5>
+                    <button type="button" class="btn-close" wire:click="cancelCallPrompt"></button>
+                </div>
+                <div class="modal-body py-5 text-center">
+                    <div class="mb-3">
+                        <span class="badge bg-warning text-dark px-3 py-2">مطمئنی؟</span>
+                    </div>
+                    <h5 class="mb-2">می‌خوای تماس با {{ $pendingCallLeadLabel }} شروع بشه؟</h5>
+                    <p class="text-muted mb-0">با ادامه، فرم ثبت تماس باز می‌شود.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" wire:click="cancelCallPrompt">لغو</button>
+                    <button type="button" class="btn btn-primary" wire:click="continueCallPrompt">
+                        <i class="fi fi-rr-phone-call"></i> ادامه تماس
+                    </button>
                 </div>
             </div>
         </div>

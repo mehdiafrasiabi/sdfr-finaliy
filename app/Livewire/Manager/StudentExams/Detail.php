@@ -75,7 +75,6 @@ class Detail extends Component
             return [];
         }
 
-        $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
         $rows = [];
         $currentWeek = [];
 
@@ -96,7 +95,7 @@ class Detail extends Component
                 'date' => $current->toDateString(),
                 'selection_key' => 'day_' . $current->format('Y_m_d'),
                 'jalali' => $jalali->format('Y/m/d'),
-                'day_name' => $dayNames[$weekday] ?? '',
+                'day_name' => $jalali->format('l'),
                 'day_number' => $jalali->format('d'),
                 'subjects' => $this->setting->days
                     ->filter(fn ($day) => $day->exam_date?->toDateString() === $current->toDateString())

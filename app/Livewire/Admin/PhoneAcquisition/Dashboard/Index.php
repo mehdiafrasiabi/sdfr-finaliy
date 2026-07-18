@@ -43,6 +43,16 @@ class Index extends Component
 
         $activeLead = $this->activeLeadId ? PhoneLead::find($this->activeLeadId) : null;
         $dashboardStats = $this->buildDashboardStats($adminId);
+        $pendingRegistrationCount = PhoneLead::query()
+            ->whereHas('assignments', fn ($q) =>
+                $q->where('admin_id', $adminId)
+                  ->where('status', PhoneLeadAssignment::STATUS_ACTIVE)
+            )
+            ->where('status', PhoneLead::STATUS_ACTIVE)
+            ->where('last_outcome', PhoneCall::RESULT_REGISTRATION_FOLLOW_UP)
+            ->whereNotNull('next_call_at')
+            ->where('next_call_at', '<=', now())
+            ->count();
 
         // اهداف فعال (تیمی + شخصیِ این مشاور) که مهلتشان نگذشته است + پیشرفت.
         $goals = RegistrationGoal::query()
@@ -72,6 +82,7 @@ class Index extends Component
             'totalTalkTimeLabel'     => $dashboardStats['totalTalkTimeLabel'],
             'bestHour'               => $dashboardStats['bestHour'],
             'bestHourCandidates'     => $dashboardStats['bestHourCandidates'],
+            'pendingRegistrationCount' => $pendingRegistrationCount,
             'now'                    => now(),
         ])->layout('layouts.admin.app');
     }

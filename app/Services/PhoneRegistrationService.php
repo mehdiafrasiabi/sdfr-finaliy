@@ -4,8 +4,7 @@ namespace App\Services;
 
 use App\Models\PhoneLead;
 use App\Models\PhoneRegistrationLink;
-use App\Notifications\Channels\CustomSmsChannel;
-use App\Notifications\SendRegistrationLink;
+use App\Notifications\SendStudentPlanSms;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -18,23 +17,25 @@ class PhoneRegistrationService
     /**
      * یک لینک یکتا برای شماره می‌سازد و (در صورت تنظیم bodyId) پیامک می‌کند.
      */
-    public function createAndSend(PhoneLead $lead, int $adminId): PhoneRegistrationLink
+    public function createAndSend(PhoneLead $lead, int $adminId, string $plan = PhoneRegistrationLink::PLAN_DEFAULT): PhoneRegistrationLink
     {
+        $plan = PhoneRegistrationLink::isValidPlan($plan) ? $plan : PhoneRegistrationLink::PLAN_DEFAULT;
+
         $link = PhoneRegistrationLink::create([
             'token'         => $this->uniqueToken(),
             'phone_lead_id' => $lead->id,
             'admin_id'      => $adminId,
             'mobile'        => $lead->mobile,
+            'plan'          => $plan,
         ]);
 
-        if (SendRegistrationLink::SMS_BODY_ID) {
+        if (config('services.melipayamak.student_plan_body_id')) {
             try {
                 (new AnonymousNotifiable())
-                    ->route(CustomSmsChannel::class, $lead->mobile)
-                    ->notify(new SendRegistrationLink(
+                    ->notify(new SendStudentPlanSms(
                         mobile: $lead->mobile,
-                        name:   $lead->full_name ?: 'دانش‌آموز',
-                        link:   $link->url,
+                        studentName: $lead->full_name ?: 'دانش‌آموز',
+                        link: $link->url,
                     ));
 
                 $link->update(['sent_at' => now()]);

@@ -14,7 +14,14 @@
                             <div class="w-1 h-1 bg-foreground rounded-full"></div>
                             <div class="w-2 h-2 bg-foreground rounded-full"></div>
                         </div>
-                        <div class="font-black text-foreground">نمونه سوالات تشریحی</div>
+                        <div>
+                            <div class="font-black text-foreground">نمونه سوالات تشریحی</div>
+                            @if($setting)
+                                <div class="text-xs text-muted mt-1">{{ $setting->grade_label }} / {{ $setting->field_label }}</div>
+                            @elseif($profileLabel)
+                                <div class="text-xs text-muted mt-1">{{ $profileLabel }}</div>
+                            @endif
+                        </div>
 
                         <a wire:navigate href="{{ route('client.profile.dashboard') }}"
                            class="inline-flex items-center justify-center gap-x-1.5 h-10 bg-primary rounded-full text-primary-foreground transition-colors hover:bg-foreground hover:text-background px-6 ms-auto">
@@ -37,10 +44,16 @@
                                       d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
                             </svg>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <x-ui.select wire:model.live="subjectFilter"
                                          :options="$books"
                                          value-key="id" label-key="name" placeholder="همه کتاب‌ها"/>
+                            <x-ui.select wire:model.live="periodMonthFilter"
+                                         :options="$periodMonths"
+                                         value-key="id" label-key="name" placeholder="همه زمان‌ها"/>
+                            <x-ui.select wire:model.live="periodYearFilter"
+                                         :options="$periodYears"
+                                         value-key="id" label-key="name" placeholder="همه سال‌ها"/>
                         </div>
                     </div>
 
@@ -50,10 +63,14 @@
                             @php
                                 $subjectName = $question->subject->name ?? 'بدون کتاب';
                                 $book = $books->firstWhere('id', (int) $question->cc_subject_id);
-                                $typeLabel = ($book['type'] ?? null) === 'general' ? 'عمومی' : 'تخصصی';
+                                $bookType = $book['type'] ?? $question->subject?->type;
+                                $typeLabel = $bookType === 'general'
+                                    ? 'عمومی'
+                                    : ($bookType === 'specialized' ? 'تخصصی' : 'کتاب');
                                 $mainBg = $question->is_main ? 'bg-green-500/10' : 'bg-background';
                                 $mainFg = $question->is_main ? 'text-green-500' : 'text-muted';
                                 $mainDot = $question->is_main ? 'bg-green-500' : 'bg-muted';
+                                $periodLabel = $question->exam_period_label;
                             @endphp
 
                             <div class="glass border border-border rounded-2xl overflow-hidden flex flex-col">
@@ -76,16 +93,16 @@
                                         <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
                                             <span class="font-semibold">{{ $subjectName }}</span>
                                             <span>{{ $typeLabel }}</span>
+                                            <span>{{ $periodLabel }}</span>
                                             <span>زمان آزمون: {{ $question->duration_minutes }} دقیقه</span>
                                         </div>
 
                                         <div class="flex flex-wrap items-center gap-2">
-                                            <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full {{ $mainBg }} {{ $mainFg }}">
-                                                <span class="w-1.5 h-1.5 rounded-full {{ $mainDot }}"></span>
-                                                {{ $question->is_main ? 'نمونه اصلی' : 'نمونه تمرینی' }}
-                                            </span>
                                             <span class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-background border border-border text-muted">
                                                 PDF
+                                            </span>
+                                            <span class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+                                                {{ $periodLabel }}
                                             </span>
                                         </div>
                                     </div>
@@ -123,16 +140,17 @@
                                             <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
                                                 <span class="font-semibold">{{ $subjectName }}</span>
                                                 <span>{{ $typeLabel }}</span>
+                                                <span>{{ $periodLabel }}</span>
                                                 <span>زمان آزمون: {{ $question->duration_minutes }} دقیقه</span>
                                             </div>
 
                                             <div class="flex flex-wrap items-center gap-1.5">
-                                                <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full {{ $mainBg }} {{ $mainFg }}">
-                                                    <span class="w-1.5 h-1.5 rounded-full {{ $mainDot }}"></span>
-                                                    {{ $question->is_main ? 'نمونه اصلی' : 'نمونه تمرینی' }}
-                                                </span>
+
                                                 <span class="inline-flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full bg-background border border-border text-muted">
                                                     PDF
+                                                </span>
+                                                <span class="inline-flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">
+                                                    {{ $periodLabel }}
                                                 </span>
                                             </div>
                                         </div>

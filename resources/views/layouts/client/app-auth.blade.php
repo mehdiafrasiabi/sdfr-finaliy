@@ -249,9 +249,11 @@
 </div>
 
 
+@php($clientAppJsVersion = @filemtime(base_path('public_html/client/assets/js/app.js')) ?: '20260716')
+
 <script src="/client/assets/js/dependencies/swiper-bundle.min.js"></script>
 <script src="/client/assets/js/dependencies/plyr.min.js"></script>
-<script src="/client/assets/js/app.js"></script>
+<script src="/client/assets/js/app.js?v={{ $clientAppJsVersion }}"></script>
 <script type="text/javascript" src="/client/assets/css/toast/toastify-js.js"></script>
 <script src="/client/assets/tailwind-3.4.17.js"></script>
 <script src="/client/assets/js/chart/chart.js"></script>

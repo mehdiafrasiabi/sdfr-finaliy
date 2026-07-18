@@ -9,6 +9,7 @@ use App\Models\MakeupSession;
 use App\Models\ProgramPart;
 use App\Models\Student;
 use App\Models\StudentExamSchedule;
+use App\Models\TrialAcquisitionCall;
 use App\Models\StudyPartSession;
 use App\Models\TrialWeek;
 use App\Models\WeeklyProgram;
@@ -50,6 +51,11 @@ class Monitor extends Component
     public bool $dayDetailModalOpen = false;
     public array $selectedDayData = [];
     public array $dayPartsDetails = [];
+
+    public ?int $extraCallTrialId = null;
+    public ?int $extraTalkSeconds = null;
+    public string $extraCallPhase = 'ringing';
+    public string $extraCallNotes = '';
 
     protected $paginationTheme = 'bootstrap';
 
@@ -117,7 +123,7 @@ class Monitor extends Component
         }
 
         return $trialWeek->trialAcquisitionCalls
-            ->contains(fn ($call) => (bool) $call->answered);
+            ->contains(fn ($call) => (bool) $call->answered && $call->stage !== TrialAcquisitionCall::STAGE_EXTRA);
     }
 
     protected function examProgramSummary(?TrialWeek $trialWeek): ?array
@@ -475,6 +481,93 @@ class Monitor extends Component
         $this->dayDetailModalOpen = false;
         $this->selectedDayData = [];
         $this->dayPartsDetails = [];
+    }
+
+    public function openExtraCall(int $trialId): void
+    {
+        $trial = $this->baseTrialQuery()->find($trialId);
+        if (! $trial) {
+            $this->dispatch('warning', 'دانش‌آموز برای شما یافت نشد.');
+            return;
+        }
+
+        $this->resetExtraCallForm();
+        $this->extraCallTrialId = $trial->id;
+        $this->extraCallPhase = 'ringing';
+    }
+
+    public function markExtraCallAnswered(): void
+    {
+        if (! $this->extraCallTrialId || ! $this->baseTrialQuery()->whereKey($this->extraCallTrialId)->exists()) {
+            $this->dispatch('warning', 'دانش‌آموز برای شما یافت نشد.');
+            $this->closeExtraCall();
+            return;
+        }
+
+        $this->extraTalkSeconds = 0;
+        $this->extraCallPhase = 'talking';
+        $this->resetErrorBag();
+    }
+
+    public function endExtraConversation(int $seconds): void
+    {
+        $this->extraTalkSeconds = max(0, $seconds);
+        $this->extraCallPhase = 'form';
+    }
+
+    public function closeExtraCall(): void
+    {
+        $this->resetExtraCallForm();
+    }
+
+    protected function resetExtraCallForm(): void
+    {
+        $this->reset(['extraCallTrialId', 'extraTalkSeconds', 'extraCallNotes']);
+        $this->extraCallPhase = 'ringing';
+        $this->resetErrorBag();
+    }
+
+    public function saveExtraCall(): void
+    {
+        if (! $this->extraCallTrialId) {
+            return;
+        }
+
+        $trial = $this->baseTrialQuery()->find($this->extraCallTrialId);
+        if (! $trial) {
+            $this->dispatch('warning', 'دانش‌آموز برای شما یافت نشد.');
+            $this->closeExtraCall();
+            return;
+        }
+
+        if ($this->extraCallPhase !== 'form') {
+            $this->dispatch('warning', 'ابتدا مکالمه را ثبت کنید.');
+            return;
+        }
+
+        $validated = $this->validate([
+            'extraCallNotes' => ['required', 'string', 'max:5000'],
+        ], [
+            'extraCallNotes.required' => 'توضیحات تماس اضافه را بنویسید.',
+        ]);
+
+        $attempt = TrialAcquisitionCall::where('trial_week_id', $trial->id)
+            ->where('stage', TrialAcquisitionCall::STAGE_EXTRA)
+            ->count() + 1;
+
+        TrialAcquisitionCall::create([
+            'trial_week_id' => $trial->id,
+            'admin_id' => Auth::guard('admin')->id(),
+            'stage' => TrialAcquisitionCall::STAGE_EXTRA,
+            'attempt_number' => $attempt,
+            'answered' => true,
+            'talk_duration_seconds' => (int) ($this->extraTalkSeconds ?? 0),
+            'notes' => $validated['extraCallNotes'],
+            'called_at' => now(),
+        ]);
+
+        $this->dispatch('success', 'تماس اضافه با موفقیت ثبت شد.');
+        $this->closeExtraCall();
     }
 
     protected function reportForDay(int $studentId, int $weeklyProgramId, Carbon $date): ?DailyReport
@@ -897,10 +990,14 @@ class Monitor extends Component
         $reportDate = $this->getReportDate();
         $effectiveToday = $this->getEffectiveToday();
         $monitorLocked = ! $this->hasSuccessfulCall($selectedTrial);
+        $extraCallTrial = $this->extraCallTrialId
+            ? $this->baseTrialQuery()->with('user.personalInformation')->find($this->extraCallTrialId)
+            : null;
 
         return view('livewire.admin.trial-acquisition.monitor', [
             'trials' => $trials,
             'selectedTrial' => $selectedTrial,
+            'extraCallTrial' => $extraCallTrial,
             'weeklyProgram' => $weeklyProgram,
             'monitorLocked' => $monitorLocked,
             'examProgramSummary' => $this->examProgramSummary($selectedTrial),

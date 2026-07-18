@@ -30,13 +30,13 @@ class StudentSmsPlanChannel
         $response = curl_exec($handle);
 
         if (curl_errno($handle)) {
-            Log::error('cURL Error in CustomSmsChannel', ['error' => curl_error($handle)]);
+            Log::error('cURL Error in StudentSmsPlanChannel', ['error' => curl_error($handle)]);
             throw new \Exception('cURL Error: ' . curl_error($handle));
         }
 
         curl_close($handle);
 
-        Log::info('Melipayamak Response in CustomSmsChannel', ['response' => $response]);
+        Log::info('Melipayamak Response in StudentSmsPlanChannel', ['response' => $response]);
         return $response;
     }
 }

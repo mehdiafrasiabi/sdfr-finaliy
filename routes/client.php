@@ -66,7 +66,10 @@ Route::name('client.')->group(function () {
             return redirect()->route('client.home')->with('message', 'لینک ثبت‌نام نامعتبر یا منقضی است.');
         }
         session(['phone_ref_token' => $token]);
-        return redirect()->route('client.onboarding');
+
+        $plan = in_array($link->plan, ['trial', 'exam'], true) ? $link->plan : null;
+
+        return redirect()->route('client.onboarding', $plan ? ['plan' => $plan] : []);
     })->name('phone-ref');
 
     Route::middleware('guest')->group(function () {

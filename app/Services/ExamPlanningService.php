@@ -374,8 +374,11 @@ class ExamPlanningService
         foreach ($days->groupBy(fn ($day) => $day->exam_date->toDateString()) as $examDate => $group) {
             $examCarbon = Carbon::parse($examDate);
             $segmentStart = $previousExamDate
-                ? Carbon::parse($previousExamDate)
+                ? Carbon::parse($previousExamDate)->addDay()
                 : $today->copy();
+            if ($segmentStart->lt($today)) {
+                $segmentStart = $today->copy();
+            }
             $segmentEnd = $examCarbon->copy()->subDay();
             $dayCount = $segmentEnd->lt($segmentStart) ? 0 : $segmentStart->diffInDays($segmentEnd) + 1;
             $capacityMinutes = $dayCount * $dailyMinutes;
@@ -963,8 +966,9 @@ class ExamPlanningService
     ): void {
         $startDate = Carbon::parse($program->start_date);
         $dailyMinutes = (int) $schedule->max_daily_study_hours * 60;
-        $allocationPool = $this->buildAllocationPool($schedule);
-        $prioritySubjects = $this->buildPriorityFillers($schedule);
+        $scheduledSubjectIds = $this->scheduledSubjectIds($schedule);
+        $allocationPool = $this->buildAllocationPool($schedule, $scheduledSubjectIds);
+        $prioritySubjects = $this->buildPriorityFillers($schedule, $scheduledSubjectIds);
         $partOrderMap = [];
         $priorityCursorMap = [];
         $subjectLabels = $schedule->days->pluck('subject.name', 'cc_subject_id');
@@ -980,7 +984,11 @@ class ExamPlanningService
             }
 
             $examDate = $segment['exam_date'];
-            $subjectIds = collect($segment['subject_ids'])->map(fn ($id) => (int) $id)->values()->all();
+            $subjectIds = collect($segment['subject_ids'])
+                ->map(fn ($id) => (int) $id)
+                ->filter(fn (int $subjectId) => $scheduledSubjectIds->contains($subjectId))
+                ->values()
+                ->all();
 
             for ($date = $segmentStart->copy(); $date->lte($segmentEnd); $date->addDay()) {
                 $dayRemaining = $dailyMinutes;
@@ -1061,7 +1069,7 @@ class ExamPlanningService
         }
     }
 
-    private function buildAllocationPool(StudentExamSchedule $schedule): array
+    private function buildAllocationPool(StudentExamSchedule $schedule, Collection $scheduledSubjectIds): array
     {
         $schedule->loadMissing('allocations.ratable');
         $pool = [];
@@ -1073,6 +1081,10 @@ class ExamPlanningService
 
             $subjectId = (int) ($allocation->cc_subject_id ?: 0);
             if ($subjectId <= 0) {
+                continue;
+            }
+
+            if (! $scheduledSubjectIds->contains($subjectId)) {
                 continue;
             }
 
@@ -1192,7 +1204,7 @@ class ExamPlanningService
             ->all();
     }
 
-    private function buildPriorityFillers(StudentExamSchedule $schedule): array
+    private function buildPriorityFillers(StudentExamSchedule $schedule, Collection $scheduledSubjectIds): array
     {
         $schedule->loadMissing(['allocations.ratable', 'days.subject.chapters']);
 
@@ -1201,6 +1213,7 @@ class ExamPlanningService
             ->pluck('cc_subject_id')
             ->filter()
             ->map(fn ($id) => (int) $id)
+            ->filter(fn (int $subjectId) => $scheduledSubjectIds->contains($subjectId))
             ->unique()
             ->values()
             ->all();
@@ -1227,6 +1240,18 @@ class ExamPlanningService
             'subject_ids' => $subjectIds,
             'fillers' => $fillers,
         ];
+    }
+
+    private function scheduledSubjectIds(StudentExamSchedule $schedule): Collection
+    {
+        $schedule->loadMissing('days');
+
+        return $schedule->days
+            ->pluck('cc_subject_id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
     }
 
     private function fillDayFromSubjects(

@@ -910,14 +910,6 @@
                                                 <x-ui.select wire:model.live="grade" :options="$gradeOptions"
                                                              placeholder="انتخاب پایه"/>
                                             </div>
-                                            @if($grade !== '9')
-                                                <div class="relative" wire:key="field-m-{{ $grade }}">
-                                                    <label
-                                                        class="block text-xs font-semibold mb-1.5 text-muted">رشته</label>
-                                                    <x-ui.select wire:model="field" :options="$fieldOptions"
-                                                                 placeholder="انتخاب رشته"/>
-                                                </div>
-                                            @endif
                                         </div>
 
                                         @if($grade === 'graduate')
@@ -1066,10 +1058,10 @@
                                                 class="otp-edit-link inline-flex text-sm mb-8 text">ویرایش شماره <span
                                                 dir="ltr" class="mr-1">{{ $mobile }}</span></button>
 
-                                        <form @submit.prevent="submitOtp()" autocomplete="off">
-                                            <div class="relative max-w-sm mx-auto mb-5"
-                                                 x-data="otpSingleInput(@entangle('otpInput').live, @entangle('otpError').live)"
-                                                 x-init="init()">
+                                        <form @submit.prevent="submitOtp()" autocomplete="off"
+                                              x-data="otpSingleInput(@entangle('otpInput').live, @entangle('otpError').live)"
+                                              x-init="init()">
+                                            <div class="relative max-w-sm mx-auto mb-5">
                                                 <input
                                                     x-ref="otpInput"
                                                     type="tel"
@@ -1222,10 +1214,10 @@
                                         class="otp-edit-link inline-flex text-base mb-9">ویرایش شماره <span dir="ltr"
                                                                                                             class="mr-1">{{ $mobile }}</span>
                                 </button>
-                                <form @submit.prevent="submitOtp()" autocomplete="off">
-                                    <div class="relative max-w-sm mx-auto mb-6"
-                                         x-data="otpSingleInput(@entangle('otpInput').live, @entangle('otpError').live)"
-                                         x-init="init()">
+                                <form @submit.prevent="submitOtp()" autocomplete="off"
+                                      x-data="otpSingleInput(@entangle('otpInput').live, @entangle('otpError').live)"
+                                      x-init="init()">
+                                    <div class="relative max-w-sm mx-auto mb-6">
                                         <input
                                             x-ref="otpInput"
                                             type="tel"

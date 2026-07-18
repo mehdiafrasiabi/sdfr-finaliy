@@ -75,9 +75,9 @@
                 </div>
                 <div class="vr my-3">
                 </div>
-                <div class="d-flex align-items-center gap-sm-2 gap-0 px-lg-4 px-sm-2 px-1">
+                <div class="d-flex align-items-center gap-sm-2 gap-0 px-lg-4 px-sm-2 px-1" wire:poll.10s>
                     <div class="dropdown text-end">
-                        <button aria-expanded="true" class="btn btn-icon btn-action-gray rounded-circle waves-effect waves-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" type="button">
+                        <button aria-expanded="true" class="btn btn-icon btn-action-gray rounded-circle waves-effect waves-light position-relative" data-bs-auto-close="outside" data-bs-toggle="dropdown" type="button">
                             <svg fill="none" height="25" viewbox="0 0 24 25" width="24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M18.7491 10.2096V9.50497C18.7491 5.63623 15.7274 2.5 12 2.5C8.27256 2.5 5.25087 5.63623 5.25087 9.50497V10.2096C5.25087 11.0552 5.00972 11.8818 4.5578 12.5854L3.45036 14.3095C2.43882 15.8843 3.21105 18.0249 4.97036 18.5229C9.57274 19.8257 14.4273 19.8257 19.0296 18.5229C20.789 18.0249 21.5612 15.8843 20.5496 14.3095L19.4422 12.5854C18.9903 11.8818 18.7491 11.0552 18.7491 10.2096Z" stroke="var(--bs-heading-color)" stroke-width="2">
                                 </path>
@@ -86,138 +86,66 @@
                                 <path d="M12 6.5V10.5" opacity="0.5" stroke="var(--bs-heading-color)" stroke-linecap="round" stroke-width="2">
                                 </path>
                             </svg>
+                            @if(($adminUnreadNotificationsCount ?? 0) > 0)
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ $adminUnreadNotificationsCount > 99 ? '99+' : $adminUnreadNotificationsCount }}
+                                </span>
+                            @endif
                         </button>
                         <div class="dropdown-menu dropdown-menu-lg-end p-0 w-300px mt-2">
                             <div class="px-3 py-3 border-bottom d-flex justify-content-between align-items-center">
                                 <h6 class="mb-0">
-                                    هشدارهای جدید
-                                    <span class="badge badge-sm rounded-pill bg-primary ms-2">
-			9
-		   </span>
+                                    اعلانات جدید
+                                    @if(($adminUnreadNotificationsCount ?? 0) > 0)
+                                        <span class="badge badge-sm rounded-pill bg-primary ms-2">
+                                            {{ $adminUnreadNotificationsCount }}
+                                        </span>
+                                    @endif
                                 </h6>
                                 <i class="bi bi-x-lg cursor-pointer">
                                 </i>
                             </div>
                             <div class="p-2" data-simplebar="" style="height: 300px;">
                                 <ul class="list-group list-group-hover list-group-smooth list-group-unlined">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div class="avatar avatar-xs avatar-status-success rounded-circle me-1">
-                                            <img alt=""  src="/admin/assets/images/avatar/avatar2.webp"/>
-                                        </div>
-                                        <div class="ms-2 me-auto">
-                                            <h6 class="mb-0">
-                                                باربد باباخانی
-                                            </h6>
-                                            <small class="text-body d-block">
-                                                نیاز به به روز رسانی جزئیات
-                                            </small>
-                                            <small class="text-muted position-absolute end-0 top-0 mt-2 me-3">
-                                                7 ساعت قبل
-                                            </small>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div class="avatar avatar-xs bg-success rounded-circle text-white">
-                                            D
-                                        </div>
-                                        <div class="ms-2 me-auto">
-                                            <h6 class="mb-0">
-                                                تیم طراحی
-                                            </h6>
-                                            <small class="text-body d-block">
-                                                پوشه مشترک خود را بررسی کنید.
-                                            </small>
-                                            <small class="text-muted position-absolute end-0 top-0 mt-2 me-3">
-                                                6 ساعت پیش
-                                            </small>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div class="avatar avatar-xs bg-dark rounded-circle text-white">
-                                            <i class="fi fi-rr-lock">
-                                            </i>
-                                        </div>
-                                        <div class="ms-2 me-auto">
-                                            <h6 class="mb-0">
-                                                به روز رسانی امنیتی
-                                            </h6>
-                                            <small class="text-body d-block">
-                                                رمز عبور با موفقیت تنظیم شد.
-                                            </small>
-                                            <small class="text-muted position-absolute end-0 top-0 mt-2 me-3">
-                                                5 ساعت قبل
-                                            </small>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div class="avatar avatar-xs bg-info rounded-circle text-white">
-                                            <i class="fi fi-rr-shopping-cart">
-                                            </i>
-                                        </div>
-                                        <div class="ms-2 me-auto">
-                                            <h6 class="mb-0">
-                                                فاکتور شماره 1432
-                                            </h6>
-                                            <small class="text-body d-block">
-                                                مبلغ پرداخت شده است: 899.00 دلار
-                                            </small>
-                                            <small class="text-muted position-absolute end-0 top-0 mt-2 me-3">
-                                                5 ساعت قبل
-                                            </small>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div class="avatar avatar-xs bg-danger rounded-circle text-white">
-                                            آر
-                                        </div>
-                                        <div class="ms-2 me-auto">
-                                            <h6 class="mb-0">
-                                                باربد باباخانی
-                                            </h6>
-                                            <small class="text-body d-block">
-                                                شما را به Dashboard Analytics اضافه کرد
-                                            </small>
-                                            <small class="text-muted position-absolute end-0 top-0 mt-2 me-3">
-                                                5 ساعت قبل
-                                            </small>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div class="avatar avatar-xs avatar-status-success rounded-circle me-1">
-                                            <img alt=""  src="/admin/assets/images/avatar/avatar3.webp"/>
-                                        </div>
-                                        <div class="ms-2 me-auto">
-                                            <h6 class="mb-0">
-                                                شیرین رضایی
-                                            </h6>
-                                            <small class="text-body d-block">
-                                                اکنون می توانید "گزارش" را مشاهده کنید.
-                                            </small>
-                                            <small class="text-muted position-absolute end-0 top-0 mt-2 me-3">
-                                                4 ساعت پیش
-                                            </small>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div class="avatar avatar-xs avatar-status-danger rounded-circle me-1">
-                                            <img alt=""  src="/admin/assets/images/avatar/avatar5.webp"/>
-                                        </div>
-                                        <div class="ms-2 me-auto">
-                                            <h6 class="mb-0">
-                                                مهسا رهنما
-                                            </h6>
-                                            <small class="text-body d-block">
-                                                @Isabella لطفا بررسی کنید.
-                                            </small>
-                                            <small class="text-muted position-absolute end-0 top-0 mt-2 me-3">
-                                                2 ساعت پیش
-                                            </small>
-                                        </div>
-                                    </li>
+                                    @forelse($adminNotifications as $notification)
+                                        <li class="list-group-item d-flex justify-content-between align-items-start {{ $notification->is_read ? '' : 'bg-primary-subtle' }}">
+                                            <div class="avatar avatar-xs {{ $notification->is_read ? 'bg-secondary' : 'bg-primary' }} rounded-circle text-white">
+                                                <i class="fi fi-rr-bell"></i>
+                                            </div>
+                                            <div class="ms-2 me-auto pe-2">
+                                                <h6 class="mb-1">
+                                                    {{ $notification->title }}
+                                                </h6>
+                                                <small class="text-body d-block">
+                                                    {{ \Illuminate\Support\Str::limit($notification->body, 72) }}
+                                                </small>
+                                                <small class="text-muted d-block mt-1">
+                                                    {{ jdate($notification->created_at)->format('Y/m/d H:i') }}
+                                                </small>
+                                                <div class="d-flex gap-1 mt-2">
+                                                    @if($notification->url)
+                                                        <a class="btn btn-xs btn-outline-primary py-1 px-2" href="{{ $notification->url }}">
+                                                            مشاهده
+                                                        </a>
+                                                    @endif
+                                                    @unless($notification->is_read)
+                                                        <button type="button" class="btn btn-xs btn-success py-1 px-2"
+                                                                wire:click="markNotificationAsRead({{ $notification->id }})">
+                                                            خوانده شد
+                                                        </button>
+                                                    @endunless
+                                                </div>
+                                            </div>
+                                        </li>
+                                    @empty
+                                        <li class="list-group-item text-center text-muted py-4">
+                                            اعلان جدیدی وجود ندارد.
+                                        </li>
+                                    @endforelse
                                 </ul>
                             </div>
                             <div class="p-2">
-                                <a class="btn w-100 btn-primary waves-effect waves-light" href="javascript:void(0);">
+                                <a class="btn w-100 btn-primary waves-effect waves-light" href="{{ route('admin.notifications.index') }}">
                                     مشاهده تمام اعلان ها
                                 </a>
                             </div>

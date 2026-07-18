@@ -1911,30 +1911,30 @@
 
             // ====== (12)(6) دانش‌آموزانِ منظومه SDFR (نمونه — تعداد بیشتر) ======
             $students = [
-                ['name'=>'سارا احمدی', 'rank'=>'رتبه ۲۸۰ تجربی', 'uni'=>'پزشکی ایران', 'gender'=>'girl'],
-                ['name'=>'پرهام عزیزی', 'rank'=>'رتبه ۱۲۰ ریاضی', 'uni'=>'برق امیرکبیر', 'gender'=>'boy'],
-                ['name'=>'فاطمه نوری', 'rank'=>'رتبه ۴۵۰ تجربی', 'uni'=>'داروسازی بهشتی', 'gender'=>'girl'],
-                ['name'=>'شهاب مرادی', 'rank'=>'رتبه ۱۹۰ ریاضی', 'uni'=>'مکانیک علم‌وصنعت', 'gender'=>'boy'],
-                ['name'=>'آیدا محمودی', 'rank'=>'رتبه ۶۵ انسانی', 'uni'=>'حقوق تهران', 'gender'=>'girl'],
+                ['name'=>'الناز حیدری', 'rank'=>'رتبه ۲۸۰ تجربی', 'uni'=>'پزشکی ایران', 'gender'=>'girl'],
+                ['name'=>'نرگس کاظمی', 'rank'=>'رتبه ۱۲۰ ریاضی', 'uni'=>'برق امیرکبیر', 'gender'=>'girl'],
+                ['name'=>'ستایش یوسفی', 'rank'=>'رتبه ۴۵۰ تجربی', 'uni'=>'داروسازی بهشتی', 'gender'=>'girl'],
+                ['name'=>'سید محمد حسینی', 'rank'=>'رتبه ۱۹۰ ریاضی', 'uni'=>'مکانیک علم‌وصنعت', 'gender'=>'boy'],
+                ['name'=>'سیده زهرا حسینی', 'rank'=>'رتبه ۶۵ انسانی', 'uni'=>'حقوق تهران', 'gender'=>'girl'],
                 ['name'=>'نوید قاسمی', 'rank'=>'رتبه ۷۳۰ تجربی', 'uni'=>'دندان‌پزشکی اصفهان', 'gender'=>'boy'],
-                ['name'=>'شبنم اکبری', 'rank'=>'رتبه ۱۱۰۰ ریاضی', 'uni'=>'عمران تهران', 'gender'=>'girl'],
-                ['name'=>'فرزاد یوسفی', 'rank'=>'رتبه ۲۱۰ تجربی', 'uni'=>'پزشکی شیراز', 'gender'=>'boy'],
-                ['name'=>'ساناز صادقی', 'rank'=>'رتبه ۹۵ تجربی', 'uni'=>'پزشکی بهشتی', 'gender'=>'girl'],
-                ['name'=>'آرش کاظمی', 'rank'=>'رتبه ۳۸۰ ریاضی', 'uni'=>'کامپیوتر شریف', 'gender'=>'boy'],
-                ['name'=>'غزل مرادی', 'rank'=>'رتبه ۲۵۰ انسانی', 'uni'=>'روان‌شناسی تهران', 'gender'=>'girl'],
+                ['name'=>'مهسا مرادی', 'rank'=>'رتبه ۱۱۰۰ ریاضی', 'uni'=>'عمران تهران', 'gender'=>'girl'],
+                ['name'=>'محمدحسین کریمی', 'rank'=>'رتبه ۲۱۰ تجربی', 'uni'=>'پزشکی شیراز', 'gender'=>'boy'],
+                ['name'=>'آیدا صادقی', 'rank'=>'رتبه ۹۵ تجربی', 'uni'=>'پزشکی بهشتی', 'gender'=>'girl'],
+                ['name'=>'عرفان جعفری', 'rank'=>'رتبه ۳۸۰ ریاضی', 'uni'=>'کامپیوتر شریف', 'gender'=>'boy'],
+                ['name'=>'کیمیا عباسی', 'rank'=>'رتبه ۲۵۰ انسانی', 'uni'=>'روان‌شناسی تهران', 'gender'=>'girl'],
                 ['name'=>'داریوش رستمی', 'rank'=>'رتبه ۵۱۰ تجربی', 'uni'=>'پزشکی تبریز', 'gender'=>'boy'],
                 ['name'=>'رویا نوری', 'rank'=>'رتبه ۸۰۰ تجربی', 'uni'=>'پرستاری ایران', 'gender'=>'girl'],
-                ['name'=>'نیما شریفی', 'rank'=>'رتبه ۱۵۰ ریاضی', 'uni'=>'صنایع امیرکبیر', 'gender'=>'boy'],
+                ['name'=>'دانیال شریفی', 'rank'=>'رتبه ۱۵۰ ریاضی', 'uni'=>'صنایع امیرکبیر', 'gender'=>'boy'],
                 ['name'=>'آناهیتا جعفری', 'rank'=>'رتبه ۴۰ تجربی', 'uni'=>'پزشکی تهران', 'gender'=>'girl'],
-                ['name'=>'ماهان بهرامی', 'rank'=>'رتبه ۲۵۰ ریاضی', 'uni'=>'برق شریف', 'gender'=>'boy'],
+                ['name'=>'امیرعلی حیدری', 'rank'=>'رتبه ۲۵۰ ریاضی', 'uni'=>'برق شریف', 'gender'=>'boy'],
                 ['name'=>'مریم احمدی', 'rank'=>'رتبه ۴۰۰ تجربی', 'uni'=>'داروسازی تهران', 'gender'=>'girl'],
-                ['name'=>'پدرام کریمی', 'rank'=>'رتبه ۹۰ ریاضی', 'uni'=>'مکانیک امیرکبیر', 'gender'=>'boy'],
+                ['name'=>'مهراد محمدی', 'rank'=>'رتبه ۹۰ ریاضی', 'uni'=>'مکانیک امیرکبیر', 'gender'=>'boy'],
                 ['name'=>'آوا فلاحی', 'rank'=>'رتبه ۹۵۰ انسانی', 'uni'=>'علوم‌سیاسی تهران', 'gender'=>'girl'],
                 ['name'=>'مانی اسدی', 'rank'=>'رتبه ۴۸۰ تجربی', 'uni'=>'پزشکی مشهد', 'gender'=>'boy'],
                 ['name'=>'یکتا موسوی', 'rank'=>'رتبه ۱۸۰ تجربی', 'uni'=>'دندان‌پزشکی تهران', 'gender'=>'girl'],
                 ['name'=>'کیانوش عباسی', 'rank'=>'رتبه ۳۲۰ ریاضی', 'uni'=>'عمران شریف', 'gender'=>'boy'],
                 ['name'=>'مهتاب رحیمی', 'rank'=>'رتبه ۷۹۰ تجربی', 'uni'=>'پرستاری شهیدبهشتی', 'gender'=>'girl'],
-                ['name'=>'رامین نجفی', 'rank'=>'رتبه ۱۸۰ ریاضی', 'uni'=>'هوافضا شریف', 'gender'=>'boy'],
+                ['name'=>'محمدیوسف پورحسینی', 'rank'=>'رتبه ۱۸۰ ریاضی', 'uni'=>'هوافضا شریف', 'gender'=>'boy'],
                 ['name'=>'نگین رسولی', 'rank'=>'رتبه ۳۵۰ تجربی', 'uni'=>'فیزیوتراپی تهران', 'gender'=>'girl'],
                 ['name'=>'کوروش صالحی', 'rank'=>'رتبه ۲۲۰ ریاضی', 'uni'=>'مواد شریف', 'gender'=>'boy'],
                 ['name'=>'ترانه سعیدی', 'rank'=>'رتبه ۶۰۰ تجربی', 'uni'=>'بینایی‌سنجی بهشتی', 'gender'=>'girl'],
@@ -2047,7 +2047,7 @@
                             </span>
                         <span class="font-medium text-[50px]">
 
-                            منجیِ تو می‌شود!
+                            منجیِ تو میشه!
                         </span>
                         <p>پاسخِ دقیقِ همه‌ی این سؤال‌ها رو براساسِ ویژگی‌های فردیِ خودت، بهت برنامه می‌ده.</p>
                     </div>
@@ -2225,18 +2225,8 @@
                                 <p class="font-medium text-xs text-muted">{{ $examPlanCopy['subtitle'] }}</p>
                             </div>
                             <div class="flex items-end gap-1 border-b border-border pb-5">
-                                <span class="font-black text-3xl text-foreground">{{ $examPlanCopy['price'] }}</span>
+                                <span class="font-black text-3xl text-primary" style="font-size: 2.875rem">{{ $examPlanCopy['price'] }}</span>
                                 <span class="text-xs text-muted pb-1">{{ $examPlanCopy['duration'] }}</span>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="text-[11px] font-black text-muted">پایه‌های فعال</div>
-                                <div class="flex flex-wrap gap-2">
-                                    @foreach($examPlanCopy['grades'] as $gradeLabel)
-                                        <span class="rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-black text-primary">
-                                            {{ $gradeLabel }}
-                                        </span>
-                                    @endforeach
-                                </div>
                             </div>
                             <ul class="space-y-3 flex-1 price-ico-row">
                                 @foreach($examPlanCopy['items'] as $it)
@@ -2263,7 +2253,7 @@
                             <p class="font-medium text-xs text-muted">{{ $trialPlanCopy['subtitle'] }}</p>
                         </div>
                         <div class="flex items-end gap-1 border-b border-border pb-5">
-                            <span class="font-black text-3xl text-foreground">{{ $trialPlanCopy['price'] }}</span>
+                            <span class="font-black text-3xl text-primary" style="font-size: 2.875rem">{{ $trialPlanCopy['price'] }}</span>
                             <span class="text-xs text-muted pb-1">{{ $trialPlanCopy['duration'] }}</span>
                         </div>
                         <ul class="space-y-3 flex-1 price-ico-row">
@@ -2292,12 +2282,10 @@
                             پیشنهاد ویژه
                         </div>
                         <div class="space-y-1">
-                            <h3 class="font-black text-xl text-foreground">نظارت روزانه مشاور متخصص</h3>
-                            <p class="font-medium text-xs text-muted">قیمت هر پایه بر اساس ماه جاری و تخفیف فعال</p>
+                            <h3 class="font-bold text-primary text-center" style="font-size: 2.875rem">SDFR Plan</h3>
                         </div>
                         <div class="border-b border-border pb-5 space-y-3">
                             <div class="space-y-2">
-                                <label class="block text-[11px] font-bold text-muted">انتخاب پایه</label>
                                 <x-ui.select wire:model.live="selectedFeaturedGrade"
                                              :options="$featuredGradeOptions"
                                              placeholder="انتخاب پایه" />
@@ -2317,7 +2305,7 @@
                                         </div>
                                         @if($plan['has_discount'])
                                             <span class="rounded-full bg-red-500/15 px-2.5 py-1 text-[10px] font-black text-red-400">
-                                                {{ $plan['discount'] }}٪ تخفیف
+                                                {{ $plan['discount'] }}٪
                                             </span>
                                         @endif
                                     </div>

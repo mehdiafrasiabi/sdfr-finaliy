@@ -73,12 +73,16 @@
                                 </div>
                                 <div class="d-flex flex-wrap gap-2 trial-status-pills">
                                     @if($examProgramSummary)
-                                        <span class="badge bg-warning text-dark px-3 py-2">برنامه امتحانی</span>
+                                        <a href="{{ route('admin.trial-acquisition.exam-monitor', $selectedTrial->id) }}" class="badge bg-warning text-dark px-3 py-2 text-decoration-none">صفحه امتحانات</a>
                                     @endif
                                     <span class="badge bg-{{ $selectedTrial->status_color }} px-3 py-2">{{ $selectedTrial->status_label }}</span>
+                                    <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1" wire:click="openExtraCall({{ $selectedTrial->id }})">
+                                        <i class="fi fi-rr-phone-call"></i>
+                                        تماس اضافه
+                                    </button>
                                     @if($selectedTrial->expires_at)
                                         <span class="badge bg-light text-dark border px-3 py-2">
-                                            {{ $selectedTrial->isExpired() ? 'منقضی شده' : $selectedTrial->days_remaining . ' روز مانده' }}
+                                            {{ $selectedTrial->isExpired() ? 'منقضی شده' : $selectedTrial->days_remaining . ' روز مانده تا پایان دسترسی' }}
                                         </span>
                                     @endif
                                 </div>
@@ -168,8 +172,6 @@
                             </div>
                         </div>
                     </div>
-                @endif
-
                 {{-- PRE-SESSIONS --}}
                 @if($preSessions->count() > 0)
                     @foreach($preSessions as $preSession)
@@ -185,35 +187,6 @@
                             </div>
                             <div class="card-body">
                                 <div class="row g-4">
-                                    <div class="col-lg-6">
-                                        <div class="border rounded-3 p-3 h-100">
-                                            <h6 class="fw-bold text-primary mb-3 d-flex align-items-center gap-2 trial-mini-title">
-                                                <i class="material-symbols-outlined">quiz</i>
-                                                امتحانات
-                                                <span class="badge bg-primary-subtle text-primary rounded-pill">{{ $preSession->exams->count() }}</span>
-                                            </h6>
-                                            @if($preSession->exams->count() > 0)
-                                                <div class="table-responsive">
-                                                    <table class="table table-sm align-middle mb-0">
-                                                        <thead class="table-light"><tr><th>درس</th><th>پارت</th><th>زمان</th><th>تاریخ</th></tr></thead>
-                                                        <tbody>
-                                                        @foreach($preSession->exams as $exam)
-                                                            <tr>
-                                                                <td class="fw-semibold small">{{ $exam->subject }}</td>
-                                                                <td class="small">{{ $exam->part_count }}</td>
-                                                                <td class="small">{{ $exam->time_per_part }} دقیقه</td>
-                                                                <td class="small">{{ jalali($exam->exam_date)->format('%d %B') }}</td>
-                                                            </tr>
-                                                        @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            @else
-                                                <p class="text-muted small mb-0">هیچ امتحانی ثبت نشده</p>
-                                            @endif
-                                        </div>
-                                    </div>
-
                                     <div class="col-lg-6">
                                         <div class="border rounded-3 p-3 h-100">
                                             <h6 class="fw-bold text-info mb-3 d-flex align-items-center gap-2 trial-mini-title">
@@ -499,6 +472,87 @@
         </div>
     </div>
 
+    @if($extraCallTrialId && $extraCallTrial)
+        @php
+            $extraCallStudentName = $extraCallTrial->user?->personalInformation?->name ?? $extraCallTrial->user?->name ?? '—';
+        @endphp
+        <div class="modal fade show d-block trial-call-layer" tabindex="-1" style="background:rgba(0,0,0,.6)" wire:click.self="closeExtraCall">
+            <div class="modal-dialog modal-lg modal-dialog-centered trial-call-dialog">
+                <div class="modal-content trial-call-content"
+                     wire:key="extra-call-modal-{{ $extraCallTrialId }}-{{ $extraCallPhase }}"
+                     x-data="{
+                        phase: '{{ $extraCallPhase }}',
+                        secondsLeft: 15,
+                        talkSeconds: 0,
+                        _t: null,
+                        start(){ if (this.phase === 'ringing') { this._t = setInterval(() => { if (this.secondsLeft > 0) { this.secondsLeft--; } if (this.secondsLeft <= 0) { this.stop(); } }, 1000); } if (this.phase === 'talking') { this.startTalk(); } },
+                        startTalk(){ this.stop(); this.talkSeconds = 0; this._t = setInterval(() => this.talkSeconds++, 1000); },
+                        stop(){ if (this._t) { clearInterval(this._t); this._t = null; } },
+                        answerNow(){ this.stop(); $wire.markExtraCallAnswered(); },
+                        endTalk(){ this.stop(); $wire.endExtraConversation(this.talkSeconds); },
+                        fmt(s){ return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); },
+                     }"
+                     x-init="start()">
+                    <div class="modal-header trial-call-header border-0">
+                        <div>
+                            <h5 class="modal-title text-white mb-1">تماس اضافه — {{ $extraCallStudentName }}</h5>
+                            <div class="small trial-call-muted" dir="ltr">{{ $extraCallTrial->user?->mobile ?? '—' }}</div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" wire:click="closeExtraCall"></button>
+                    </div>
+                    <div class="modal-body trial-call-body">
+                        @if($extraCallPhase === 'ringing')
+                            <div class="text-center py-4">
+                                <div class="trial-call-icon mb-3"><i class="fi fi-rr-phone-call"></i></div>
+                                <h5 class="mb-1 text-white">در حال تماس اضافه</h5>
+                                <p class="trial-call-muted mb-3" dir="ltr">{{ $extraCallTrial->user?->mobile ?? '—' }}</p>
+                                <div class="display-4 fw-bold text-primary" dir="ltr" x-text="String(secondsLeft).padStart(2, '0')"></div>
+                                <p class="trial-call-muted small mt-2">در صورت پاسخ، ثبت پاسخ را بزنید تا زمان مکالمه ضبط شود.</p>
+                            </div>
+                        @elseif($extraCallPhase === 'talking')
+                            <div class="text-center py-4">
+                                <div class="trial-call-icon mb-3"><i class="fi fi-rr-comment-alt"></i></div>
+                                <h5 class="mb-1 text-white">در حال مکالمه</h5>
+                                <p class="trial-call-muted mb-3" dir="ltr">{{ $extraCallTrial->user?->mobile ?? '—' }}</p>
+                                <div class="display-3 fw-bold text-success" dir="ltr" x-text="fmt(talkSeconds)"></div>
+                                <p class="trial-call-muted small mt-2">پس از پایان تماس، اتمام مکالمه را بزنید و توضیحات پیگیری را ثبت کنید.</p>
+                            </div>
+                        @else
+                            <div class="bg-body text-dark rounded-4 p-3">
+                                <div class="alert alert-primary py-2 mb-3">
+                                    مدت تماس ثبت شد:
+                                    <strong dir="ltr">{{ sprintf('%02d:%02d', intdiv((int) ($extraTalkSeconds ?? 0), 60), (int) ($extraTalkSeconds ?? 0) % 60) }}</strong>
+                                </div>
+                                <div class="mb-0">
+                                    <label class="form-label">توضیحات تماس اضافه <span class="text-danger">*</span></label>
+                                    <textarea wire:model="extraCallNotes" rows="4" class="form-control" placeholder="خلاصه پیگیری، گزارش‌گیری یا نکته‌ای که باید بعداً دنبال شود را بنویسید."></textarea>
+                                    @error('extraCallNotes')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="modal-footer trial-call-footer border-0">
+                        @if($extraCallPhase === 'ringing')
+                            <button type="button" class="btn btn-success" @click="answerNow()">
+                                <i class="fi fi-rr-phone-call"></i>
+                                ثبت پاسخ
+                            </button>
+                            <button type="button" class="btn btn-outline-light" wire:click="closeExtraCall">لغو</button>
+                        @elseif($extraCallPhase === 'talking')
+                            <button type="button" class="btn btn-danger btn-lg w-100" @click="endTalk()">
+                                <i class="fi fi-rr-phone-slash"></i>
+                                اتمام مکالمه
+                            </button>
+                        @else
+                            <button type="button" class="btn btn-primary" wire:click="saveExtraCall">ثبت تماس اضافه</button>
+                            <button type="button" class="btn btn-secondary" wire:click="closeExtraCall">انصراف</button>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     @if($commentModalOpen)
         <div class="modal fade show d-block trial-modal-layer" tabindex="-1" style="background:rgba(0,0,0,.5)" wire:click.self="closeCommentModal">
             <div class="modal-dialog modal-dialog-centered trial-modal-dialog">
@@ -679,6 +733,20 @@
     @endif
 
     <style>
+        @keyframes trial-call-ring {
+            0%, 100% { transform: rotate(0); }
+            20% { transform: rotate(14deg); }
+            40% { transform: rotate(-14deg); }
+            60% { transform: rotate(9deg); }
+            80% { transform: rotate(-9deg); }
+        }
+
+        @keyframes trial-call-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, .55); }
+            70% { box-shadow: 0 0 0 24px rgba(13, 110, 253, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+        }
+
         .trial-monitor-page {
             overflow-x: hidden;
         }
@@ -720,6 +788,42 @@
             line-height: 1;
         }
 
+        .trial-call-content {
+            background: #1f1f1f;
+            border: 0;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .trial-call-header,
+        .trial-call-footer,
+        .trial-call-body {
+            background: #1f1f1f;
+        }
+
+        .trial-call-muted {
+            color: rgba(255, 255, 255, .6);
+        }
+
+        .trial-call-icon {
+            width: 92px;
+            height: 92px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0d6efd;
+            color: #fff;
+            font-size: 36px;
+            margin: 0 auto;
+            animation: trial-call-pulse 1.5s infinite;
+        }
+
+        .trial-call-icon i {
+            display: inline-block;
+            animation: trial-call-ring 1s infinite;
+        }
+
         @media (max-width: 991.98px) {
             .trial-students-list {
                 max-height: 300px;
@@ -755,7 +859,8 @@
 
             .trial-section-header .badge,
             .trial-day-badges .badge,
-            .trial-status-pills .badge {
+            .trial-status-pills .badge,
+            .trial-status-pills .btn {
                 width: fit-content;
                 max-width: 100%;
                 white-space: normal;
@@ -909,6 +1014,27 @@
                 padding: 1rem;
                 overflow-y: auto;
             }
+
+            .trial-call-layer {
+                display: flex !important;
+                align-items: flex-end;
+                padding: 0;
+            }
+
+            .trial-call-dialog {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+            }
+
+            .trial-call-dialog .modal-content {
+                border-radius: 1rem 1rem 0 0;
+                max-height: 88svh;
+            }
+
+            .trial-call-dialog .modal-body {
+                overflow-y: auto;
+            }
         }
 
         @media (max-width: 575.98px) {
@@ -944,6 +1070,11 @@
 
             .trial-status-pills .badge {
                 flex: 1 1 100%;
+            }
+
+            .trial-status-pills .btn {
+                justify-content: center;
+                width: 100%;
             }
 
             .trial-stats-row {

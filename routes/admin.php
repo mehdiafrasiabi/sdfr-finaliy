@@ -61,8 +61,14 @@ Route::name('admin.')->group(function () {
         Route::prefix('trial-acquisition')->name('trial-acquisition.')->middleware('admin.permission:acquisition.dashboard')->group(function () {
             Route::get('/', \App\Livewire\Admin\TrialAcquisition\Index::class)->name('index');
             Route::get('/dashboard', \App\Livewire\Admin\TrialAcquisition\Dashboard::class)->name('dashboard');
+            Route::get('/my-students', \App\Livewire\Admin\TrialAcquisition\MyStudents::class)->name('my-students');
+            Route::get('/exam-program-students', \App\Livewire\Admin\TrialAcquisition\ExamProgramStudents::class)
+                ->name('exam-program-students');
             Route::get('/monitor/{trialWeek?}', \App\Livewire\Admin\TrialAcquisition\Monitor::class)
                 ->name('monitor')
+                ->middleware('admin.permission:acquisition.monitor');
+            Route::get('/exam-monitor/{trialWeek?}', \App\Livewire\Admin\TrialAcquisition\ExamMonitor::class)
+                ->name('exam-monitor')
                 ->middleware('admin.permission:acquisition.monitor');
         });
 
@@ -151,15 +157,12 @@ Route::name('admin.')->group(function () {
                 Route::get('/queue',
                     \App\Livewire\Admin\PhoneAcquisition\Queue\Index::class)
                     ->name('queue');
-                Route::get('/follow-ups',
-                    \App\Livewire\Admin\PhoneAcquisition\FollowUps\Index::class)
-                    ->name('follow-ups');
-                Route::get('/my-leads',
-                    \App\Livewire\Admin\PhoneAcquisition\MyLeads\Index::class)
-                    ->name('my-leads');
-                Route::get('/my-calls',
-                    \App\Livewire\Admin\PhoneAcquisition\MyCalls\Index::class)
-                    ->name('my-calls');
+                Route::get('/needs-follow-up-acquisition',
+                    \App\Livewire\Admin\PhoneAcquisition\FollowUpNeeds\Acquisition::class)
+                    ->name('needs-follow-up-acquisition');
+                Route::get('/needs-follow-up-registration',
+                    \App\Livewire\Admin\PhoneAcquisition\FollowUpNeeds\Registration::class)
+                    ->name('needs-follow-up-registration');
                 Route::get('/receipts',
                     \App\Livewire\Admin\PhoneAcquisition\Receipts\Index::class)
                     ->name('receipts');
@@ -192,6 +195,8 @@ Route::name('admin.')->group(function () {
 
         Route::get('/notification', NotificationCreate::class)->name('student.notification')
             ->middleware('admin.permission:admin.notification.send');
+
+        Route::get('/my-notifications', \App\Livewire\Admin\Notification\Index::class)->name('notifications.index');
 
         // گزارش فعالیت روزانه
 

@@ -354,9 +354,12 @@
                                             <button type="button"
                                                     wire:click="togglePriority({{ $subject['id'] }})"
                                                     {{ $priorityDisabled ? 'disabled' : '' }}
-                                                    class="inline-flex w-full items-center justify-center rounded-xl border px-3 py-2.5 text-xs font-bold transition {{ ($prioritySubjects[$subject['id']] ?? false) ? 'border-blue-500/30 bg-blue-500/10 text-blue-500' : 'border-border bg-secondary text-muted-foreground' }}">
-                                                <span>از این درس می‌ترسم نمره خوبی نگیرم</span>
+                                                    class="inline-flex w-full items-center justify-center rounded-xl border px-3 py-2.5 text-xs font-bold transition {{ ($prioritySubjects[$subject['id']] ?? false) ? 'border-red-500/30 bg-red-500/10 text-red-500' : 'border-border bg-secondary text-muted-foreground' }}">
+                                                <span>اره،میترسم</span>
                                             </button>
+                                            <p class="mt-3 text-xs leading-6 text-muted-foreground">
+                                                اگر نگران این درس هستی و استرس شب امتحانش رو داری روی دکمه بزن
+                                            </p>
                                         </div>
                                         <div class="space-y-2">
                                             @if(!empty($subject['chapters']))
@@ -403,7 +406,7 @@
                             @endforeach
                         @else
                             <div class="rounded-2xl border border-dashed border-border glass px-4 py-8 text-center text-sm text-muted-foreground">
-                                درس تخصصی فعالی برای این پایه و رشته پیدا نشد.
+                                درس تخصصی ثبت‌شده‌ای در تقویم امتحانات پیدا نشد.
                             </div>
                         @endif
                     </div>
@@ -479,8 +482,11 @@
                                                     wire:click="togglePriority({{ $subject['id'] }})"
                                                     {{ $priorityDisabled ? 'disabled' : '' }}
                                                     class="inline-flex w-full items-center justify-center rounded-xl border px-3 py-2.5 text-xs font-bold transition {{ ($prioritySubjects[$subject['id']] ?? false) ? 'border-red-500/30 bg-red-500/10 text-red-500' : 'border-border bg-secondary text-muted-foreground' }}">
-                                                <span>از این درس می‌ترسم نمره خوبی نگیرم</span>
+                                                <span>اره،میترسم</span>
                                             </button>
+                                            <p class="mt-3 text-xs leading-6 text-muted-foreground">
+                                                اگر نگران این درس هستی و استرس شب امتحانش رو داری روی دکمه بزن
+                                            </p>
                                         </div>
 
                                         <div class="rounded-2xl border border-border glass px-3 py-3 mb-3">
@@ -589,7 +595,7 @@
                             @endforeach
                         @else
                             <div class="rounded-2xl border border-dashed border-border glass px-4 py-8 text-center text-sm text-muted-foreground">
-                                درس عمومی فعالی برای این پایه پیدا نشد.
+                                درس عمومی ثبت‌شده‌ای در تقویم امتحانات پیدا نشد.
                             </div>
                         @endif
                     </div>

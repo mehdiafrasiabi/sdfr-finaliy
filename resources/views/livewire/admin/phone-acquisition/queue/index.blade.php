@@ -67,7 +67,7 @@
                                     </div>
                                 @endif
 
-                                <button wire:click="openCallForm({{ $lead->id }})"
+                                <button wire:click="promptCall({{ $lead->id }})"
                                         class="btn btn-sm btn-{{ $color }} w-100">
                                     <i class="fi fi-rr-phone-call"></i> ثبت تماس
                                 </button>

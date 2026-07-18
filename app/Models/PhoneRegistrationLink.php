@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class PhoneRegistrationLink extends Model
 {
+    public const PLAN_DEFAULT = 'default';
+    public const PLAN_TRIAL = 'trial';
+    public const PLAN_EXAM = 'exam';
+
     protected $guarded = [];
 
     protected $casts = [
@@ -39,9 +43,18 @@ class PhoneRegistrationLink extends Model
         return $this->used_at !== null;
     }
 
+    public static function isValidPlan(string $plan): bool
+    {
+        return in_array($plan, [
+            self::PLAN_DEFAULT,
+            self::PLAN_TRIAL,
+            self::PLAN_EXAM,
+        ], true);
+    }
+
     /** نشانی کامل لینک یکتا. */
     public function getUrlAttribute(): string
     {
-        return route('client.phone-ref', ['token' => $this->token]);
+        return rtrim(config('services.melipayamak.public_url', 'https://sdfr.me'), '/') . '/r/' . $this->token;
     }
 }

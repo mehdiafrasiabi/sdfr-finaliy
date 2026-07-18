@@ -30,6 +30,8 @@ class AppServiceProvider extends ServiceProvider
 
         Carbon::setLocale('fa');
 
+        $this->registerStudentActivityNotifications();
+
         // بعد از بوت‌شدنِ همه‌ی پرووایدرها (از جمله Livewire) اجرا می‌شود
         $this->app->booted(function () {
             $this->disableLivewireMultipleRootDetector();
@@ -72,5 +74,23 @@ class AppServiceProvider extends ServiceProvider
         } catch (\Throwable $e) {
             // اگر ساختار داخلی Livewire تغییر کرد، بی‌سروصدا نادیده بگیر (هرگز اپ را نشکن)
         }
+    }
+
+    private function registerStudentActivityNotifications(): void
+    {
+        $observer = app(\App\Observers\StudentActivityObserver::class);
+
+        \App\Models\DailyReport::created(fn ($model) => $observer->dailyReportCreated($model));
+        \App\Models\StudyPartSession::created(fn ($model) => $observer->studyPartSessionCreated($model));
+        \App\Models\MakeupSession::created(fn ($model) => $observer->makeupSessionCreated($model));
+        \App\Models\TrialWeek::updated(fn ($model) => $observer->trialWeekUpdated($model));
+        \App\Models\AdvisingPreSession::updated(fn ($model) => $observer->preSessionUpdated($model));
+        \App\Models\ClassSchedule::updated(fn ($model) => $observer->classScheduleUpdated($model));
+        \App\Models\AdvisingPreSessionExam::created(fn ($model) => $observer->preSessionItemCreated($model));
+        \App\Models\AdvisingPreSessionQa::created(fn ($model) => $observer->preSessionItemCreated($model));
+        \App\Models\AdvisingPreSessionAssignment::created(fn ($model) => $observer->preSessionItemCreated($model));
+        \App\Models\AdvisingPreSessionRequestedPart::created(fn ($model) => $observer->preSessionItemCreated($model));
+        \App\Models\AdvisingPreSessionMisc::created(fn ($model) => $observer->preSessionItemCreated($model));
+        \App\Models\PhoneRegistrationLink::updated(fn ($model) => $observer->phoneRegistrationLinkUpdated($model));
     }
 }

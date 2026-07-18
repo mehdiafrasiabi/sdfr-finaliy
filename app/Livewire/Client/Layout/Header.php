@@ -123,8 +123,7 @@ class Header extends Component
 
         $this->showExamPlanningLink = app(ExamPlanningService::class)->shouldExposePaidModule($user)
             || app(ExamPlanningService::class)->shouldExposeTrialModule($user);
-        $this->showSampleQuestionsLink = app(ExamPlanningService::class)->shouldExposePaidModule($user)
-            || app(ExamPlanningService::class)->shouldExposeTrialModule($user);
+        $this->showSampleQuestionsLink = true;
     }
 
     protected function resolveUserPictureUrl($user): ?string
