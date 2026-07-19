@@ -45,6 +45,10 @@ return [
 ],
 
     'melipayamak' => [
+        'simple_endpoint' => env('MELIPAYAMAK_SIMPLE_ENDPOINT', 'https://console.melipayamak.com/api/send/simple/2533874113094413bd33384f343bb7b6'),
+        'otp_endpoint' => env('MELIPAYAMAK_OTP_ENDPOINT', 'https://console.melipayamak.com/api/send/otp/2533874113094413bd33384f343bb7b6'),
+        'from_simple' => env('MELIPAYAMAK_FROM_SIMPLE', '9982005935'),
+
         'username' => env('MELIPAYAMAK_USERNAME', '9020029757'),
         'password' => env('MELIPAYAMAK_PASSWORD', '66a372b1-fbfd-41b7-8f42-edbb38eb783d'),
         'endpoint' => env('MELIPAYAMAK_ENDPOINT', 'https://rest.payamak-panel.com/api/SendSMS/BaseServiceNumber'),

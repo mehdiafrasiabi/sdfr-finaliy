@@ -181,6 +181,50 @@ trait LogsPhoneCalls
         $this->closeCallForm();
     }
 
+    public function sendInvite(string $planType): void
+    {
+        if (!in_array($planType, ['trial', 'exam', 'cash'])) {
+            return;
+        }
+
+        $lead = $this->loadLeadForConsultant($this->activeLeadId);
+        if (!$lead) {
+            $this->dispatch('warning', 'شماره یافت نشد یا به شما اختصاص ندارد.');
+            return;
+        }
+
+        $adminId = Auth::guard('admin')->id();
+        if (!$adminId) {
+            $this->dispatch('warning', 'مشاور شناسایی نشد.');
+            return;
+        }
+
+        $baseUrl = config('app.url');
+        $link = rtrim($baseUrl, '/') . "/start?plan={$planType}&ref={$adminId}";
+
+        $text = match ($planType) {
+            'trial' => "سلام! برای شروع هفته آزمایشی رایگان در سامانه هوشمند SDFR، از لینک زیر استفاده کنید:\n{$link}",
+            'exam' => "سلام! برای دریافت برنامه درسی ویژه امتحانات در سامانه هوشمند SDFR، از لینک زیر استفاده کنید:\n{$link}",
+            'cash' => "سلام! برای ثبت‌نام و خرید دوره در سامانه هوشمند مشاوره تحصیلی SDFR، از لینک زیر اقدام کنید:\n{$link}",
+        };
+
+        try {
+            $notifiable = new AnonymousNotifiable;
+            $notifiable->route('mobile', $lead->mobile); // Assuming the channel uses 'mobile'
+            
+            $notifiable->notify(new \App\Notifications\SendInvitationSms($lead->mobile, $text));
+
+            $this->dispatch('success', 'لینک دعوت با موفقیت ارسال شد.');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send invitation SMS.', [
+                'lead_id' => $lead->id,
+                'admin_id' => $adminId,
+                'error' => $e->getMessage(),
+            ]);
+            $this->dispatch('error', 'خطا در ارسال پیامک. لطفاً با پشتیبانی تماس بگیرید.');
+        }
+    }
+
     protected function applyOutcome(PhoneLead $lead): void
     {
         DB::transaction(function () use ($lead) {

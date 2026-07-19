@@ -1,7 +1,7 @@
 <?php
 namespace App\Notifications;
 
-use App\Notifications\Channels\CustomSmsChannel;
+use App\Notifications\Channels\MelipayamakDirectSmsChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -20,14 +20,22 @@ class SendOtpToUser extends Notification
 
     public function via($notifiable): array
     {
-        return [CustomSmsChannel::class];
+        return [MelipayamakDirectSmsChannel::class];
     }
 
-    public function toCustomSms($notifiable): array
+    public function toMelipayamakDirectSms($notifiable): array
     {
+        $text = "SDFR\n\n" .
+            "کاربر عزیز،\n" .
+            "کد اعتبارسنجی شما\n\n" .
+            "CODE:{$this->code}\n\n" .
+            "سامانه هوشمند مشاوره تحصیلی SDFR\n" .
+            "@sdfr.me #{$this->code}";
+
         return [
             'mobile' => $this->mobile,
-            'code' => $this->code,
+            'text' => $text,
+            'context' => 'otp',
         ];
     }
 }

@@ -32,7 +32,8 @@ class Index extends Component
     public string  $couponCode     = '';
     public ?string $couponError    = null;
     public ?string $couponNotice   = null;
-    public int     $couponDiscount = 0;
+    public string $couponType  = '';
+    public int    $couponValue = 0;
 
     public int  $step          = 1;
     public bool $agreedToTerms = false;
@@ -209,6 +210,11 @@ class Index extends Component
         }
     }
 
+    public function updatedCouponCode(): void
+    {
+        $this->applyCoupon();
+    }
+
     public function startEditInfo(): void
     {
         $this->editingInfo = true;
@@ -274,8 +280,9 @@ class Index extends Component
         $user = Auth::user();
         if (! $user) return null;
 
-        if ($this->infoGrade !== '' && in_array($this->infoGrade, array_keys(self::GRADE_OPTIONS), true)) {
-            return GradePrice::activeFor((int) $this->infoGrade);
+        $grade = $this->infoGrade;
+        if ($grade !== '' && in_array($grade, array_keys(self::GRADE_OPTIONS), true)) {
+            return GradePrice::activeFor((int) $grade);
         }
 
         $pi = PersonalInformation::where('user_id', $user->id)->first();
@@ -300,9 +307,10 @@ class Index extends Component
 
     public function applyCoupon(): void
     {
-        $this->couponError    = null;
-        $this->couponNotice   = null;
-        $this->couponDiscount = 0;
+        $this->couponError  = null;
+        $this->couponNotice = null;
+        $this->couponType   = '';
+        $this->couponValue  = 0;
 
         $code = trim($this->couponCode);
         if ($code === '') {
@@ -316,7 +324,19 @@ class Index extends Component
             return;
         }
 
-        $alreadyUsed = CouponUsage::where('user_id', Auth::id())
+        if ($coupon->expires_at && Carbon::parse($coupon->expires_at)->isPast()) {
+            $this->couponError = 'این کد تخفیف منقضی شده است.';
+            return;
+        }
+
+        $userId = Auth::id();
+
+        if (! $coupon->is_public && (int) $coupon->user_id !== (int) $userId) {
+            $this->couponError = 'این کد تخفیف برای شما معتبر نیست.';
+            return;
+        }
+
+        $alreadyUsed = CouponUsage::where('user_id', $userId)
             ->where('coupon_id', $coupon->id)
             ->exists();
         if ($alreadyUsed) {
@@ -324,17 +344,41 @@ class Index extends Component
             return;
         }
 
-        $percent = (int) ($coupon->discount_percentage ?? $coupon->percentage ?? 0);
-        $this->couponDiscount = max(0, min(100, $percent));
-        $this->couponNotice = "تخفیف {$this->couponDiscount} درصدی روی پرداخت نقدی اعمال شد.";
+        if (! is_null($coupon->limit)) {
+            $usageCount = CouponUsage::where('coupon_id', $coupon->id)->count();
+            if ($usageCount >= $coupon->limit) {
+                $this->couponError = 'ظرفیت استفاده از این کد تخفیف تکمیل شده است.';
+                return;
+            }
+        }
+
+        $price = $this->gradePrice();
+        if ($price) {
+            $baseTotal = $price->totalFor($price->entryMonthIndex());
+            if ($coupon->min_purchase && $baseTotal < $coupon->min_purchase) {
+                $this->couponError = 'حداقل مبلغ خرید برای این کد تخفیف '
+                    . number_format((int) $coupon->min_purchase) . ' تومان است.';
+                return;
+            }
+        }
+
+        $this->couponType  = (string) $coupon->type;
+        $this->couponValue = (int) $coupon->value;
+
+        $discountLabel = $this->couponType === 'percentage'
+            ? "{$this->couponValue}٪"
+            : number_format($this->couponValue) . ' تومان';
+
+        $this->couponNotice = "تخفیف {$discountLabel} اعمال شد.";
     }
 
     public function removeCoupon(): void
     {
-        $this->couponCode     = '';
-        $this->couponDiscount = 0;
-        $this->couponError    = null;
-        $this->couponNotice   = null;
+        $this->couponCode   = '';
+        $this->couponType   = '';
+        $this->couponValue  = 0;
+        $this->couponError  = null;
+        $this->couponNotice = null;
     }
 
     public function pay(PaymentGateWayInterface $paymentGateway)
@@ -351,8 +395,8 @@ class Index extends Component
             return;
         }
 
+        $price = $this->gradePrice();
         $pi    = PersonalInformation::where('user_id', $user->id)->first();
-        $price = $pi ? $this->gradePriceForPersonalInfo($pi) : null;
         if (! $price || ! $pi) {
             $this->dispatch('error', 'قیمتی برای پایهٔ شما تعریف نشده یا اطلاعات شخصی کامل نیست.');
             return;
@@ -385,12 +429,19 @@ class Index extends Component
             ->first();
 
         if ($existingPendingPayment) {
-            return $this->requestGateway(
-                $paymentGateway,
-                $existingPendingPayment->amount,
-                $existingPendingPayment->order_number,
-                'پرداخت قبلی پیدا شد اما اتصال به درگاه انجام نشد. لطفاً چند لحظه دیگر دوباره تلاش کنید.'
-            );
+            try {
+                return $paymentGateway->request($existingPendingPayment->amount, $existingPendingPayment->order_number);
+            } catch (\Throwable $e) {
+                report($e);
+                $existingPendingPayment->update(['status' => 'cancelled']);
+                $existingPendingPayment->order?->update(['status' => 'canceled']);
+
+                $this->dispatch('error', $this->friendlyPurchaseError(
+                    'اتصال به درگاه انجام نشد. لطفاً دوباره روی پرداخت نقدی بزنید.',
+                    $e
+                ));
+                return null;
+            }
         }
 
         $orderNumber = 'SDFR-' . Str::uuid()->toString();
@@ -451,8 +502,8 @@ class Index extends Component
             return;
         }
 
+        $price = $this->gradePrice();
         $pi    = PersonalInformation::where('user_id', $user->id)->first();
-        $price = $pi ? $this->gradePriceForPersonalInfo($pi) : null;
         if (! $price || ! $pi) {
             $this->dispatch('error', 'قیمتی برای پایهٔ شما تعریف نشده یا اطلاعات شخصی کامل نیست.');
             return;
@@ -478,9 +529,12 @@ class Index extends Component
             return;
         }
 
-        $total    = $price->totalFor($i);
-        $initial  = $price->initialPayment($i);
-        $monthly  = $price->installmentAmount($i);
+        $baseTotal = $price->totalFor($i);
+        $total = max(0, $baseTotal - $this->couponDiscountAmount($baseTotal));
+
+        $initial  = (int) round($total * 0.30);
+        $remaining = $total - $initial;
+        $monthly  = ($count > 0) ? ((int) floor($remaining / $count)) : 0;
 
         $existingPlan = $this->existingIncompleteInstallmentPlan($user->id);
         if ($existingPlan) {
@@ -499,14 +553,20 @@ class Index extends Component
                     ->where('amount', $initial)
                     ->latest('id')
                     ->first();
-
                 if ($pendingInitialPayment) {
-                    return $this->requestGateway(
-                        $paymentGateway,
-                        $pendingInitialPayment->amount,
-                        $pendingInitialPayment->order_number,
-                        'پیش‌پرداخت قبلی پیدا شد اما اتصال به درگاه انجام نشد. لطفاً چند لحظه دیگر دوباره تلاش کنید.'
-                    );
+                    try {
+                        return $paymentGateway->request($pendingInitialPayment->amount, $pendingInitialPayment->order_number);
+                    } catch (\Throwable $e) {
+                        report($e);
+                        $pendingInitialPayment->update(['status' => 'cancelled']);
+                        $pendingInitialPayment->order?->update(['status' => 'canceled']);
+
+                        $this->dispatch('error', $this->friendlyPurchaseError(
+                            'اتصال به درگاه انجام نشد. لطفاً دوباره روی پرداخت اقساطی بزنید.',
+                            $e
+                        ));
+                        return null;
+                    }
                 }
             }
 
@@ -681,21 +741,17 @@ class Index extends Component
     protected function finalFullPrice(GradePrice $price, int $i): int
     {
         $base = $price->totalFor($i);
-        if ($this->couponDiscount > 0) {
-            $base = (int) round($base * (1 - $this->couponDiscount / 100));
-        }
-        return max(0, $base);
+        return max(0, $base - $this->couponDiscountAmount($base));
     }
 
     protected function logCouponUsage(int $userId): void
     {
-        if ($this->couponDiscount > 0 && $this->couponCode) {
+        if ($this->couponType !== '' && $this->couponCode) {
             $coupon = Coupons::where('code', trim($this->couponCode))->first();
             if ($coupon) {
                 CouponUsage::create([
                     'coupon_id' => $coupon->id,
                     'user_id'   => $userId,
-                    'used_at'   => now(),
                 ]);
             }
         }
@@ -854,7 +910,19 @@ class Index extends Component
 
         return $fallback;
     }
+    protected function couponDiscountAmount(int $baseTotal): int
+    {
+        if ($this->couponType === 'percentage') {
+            $percent = max(0, min(100, $this->couponValue));
+            return (int) round($baseTotal * $percent / 100);
+        }
 
+        if ($this->couponType === 'fixed') {
+            return max(0, min($this->couponValue, $baseTotal));
+        }
+
+        return 0;
+    }
     public function render()
     {
         $price = $this->gradePrice();
@@ -871,6 +939,16 @@ class Index extends Component
         $data = null;
         if ($price) {
             $i = $price->entryMonthIndex();
+
+            $baseTotal = $price->totalFor($i);
+            $discountAmount = $this->couponDiscountAmount($baseTotal);
+            $finalTotal = max(0, $baseTotal - $discountAmount);
+
+            $initialPayment = (int) round($finalTotal * 0.30);
+            $installmentCount = $price->installmentCount($i);
+            $remaining = $finalTotal - $initialPayment;
+            $monthlyPayment = $installmentCount > 0 ? (int) floor($remaining / $installmentCount) : 0;
+
             $data = [
                 'index'             => $i,
                 'month_label'       => GradePrice::monthLabel($i),
@@ -878,15 +956,16 @@ class Index extends Component
                 'effective_rate'    => $price->effectiveRate($i),
                 'remaining_months'  => $price->remainingMonths($i),
                 'original_total'    => $price->originalTotalFor($i),
-                'total'             => $price->totalFor($i),
-                'savings'           => max(0, $price->originalTotalFor($i) - $price->totalFor($i)),
+                'total'             => $finalTotal,
+                'savings'           => max(0, $price->originalTotalFor($i) - $finalTotal),
                 'full_with_coupon'  => $this->finalFullPrice($price, $i),
-                'initial'           => $price->initialPayment($i),
-                'installment_count' => $price->installmentCount($i),
+                'initial'           => $initialPayment,
+                'installment_count' => $installmentCount,
                 'installment_open'  => GradePrice::installmentRegistrationOpen(),
-                'monthly'           => $price->installmentAmount($i),
-                'installment_until_label' => ($price->installmentCount($i) > 0 && GradePrice::installmentRegistrationOpen())
-                    ? Jalalian::fromCarbon($this->installmentDueDate(Carbon::now(), $i, $price->installmentCount($i)))->format('Y/m/d')
+                'monthly'           => $monthlyPayment,
+                'coupon_discount_amount' => $discountAmount,
+                'installment_until_label' => ($installmentCount > 0 && GradePrice::installmentRegistrationOpen())
+                    ? Jalalian::fromCarbon($this->installmentDueDate(Carbon::now(), $i, $installmentCount))->format('Y/m/d')
                     : null,
                 'access_ends_label' => $price->accessEndsAt()
                     ? Jalalian::fromCarbon($price->accessEndsAt())->format('Y/m/d')

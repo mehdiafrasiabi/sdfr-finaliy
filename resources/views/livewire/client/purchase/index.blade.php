@@ -716,16 +716,20 @@
                                     <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                                         <div>
                                             <div class="text-sm font-black text-foreground">کد تخفیف نقدی</div>
-                                            <p class="mt-1 text-xs leading-6 text-muted">این بخش فقط روی پرداخت نقدی اثر می‌گذارد و روی مبلغ اقساط اعمال نمی‌شود.</p>
+                                            <p class="mt-1 text-xs leading-6 text-muted">این تخفیف روی مبلغ کل شما اعمال می‌شود و هم پرداخت نقدی و هم اقساط را تحت تأثیر قرار می‌دهد.</p>
                                         </div>
-                                        @if ($couponDiscount > 0)
+                                        @if ($couponType !== '')
                                             <div class="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-black text-primary">
-                                                {{ $toFaDigits($couponDiscount) }}٪ تخفیف فعال
+                                                @if ($couponType === 'percentage')
+                                                    {{ $toFaDigits($couponValue) }}٪ تخفیف فعال
+                                                @else
+                                                    {{ $faMoney($couponValue) }} تومان تخفیف فعال
+                                                @endif
                                             </div>
                                         @endif
                                     </div>
 
-                                    @if ($couponDiscount > 0)
+                                    @if ($couponType !== '' )
                                         <div class="mt-4 flex flex-col gap-3 rounded-2xl border border-primary/20 bg-primary/10 p-4 sm:flex-row sm:items-center sm:justify-between">
                                             <div class="text-sm font-black text-foreground">{{ $couponNotice }}</div>
                                             <button wire:click="removeCoupon" wire:loading.attr="disabled" wire:target="removeCoupon"
@@ -763,7 +767,7 @@
                                             </div>
                                         </div>
                                         <div class="mt-6 rounded-2xl border border-primary/15 bg-background/85 p-4 text-center">
-                                            @if ($couponDiscount > 0 && $data['full_with_coupon'] !== $data['total'])
+                                            @if ($couponType !== ''  && $data['full_with_coupon'] !== $data['total'])
                                                 <div class="text-sm text-muted line-through"><span class="purchase-amount">{{ $faMoney($data['total']) }}</span> تومان</div>
                                             @endif
                                             <div class="purchase-stable-price mt-2 text-[clamp(1.8rem,4vw,2.6rem)] font-black text-foreground"><span class="purchase-amount">{{ $faMoney($data['full_with_coupon']) }}</span></div>

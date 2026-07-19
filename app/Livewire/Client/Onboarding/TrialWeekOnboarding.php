@@ -71,6 +71,13 @@ class TrialWeekOnboarding extends Component
         if (in_array($plan, ['trial', 'exam', 'cash'], true)) {
             session(['intended_plan' => $plan]);
         }
+
+        // Added for admin referrer tracking
+        $referrerId = request('ref');
+        if ($referrerId && filter_var($referrerId, FILTER_VALIDATE_INT)) {
+            session(['referrer_admin_id' => (int)$referrerId]);
+        }
+        
         $this->examPlanMode = $plan === 'exam';
         if ($this->examPlanMode) {
             $this->attendsSchool = true;

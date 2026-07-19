@@ -48,6 +48,21 @@
                                 <p class="text-muted mb-2" dir="ltr">{{ $leadLabel }}</p>
                                 <div class="display-3 fw-bold text-success" dir="ltr" x-text="fmt(talk)"></div>
                                 <p class="text-muted small mt-2 mb-3">پس از پایان مکالمه «اتمام مکالمه» را بزنید.</p>
+
+                                <div class="mt-4 pt-3 border-top" wire:loading.class="opacity-50" wire:target="sendInvite">
+                                    <h6 class="mb-2 fw-bold">ارسال لینک دعوت برای کاربر</h6>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" wire:click="sendInvite('trial')">
+                                            <i class="fi fi-rr-rocket-lunch"></i> هفته آزمایشی
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" wire:click="sendInvite('exam')">
+                                            <i class="fi fi-rr-test"></i> برنامه امتحانی
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" wire:click="sendInvite('cash')">
+                                            <i class="fi fi-rr-money"></i> پرداخت نقدی
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
                         @elseif ($callPhase === 'answerForm')

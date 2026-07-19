@@ -14,7 +14,7 @@ class Index extends Component
 
     public array $featuredGradePlans = [];
     public array $featuredGradeOptions = [];
-    public string $selectedFeaturedGrade = '12';
+    public ?string $selectedFeaturedGrade = null;
 
     public $contact_name;
     public $contact_phone;
@@ -115,10 +115,6 @@ class Index extends Component
                 'original_total' => $row['original_total'] ?? null,
             ];
         })->all();
-
-        if (! collect($this->featuredGradePlans)->contains(fn (array $plan) => (string) $plan['grade'] === $this->selectedFeaturedGrade)) {
-            $this->selectedFeaturedGrade = '12';
-        }
     }
 
     public function getSelectedFeaturedPlanProperty(): ?array

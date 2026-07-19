@@ -27,6 +27,12 @@ class TrialWeekService
                 ['is_trial' => true],
             );
 
+            if (session()->has('referrer_admin_id')) {
+                $user->referrer_admin_id = session('referrer_admin_id');
+                $user->save();
+                session()->forget('referrer_admin_id');
+            }
+
             return TrialWeek::create([
                 'user_id'        => $user->id,
                 'student_id'     => $student->id,
