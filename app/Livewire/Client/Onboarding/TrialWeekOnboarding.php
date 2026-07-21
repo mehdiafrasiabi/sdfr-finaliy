@@ -77,14 +77,21 @@ class TrialWeekOnboarding extends Component
         if ($referrerId && filter_var($referrerId, FILTER_VALIDATE_INT)) {
             session(['referrer_admin_id' => (int)$referrerId]);
         }
-        
+
         $this->examPlanMode = $plan === 'exam';
         if ($this->examPlanMode) {
             $this->attendsSchool = true;
             $this->normalizeExamPlanSelection();
         }
         $this->seo()
-            ->setTitle('ثبتنام');
+            ->setTitle('ثبت نام | SDFR')
+            ->setDescription('برای ورود به حساب کاربری خود در سامانه SDFR به صفحه پرتال مراجعه کنید. با دسترسی به حساب، از خدمات و امکانات هوشمند مشاوره بهره‌مند شوید. همین حالا ثبت‌نام کن!')
+        ;
+
+        if (request()->filled('plan')) {
+            $this->seo()->metatags()->addMeta('robots', 'noindex,follow', 'name');
+        }
+
     }
 
     public function next(): void

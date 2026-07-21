@@ -5,10 +5,10 @@
             <section class="mb-20">
                 <div class="flex flex-col md:flex-row items-center gap-8">
                     <div class="md:w-1/2">
-                        <div
+                        <h1
                             class="font-black text-2xl text-center text-foreground bg-gradient-to-l from-transparent to-blue-300 dark:to-blue-800 py-5 px-8 mb-3">
                             درباره SDFR
-                        </div>
+                        </h1>
                         <p class="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed text-justify">
                             SDFR در سال ۱۴۰۰ با هدف ارائه خدمات مشاوره تحصیلی آنلاین با کیفیت به دانش‌آموزان سراسر کشور
                             تأسیس شد. ما می‌دانستیم که بسیاری از دانش‌آموزان شهرستان‌ها برای دریافت مشاوره تحصیلی

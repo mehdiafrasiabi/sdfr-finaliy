@@ -39,13 +39,13 @@
         </div>
 
         <div class="col-xl-9">
-            @if($selectedTrial)
+
                 @php
                     $studentName = $selectedTrial->user?->personalInformation?->name ?? $selectedTrial->user?->name ?? '—';
                     $programParts = $weeklyProgram?->parts?->count() ?? 0;
                     $programMinutes = $weeklyProgram?->parts?->sum('duration_minutes') ?? 0;
                 @endphp
-                @if($monitorLocked)
+
                     <div class="card border-0 shadow-sm">
                         <div class="card-body text-center py-5">
                             <div class="mb-3">
@@ -55,7 +55,7 @@
                             <p class="text-muted mb-0">تا وقتی تماس موفق ثبت نشده باشد، گزارش‌ها و جزئیات این دانش‌آموز نمایش داده نمی‌شود.</p>
                         </div>
                     </div>
-                @else
+
                     <div class="card border-0 shadow-sm mb-3 trial-student-summary">
                         <div class="card-body">
                             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 trial-student-summary-inner">
@@ -465,10 +465,10 @@
                         @endif
                     </div>
                 </div>
-                @endif
-            @else
+
+
                 <div class="card border-0 shadow-sm"><div class="card-body text-center text-muted py-5">دانش‌آموزی برای رصد انتخاب نشده است.</div></div>
-            @endif
+
         </div>
     </div>
 

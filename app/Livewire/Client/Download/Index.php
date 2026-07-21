@@ -18,7 +18,7 @@ class Index extends Component
     {
         $this->seo()
             ->setTitle('دانلود اپلیکیشن SDFR | نسخه PWA')
-            ->setDescription('اپلیکیشن SDFR را به صورت PWA نصب کنید و با یک کلیک روی گوشی یا دسکتاپ به خدمات سایت دسترسی داشته باشید.');
+            ->setDescription('اپلیکیشن هوشمند SDFR را به صورت PWA نصب کنید و با یک کلیک روی گوشی یا دسکتاپ به خدمات سایت دسترسی داشته باشید. همین حالا رایگان امتحان کن!');
     }
 
     public function render()

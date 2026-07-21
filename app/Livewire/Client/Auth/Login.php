@@ -49,8 +49,8 @@ class Login extends Component
     public function seoConfig()
     {
         $this->seo()
-            ->setTitle('بهترین کلاس های مشاوره ای-ورود-sdfr')
-            ->setDescription('ورود به پنل کاربری')
+            ->setTitle('ورود | SDFR')
+            ->setDescription('در این صفحه اطلاعات کاربری خود را وارد کنید تا به پنل شخصی خود دسترسی پیدا کنید.')
         ;
     }
 

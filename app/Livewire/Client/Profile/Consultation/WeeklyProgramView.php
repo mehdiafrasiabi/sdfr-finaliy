@@ -200,22 +200,22 @@ class WeeklyProgramView extends Component
             return;
         }
 
-        $latestSession = AdvisingSession::where('student_id', $student->id)
+        // Find the latest advising session for the student that is marked as 'held' and has a weekly program.
+        $latestSessionWithProgram = AdvisingSession::where('student_id', $student->id)
             ->where('result_status', AdvisingSession::RESULT_HELD)
+            ->whereHas('weeklyProgram') // This ensures we only get sessions that have a program.
             ->orderByDesc('activation_date')
             ->orderByDesc('session_time')
             ->first();
 
-        if (!$latestSession) {
+        if (!$latestSessionWithProgram) {
             $this->isActiveProgram = false;
             return;
         }
 
-        $latestProgram = WeeklyProgram::where('advising_session_id', $latestSession->id)
-            ->where('student_id', $student->id)
-            ->first();
-
-        $this->isActiveProgram = $latestProgram && (int)$latestProgram->id === (int)$this->weeklyProgram->id;
+        // A program is considered "active" if it belongs to the most recent advising session that contains a program.
+        // This prevents newer, empty advising sessions from deactivating a valid, current program.
+        $this->isActiveProgram = (int)$this->weeklyProgram->advising_session_id === (int)$latestSessionWithProgram->id;
     }
 
     protected function loadMainSampleQuestions(): void

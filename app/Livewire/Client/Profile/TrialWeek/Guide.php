@@ -180,8 +180,20 @@ class Guide extends Component
 
     public function render(): \Illuminate\Contracts\View\View
     {
+        // (HOTFIX) ناهماهنگی وضعیت را بررسی و به طور خودکار اصلاح می‌کند.
+        // این حالت ممکن است زمانی رخ دهد که رویداد تکمیل PreSession به درستی اجرا نشود.
+        if ($this->trialWeek->status === TrialWeek::STATUS_CLASSIFICATION_DONE) {
+            $preSessionIsDone = $this->preSessionCompleted;
+            $scheduleIsDone   = !$this->needsSchedule || $this->classScheduleFinalized;
+
+            if ($preSessionIsDone && $scheduleIsDone) {
+                app(TrialWeekService::class)->completePreSession($this->trialWeek);
+                $this->trialWeek->refresh();
+            }
+        }
+
         return view('livewire.client.profile.trial-week.guide', [
-            'activeProject' => $this->activeProject,
+            'activeProject'    => $this->activeProject,
             'examPlanningMode' => $this->examPlanningMode,
         ])->layout('layouts.client.app');
     }

@@ -1,7 +1,7 @@
 <div class="max-w-7xl space-y-14 px-4 mx-auto">
     <!-- section:title -->
     <div class="flex flex-col items-start space-y-2">
-        <h2 class="font-black text-2xl text-foreground">تمـــــاس باما</h2>
+        <h1 class="font-black text-2xl text-foreground">تمـــــاس باما</h1>
         <p class="font-semibold text-sm text-muted">
             در این صفحه میتوانید اطلاعات ارتباطی خود را وارد کرده و کارشناسان ما در اسرع وقت با شما ارتباط برقرار خواهد کرد .
         </p>

@@ -27,8 +27,8 @@ class Index extends Component
     public function seoConfig()
     {
         $this->seo()
-            ->setTitle('ارتباط با ما ')
-            ->setDescription('در این صفحه میتوانید اطلاعات ارتباطی خود را وارد کرده و کارشناسان ما در اسرع وقت با شما ارتباط برقرار خواهد کرد .');
+            ->setTitle('ارتباط با SDFR')
+            ->setDescription('موضوعی مدنظرشماست که با ما به اشتراک بزارید؟ در این صفحه میتوانید اطلاعات ارتباطی خود را وارد کرده و کارشناسان ما در اسرع وقت با شما ارتباط برقرار خواهد کرد .');
     }
     public function submit($formData,ContactUs $contactUs)
     {

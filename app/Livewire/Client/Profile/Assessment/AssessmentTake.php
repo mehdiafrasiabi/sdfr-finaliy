@@ -110,8 +110,10 @@ class AssessmentTake extends Component
         return ['selected_option_id' => $optionId, 'selected_options' => null, 'free_value' => null];
     }
 
-    public function submitAll(AssessmentService $service): void
+    public function submitAll(AssessmentService $service, array $clientAnswers): void
     {
+        $this->answers = $clientAnswers;
+
         $attempt = $this->getAttempt();
 
         // اگر قبلاً تکمیل شده (دوبار کلیک) — بی‌سروصدا به مرحله بعد می‌رویم.

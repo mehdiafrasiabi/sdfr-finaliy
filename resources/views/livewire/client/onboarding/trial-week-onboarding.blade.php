@@ -910,6 +910,13 @@
                                                 <x-ui.select wire:model.live="grade" :options="$gradeOptions"
                                                              placeholder="انتخاب پایه"/>
                                             </div>
+                                            @if($grade !== '9')
+                                                <div class="relative" wire:key="field-m-{{ $grade }}">
+                                                    <label class="block text-xs font-semibold mb-1.5 text-muted">رشته</label>
+                                                    <x-ui.select wire:model="field" :options="$fieldOptions"
+                                                                 placeholder="انتخاب رشته"/>
+                                                </div>
+                                            @endif
                                         </div>
 
                                         @if($grade === 'graduate')

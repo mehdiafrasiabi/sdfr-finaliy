@@ -220,12 +220,17 @@
             <div>
                 <h4 class="mb-1 fw-bold">مدیریت جلسات</h4>
                 <p class="small dash-text-muted mb-0">
-                    فقط برای <strong>فردا</strong> می‌توانید تماس بگیرید و ساعت جلسه را تعیین کنید. دانش‌آموزانی که هنوز در جریان اتمام حجت هستند، تا قبل از تایید مدیر آموزشی وارد این بخش نمی‌شوند.
+                    فقط برای <strong>فردا</strong> می‌توانید تماس بگیرید و ساعت جلسه را تعیین کنید...
                 </p>
             </div>
-            <div class="input-group shadow-sm" style="max-width:300px">
-                <span class="input-group-text border-end-0 dash-text-muted"><i class="ri-search-line"></i></span>
-                <input type="text" wire:model.live.debounce.400ms="search" class="form-control border-start-0 ps-0" placeholder="جستجوی دانش‌آموز...">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <button wire:click="$set('quickStudentId', null)" data-bs-toggle="modal" data-bs-target="#quickSessionModal" class="btn btn-success shadow-sm">
+                    <i class="ri-flashlight-line ms-1"></i> تعریفِ سریعِ جلسه
+                </button>
+                <div class="input-group shadow-sm" style="max-width:300px">
+                    <span class="input-group-text border-end-0 dash-text-muted"><i class="ri-search-line"></i></span>
+                    <input type="text" wire:model.live.debounce.400ms="search" class="form-control border-start-0 ps-0" placeholder="جستجوی دانش‌آموز...">
+                </div>
             </div>
         </div>
 
@@ -663,7 +668,60 @@
                 </div>
             </div>
         @endif
+        {{-- ───────────── مودالِ تعریفِ سریعِ جلسه ───────────── --}}
+        <div class="modal fade" id="quickSessionModal" tabindex="-1" wire:ignore.self>
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold"><i class="ri-flashlight-line ms-1 text-success"></i> تعریفِ سریعِ جلسه</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="small dash-text-muted">این جلسه بدون تماس و بدون محدودیتِ روز، مستقیماً ثبتِ نهایی می‌شود و پیش‌جلسه ساخته می‌شود.</p>
 
+                        <div class="mb-3">
+                            <label class="form-label small">دانش‌آموز</label>
+                            <select wire:model="quickStudentId" class="form-select">
+                                <option value="">انتخاب کنید...</option>
+                                @foreach ($allStudents as $st)
+                                    <option value="{{ $st->id }}">{{ $renderStudentName($st) }}</option>
+                                @endforeach
+                            </select>
+                            @error('quickStudentId') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small">تاریخ</label>
+                            <input type="date" wire:model="quickDate" class="form-control">
+                            @error('quickDate') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small">زمان جلسه</label>
+                            <div class="input-group time-input-group">
+                                <input type="number" min="0" max="23" class="form-control text-center" wire:model="quickTime.hour" placeholder="ساعت">
+                                <span class="input-group-text">:</span>
+                                <input type="number" min="0" max="59" class="form-control text-center" wire:model="quickTime.minute" placeholder="دقیقه">
+                            </div>
+                            @error('quickTime.hour') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
+                            @error('quickTime.minute') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small">لینک جلسه آنلاین</label>
+                            <input type="url" dir="ltr" wire:model="quickLink" class="form-control" placeholder="https://...">
+                            @error('quickLink') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">انصراف</button>
+                        <button wire:click="saveQuickSession" class="btn btn-success">
+                            <i class="ri-save-line ms-1"></i> ثبت جلسه
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
         {{-- ───────────── مودالِ تماس ───────────── --}}
         @include('livewire.admin.student.consultation.partials.call-modal')
     </div>

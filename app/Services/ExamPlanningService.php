@@ -374,7 +374,7 @@ class ExamPlanningService
         foreach ($days->groupBy(fn ($day) => $day->exam_date->toDateString()) as $examDate => $group) {
             $examCarbon = Carbon::parse($examDate);
             $segmentStart = $previousExamDate
-                ? Carbon::parse($previousExamDate)->addDay()
+                ? Carbon::parse($previousExamDate)
                 : $today->copy();
             if ($segmentStart->lt($today)) {
                 $segmentStart = $today->copy();

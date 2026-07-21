@@ -23,7 +23,7 @@ class Index extends Component
     public function seoConfig()
     {
         $this->seo()
-            ->setTitle('قوانین و مقررات')
+            ->setTitle('قوانین و مقررات | SDFR')
             ->setDescription('در این صفحه شرایط استفاده از وبسایت آموزشی و مشاوره ای SDFR را مشاهده میکنید.');
     }
 

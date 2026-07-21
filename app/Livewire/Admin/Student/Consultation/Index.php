@@ -41,7 +41,10 @@ class Index extends Component
     public string $failReason = 'no_answer';
     public string $callPurpose = 'session';
     public ?int $activeOnboardingId = null;
-
+    public ?int $quickStudentId = null;
+    public string $quickDate = '';
+    public array $quickTime = ['hour' => '', 'minute' => ''];
+    public string $quickLink = '';
     // ── ورودی‌های زمان‌بندیِ هر دانش‌آموز (کلید: studentId) ──────────
     public array $schedule = [];
     public array $groupLinks = [];
@@ -112,7 +115,85 @@ class Index extends Component
 
         return true;
     }
+    public function openQuickSession(int $studentId): void
+    {
+        $this->quickStudentId = $studentId;
+        $this->quickDate = Carbon::today()->toDateString();
+        $this->quickTime = ['hour' => '', 'minute' => ''];
+        $this->quickLink = '';
+        $this->resetErrorBag();
+        $this->dispatch('open-quick-session-modal');
+    }
 
+    public function closeQuickSession(): void
+    {
+        $this->quickStudentId = null;
+    }
+
+    /**
+     * تعریفِ سریعِ جلسه توسطِ مشاور: بدون نیاز به تماس، بدون محدودیتِ «فقط فردا».
+     * جلسه مستقیم finalized می‌شود، پیش‌جلسه ساخته می‌شود و به دانش‌آموز اطلاع داده می‌شود.
+     */
+    public function saveQuickSession(): void
+    {
+        $student = Student::find($this->quickStudentId);
+        if (! $student || $student->advisor_id !== $this->adminId()) {
+            $this->dispatch('error', 'این دانش‌آموز در فهرستِ شما نیست.');
+            return;
+        }
+
+        if (! $this->ensureConsultationUnlocked($student)) {
+            return;
+        }
+
+        $this->validate([
+            'quickDate'         => 'required|date|after_or_equal:today',
+            'quickTime.hour'    => 'required|integer|min:0|max:23',
+            'quickTime.minute'  => 'required|integer|min:0|max:59',
+            'quickLink'         => 'required|url',
+        ], [
+            'quickDate.required'        => 'تاریخِ جلسه را انتخاب کنید.',
+            'quickDate.after_or_equal'  => 'تاریخِ جلسه نمی‌تواند در گذشته باشد.',
+            'quickTime.hour.required'   => 'ساعت را وارد کنید.',
+            'quickTime.minute.required' => 'دقیقه را وارد کنید.',
+            'quickLink.required'        => 'لینکِ جلسه‌ی آنلاین الزامی است.',
+            'quickLink.url'             => 'لینکِ واردشده معتبر نیست.',
+        ]);
+
+        $date = Carbon::parse($this->quickDate);
+        $time = sprintf('%02d:%02d', (int) $this->quickTime['hour'], (int) $this->quickTime['minute']);
+
+        $session = AdvisingSession::firstOrNew([
+            'advisor_id'      => $this->adminId(),
+            'student_id'      => $student->id,
+            'activation_date' => $date->toDateString(),
+        ]);
+
+        $session->fill([
+            'title'         => $session->title ?: Jalalian::fromCarbon($date)->format('Y/m/d'),
+            'description'   => $session->description ?: 'جلسه مشاوره فردی (تعریفِ سریع)',
+            'session_time'  => $time,
+            'location_type' => AdvisingSession::LOCATION_ONLINE,
+            'skyroom_link'  => $this->quickLink,
+            'status'        => AdvisingSession::STATUS_INACTIVE,
+            'is_active'     => false,
+            'finalized'     => true,
+        ])->save();
+
+        AdvisingPreSession::firstOrCreate(
+            ['advising_session_id' => $session->id],
+            [
+                'student_id' => $session->student_id,
+                'title'      => $session->title,
+                'status'     => 'pending',
+            ]
+        );
+
+        $this->sendSessionNotification($session);
+
+        $this->closeQuickSession();
+        $this->dispatch('success', 'جلسه با موفقیت تعریف و به دانش‌آموز اطلاع داده شد.');
+    }
     public function studentDisplayName($student): string
     {
         $personalInfo = $student?->user?->personalInformation;

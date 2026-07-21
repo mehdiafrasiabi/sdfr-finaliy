@@ -67,7 +67,7 @@ class AssessmentService
     public function startOrResume(User $user, Assessment $assessment): StudentAssessmentAttempt
     {
         return DB::transaction(function () use ($user, $assessment) {
-            $attempt = StudentAssessmentAttempt::firstOrCreate(
+            $attempt = StudentAssessmentAttempt::updateOrCreate(
                 [
                     'user_id'       => $user->id,
                     'assessment_id' => $assessment->id,
@@ -76,10 +76,20 @@ class AssessmentService
                     'student_id'             => $this->resolveStudentId($user),
                     'status'                 => StudentAssessmentAttempt::STATUS_IN_PROGRESS,
                     'started_at'             => now(),
+                    'completed_at'           => null,
+                    'computed_result'        => null,
                     'current_question_order' => 1,
                     'answered_count'         => 0,
                 ]
             );
+
+            // C10: اگر تلاش قبلاً انجام و تکمیل شده بود، پاسخ‌های قبلی حذف می‌شوند
+            // تا اطمینان حاصل شود که تلاشِ جدید از صفر شروع می‌شود.
+            if ($attempt->wasRecentlyCreated === false) {
+                $attempt->answers()->delete();
+                $this->refreshProgress($attempt);
+            }
+
 
             return $attempt;
         });

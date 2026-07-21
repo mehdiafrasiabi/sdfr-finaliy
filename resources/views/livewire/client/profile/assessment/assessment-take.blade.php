@@ -319,8 +319,7 @@
                     this.loading = true;
                     // ارسالِ کپیِ ساده (نه پراکسیِ ری‌اکتیو) به Livewire
                     const plain = JSON.parse(JSON.stringify(this.picks));
-                    await this.$wire.set('answers', plain);
-                    this.$wire.submitAll();
+                    this.$wire.submitAll(plain);
                 },
             };
         };

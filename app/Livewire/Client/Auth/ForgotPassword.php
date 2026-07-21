@@ -41,11 +41,13 @@ class ForgotPassword extends Component
     public function mount()
     {
         $this->seoConfig();
+
     }
 
     public function seoConfig()
     {
-        $this->seo()->setTitle('بازیابی رمز عبور');
+        $this->seo()->setTitle('فراموشی رمز عبور | SDFR');
+        $this->seo()->metatags()->addMeta('robots', 'noindex,follow', 'name');
     }
 
     public function updatedMobile($value)
