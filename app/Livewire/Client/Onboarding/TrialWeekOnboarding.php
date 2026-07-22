@@ -567,8 +567,7 @@ class TrialWeekOnboarding extends Component
         }
 
         return ExamPlanningSetting::query()
-            ->active()
-            ->windowOpen()
+            ->availableForExamOnboarding()
             ->whereIn('grade', [9, 10, 11, 12])
             ->orderBy('grade')
             ->orderBy('field')
@@ -600,8 +599,7 @@ class TrialWeekOnboarding extends Component
         }
 
         return ExamPlanningSetting::query()
-            ->active()
-            ->windowOpen()
+            ->availableForExamOnboarding()
             ->where('grade', $grade)
             ->whereNotNull('field')
             ->orderBy('field')

@@ -112,8 +112,7 @@ class ExamPlanningService
         $field = $grade === 9 ? null : $field;
 
         return ExamPlanningSetting::query()
-            ->active()
-            ->windowOpen(now())
+            ->availableForExamOnboarding(now())
             ->where('grade', $grade)
             ->when(
                 $grade === 9,

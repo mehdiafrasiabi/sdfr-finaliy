@@ -71,6 +71,30 @@ class ExamPlanningSetting extends Model
             ->whereDate('activation_ends_at', '>=', $date);
     }
 
+    public function scopeAvailableForExamOnboarding($query, ?Carbon $date = null)
+    {
+        $date = ($date ?? now())->toDateString();
+
+        return $query
+            ->active()
+            ->where(function ($query) use ($date) {
+                $query
+                    ->where(function ($query) use ($date) {
+                        $query
+                            ->whereDate('activation_starts_at', '<=', $date)
+                            ->whereDate('activation_ends_at', '>=', $date);
+                    })
+                    ->orWhere(function ($query) use ($date) {
+                        $query
+                            ->where('input_mode', self::INPUT_MANAGER)
+                            ->whereNotNull('exam_starts_at')
+                            ->whereNotNull('exam_ends_at')
+                            ->whereDate('exam_starts_at', '<=', $date)
+                            ->whereDate('exam_ends_at', '>=', $date);
+                    });
+            });
+    }
+
     public function getGradeLabelAttribute(): string
     {
         return self::GRADE_LABELS[(int) $this->grade] ?? 'پایه ' . $this->grade;

@@ -145,8 +145,7 @@ class Index extends Component
     public function getExamPlanCopyProperty(): array
     {
         $grades = ExamPlanningSetting::query()
-            ->active()
-            ->windowOpen(now())
+            ->availableForExamOnboarding(now())
             ->select('grade')
             ->distinct()
             ->orderBy('grade')
