@@ -12,6 +12,9 @@ use App\Models\ClassSchedule;
 use App\Models\DailyReport;
 use App\Models\MakeupSession;
 use App\Models\PhoneRegistrationLink;
+use App\Models\PhoneCall;
+use App\Models\PhoneLead;
+use App\Models\PhoneLeadAssignment;
 use App\Models\StudyPartSession;
 use App\Models\TrialWeek;
 use App\Services\AdminNotificationService;
@@ -127,6 +130,23 @@ class StudentActivityObserver
     {
         if ($link->wasChanged('registered_user_id') && $link->registered_user_id) {
             $link->loadMissing('lead');
+
+            if ($link->lead) {
+                $link->lead->forceFill([
+                    'status' => PhoneLead::STATUS_CLOSED,
+                    'last_outcome' => PhoneCall::RESULT_REGISTERED,
+                    'next_call_at' => null,
+                    'disinterest_status' => null,
+                    'disinterest_reason' => null,
+                    'disinterest_at' => null,
+                ])->save();
+
+                PhoneLeadAssignment::where('phone_lead_id', $link->phone_lead_id)
+                    ->where('admin_id', $link->admin_id)
+                    ->where('status', PhoneLeadAssignment::STATUS_ACTIVE)
+                    ->update(['status' => PhoneLeadAssignment::STATUS_DONE]);
+            }
+
             app(AdminNotificationService::class)->notifyPhoneRegistration($link);
         }
     }

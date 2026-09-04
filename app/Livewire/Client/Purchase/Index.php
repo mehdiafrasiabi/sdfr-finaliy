@@ -127,6 +127,11 @@ class Index extends Component
             return $this->redirect(route('client.auth.login'), navigate: true);
         }
 
+        if ($user->student && $user->student->hasActivePaidAccess()) {
+            $this->showTrialConfirmModal = false;
+            return $this->redirect(route('client.profile.dashboard'), navigate: true);
+        }
+
         $existingTrial = TrialWeek::where('user_id', $user->id)->latest()->first();
         if ($existingTrial) {
             $this->showTrialConfirmModal = false;
@@ -208,6 +213,17 @@ class Index extends Component
         if (! $this->gradeRequiresField($value)) {
             $this->infoField = '';
         }
+    }
+
+    public function setInfoBirthDate(string $value): void
+    {
+        $this->infoBirthDate = strtr($value, [
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+            '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+            '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+        ]);
+        $this->resetValidation('infoBirthDate');
     }
 
     public function updatedCouponCode(): void
@@ -845,7 +861,38 @@ class Index extends Component
             'infoCodeMell'     => ['required', 'string', 'max:20', Rule::unique('personal_information', 'code_mell')->ignore($pi->id)],
             'infoGrade'        => ['required', Rule::in(array_keys(self::GRADE_OPTIONS))],
             'infoField'        => $fieldRules,
-            'infoBirthDate'    => ['nullable', 'string', 'max:30'],
+            'infoBirthDate'    => [
+                'nullable',
+                'regex:/^\d{4}\/\d{2}\/\d{2}$/',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if ($value === null || $value === '') {
+                        return;
+                    }
+
+                    if (! is_string($value) || ! preg_match('/^(\d{4})\/(\d{2})\/(\d{2})$/', $value, $parts)) {
+                        return;
+                    }
+
+                    $year = (int) $parts[1];
+                    $currentJalaliYear = (int) Jalalian::now()->format('Y');
+
+                    if ($year < 1380 || $year > $currentJalaliYear) {
+                        $fail('سال تولد باید بین ۱۳۸۰ تا سال جاری باشد.');
+                        return;
+                    }
+
+                    try {
+                        $date = Jalalian::fromFormat('Y/m/d', $value);
+                    } catch (\Throwable) {
+                        $fail('تاریخ تولد انتخاب‌شده معتبر نیست.');
+                        return;
+                    }
+
+                    if ($date->format('Y/m/d') !== $value) {
+                        $fail('تاریخ تولد انتخاب‌شده معتبر نیست.');
+                    }
+                },
+            ],
             'infoFatherMobile' => ['required', 'string', 'max:20'],
             'infoMotherMobile' => ['required', 'string', 'max:20'],
             'infoPlaceOfBirth' => ['required', 'string', 'max:255'],

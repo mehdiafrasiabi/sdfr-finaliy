@@ -1,4 +1,5 @@
-<div>
+<div class="student-ui student-ui-auto-collapse">
+    @include('livewire.admin.student._styles')
     <div class="max-w-7xl space-y-6 px-4 mx-auto">
 
         {{-- نوار بالای صفحه مخصوص مشاور --}}

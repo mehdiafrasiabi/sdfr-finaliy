@@ -4,7 +4,6 @@ namespace App\Livewire\Client\Profile;
 
 use App\Models\ProgramPart;
 use App\Models\StudyPartSession;
-use App\Models\WeeklyProgram;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
@@ -18,10 +17,10 @@ class SubjectDetailModal extends Component
     public ?int $subjectId = null;
 
     #[On('open-subject-detail')]
-    public function openDetail(int $subjectId, string $startDate, string $endDate): void
+    public function openDetail(int $subjectId, string $startDate, string $endDate, ?int $studentId = null): void
     {
         $this->subjectId = $subjectId;
-        $this->loadSubjectData($subjectId, $startDate, $endDate);
+        $this->loadSubjectData($subjectId, $startDate, $endDate, $studentId);
         $this->open = true;
     }
 
@@ -48,9 +47,15 @@ class SubjectDetailModal extends Component
 
         return $hours . ' ساعت و ' . $remainingMinutes . ' دقیقه';
     }
-    private function loadSubjectData(int $subjectId, string $startDate, string $endDate): void
+    private function loadSubjectData(int $subjectId, string $startDate, string $endDate, ?int $studentId = null): void
     {
-        $studentId = Auth::user()->student->id;
+        $studentId = $studentId ?: Auth::user()?->student?->id;
+        if (! $studentId) {
+            $this->subjectData = [];
+            $this->subjectName = '-';
+            return;
+        }
+
         $start = Carbon::parse($startDate)->startOfDay();
         $end   = Carbon::parse($endDate)->endOfDay();
 

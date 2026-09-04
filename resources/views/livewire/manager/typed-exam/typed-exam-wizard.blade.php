@@ -258,8 +258,8 @@
                                                         <span class="badge bg-primary">جامع</span>
                                                     @endif
                                                     <span class="badge bg-info">{{ $questionDifficulties[$question->difficulty] ?? $question->difficulty }}</span>
-                                                    @if($question->correct_option)
-                                                        <span class="badge bg-success">گزینه {{ $question->correct_option }}</span>
+                                                    @if($question->correct_option_number)
+                                                        <span class="badge bg-success">گزینه {{ $question->correct_option_number }}</span>
                                                     @endif
                                                 </div>
                                                 <!-- Question Image Preview -->

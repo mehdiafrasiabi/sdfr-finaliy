@@ -1,4 +1,5 @@
-<div>
+<div class="student-ui student-ui-auto-collapse">
+    @include('livewire.admin.student._styles')
     @push('link')
         <style>
             .student-avatar-shell {
@@ -48,6 +49,10 @@
             </ol>
         </nav>
     </div>
+    <section class="student-page-hero">
+        <div class="student-page-hero__main"><span class="student-page-hero__icon"><i class="fi fi-rr-users-alt"></i></span><div><h3>دانش‌آموزان من</h3><p>مشاهده اطلاعات دانش‌آموز، پایه، رشته و راه‌های ارتباطی در یک نمای منظم.</p></div></div>
+        <span class="badge bg-primary-subtle text-primary">فهرست دانش‌آموزان</span>
+    </section>
     <div class="row">
         <div class="col-lg-12">
             <div class="card overflow-hidden">

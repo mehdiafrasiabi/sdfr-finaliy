@@ -28,6 +28,11 @@ class TrialReport extends Component
 
         $this->trialWeek = TrialWeek::where('user_id', Auth::id())->latest()->first();
 
+        if (Auth::user()?->student && ! Auth::user()->student->is_trial) {
+            redirect()->route('client.profile.dashboard');
+            return;
+        }
+
         // فقط پس از ساخت برنامه قابل مشاهده است.
         if (!$this->trialWeek || $this->trialWeek->status !== TrialWeek::STATUS_PROGRAM_BUILT) {
             redirect()->route('client.profile.trial.guide');

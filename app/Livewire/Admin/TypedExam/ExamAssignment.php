@@ -16,6 +16,7 @@ use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 use Livewire\Component;
 
@@ -402,11 +403,21 @@ class ExamAssignment extends Component
 
     public function deleteAssignment(int $assignmentId): void
     {
-        $assignment = TypedExamAssignment::with(['attempts', 'time'])->find($assignmentId);
+        $assignment = TypedExamAssignment::with(['attempts.analysisUploads', 'time'])
+            ->whereKey($assignmentId)
+            ->where('typed_exam_id', $this->examId)
+            ->where('admin_id', Auth::guard('admin')->id())
+            ->first();
 
         if (!$assignment) {
             return;
         }
+
+        $analysisPaths = $assignment->attempts
+            ->flatMap(fn ($attempt) => $attempt->analysisUploads->pluck('full_path'))
+            ->filter()
+            ->values()
+            ->all();
 
         DB::transaction(function () use ($assignment) {
             // حذف همه attempts مرتبط
@@ -422,6 +433,8 @@ class ExamAssignment extends Component
             // حذف خود اختصاص
             $assignment->delete(); // اگر SoftDeletes روی TypedExamAssignment داری، این soft delete است
         });
+
+        File::delete($analysisPaths);
 
         $this->dispatch('success', 'اختصاص و آزمون‌های مرتبط با موفقیت حذف شد.');
     }

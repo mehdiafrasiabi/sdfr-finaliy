@@ -58,7 +58,7 @@
 
         @if($isAllDone && $showChoice)
             {{-- ─── انتخاب مسیر: هفته آزمایشی یا خرید ─── --}}
-            <div class="rounded-2xl overflow-hidden border border-border glass">
+            <div wire:key="assessment-choice-panel" class="rounded-2xl overflow-hidden border border-border glass">
                 <div class="h-1 bg-primary"></div>
                 <div class="p-6 sm:p-7 space-y-5">
                     <div class="text-center">
@@ -109,7 +109,7 @@
 
         @elseif($isAllDone)
             {{-- ─── کارنامه تحلیلی وضعیت (واکنش‌گرا: یک‌ستونه موبایل، شبکه‌ای دسکتاپ) ─── --}}
-            <div class="rounded-2xl overflow-hidden border border-border glass" x-data="{ showDetails: false }">
+            <div wire:key="assessment-summary-panel" class="rounded-2xl overflow-hidden border border-border glass" x-data="{ showDetails: false }">
                 <div class="h-1 bg-primary"></div>
                 <div class="p-6 sm:p-8">
                     <div class="text-center mb-7">
@@ -263,7 +263,7 @@
 
         @else
             {{-- ─── خوش آمدی / شروع ─── --}}
-            <div class="rounded-2xl overflow-hidden border border-border bg-secondary">
+            <div wire:key="assessment-start-panel" class="rounded-2xl overflow-hidden border border-border bg-secondary">
                 <div class="h-1 bg-primary"></div>
                 <div class="p-6 sm:p-7 space-y-6">
 

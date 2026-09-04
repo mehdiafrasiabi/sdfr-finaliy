@@ -2,18 +2,25 @@
 
 namespace App\Livewire\Admin\TrialAcquisition;
 
-use App\Models\AdvisingPreSession;
+use App\Models\TrialWeek;
 use App\Models\WeeklyProgram;
+use Illuminate\Database\Eloquent\Builder;
 
 class ExamMonitor extends Monitor
 {
+    protected function applyStudentTypeScope(Builder $query): Builder
+    {
+        return $query->whereHas('student.examSchedules');
+    }
+
+    protected function weeklyProgramForTrial(?TrialWeek $trialWeek): ?WeeklyProgram
+    {
+        return $this->currentExamSchedule($trialWeek)?->weeklyProgram;
+    }
+
     public function render()
     {
-        $trials = $this->baseTrialQuery()
-            ->when($this->search, fn ($q) => $q->whereHas('user', fn ($u) => $u
-                ->where('name', 'like', "%{$this->search}%")
-                ->orWhere('mobile', 'like', "%{$this->search}%")
-            ))
+        $trials = $this->applySearch($this->baseTrialQuery())
             ->latest()
             ->limit(30)
             ->get();
@@ -22,24 +29,15 @@ class ExamMonitor extends Monitor
             ? $this->baseTrialQuery()->with(['user.personalInformation', 'student.user.personalInformation', 'advisingSession'])->find($this->selectedTrialId)
             : $trials->first();
 
-        if (! $this->selectedTrialId && $selectedTrial) {
+        if (! $selectedTrial && $trials->isNotEmpty()) {
+            $selectedTrial = $trials->first();
+            $this->selectedTrialId = $selectedTrial->id;
+        } elseif (! $this->selectedTrialId && $selectedTrial) {
             $this->selectedTrialId = $selectedTrial->id;
         }
 
-        $weeklyProgram = $selectedTrial?->student_id
-            ? WeeklyProgram::with(['parts', 'restDays', 'examDays'])
-                ->where('student_id', $selectedTrial->student_id)
-                ->where('is_active', true)
-                ->latest('start_date')
-                ->first()
-            : null;
-
-        $preSessions = $selectedTrial?->student_id
-            ? AdvisingPreSession::where('student_id', $selectedTrial->student_id)
-                ->with(['advisingSession', 'exams'])
-                ->latest()
-                ->get()
-            : collect();
+        $examSchedule = $this->currentExamSchedule($selectedTrial);
+        $weeklyProgram = $examSchedule?->weeklyProgram;
 
         $studentIds = $this->scopedStudentIds()->map(fn ($id) => (int) $id)->toArray();
         $reportDate = $this->getReportDate();
@@ -49,10 +47,14 @@ class ExamMonitor extends Monitor
         return view('livewire.admin.trial-acquisition.exam-monitor', [
             'trials' => $trials,
             'selectedTrial' => $selectedTrial,
+            'examSchedule' => $examSchedule,
             'weeklyProgram' => $weeklyProgram,
             'monitorLocked' => $monitorLocked,
             'examProgramSummary' => $this->examProgramSummary($selectedTrial),
-            'preSessions' => $preSessions,
+            'monitorSummary' => $this->monitorSummary($selectedTrial, $weeklyProgram),
+            'weekDays' => $this->weekDays($weeklyProgram, $selectedTrial?->student_id ? (int) $selectedTrial->student_id : null),
+            'expectedReportRows' => $this->expectedReportRows($selectedTrial, $weeklyProgram),
+            'makeupSessions' => $this->makeupSessionsForMonitor($selectedTrial, $weeklyProgram),
             'missingReports' => $this->missingReports($studentIds),
             'reportDateJalali' => jdate($reportDate)->format('Y/m/d'),
             'reportDateDayName' => ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'][jdate($reportDate)->getDayOfWeek()] ?? '-',

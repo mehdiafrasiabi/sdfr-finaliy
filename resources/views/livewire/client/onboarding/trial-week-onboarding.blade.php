@@ -1,21 +1,93 @@
 <div>
     @push('link')
-        <link rel="stylesheet" href="/client/assets/css/jalalidatepicker.min.css">
-        <script src="/client/assets/js/jalalidatepicker.min.js" defer></script>
         <style>
             [x-cloak] {
                 display: none !important;
             }
 
-            input[data-jdp] {
+            .birth-date-trigger {
                 direction: ltr;
                 text-align: center;
                 letter-spacing: 0.04em;
             }
 
-            .jdp-container {
-                font-family: inherit !important;
-                z-index: 70 !important;
+            .birth-picker-grid {
+                direction: ltr;
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, .8fr);
+                gap: .35rem;
+            }
+
+            .birth-wheel {
+                position: relative;
+                height: 13.75rem;
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                scroll-snap-type: y mandatory;
+                scrollbar-width: none;
+                -webkit-overflow-scrolling: touch;
+                mask-image: linear-gradient(to bottom, transparent, #000 24%, #000 76%, transparent);
+                -webkit-mask-image: linear-gradient(to bottom, transparent, #000 24%, #000 76%, transparent);
+            }
+
+            .birth-wheel-shell {
+                position: relative;
+                min-width: 0;
+            }
+
+            .birth-wheel-shell::after {
+                content: '';
+                position: absolute;
+                z-index: 0;
+                top: 7rem;
+                right: 0;
+                left: 0;
+                height: 2.75rem;
+                border-radius: .8rem;
+                background: hsl(var(--foreground) / .075);
+                border-block: 1px solid hsl(var(--border) / .7);
+                pointer-events: none;
+            }
+
+            .birth-wheel::-webkit-scrollbar {
+                display: none;
+            }
+
+            .birth-wheel-spacer {
+                height: 5.5rem;
+                pointer-events: none;
+            }
+
+            .birth-wheel-item {
+                position: relative;
+                z-index: 1;
+                display: flex;
+                width: 100%;
+                height: 2.75rem;
+                align-items: center;
+                justify-content: center;
+                scroll-snap-align: center;
+                scroll-snap-stop: always;
+                border-radius: .8rem;
+                color: hsl(var(--muted-foreground));
+                font-size: .9rem;
+                transition: color .15s ease, font-size .15s ease, font-weight .15s ease;
+            }
+
+            .birth-wheel-item.is-selected {
+                color: hsl(var(--primary));
+                font-size: 1.05rem;
+                font-weight: 800;
+            }
+
+            .birth-picker-modal {
+                box-shadow: 0 28px 80px -24px rgba(0, 0, 0, .55);
+            }
+
+            @media (min-width: 640px) {
+                .birth-picker-modal {
+                    width: min(30rem, calc(100vw - 2rem));
+                }
             }
 
             /* ============ (B1) جنسیت + آواتار ============ */
@@ -660,6 +732,10 @@
         $fieldLabels = ['math'=>'ریاضی','experimental'=>'تجربی','human'=>'انسانی'];
         $gradeOptions = $gradeOptions ?? [];
         $fieldOptions = $fieldOptions ?? [];
+        $currentJalaliDate = \Morilog\Jalali\Jalalian::now();
+        $currentJalaliYear = (int) $currentJalaliDate->format('Y');
+        $currentJalaliMonth = (int) $currentJalaliDate->format('m');
+        $currentJalaliDay = (int) $currentJalaliDate->format('d');
         if (! $examPlanMode && empty($gradeOptions)) {
             foreach ($gradeLabels as $v => $l) { $gradeOptions[] = ['id' => (string) $v, 'name' => $l]; }
         }
@@ -760,6 +836,110 @@
             </div>
         </div>
 
+        {{-- انتخابگر چرخشی تاریخ تولد؛ در موبایل bottom-sheet و در دسکتاپ modal است. --}}
+        <div x-show="birthPickerOpen" x-cloak
+             @keydown.escape.window="closeBirthDatePicker()"
+             x-transition:enter="transition-opacity ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-in duration-250"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-[80] flex items-end justify-center sm:items-center sm:p-4"
+             role="dialog" aria-modal="true" aria-labelledby="birth-picker-title">
+            <div x-show="birthPickerOpen"
+                 x-transition.opacity.duration.200ms
+                 class="absolute inset-0 bg-black/65 backdrop-blur-sm"
+                 @click="closeBirthDatePicker()"></div>
+
+            <div x-show="birthPickerOpen"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-4 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-250"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-4 sm:scale-95"
+                 class="birth-picker-modal relative w-full rounded-t-[2rem] border border-border bg-background px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:max-w-md sm:rounded-3xl sm:p-6">
+                <div class="mx-auto mb-4 h-1.5 w-14 rounded-full bg-foreground/10 sm:hidden"></div>
+
+                <div class="flex items-center justify-between gap-4 px-1">
+                    <div>
+                        <h3 id="birth-picker-title" class="font-black text-lg">انتخاب تاریخ تولد</h3>
+                        <p class="mt-1 text-[11px] text-muted">برای انتخاب، هر ستون را بالا یا پایین بکشید.</p>
+                    </div>
+                    <button type="button" @click="closeBirthDatePicker()"
+                            aria-label="بستن انتخابگر تاریخ"
+                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-muted transition-colors hover:text-foreground">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round">
+                            <path d="M18 6 6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="birth-picker-grid mt-5" aria-label="سال، ماه و روز تولد">
+                    <div class="birth-wheel-shell">
+                        <div class="mb-2 text-center text-[11px] font-bold text-muted" dir="rtl">سال</div>
+                        <div x-ref="birthYearWheel" class="birth-wheel"
+                             @scroll.passive.debounce.100ms="syncBirthWheel('year', $event)">
+                            <div class="birth-wheel-spacer"></div>
+                            <template x-for="year in birthYears" :key="year">
+                                <button type="button" class="birth-wheel-item"
+                                        :class="{ 'is-selected': pickerYear === year }"
+                                        :aria-selected="pickerYear === year"
+                                        @click="selectBirthPart('year', year)"
+                                        x-text="toPersianDigits(year)"></button>
+                            </template>
+                            <div class="birth-wheel-spacer"></div>
+                        </div>
+                    </div>
+
+                    <div class="birth-wheel-shell">
+                        <div class="mb-2 text-center text-[11px] font-bold text-muted" dir="rtl">ماه</div>
+                        <div x-ref="birthMonthWheel" class="birth-wheel"
+                             @scroll.passive.debounce.100ms="syncBirthWheel('month', $event)">
+                            <div class="birth-wheel-spacer"></div>
+                            <template x-for="month in birthMonths" :key="month.value">
+                                <button type="button" class="birth-wheel-item" dir="rtl"
+                                        :class="{ 'is-selected': pickerMonth === month.value }"
+                                        :aria-selected="pickerMonth === month.value"
+                                        @click="selectBirthPart('month', month.value)"
+                                        x-text="month.label"></button>
+                            </template>
+                            <div class="birth-wheel-spacer"></div>
+                        </div>
+                    </div>
+
+                    <div class="birth-wheel-shell">
+                        <div class="mb-2 text-center text-[11px] font-bold text-muted" dir="rtl">روز</div>
+                        <div x-ref="birthDayWheel" class="birth-wheel"
+                             @scroll.passive.debounce.100ms="syncBirthWheel('day', $event)">
+                            <div class="birth-wheel-spacer"></div>
+                            <template x-for="day in birthDays" :key="day">
+                                <button type="button" class="birth-wheel-item"
+                                        :class="{ 'is-selected': pickerDay === day }"
+                                        :aria-selected="pickerDay === day"
+                                        @click="selectBirthPart('day', day)"
+                                        x-text="toPersianDigits(String(day).padStart(2, '0'))"></button>
+                            </template>
+                            <div class="birth-wheel-spacer"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5 grid grid-cols-2 gap-3">
+                    <button type="button" @click="closeBirthDatePicker()"
+                            class="h-11 rounded-xl border border-border bg-secondary/40 text-sm font-bold text-muted transition-colors hover:text-foreground">
+                        انصراف
+                    </button>
+                    <button type="button" @click="confirmBirthDate()"
+                            class="btn-press h-11 rounded-xl text-sm font-black">
+                        تأیید تاریخ
+                    </button>
+                </div>
+            </div>
+        </div>
+
         {{-- ═══════════════ 📱 MOBILE ═══════════════ --}}
         <div class="md:hidden relative z-10 min-h-[100dvh] flex flex-col">
 
@@ -846,11 +1026,13 @@
                                             <div class="relative">
                                                 <label class="block text-xs font-semibold mb-1.5 text-muted">تاریخ
                                                     تولد</label>
-                                                <input wire:model.blur="birthDate" type="text" re data-jdp
-                                                       data-jdp-max-date="today" placeholder="۱۳۸۰/۰۱/۰۱" dir="ltr"
-                                                       inputmode="none"
-                                                       autocomplete="off"
-                                                       class="glass-input w-full rounded-xl px-4 py-2.5 text-sm cursor-pointer @error('birthDate') border-rose-500/60 shake @enderror">
+                                                <input type="text" readonly :value="birthDate"
+                                                       @click="openBirthDatePicker()"
+                                                       @keydown.enter.prevent="openBirthDatePicker()"
+                                                       @keydown.space.prevent="openBirthDatePicker()"
+                                                       placeholder="انتخاب تاریخ" dir="ltr" inputmode="none"
+                                                       autocomplete="off" aria-haspopup="dialog"
+                                                       class="birth-date-trigger glass-input w-full rounded-xl px-4 py-2.5 text-sm cursor-pointer @error('birthDate') border-rose-500/60 shake @enderror">
                                                 @error('birthDate')
                                                 <div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                             </div>
@@ -909,12 +1091,16 @@
                                                     class="block text-xs font-semibold mb-1.5 text-muted">پایه</label>
                                                 <x-ui.select wire:model.live="grade" :options="$gradeOptions"
                                                              placeholder="انتخاب پایه"/>
+                                                @error('grade')
+                                                <div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                             </div>
                                             @if($grade !== '9')
                                                 <div class="relative" wire:key="field-m-{{ $grade }}">
                                                     <label class="block text-xs font-semibold mb-1.5 text-muted">رشته</label>
                                                     <x-ui.select wire:model="field" :options="$fieldOptions"
                                                                  placeholder="انتخاب رشته"/>
+                                                    @error('field')
+                                                    <div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                                 </div>
                                             @endif
                                         </div>
@@ -937,15 +1123,17 @@
                                                 <label class="block text-xs font-semibold mb-1.5 text-muted">در حال حاضر
                                                     مدرسه می‌روی؟</label>
                                                 <div class="grid grid-cols-2 gap-3">
-                                                    <button type="button" wire:click="$set('attendsSchool', true)"
-                                                            class="rounded-xl px-4 py-3 text-sm font-bold border transition-colors {{ $attendsSchool ? 'bg-primary/10 border-primary text-primary' : 'glass-input border-border text-muted' }}">
+                                                    <button type="button" wire:click="setAttendsSchool(true)"
+                                                            class="rounded-xl px-4 py-3 text-sm font-bold border transition-colors {{ $attendsSchool === true ? 'bg-primary/10 border-primary text-primary' : 'glass-input border-border text-muted' }}">
                                                         بله، می‌رم
                                                     </button>
-                                                    <button type="button" wire:click="$set('attendsSchool', false)"
-                                                            class="rounded-xl px-4 py-3 text-sm font-bold border transition-colors {{ !$attendsSchool ? 'bg-primary/10 border-primary text-primary' : 'glass-input border-border text-muted' }}">
+                                                    <button type="button" wire:click="setAttendsSchool(false)"
+                                                            class="rounded-xl px-4 py-3 text-sm font-bold border transition-colors {{ $attendsSchool === false ? 'bg-primary/10 border-primary text-primary' : 'glass-input border-border text-muted' }}">
                                                         نه، نمی‌رم
                                                     </button>
                                                 </div>
+                                                @error('attendsSchool')
+                                                <div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                             </div>
                                         @endif
                                         <button type="submit" class="hidden" tabindex="-1">submit</button>
@@ -1401,10 +1589,13 @@
                                         <div class="relative">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">تاریخ
                                                 تولد</label>
-                                            <input wire:model.blur="birthDate" type="text" data-jdp
-                                                   data-jdp-max-date="today" placeholder="۱۳۸۰/۰۱/۰۱" dir="ltr"
-                                                   inputmode="none" autocomplete="off"
-                                                   class="glass-input w-full rounded-xl px-4 py-2.5 text-sm cursor-pointer @error('birthDate') border-rose-500/60 shake @enderror">
+                                            <input type="text" readonly :value="birthDate"
+                                                   @click="openBirthDatePicker()"
+                                                   @keydown.enter.prevent="openBirthDatePicker()"
+                                                   @keydown.space.prevent="openBirthDatePicker()"
+                                                   placeholder="انتخاب تاریخ" dir="ltr" inputmode="none"
+                                                   autocomplete="off" aria-haspopup="dialog"
+                                                   class="birth-date-trigger glass-input w-full rounded-xl px-4 py-2.5 text-sm cursor-pointer @error('birthDate') border-rose-500/60 shake @enderror">
                                             @error('birthDate')
                                             <div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
@@ -1442,6 +1633,8 @@
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">پایه</label>
                                             <x-ui.select wire:model.live="grade" :options="$gradeOptions"
                                                          placeholder="انتخاب پایه"/>
+                                            @error('grade')
+                                            <div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
                                         @if($grade !== '9')
                                             <div class="relative" wire:key="field-d-{{ $grade }}">
@@ -1449,6 +1642,8 @@
                                                     class="block text-xs font-semibold mb-1.5 text-muted">رشته</label>
                                                 <x-ui.select wire:model="field" :options="$fieldOptions"
                                                              placeholder="انتخاب رشته"/>
+                                                @error('field')
+                                                <div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                             </div>
                                         @endif
 
@@ -1470,15 +1665,17 @@
                                                 <label class="block text-xs font-semibold mb-1.5 text-muted">در حال حاضر
                                                     مدرسه می‌روی؟</label>
                                                 <div class="grid grid-cols-2 gap-3">
-                                                    <button type="button" wire:click="$set('attendsSchool', true)"
-                                                            class="rounded-xl px-4 py-2.5 text-sm font-bold border transition-colors {{ $attendsSchool ? 'bg-primary/10 border-primary text-primary' : 'glass-input border-border text-muted' }}">
+                                                    <button type="button" wire:click="setAttendsSchool(true)"
+                                                            class="rounded-xl px-4 py-2.5 text-sm font-bold border transition-colors {{ $attendsSchool === true ? 'bg-primary/10 border-primary text-primary' : 'glass-input border-border text-muted' }}">
                                                         بله، می‌رم
                                                     </button>
-                                                    <button type="button" wire:click="$set('attendsSchool', false)"
-                                                            class="rounded-xl px-4 py-2.5 text-sm font-bold border transition-colors {{ !$attendsSchool ? 'bg-primary/10 border-primary text-primary' : 'glass-input border-border text-muted' }}">
+                                                    <button type="button" wire:click="setAttendsSchool(false)"
+                                                            class="rounded-xl px-4 py-2.5 text-sm font-bold border transition-colors {{ $attendsSchool === false ? 'bg-primary/10 border-primary text-primary' : 'glass-input border-border text-muted' }}">
                                                         نه، نمی‌رم
                                                     </button>
                                                 </div>
+                                                @error('attendsSchool')
+                                                <div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                             </div>
                                         @endif
                                     </div>
@@ -1689,15 +1886,52 @@
                     tourShown: false,
                     livewireHookHandle: null,
                     boundNavigated: null,
+                    birthPickerOpen: false,
+                    birthPickerTrigger: null,
+                    previousBodyOverflow: '',
+                    birthDate: @entangle('birthDate'),
+                    currentJalaliYear: {{ $currentJalaliYear }},
+                    defaultBirthYear: 1385,
+                    defaultBirthMonth: {{ $currentJalaliMonth }},
+                    defaultBirthDay: {{ $currentJalaliDay }},
+                    pickerYear: 1385,
+                    pickerMonth: {{ $currentJalaliMonth }},
+                    pickerDay: {{ $currentJalaliDay }},
+                    birthMonths: [
+                        {value: 1, label: 'فروردین'},
+                        {value: 2, label: 'اردیبهشت'},
+                        {value: 3, label: 'خرداد'},
+                        {value: 4, label: 'تیر'},
+                        {value: 5, label: 'مرداد'},
+                        {value: 6, label: 'شهریور'},
+                        {value: 7, label: 'مهر'},
+                        {value: 8, label: 'آبان'},
+                        {value: 9, label: 'آذر'},
+                        {value: 10, label: 'دی'},
+                        {value: 11, label: 'بهمن'},
+                        {value: 12, label: 'اسفند'},
+                    ],
 
                     // 🟢 این دو خط را برای اتصال آنی لایو‌وایر و آلپاین اضافه کن:
                     gender: @entangle('gender'),
                     avatar: @entangle('avatar'),
 
+                    get birthYears() {
+                        return Array.from(
+                            {length: Math.max(1, this.currentJalaliYear - 1380 + 1)},
+                            (_, index) => 1380 + index
+                        );
+                    },
+
+                    get birthDays() {
+                        return Array.from(
+                            {length: this.daysInJalaliMonth(this.pickerYear, this.pickerMonth)},
+                            (_, index) => index + 1
+                        );
+                    },
+
                     init() {
                         this.busy = false;
-
-                        this.initDatePicker();
 
                         this.startCountdownIfNeeded();
 
@@ -1739,28 +1973,168 @@
                         if (this.countdownTimer) clearInterval(this.countdownTimer);
                         if (this.busyWatchdog) clearTimeout(this.busyWatchdog);
                         if (this.boundNavigated) document.removeEventListener('livewire:navigated', this.boundNavigated);
+                        this.unlockBirthPickerBody();
                     },
 
-                    initDatePicker() {
-                        const start = () => {
-                            if (typeof jalaliDatepicker !== 'undefined') {
-                                try {
-                                    jalaliDatepicker.startWatch({
-                                        persianDigits: true,
-                                        showTodayBtn: false,
-                                        showEmptyBtn: true,
-                                        time: false,
-                                        autoHide: true,
-                                        zIndex: 100,
-                                    });
-                                } catch (e) {
-                                    console.warn('[jdp] init failed', e);
-                                }
-                            } else {
-                                setTimeout(start, 200);
+                    normalizeDigits(value) {
+                        return String(value ?? '')
+                            .replace(/[۰-۹]/g, digit => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(digit)))
+                            .replace(/[٠-٩]/g, digit => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)));
+                    },
+
+                    toPersianDigits(value) {
+                        return String(value).replace(/\d/g, digit => '۰۱۲۳۴۵۶۷۸۹'[Number(digit)]);
+                    },
+
+                    openBirthDatePicker() {
+                        const normalized = this.normalizeDigits(this.birthDate);
+                        const match = normalized.match(/^(\d{4})\/(\d{2})\/(\d{2})$/);
+                        let hasValidSelectedDate = false;
+
+                        if (match) {
+                            const year = Number(match[1]);
+                            const month = Number(match[2]);
+                            const day = Number(match[3]);
+
+                            if (year >= 1380 && year <= this.currentJalaliYear && month >= 1 && month <= 12) {
+                                this.pickerYear = year;
+                                this.pickerMonth = month;
+                                this.pickerDay = Math.min(
+                                    Math.max(day, 1),
+                                    this.daysInJalaliMonth(year, month)
+                                );
+                                hasValidSelectedDate = true;
                             }
+                        }
+
+                        if (!hasValidSelectedDate) {
+                            this.pickerYear = this.defaultBirthYear;
+                            this.pickerMonth = this.defaultBirthMonth;
+                            this.pickerDay = Math.min(
+                                this.defaultBirthDay,
+                                this.daysInJalaliMonth(this.defaultBirthYear, this.defaultBirthMonth)
+                            );
+                        }
+
+                        this.birthPickerTrigger = document.activeElement;
+                        this.previousBodyOverflow = document.body.style.overflow;
+                        document.body.style.overflow = 'hidden';
+                        this.birthPickerOpen = true;
+                        this.$nextTick(() => requestAnimationFrame(() => this.scrollBirthWheels('auto')));
+                    },
+
+                    closeBirthDatePicker() {
+                        if (!this.birthPickerOpen) return;
+                        this.birthPickerOpen = false;
+                        this.unlockBirthPickerBody();
+                        setTimeout(() => this.birthPickerTrigger?.focus(), 260);
+                    },
+
+                    unlockBirthPickerBody() {
+                        document.body.style.overflow = this.previousBodyOverflow;
+                    },
+
+                    confirmBirthDate() {
+                        const maxDay = this.daysInJalaliMonth(this.pickerYear, this.pickerMonth);
+                        this.pickerDay = Math.min(this.pickerDay, maxDay);
+                        const formatted = [this.pickerYear, this.pickerMonth, this.pickerDay]
+                            .map((part, index) => index === 0 ? String(part) : String(part).padStart(2, '0'))
+                            .join('/');
+
+                        this.birthDate = formatted;
+                        this.$wire.setBirthDate(formatted);
+                        this.closeBirthDatePicker();
+                    },
+
+                    selectBirthPart(part, value) {
+                        this.applyBirthPart(part, Number(value));
+                        this.$nextTick(() => {
+                            this.scrollBirthWheel(part, 'smooth');
+                            if (part !== 'day') this.scrollBirthWheel('day', 'smooth');
+                        });
+                    },
+
+                    syncBirthWheel(part, event) {
+                        const values = this.birthPartValues(part);
+                        if (!values.length) return;
+
+                        const index = Math.max(0, Math.min(values.length - 1, Math.round(event.target.scrollTop / 44)));
+                        this.applyBirthPart(part, values[index]);
+                    },
+
+                    applyBirthPart(part, value) {
+                        if (part === 'year') this.pickerYear = value;
+                        if (part === 'month') this.pickerMonth = value;
+                        if (part === 'day') this.pickerDay = value;
+
+                        const maxDay = this.daysInJalaliMonth(this.pickerYear, this.pickerMonth);
+                        if (this.pickerDay > maxDay) {
+                            this.pickerDay = maxDay;
+                            this.$nextTick(() => this.scrollBirthWheel('day', 'smooth'));
+                        }
+                    },
+
+                    birthPartValues(part) {
+                        if (part === 'year') return this.birthYears;
+                        if (part === 'month') return this.birthMonths.map(month => month.value);
+                        return this.birthDays;
+                    },
+
+                    scrollBirthWheels(behavior = 'auto') {
+                        this.scrollBirthWheel('year', behavior);
+                        this.scrollBirthWheel('month', behavior);
+                        this.scrollBirthWheel('day', behavior);
+                    },
+
+                    scrollBirthWheel(part, behavior = 'auto') {
+                        const refNames = {
+                            year: 'birthYearWheel',
+                            month: 'birthMonthWheel',
+                            day: 'birthDayWheel',
                         };
-                        start();
+                        const selected = {
+                            year: this.pickerYear,
+                            month: this.pickerMonth,
+                            day: this.pickerDay,
+                        };
+                        const wheel = this.$refs[refNames[part]];
+                        const index = this.birthPartValues(part).indexOf(selected[part]);
+
+                        if (wheel && index >= 0) {
+                            wheel.scrollTo({top: index * 44, behavior});
+                        }
+                    },
+
+                    daysInJalaliMonth(year, month) {
+                        if (month <= 6) return 31;
+                        if (month <= 11) return 30;
+                        return this.isJalaliLeapYear(year) ? 30 : 29;
+                    },
+
+                    isJalaliLeapYear(year) {
+                        // الگوریتم رسمی jalaali-js با نقاط شکست تقویم؛ برای سال‌های آینده نیز معتبر است.
+                        const breaks = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181,
+                            1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
+                        let previous = breaks[0];
+                        let jump = 0;
+
+                        if (year < previous || year >= breaks[breaks.length - 1]) return false;
+
+                        for (let index = 1; index < breaks.length; index += 1) {
+                            const current = breaks[index];
+                            jump = current - previous;
+                            if (year < current) break;
+                            previous = current;
+                        }
+
+                        let offset = year - previous;
+                        if (jump - offset < 6) {
+                            offset = offset - jump + Math.trunc((jump + 4) / 33) * 33;
+                        }
+
+                        let leap = ((offset + 1) % 33 - 1) % 4;
+                        if (leap === -1) leap = 4;
+                        return leap === 0;
                     },
 
                     clearBusy() {

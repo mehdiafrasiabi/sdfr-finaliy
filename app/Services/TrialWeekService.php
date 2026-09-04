@@ -33,6 +33,9 @@ class TrialWeekService
                 session()->forget('referrer_admin_id');
             }
 
+            $acquisitionSupporter = $this->preferredAcquisitionConsultant($user)
+                ?: $this->leastBusyAcquisitionConsultant();
+
             return TrialWeek::create([
                 'user_id'        => $user->id,
                 'student_id'     => $student->id,
@@ -42,6 +45,7 @@ class TrialWeekService
                 'father_mobile'  => $fatherMobile,
                 'mother_mobile'  => $motherMobile,
                 'status'         => TrialWeek::STATUS_PENDING,
+                'acquisition_supporter_id' => $acquisitionSupporter?->id,
                 // شمارش ۸ روز فقط بعد از «ساخت برنامه» شروع می‌شود (buildProgram).
                 'expires_at'     => null,
             ]);
@@ -68,11 +72,9 @@ class TrialWeekService
             return $trialWeek->acquisitionSupporter;
         }
 
-        $consultant = Admin::role('site acquisition')
-            ->withCount('acquisitionTrialWeeks')
-            ->orderBy('acquisition_trial_weeks_count')
-            ->orderBy('id')
-            ->first();
+        $consultant = $this->existingAcquisitionConsultant($trialWeek)
+            ?: $this->preferredAcquisitionConsultant($trialWeek->user)
+            ?: $this->leastBusyAcquisitionConsultant();
 
         DB::transaction(function () use ($trialWeek, $consultant) {
             $session = AdvisingSession::create([
@@ -101,6 +103,46 @@ class TrialWeekService
         });
 
         return $consultant;
+    }
+
+    protected function existingAcquisitionConsultant(TrialWeek $trialWeek): ?Admin
+    {
+        if (! $trialWeek->acquisition_supporter_id) {
+            return null;
+        }
+
+        return $this->acquisitionConsultantQuery()
+            ->whereKey($trialWeek->acquisition_supporter_id)
+            ->first();
+    }
+
+    protected function preferredAcquisitionConsultant(?User $user): ?Admin
+    {
+        if (! $user?->referrer_admin_id) {
+            return null;
+        }
+
+        return $this->acquisitionConsultantQuery()
+            ->whereKey($user->referrer_admin_id)
+            ->first();
+    }
+
+    protected function leastBusyAcquisitionConsultant(): ?Admin
+    {
+        return $this->acquisitionConsultantQuery()
+            ->withCount('acquisitionTrialWeeks')
+            ->orderBy('acquisition_trial_weeks_count')
+            ->orderBy('id')
+            ->first();
+    }
+
+    protected function acquisitionConsultantQuery()
+    {
+        return Admin::query()
+            ->whereHas('roles', function ($query) {
+                $query->where('guard_name', 'admin')
+                    ->whereIn('name', ['site acquisition', 'مشاور جذب تلفنی']);
+            });
     }
 
     // تخصیص «پشتیبان جذب» توسط مدیر آموزشی + ایجاد جلسهٔ آزمایشی
@@ -223,7 +265,9 @@ class TrialWeekService
         }
 
         $start = Carbon::parse($program->start_date)->startOfDay();
-        $end   = $start->copy()->addDays(self::TRIAL_PROGRAM_DAYS - 1)->endOfDay();
+        $end   = $program->end_date
+            ? Carbon::parse($program->end_date)->endOfDay()
+            : $start->copy()->addDays(self::TRIAL_PROGRAM_DAYS - 1)->endOfDay();
 
         $jStart = jdate($start);
 

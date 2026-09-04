@@ -44,7 +44,9 @@ class TypedExamResult extends Component
             'assignment.typedExam.questions.subject',
             'assignment.time',
             'answers',
-            'studentOrders',
+            'studentOrders.question.content',
+            'studentOrders.question.options',
+            'studentOrders.question.subject',
             'analysisUploads',
         ])
             ->where('id', $attemptId)
@@ -88,7 +90,9 @@ class TypedExamResult extends Component
                 'assignment.typedExam.questions.subject',
                 'assignment.time',
                 'answers',
-                'studentOrders',
+                'studentOrders.question.content',
+                'studentOrders.question.options',
+                'studentOrders.question.subject',
                 'analysisUploads',
             ]);
         }
@@ -235,52 +239,55 @@ class TypedExamResult extends Component
         if ($orders->isEmpty()) {
             return $exam->questions->values()->map(function ($question) use ($answers) {
                 $answer = $answers->get($question->id);
-                $correctOption = $question->options->firstWhere('is_correct', true);
-                $correctOptionNumber = $correctOption?->option_number ?? $question->correct_option;
-                $selectedOptionNumber = $answer?->selected_option;
-                $selectedOption = $question->options->firstWhere('option_number', $selectedOptionNumber);
-                $resolvedIsCorrect = $selectedOptionNumber === null
-                    ? null
-                    : (int) $correctOptionNumber === (int) $selectedOptionNumber;
-
-                return [
-                    'question' => $question,
-                    'ordered_options' => $question->options->sortBy('option_number')->values(),
-                    'selected_option' => $selectedOptionNumber,
-                    'is_correct' => $resolvedIsCorrect,
-                    'correct_option_number' => $correctOptionNumber,
-                    'correct_option' => $correctOption,
-                    'selected_option_obj' => $selectedOption,
-                ];
+                return $this->formatQuestionAnswer($question, $answer, [1, 2, 3, 4]);
             });
         }
 
-        return $orders->map(function ($order) use ($answers, $exam) {
-            $question = $exam->questions->firstWhere('id', $order->question_id);
+        return $orders->map(function ($order) use ($answers) {
+            $question = $order->question;
 
             if (!$question) {
                 return null;
             }
 
             $answer = $answers->get($question->id);
-            $correctOption = $question->options->firstWhere('is_correct', true);
-            $correctOptionNumber = $correctOption?->option_number ?? $question->correct_option;
-            $selectedOptionNumber = $answer?->selected_option;
-            $selectedOption = $question->options->firstWhere('option_number', $selectedOptionNumber);
-            $resolvedIsCorrect = $selectedOptionNumber === null
-                ? null
-                : (int) $correctOptionNumber === (int) $selectedOptionNumber;
-
-            return [
-                'question' => $question,
-                'ordered_options' => $order->getOrderedOptions(),
-                'selected_option' => $selectedOptionNumber,
-                'is_correct' => $resolvedIsCorrect,
-                'correct_option_number' => $correctOptionNumber,
-                'correct_option' => $correctOption,
-                'selected_option_obj' => $selectedOption,
-            ];
+            return $this->formatQuestionAnswer(
+                $question,
+                $answer,
+                array_map('intval', $order->options_order ?: [1, 2, 3, 4])
+            );
         })->filter()->values();
+    }
+
+    protected function formatQuestionAnswer($question, $answer, array $optionsOrder): array
+    {
+        $selectedOptionNumber = $answer?->selected_option;
+        $correctOptionNumber = $answer?->correctOptionNumber() ?? $question->correct_option_number;
+        $selectedPosition = $selectedOptionNumber === null
+            ? null
+            : array_search((int) $selectedOptionNumber, $optionsOrder, true);
+        $correctPosition = $correctOptionNumber === null
+            ? null
+            : array_search((int) $correctOptionNumber, $optionsOrder, true);
+        $options = $question->options->keyBy('option_number');
+        $orderedOptions = collect($optionsOrder)
+            ->map(fn ($number) => $options->get($number))
+            ->filter()
+            ->values();
+
+        return [
+            'question' => $question,
+            'ordered_options' => $orderedOptions,
+            'selected_option' => $selectedOptionNumber,
+            'selected_position' => is_int($selectedPosition) ? $selectedPosition + 1 : null,
+            'is_correct' => $selectedOptionNumber === null
+                ? null
+                : (int) $correctOptionNumber === (int) $selectedOptionNumber,
+            'correct_option_number' => $correctOptionNumber,
+            'correct_position' => is_int($correctPosition) ? $correctPosition + 1 : null,
+            'correct_option' => $options->get($correctOptionNumber),
+            'selected_option_obj' => $options->get($selectedOptionNumber),
+        ];
     }
 
     protected function getSystemAnalysis(array $stats): string

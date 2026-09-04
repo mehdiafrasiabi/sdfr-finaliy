@@ -97,7 +97,17 @@ class Question extends Model
 
     {
 
-        return $this->correct_option;
+        $correctOption = (int) $this->correct_option;
+
+        if ($correctOption >= 1 && $correctOption <= 4) {
+            return $correctOption;
+        }
+
+        $option = $this->relationLoaded('options')
+            ? $this->options->firstWhere('is_correct', true)
+            : $this->options()->where('is_correct', true)->first();
+
+        return $option ? (int) $option->option_number : null;
 
     }
 

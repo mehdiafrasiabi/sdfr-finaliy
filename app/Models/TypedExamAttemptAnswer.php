@@ -16,6 +16,10 @@ class TypedExamAttemptAnswer extends Model
 
     protected $casts = [
 
+        'selected_option' => 'integer',
+
+        'correct_option' => 'integer',
+
         'is_correct' => 'boolean',
 
         'answered_at' => 'datetime',
@@ -50,7 +54,7 @@ class TypedExamAttemptAnswer extends Model
 
     {
 
-        return $this->belongsTo(Question::class);
+        return $this->belongsTo(Question::class)->withTrashed();
 
     }
 
@@ -92,11 +96,7 @@ class TypedExamAttemptAnswer extends Model
 
 
 
-        $correctOption = $this->question->options()
-            ->where('is_correct', true)
-            ->first();
-
-        $correctOptionNumber = $correctOption?->option_number ?? $this->question?->correct_option;
+        $correctOptionNumber = $this->correctOptionNumber();
 
 
 
@@ -108,5 +108,20 @@ class TypedExamAttemptAnswer extends Model
 
         ]);
 
+    }
+
+    /**
+     * The answer key is snapshotted when the attempt starts. This keeps a
+     * finished attempt stable even if the question is edited afterwards.
+     */
+    public function correctOptionNumber(): ?int
+    {
+        $snapshot = (int) $this->correct_option;
+
+        if ($snapshot >= 1 && $snapshot <= 4) {
+            return $snapshot;
+        }
+
+        return $this->question?->correct_option_number;
     }
 }

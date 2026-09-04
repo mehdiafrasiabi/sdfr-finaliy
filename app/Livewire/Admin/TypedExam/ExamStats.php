@@ -152,8 +152,8 @@ class ExamStats extends Component
             foreach ($questionAnswers as $answer) {
                 if ($answer->selected_option === null) {
                     $optionCounts['unanswered']++;
-                } else {
-                    $optionCounts[$answer->selected_option]++;
+                } elseif (isset($optionCounts[(int) $answer->selected_option])) {
+                    $optionCounts[(int) $answer->selected_option]++;
                 }
             }
 
@@ -165,7 +165,7 @@ class ExamStats extends Component
                 'subject' => $question->subject?->name,
                 'body' => $question->content?->body,
                 'question_image_url' => $question->content?->question_image_url,
-                'correct_option' => $question->correct_option ?? $question->options->firstWhere('is_correct', true)?->option_number,
+                'correct_option' => $question->correct_option_number,
                 'options' => $question->options->map(function ($opt) {
                     return [
                         'number' => $opt->option_number,

@@ -8,7 +8,7 @@ use Spatie\Permission\Models\Role;
 
 /**
  * نقش «مشاور جذب تلفنی» و دسترسی‌های مربوطه.
- * مجزا از «پشتیبان جذب» (جذب سایت) است، اما یک ادمین می‌تواند هر دو نقش را هم‌زمان داشته باشد.
+ * این نقش بعد از ارسال لینک ثبت‌نام، همان مشاور جذب دانش‌آموز هم محسوب می‌شود.
  */
 class PhoneAcquisitionRoleSeeder extends Seeder
 {
@@ -17,6 +17,10 @@ class PhoneAcquisitionRoleSeeder extends Seeder
         $permissions = [
             'phone-acquisition.consult', // پنل مشاور جذب تلفنی (ثبت تماس، صف، رسید)
             'phone-acquisition.manage',  // پنل مدیر آموزشی برای جذب تلفنی
+            'acquisition.dashboard',
+            'acquisition.contacts',
+            'acquisition.student',
+            'acquisition.monitor',
         ];
 
         foreach ($permissions as $perm) {
@@ -28,7 +32,13 @@ class PhoneAcquisitionRoleSeeder extends Seeder
             'guard_name' => 'admin',
         ]);
 
-        $role->givePermissionTo('phone-acquisition.consult');
+        $role->givePermissionTo([
+            'phone-acquisition.consult',
+            'acquisition.dashboard',
+            'acquisition.contacts',
+            'acquisition.student',
+            'acquisition.monitor',
+        ]);
 
         $sampleAdmin = \App\Models\Admin::query()
             ->where('email', 'phoneacquisition@gmail.com')

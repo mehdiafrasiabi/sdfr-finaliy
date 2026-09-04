@@ -39,6 +39,8 @@ class Acquisition extends Component
         return PhoneLead::query()
             ->where('status', PhoneLead::STATUS_ACTIVE)
             ->where('last_outcome', PhoneCall::RESULT_FOLLOW_UP)
+            // مخاطبی که وارد چرخه ثبت‌نام شده، دیگر نباید به صف پیگیری جذب برگردد.
+            ->whereDoesntHave('registrationLinks')
             ->whereHas('assignments', fn ($q) => $q
                 ->where('admin_id', $adminId)
                 ->where('status', PhoneLeadAssignment::STATUS_ACTIVE)
@@ -52,7 +54,7 @@ class Acquisition extends Component
             ->with([
                 'state:id,name',
                 'city:id,name',
-                'calls' => fn ($q) => $q->where('result', PhoneCall::RESULT_FOLLOW_UP)->latest('called_at'),
+                'calls' => fn ($q) => $q->where('result', PhoneCall::RESULT_FOLLOW_UP)->reorder()->latest('called_at'),
             ])
             ->when($this->dueOnly, fn ($q) => $q->where('next_call_at', '<=', now()))
             ->when($this->search, fn ($q) => $q->where(function ($s) {

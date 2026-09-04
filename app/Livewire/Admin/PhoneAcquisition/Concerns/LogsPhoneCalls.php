@@ -7,11 +7,10 @@ use App\Models\PhoneLead;
 use App\Models\PhoneLeadAssignment;
 use App\Models\PhoneRegistrationLink;
 use App\Services\PhoneLeadScheduler;
-use App\Notifications\SendStudentPlanSms;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Notifications\AnonymousNotifiable;
+use Morilog\Jalali\Jalalian;
 
 /**
  * منطق مشترک «ثبت تماس» برای پنل مشاور جذب تلفنی (صف و پیگیری‌ها).
@@ -24,15 +23,19 @@ trait LogsPhoneCalls
     public ?int $pendingCallLeadId = null;
     public string $pendingCallLeadLabel = '';
     public bool $showCallConfirmModal = false;
+    public bool $pendingCallAllowsEarlyDisinterestCall = false;
     public ?int $activeCallId = null;
+    public bool $activeCallAllowsEarlyDisinterestCall = false;
     public ?int $talkSeconds = null;
     public string $callMode = 'success';
 
     // Form fields
     public array $spokeWith = [];
     public string $spokeWithOther = '';
-    public $willingness = null;
-    public string $lowWillingnessReason = '';
+    public string $leadFullName = '';
+    public bool $collectLeadFullName = false;
+    public string $disinterestStatus = '';
+    public string $disinterestReason = '';
     public string $result = '';
     public string $followUpAt = '';
     public string $summary = '';
@@ -40,16 +43,10 @@ trait LogsPhoneCalls
     public string $callPhase = 'ringing';
     public bool $linkSent = false;
     public ?string $sentLinkUrl = null;
+    public int $inviteSendCount = 0;
+    public ?int $inviteSendLimit = null;
 
-    public function openCallForm(int $leadId): void
-    {
-        $this->resetCallForm();
-        $this->activeLeadId = $leadId;
-        $this->callPhase    = 'ringing';
-        $this->dispatch('phone-call-form-opened');
-    }
-
-    public function promptCall(int $leadId): void
+    public function openCallForm(int $leadId, bool $allowEarlyDisinterestCall = false): void
     {
         $lead = $this->loadLeadForConsultant($leadId);
         if (!$lead) {
@@ -57,14 +54,41 @@ trait LogsPhoneCalls
             return;
         }
 
+        if (!$this->ensureLeadCanStartCall($lead, $allowEarlyDisinterestCall)) {
+            return;
+        }
+
+        $this->resetCallForm();
+        $this->activeLeadId = $leadId;
+        $this->leadFullName = trim((string) $lead->full_name);
+        $this->collectLeadFullName = $this->shouldCollectLeadFullName($lead);
+        $this->inviteSendLimit = $this->inviteSendLimitForContext();
+        $this->activeCallAllowsEarlyDisinterestCall = $allowEarlyDisinterestCall;
+        $this->callPhase    = 'ringing';
+        $this->dispatch('phone-call-form-opened');
+    }
+
+    public function promptCall(int $leadId, bool $allowEarlyDisinterestCall = false): void
+    {
+        $lead = $this->loadLeadForConsultant($leadId);
+        if (!$lead) {
+            $this->dispatch('warning', 'شماره یافت نشد یا به شما اختصاص ندارد.');
+            return;
+        }
+
+        if (!$this->ensureLeadCanStartCall($lead, $allowEarlyDisinterestCall)) {
+            return;
+        }
+
         $this->pendingCallLeadId = $lead->id;
         $this->pendingCallLeadLabel = ($lead->full_name ? $lead->full_name . ' — ' : '') . $lead->mobile;
+        $this->pendingCallAllowsEarlyDisinterestCall = $allowEarlyDisinterestCall;
         $this->showCallConfirmModal = true;
     }
 
     public function cancelCallPrompt(): void
     {
-        $this->reset(['pendingCallLeadId', 'pendingCallLeadLabel', 'showCallConfirmModal']);
+        $this->reset(['pendingCallLeadId', 'pendingCallLeadLabel', 'pendingCallAllowsEarlyDisinterestCall', 'showCallConfirmModal']);
     }
 
     public function continueCallPrompt(): void
@@ -74,7 +98,7 @@ trait LogsPhoneCalls
             return;
         }
 
-        $this->openCallForm($this->pendingCallLeadId);
+        $this->openCallForm($this->pendingCallLeadId, $this->pendingCallAllowsEarlyDisinterestCall);
         $this->cancelCallPrompt();
     }
 
@@ -83,12 +107,33 @@ trait LogsPhoneCalls
         $this->resetCallForm();
     }
 
+    public function phoneCallResultOptions(): array
+    {
+        $options = [
+            PhoneCall::RESULT_FOLLOW_UP => ['title' => 'نیاز پیگیری مجدد', 'desc' => 'با یادآور اجباری در صف پیگیری می‌ماند.'],
+            PhoneCall::RESULT_REGISTERED => ['title' => 'ثبت نام', 'desc' => 'لینک ثبت‌نام یکتا ارسال می‌شود و موفقیت بعد از ساخت برنامه حساب می‌شود.'],
+            PhoneCall::RESULT_NO_INTEREST => ['title' => 'عدم تمایل', 'desc' => 'نوع و علت عدم تمایل ثبت می‌شود.'],
+        ];
+
+        return array_intersect_key($options, array_flip($this->phoneCallResultValues()));
+    }
+
+    protected function phoneCallResultValues(): array
+    {
+        return [
+            PhoneCall::RESULT_REGISTERED,
+            PhoneCall::RESULT_FOLLOW_UP,
+            PhoneCall::RESULT_NO_INTEREST,
+        ];
+    }
+
     protected function resetCallForm(): void
     {
         $this->reset([
             'activeLeadId', 'activeCallId', 'talkSeconds', 'callMode', 'spokeWith',
-            'spokeWithOther', 'willingness', 'lowWillingnessReason', 'result',
-            'followUpAt', 'summary', 'failReason', 'callPhase', 'linkSent', 'sentLinkUrl'
+            'spokeWithOther', 'leadFullName', 'collectLeadFullName', 'disinterestStatus', 'disinterestReason', 'result',
+            'followUpAt', 'summary', 'failReason', 'callPhase', 'linkSent', 'sentLinkUrl',
+            'inviteSendCount', 'inviteSendLimit', 'activeCallAllowsEarlyDisinterestCall',
         ]);
         $this->resetErrorBag();
     }
@@ -98,6 +143,10 @@ trait LogsPhoneCalls
         $lead = $this->loadLeadForConsultant($this->activeLeadId);
         if (!$lead || $lead->isExhausted()) {
             $this->dispatch('warning', $lead ? 'این شماره دیگر قابل تماس نیست (خاکستری).' : 'شماره یافت نشد.');
+            $this->closeCallForm();
+            return;
+        }
+        if (!$this->ensureLeadCanStartCall($lead, $this->activeCallAllowsEarlyDisinterestCall)) {
             $this->closeCallForm();
             return;
         }
@@ -136,6 +185,11 @@ trait LogsPhoneCalls
             return;
         }
 
+        if (!$this->ensureLeadCanStartCall($lead, $this->activeCallAllowsEarlyDisinterestCall)) {
+            $this->closeCallForm();
+            return;
+        }
+
         if ($this->callMode === 'fail') {
             if ($lead->isExhausted()) {
                 $this->dispatch('warning', 'این شماره دیگر قابل تماس نیست (خاکستری).');
@@ -144,28 +198,52 @@ trait LogsPhoneCalls
             }
             $this->validate(['failReason' => ['required', 'in:no_answer,off,rejected,wrong']], ['failReason.required' => 'علت عدم برقراری تماس را انتخاب کنید.']);
         } else {
+            if ($this->collectLeadFullName) {
+                $this->validate([
+                    'leadFullName' => ['required', 'string', 'max:150', 'regex:/^\S+(?:\s+\S+)+$/u'],
+                ], [
+                    'leadFullName.required' => 'نام و نام خانوادگی مخاطب را وارد کنید.',
+                    'leadFullName.max' => 'نام و نام خانوادگی نباید بیشتر از ۱۵۰ کاراکتر باشد.',
+                    'leadFullName.regex' => 'نام و نام خانوادگی را به‌صورت کامل وارد کنید.',
+                ]);
+
+                $lead->full_name = preg_replace('/\s+/u', ' ', trim($this->leadFullName));
+            }
+
             $this->validate([
                 'spokeWith'            => ['required', 'array', 'min:1'],
                 'spokeWith.*'          => ['required', 'in:father,mother,student,other'],
-                'willingness'          => ['required', 'integer', 'between:0,100'],
-                'lowWillingnessReason' => ['nullable', 'string', 'max:2000'],
-                'result'               => ['required', 'in:' . PhoneCall::RESULT_REGISTRATION_FOLLOW_UP . ',' . PhoneCall::RESULT_FOLLOW_UP . ',' . PhoneCall::RESULT_NO_INTEREST],
-                'followUpAt'           => ['required_if:result,' . PhoneCall::RESULT_REGISTRATION_FOLLOW_UP . ',' . PhoneCall::RESULT_FOLLOW_UP, 'nullable', 'date'],
-                'summary'              => ['nullable', 'string', 'max:5000'],
+                'result'               => ['required', 'in:' . implode(',', $this->phoneCallResultValues())],
             ], [
                 'spokeWith.required'   => 'تعیین کنید با چه شخصی صحبت شده است.',
-                'willingness.required' => 'درصد تمایل به همکاری را وارد کنید.',
                 'result.required'      => 'نتیجهٔ تماس را انتخاب کنید.',
-                'followUpAt.required_if' => 'برای پیگیری، تاریخ و ساعت را مشخص کنید.',
             ]);
 
-            if ((int) $this->willingness < 50 && trim($this->lowWillingnessReason) === '') {
-                $this->addError('lowWillingnessReason', 'چون تمایل زیر ۵۰٪ است، علت عدم تمایل را بنویسید.');
-                return;
-            }
             if (in_array('other', $this->spokeWith, true) && trim($this->spokeWithOther) === '') {
                 $this->addError('spokeWithOther', 'نام شخص دیگر را بنویسید.');
                 return;
+            }
+
+            if ($this->result === PhoneCall::RESULT_NO_INTEREST) {
+                $this->validate([
+                    'disinterestStatus' => ['required', 'in:' . PhoneCall::DISINTEREST_TEMPORARY . ',' . PhoneCall::DISINTEREST_DEFINITIVE],
+                    'disinterestReason' => ['required', 'string', 'min:3', 'max:5000'],
+                    'followUpAt' => [$this->disinterestStatus === PhoneCall::DISINTEREST_TEMPORARY ? 'required' : 'nullable', 'date', $this->notPastReminderRule()],
+                ], [
+                    'disinterestStatus.required' => 'نوع عدم تمایل را انتخاب کنید.',
+                    'disinterestReason.required' => 'علت عدم تمایل را بنویسید.',
+                    'followUpAt.required' => 'برای عدم تمایل موقت، تاریخ و ساعت یادآور الزامی است.',
+                    'followUpAt.date' => 'تاریخ و ساعت یادآور معتبر نیست.',
+                ]);
+            } else {
+                $this->validate([
+                    'summary' => ['required', 'string', 'min:3', 'max:5000'],
+                    'followUpAt' => [$this->result === PhoneCall::RESULT_FOLLOW_UP ? 'required' : 'nullable', 'date', $this->notPastReminderRule()],
+                ], [
+                    'summary.required' => 'خلاصه گفتگو را بنویسید.',
+                    'followUpAt.required' => 'برای یادآور، تاریخ و ساعت را مشخص کنید.',
+                    'followUpAt.date' => 'تاریخ و ساعت یادآور معتبر نیست.',
+                ]);
             }
         }
 
@@ -173,7 +251,7 @@ trait LogsPhoneCalls
 
         if ($this->callMode === 'success' && $this->result === PhoneCall::RESULT_REGISTERED && !$this->linkSent) {
             app(\App\Services\PhoneRegistrationService::class)->createAndSend($lead, Auth::guard('admin')->id());
-            $this->dispatch('success', 'ثبت‌نام ثبت شد و لینک یکتای ثبت‌نام ارسال شد.');
+            $this->dispatch('success', 'لینک ثبت‌نام ارسال شد و شماره وارد صف ثبت‌نام شد.');
         } else {
             $this->dispatch('success', 'تماس با موفقیت ثبت شد.');
         }
@@ -183,7 +261,13 @@ trait LogsPhoneCalls
 
     public function sendInvite(string $planType): void
     {
-        if (!in_array($planType, ['trial', 'exam', 'cash'])) {
+        if ($this->inviteSendLimit !== null && $this->inviteSendCount >= $this->inviteSendLimit) {
+            $this->dispatch('warning', 'در هر تماس حداکثر دو بار امکان ارسال لینک وجود دارد.');
+            return;
+        }
+
+        if (! in_array($planType, [PhoneRegistrationLink::PLAN_TRIAL, PhoneRegistrationLink::PLAN_EXAM], true)) {
+            $this->dispatch('warning', 'در جذب تلفنی فقط لینک ثبت‌نام هفته آزمایشی یا بازه امتحانات ارسال می‌شود.');
             return;
         }
 
@@ -193,28 +277,26 @@ trait LogsPhoneCalls
             return;
         }
 
+        if (!$this->ensureLeadCanStartCall($lead, $this->activeCallAllowsEarlyDisinterestCall)) {
+            return;
+        }
+
         $adminId = Auth::guard('admin')->id();
         if (!$adminId) {
             $this->dispatch('warning', 'مشاور شناسایی نشد.');
             return;
         }
 
-        $baseUrl = config('app.url');
-        $link = rtrim($baseUrl, '/') . "/start?plan={$planType}&ref={$adminId}";
-
-        $text = match ($planType) {
-            'trial' => "سلام! برای شروع هفته آزمایشی رایگان در سامانه هوشمند SDFR، از لینک زیر استفاده کنید:\n{$link}",
-            'exam' => "سلام! برای دریافت برنامه درسی ویژه امتحانات در سامانه هوشمند SDFR، از لینک زیر استفاده کنید:\n{$link}",
-            'cash' => "سلام! برای ثبت‌نام و خرید دوره در سامانه هوشمند مشاوره تحصیلی SDFR، از لینک زیر اقدام کنید:\n{$link}",
-        };
-
         try {
-            $notifiable = new AnonymousNotifiable;
-            $notifiable->route('mobile', $lead->mobile); // Assuming the channel uses 'mobile'
-            
-            $notifiable->notify(new \App\Notifications\SendInvitationSms($lead->mobile, $text));
+            $link = app(\App\Services\PhoneRegistrationService::class)
+                ->createAndSend($lead, $adminId, $planType);
 
-            $this->dispatch('success', 'لینک دعوت با موفقیت ارسال شد.');
+            $this->linkSent = true;
+            $this->sentLinkUrl = $link->url;
+            $this->inviteSendCount++;
+
+            $label = $planType === PhoneRegistrationLink::PLAN_EXAM ? 'بازه امتحانات' : 'هفته آزمایشی';
+            $this->dispatch('success', "لینک ثبت‌نام {$label} با موفقیت ارسال شد.");
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Failed to send invitation SMS.', [
                 'lead_id' => $lead->id,
@@ -229,7 +311,15 @@ trait LogsPhoneCalls
     {
         DB::transaction(function () use ($lead) {
             if ($this->callMode === 'success') {
-                $willingness = (int) $this->willingness;
+                $isNoInterest = $this->result === PhoneCall::RESULT_NO_INTEREST;
+                $isTemporaryDisinterest = $isNoInterest && $this->disinterestStatus === PhoneCall::DISINTEREST_TEMPORARY;
+                $storedResult = $this->result === PhoneCall::RESULT_FOLLOW_UP
+                    ? $this->followUpResultForContext()
+                    : $this->result;
+                $followUpAt = ($this->result === PhoneCall::RESULT_FOLLOW_UP || $isTemporaryDisinterest) && $this->followUpAt
+                    ? $this->parseReminderAt($this->followUpAt)
+                    : null;
+
                 PhoneCall::create([
                     'phone_lead_id' => $lead->id,
                     'admin_id' => Auth::guard('admin')->id(),
@@ -240,21 +330,24 @@ trait LogsPhoneCalls
                     'spoke_with_people' => array_values(array_filter($this->spokeWith)),
                     'spoke_with_other' => in_array('other', $this->spokeWith, true) ? $this->spokeWithOther : null,
                     'spoke_with' => array_values(array_filter($this->spokeWith))[0] ?? null,
-                    'willingness' => $willingness,
-                    'low_willingness_reason' => $willingness < 50 ? $this->lowWillingnessReason : null,
-                    'result' => $this->result,
-                    'follow_up_at' => in_array($this->result, [PhoneCall::RESULT_FOLLOW_UP, PhoneCall::RESULT_REGISTRATION_FOLLOW_UP]) ? $this->followUpAt : null,
-                    'summary' => $this->summary ?: null,
+                    'disinterest_status' => $isNoInterest ? $this->disinterestStatus : null,
+                    'disinterest_reason' => $isNoInterest ? $this->disinterestReason : null,
+                    'result' => $storedResult,
+                    'follow_up_at' => $followUpAt,
+                    'summary' => $isNoInterest ? null : $this->summary,
                     'called_at' => now(),
                 ]);
 
                 $lead->attempts_count++;
-                $lead->last_outcome = $this->result;
+                $lead->last_outcome = $storedResult;
                 $lead->grey_reason = null;
-                $lead->status = PhoneLead::statusAfterOutcome($lead->attempts_count, true, null, $this->result);
-                $lead->next_call_at = in_array($this->result, [PhoneCall::RESULT_FOLLOW_UP, PhoneCall::RESULT_REGISTRATION_FOLLOW_UP]) && $this->followUpAt
-                    ? Carbon::parse($this->followUpAt)
-                    : null;
+                $lead->status = $isTemporaryDisinterest
+                    ? PhoneLead::STATUS_ACTIVE
+                    : PhoneLead::statusAfterOutcome($lead->attempts_count, true, null, $storedResult);
+                $lead->next_call_at = $followUpAt;
+                $lead->disinterest_status = $isNoInterest ? $this->disinterestStatus : null;
+                $lead->disinterest_reason = $isNoInterest ? $this->disinterestReason : null;
+                $lead->disinterest_at = $isNoInterest ? now() : null;
             } else {
                 PhoneCall::create([
                     'phone_lead_id' => $lead->id,
@@ -267,10 +360,13 @@ trait LogsPhoneCalls
                 
                 $schedule = app(PhoneLeadScheduler::class)->afterFail($lead, $this->failReason);
                 $lead->attempts_count++;
-                $lead->last_outcome = $this->failReason;
+                $lead->last_outcome = $schedule['last_outcome'] ?? $this->failReason;
                 $lead->status = $schedule['status'];
                 $lead->grey_reason = $schedule['grey_reason'];
                 $lead->next_call_at = $schedule['next_call_at'];
+                $lead->disinterest_status = $schedule['disinterest_status'] ?? $lead->disinterest_status;
+                $lead->disinterest_reason = $schedule['disinterest_reason'] ?? $lead->disinterest_reason;
+                $lead->disinterest_at = $schedule['disinterest_at'] ?? $lead->disinterest_at;
             }
             $lead->save();
 
@@ -290,5 +386,72 @@ trait LogsPhoneCalls
             $q->where('admin_id', Auth::guard('admin')->id())
               ->where('status', PhoneLeadAssignment::STATUS_ACTIVE)
         )->find($leadId);
+    }
+
+    protected function ensureLeadCanStartCall(PhoneLead $lead, bool $allowEarlyDisinterestCall = false): bool
+    {
+        if ($lead->canStartPhoneAcquisitionCall($allowEarlyDisinterestCall)) {
+            return true;
+        }
+
+        $this->dispatch('warning', $lead->disinterest_call_lock_message ?: 'این شماره در حال حاضر قابل تماس نیست.');
+
+        return false;
+    }
+
+    protected function notPastReminderRule(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail): void {
+            if (! $value) {
+                return;
+            }
+
+            try {
+                $reminderAt = $this->parseReminderAt($value);
+            } catch (\Throwable) {
+                return;
+            }
+
+            if ($reminderAt->lt(now()->startOfDay())) {
+                $fail('تاریخ یادآور نمی‌تواند قبل از امروز باشد.');
+            }
+        };
+    }
+
+    protected function followUpResultForContext(): string
+    {
+        return PhoneCall::RESULT_FOLLOW_UP;
+    }
+
+    protected function shouldCollectLeadFullName(PhoneLead $lead): bool
+    {
+        return false;
+    }
+
+    protected function inviteSendLimitForContext(): ?int
+    {
+        return null;
+    }
+
+    protected function parseReminderAt(string $value): Carbon
+    {
+        $value = strtr(trim($value), [
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+            '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+            '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+        ]);
+
+        if (preg_match('/^(1[234]\d{2})[\/-](\d{1,2})[\/-](\d{1,2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?$/', $value, $parts)) {
+            $hasSeconds = isset($parts[6]) && $parts[6] !== '';
+            $normalized = sprintf(
+                $hasSeconds ? '%04d/%02d/%02d %02d:%02d:%02d' : '%04d/%02d/%02d %02d:%02d',
+                ...array_map('intval', array_slice($parts, 1))
+            );
+
+            return Jalalian::fromFormat($hasSeconds ? 'Y/m/d H:i:s' : 'Y/m/d H:i', $normalized)->toCarbon();
+        }
+
+        return Carbon::parse($value);
     }
 }

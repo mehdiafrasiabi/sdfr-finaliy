@@ -336,7 +336,7 @@
 
                                     </span>
 
-                                    <span class="badge bg-dark">پاسخ: گزینه {{ $question->correct_option }}</span>
+                                    <span class="badge bg-dark">پاسخ: گزینه {{ $question->correct_option_number }}</span>
 
                                 </div>
 
@@ -446,7 +446,7 @@
 
                                             <span class="badge bg-success ms-2">
 
-                                                گزینه {{ $question->correct_option }}
+                                                گزینه {{ $question->correct_option_number }}
 
                                             </span>
 

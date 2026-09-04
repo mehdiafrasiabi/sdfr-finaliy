@@ -17,6 +17,7 @@ use Artesaos\SEOTools\Traits\SEOTools;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -506,14 +507,26 @@ class Report extends Component
     public function submitReport()
     {
         try {
+            $this->resetErrorBag();
+
             if ($this->selectedDayIndex === null || !isset($this->weekDays[$this->selectedDayIndex])) {
-                $this->dispatch('warning', 'روز گزارش مشخص نیست. لطفاً دوباره تلاش کنید.');
+                $this->dispatch('warning', 'روز موردنظر برای ثبت گزارش مشخص نیست. لطفاً پنجره را ببندید و دوباره روی «ثبت گزارش» بزنید.');
                 return;
             }
 
             $student = Auth::user()->student;
-            if (!$student || !$this->currentSession || !$this->currentProgram) {
-                $this->dispatch('warning', 'اطلاعات برنامه یا جلسه برای ثبت گزارش کامل نیست.');
+            if (!$student) {
+                $this->dispatch('warning', 'پروفایل دانش‌آموزی شما پیدا نشد. لطفاً از حساب خارج و دوباره وارد شوید یا با پشتیبانی تماس بگیرید.');
+                return;
+            }
+
+            if (!$this->currentSession) {
+                $this->dispatch('warning', 'جلسه مشاوره فعال برای این گزارش پیدا نشد. لطفاً با پشتیبانی تماس بگیرید.');
+                return;
+            }
+
+            if (!$this->currentProgram) {
+                $this->dispatch('warning', 'برنامه هفتگی مرتبط با این گزارش پیدا نشد. لطفاً با مشاور یا پشتیبانی تماس بگیرید.');
                 return;
             }
 
@@ -521,42 +534,50 @@ class Report extends Component
             $recipient = $this->resolveReportRecipient();
 
             if (!$recipient['id']) {
-                $this->dispatch('warning', 'هنوز مسئول بررسی گزارش برای شما مشخص نشده است. لطفاً با پشتیبانی تماس بگیرید.');
+                $this->dispatch('warning', 'مسئول بررسی گزارش شما مشخص نشده است. تا زمان تعیین مشاور یا پشتیبان، امکان ثبت گزارش وجود ندارد.');
                 return;
             }
 
-            $unreadCount = count($day['parts']) - count($this->selectedParts);
+            $unreadCount = max(0, count($day['parts']) - count($this->selectedParts));
 
-            // Validate test counts for selected parts that have tests
+            $rules = [
+                'description' => ['nullable', 'string', 'max:350'],
+                'missedPartsReason' => $unreadCount >= 2
+                    ? ['required', 'string', 'min:20', 'max:500']
+                    : ['nullable', 'string', 'max:500'],
+            ];
+
+            $messages = [
+                'description.string' => 'متن توضیحات واردشده معتبر نیست.',
+                'description.max' => 'توضیحات نمی‌تواند بیشتر از ۳۵۰ کاراکتر باشد.',
+
+                'missedPartsReason.required' => 'چون دو پارت یا بیشتر انجام نشده است، نوشتن علت عدم انجام پارت‌ها الزامی است.',
+                'missedPartsReason.string' => 'علت عدم انجام پارت‌ها باید به‌صورت متن وارد شود.',
+                'missedPartsReason.min' => 'علت عدم انجام پارت‌ها باید حداقل ۲۰ کاراکتر باشد؛ لطفاً دلیل را کامل‌تر توضیح دهید.',
+                'missedPartsReason.max' => 'علت عدم انجام پارت‌ها نمی‌تواند بیشتر از ۵۰۰ کاراکتر باشد.',
+            ];
+
+            // اعتبارسنجی تعداد تست هر پارت انتخاب‌شده
             foreach ($day['parts'] as $part) {
-                if (in_array($part->id, $this->selectedParts) && ($part->test_count ?? 0) > 0) {
-                    $val = $this->testsDone[$part->id] ?? null;
-                    if ($val === null || $val === '') {
-                        $this->addError('testsDone.' . $part->id, 'تعداد تست «' . $part->lesson_name . '» را وارد کنید (حداقل ۰).');
-                        return;
-                    }
+                if (!in_array($part->id, $this->selectedParts, true) || (int) ($part->test_count ?? 0) <= 0) {
+                    continue;
                 }
-            }
 
-            $rules = ['description' => 'nullable|string|max:350'];
-            $messages = ['description.max' => 'توضیحات نمی‌تواند بیشتر از 350 کاراکتر باشد.'];
+                $field = 'testsDone.' . $part->id;
+                $lessonName = $part->lesson_name ?: 'این پارت';
+                $maxTests = (int) $part->test_count;
 
-            // missedPartsReason is required when 2+ parts are unread
-            if ($unreadCount >= 2) {
-                $rules['missedPartsReason'] = 'required|string|min:20|max:500';
-                $messages['missedPartsReason.required'] = 'چون بیشتر از یک پارت انجام نشده، وارد کردن علت عدم انجام پارت‌ها الزامی است.';
-                $messages['missedPartsReason.min'] = 'علت عدم انجام پارت باید حداقل ۲۰ کاراکتر باشد.';
-                $messages['missedPartsReason.max'] = 'علت عدم انجام پارت نمی‌تواند بیشتر از 500 کاراکتر باشد.';
-            } else {
-                $rules['missedPartsReason'] = 'nullable|string|max:500';
-                $messages['missedPartsReason.max'] = 'علت عدم انجام پارت نمی‌تواند بیشتر از 500 کاراکتر باشد.';
+                $rules[$field] = ['required', 'integer', 'min:0', 'max:' . $maxTests];
+                $messages[$field . '.required'] = 'تعداد تست انجام‌شده برای «' . $lessonName . '» را وارد کنید؛ در صورت نزدن تست، عدد ۰ را بنویسید.';
+                $messages[$field . '.integer'] = 'تعداد تست «' . $lessonName . '» باید یک عدد صحیح باشد.';
+                $messages[$field . '.min'] = 'تعداد تست «' . $lessonName . '» نمی‌تواند کمتر از ۰ باشد.';
+                $messages[$field . '.max'] = 'تعداد تست «' . $lessonName . '» نمی‌تواند بیشتر از تعداد تست برنامه‌ریزی‌شده (' . $maxTests . ' تست) باشد.';
             }
 
             $this->validate($rules, $messages);
 
             if (!$this->canSubmitForDate($day['date'])) {
-                $this->dispatch('warning', 'مهلت ارسال گزارش این روز تمام شده است.');
-                $this->closeReportModal();
+                $this->dispatch('warning', 'مهلت ثبت این گزارش به پایان رسیده است و امکان ارسال آن وجود ندارد.');
                 return;
             }
 
@@ -567,13 +588,12 @@ class Report extends Component
                 ->exists();
 
             if ($existingReport) {
-                $this->dispatch('warning', 'گزارش این روز قبلاً ثبت شده است.');
+                $this->dispatch('warning', 'گزارش این روز قبلاً ثبت شده است و امکان ثبت دوباره آن وجود ندارد.');
                 $this->closeReportModal();
                 $this->loadWeekDays();
                 return;
             }
 
-            // ✅ محاسبه امتیاز از session_feedbacks (1-10)
             $avgRating = $this->computedRating;
 
             DB::transaction(function () use ($student, $day, $avgRating, $recipient) {
@@ -590,8 +610,8 @@ class Report extends Component
                 DailyReportDetail::create([
                     'daily_report_id' => $dailyReport->id,
                     'phone_hours' => 0,
-                    'description' => $this->description ?: null,
-                    'missed_parts_reason' => $this->missedPartsReason ?: null,
+                    'description' => filled($this->description) ? trim($this->description) : null,
+                    'missed_parts_reason' => filled($this->missedPartsReason) ? trim($this->missedPartsReason) : null,
                     'rating' => $avgRating,
                     'status' => 'pending',
                 ]);
@@ -604,8 +624,8 @@ class Report extends Component
                     DailyReportPart::create([
                         'daily_report_id' => $dailyReport->id,
                         'program_part_id' => $part->id,
-                        'is_read' => in_array($part->id, $this->selectedParts),
-                        'tests_done' => $this->testsDone[$part->id] ?? 0,
+                        'is_read' => in_array($part->id, $this->selectedParts, true),
+                        'tests_done' => (int) ($this->testsDone[$part->id] ?? 0),
                         'part_rating' => null,
                         'is_compensatory' => false,
                     ]);
@@ -615,13 +635,21 @@ class Report extends Component
             $this->dispatch('success', 'گزارش با موفقیت ثبت شد و برای ' . $recipient['label'] . ' ارسال شد.');
             $this->closeReportModal();
             $this->loadWeekDays();
+        } catch (ValidationException $e) {
+            // خطای اعتبارسنجی نباید به پیام عمومی خطای سرور تبدیل شود.
+            // Livewire پیام دقیق هر فیلد را در error bag نمایش می‌دهد.
+            throw $e;
         } catch (\Throwable $e) {
             \Log::error('Error in submitReport', [
                 'message' => $e->getMessage(),
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
                 'student_id' => Auth::user()?->student?->id,
                 'selected_day_index' => $this->selectedDayIndex,
             ]);
-            $this->dispatch('error', 'خطایی در ثبت گزارش رخ داد. لطفا دوباره تلاش کنید.');
+
+            $this->dispatch('error', 'گزارش به‌دلیل یک خطای فنی در سرور ثبت نشد. اطلاعات واردشده را بررسی کنید و دوباره تلاش کنید؛ اگر مشکل ادامه داشت با پشتیبانی تماس بگیرید.');
         }
     }
 

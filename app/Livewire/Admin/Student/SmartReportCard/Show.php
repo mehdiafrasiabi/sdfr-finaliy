@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Student\SmartReportCard;
 use App\Models\GeneralSetting;
 use App\Models\SmartReportCard;
 use App\Models\User;
+use App\Services\ExamPlanningService;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 use Morilog\Jalali\Jalalian;
@@ -19,11 +20,7 @@ class Show extends Component
     public int $selectedYear;
     public int $minYear;
     public int $maxYear;
-
-    public function boot(): void
-    {
-        $this->ensureSmartReportCardAccess();
-    }
+    public bool $automaticReportOnly = false;
 
     public function mount(User $student): void
     {
@@ -31,11 +28,11 @@ class Show extends Component
             abort(404, 'Student not found');
         }
 
-        abort_if($student->student->is_trial, 404);
-
-        $admin = auth('admin')->user();
-        $isOwner = (int) $student->student->advisor_id === (int) auth('admin')->id();
-        abort_unless($isOwner || $admin?->hasRole('super admin'), 403);
+        $examPlanning = app(ExamPlanningService::class);
+        abort_unless($examPlanning->studentIsVisibleInSmartReportCards($student->student), 404);
+        abort_unless($examPlanning->adminCanViewSmartReportCardStudent($student->student), 403);
+        $this->ensureSmartReportCardAccess($student->student);
+        $this->automaticReportOnly = $examPlanning->automaticTrialReportCardUnlockedForStudent($student->student);
 
         $this->studentId = $student->student->id;
         $this->userId = $student->id;
@@ -71,6 +68,10 @@ class Show extends Component
             $days = $range['days'];
             $card = $existing->get($num);
 
+            if ($this->automaticReportOnly && (! $card || ! $card->is_active)) {
+                continue;
+            }
+
             $months[] = [
                 'number' => $num,
                 'name' => $name,
@@ -88,8 +89,12 @@ class Show extends Component
         ])->layout('layouts.admin.app');
     }
 
-    private function ensureSmartReportCardAccess(): void
+    private function ensureSmartReportCardAccess(\App\Models\Student $student): void
     {
+        if (app(ExamPlanningService::class)->automaticTrialReportCardUnlockedForStudent($student)) {
+            return;
+        }
+
         $isEnabled = (bool) GeneralSetting::query()->value('smart_report_card_enabled');
 
         abort_unless($isEnabled, 403, 'دسترسی به کارنامه هوشمند توسط manager غیرفعال است.');

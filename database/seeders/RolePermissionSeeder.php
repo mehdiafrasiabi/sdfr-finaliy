@@ -184,7 +184,13 @@ class RolePermissionSeeder extends Seeder
             'name'       => 'مشاور جذب تلفنی',
             'guard_name' => 'admin',
         ]);
-        $phoneAcquisition->givePermissionTo('phone-acquisition.consult');
+        $phoneAcquisition->givePermissionTo([
+            'phone-acquisition.consult',
+            'acquisition.dashboard',
+            'acquisition.contacts',
+            'acquisition.student',
+            'acquisition.monitor',
+        ]);
 
         // ────────────────────────────────────────────────────────────
         // ۵) مدیر مدرسه (school-manager) — فقط مشاهدهٔ دانش‌آموزان مدرسهٔ خود

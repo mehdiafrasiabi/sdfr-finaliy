@@ -1,4 +1,5 @@
-<div class="container-fluid">
+<div class="student-ui student-ui-auto-collapse container-fluid">
+    @include('livewire.admin.student._styles')
     @push('link')
         <style>
 
@@ -129,6 +130,9 @@
         </div>
     </div>
     @if(!empty($stats))
+        <details class="su-data-drawer" open>
+            <summary>خلاصه عملکرد دانش‌آموز <span class="su-data-drawer__hint">آمار گزارش، پارت و تست</span></summary>
+            <div class="su-data-drawer__body">
         <!-- Stats Cards -->
         <div class="row g-3 mb-4">
             <div class="col-xl-3 col-md-6">
@@ -218,6 +222,8 @@
                 </div>
             </div>
         </div>
+            </div>
+        </details>
     @endif
     <!-- Reports Table -->
     <div class="card shadow-sm">

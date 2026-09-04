@@ -1,4 +1,5 @@
-<div>
+<div class="student-ui student-ui-auto-collapse">
+    @include('livewire.admin.student._styles')
     <div class="container-fluid">
         <!-- Header -->
         <div class="row mb-4">
@@ -62,6 +63,9 @@
             </div>
         </div>
 
+        <details class="su-data-drawer" open>
+            <summary>خلاصه وضعیت روز <span class="su-data-drawer__hint">آمار و هشدارهای دانش‌آموزان</span></summary>
+            <div class="su-data-drawer__body">
         <!-- Stats Cards -->
         <div class="row mb-4 g-3">
             <div class="col-6 col-lg-3">
@@ -154,6 +158,9 @@
                 </div>
             @endif
         </div>
+
+            </div>
+        </details>
 
         <!-- Bulk Actions -->
         @if(count($selectedReports) > 0)

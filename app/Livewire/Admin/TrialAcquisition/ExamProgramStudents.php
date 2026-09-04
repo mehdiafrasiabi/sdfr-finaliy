@@ -12,10 +12,7 @@ class ExamProgramStudents extends Index
 
     protected function applyStudentTypeScope($query)
     {
-        return $query->whereHas(
-            'student.examSchedules',
-            fn ($scheduleQuery) => $this->builtExamProgramConstraint($scheduleQuery)
-        );
+        return $query->whereHas('student.examSchedules');
     }
 
     protected function builtExamProgramConstraint($query): void
@@ -34,9 +31,14 @@ class ExamProgramStudents extends Index
         return [
             'pageBreadcrumb' => 'دانش‌آموزان برنامه امتحانی',
             'pageTitle' => 'دانش‌آموزان برنامه امتحانی من',
-            'pageSubtitle' => 'فقط دانش‌آموزانی که برنامه امتحانی‌شان ساخته و نهایی شده است.',
+            'pageSubtitle' => 'همه دانش‌آموزان بازه امتحانات؛ حتی اگر هنوز برنامه‌شان ساخته نشده باشد.',
             'emptyMessage' => 'دانش‌آموز برنامه امتحانی برای نمایش وجود ندارد.',
         ];
+    }
+
+    public function monitorRouteName(): string
+    {
+        return 'admin.trial-acquisition.exam-monitor';
     }
 
     protected function isAllowedCallStage(string $stage): bool

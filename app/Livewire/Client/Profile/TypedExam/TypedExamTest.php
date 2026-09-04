@@ -1,6 +1,7 @@
 <?php
 namespace App\Livewire\Client\Profile\TypedExam;
 use App\Models\Student;
+use App\Models\Question;
 use App\Models\TypedExamAssignment;
 use App\Models\TypedExamAttempt;
 use App\Models\TypedExamAttemptAnswer;
@@ -122,7 +123,13 @@ class TypedExamTest extends Component
             foreach ($questionIds as $questionId) {
                 $question = $questions->firstWhere('id', $questionId);
                 $optionsOrder = [1, 2, 3, 4];
-                if ($settings && $settings->shouldRandomizeOptions()) {
+                $hasStandaloneOptions = !$question->content?->question_image
+                    && $question->options->pluck('option_number')->map(fn ($number) => (int) $number)
+                        ->sort()->values()->all() === [1, 2, 3, 4];
+
+                // Options embedded in an image cannot be rearranged. Only
+                // randomize option records that are rendered separately.
+                if ($settings && $settings->shouldRandomizeOptions() && $hasStandaloneOptions) {
                     shuffle($optionsOrder);
                 }
                 TypedExamStudentOrder::create([
@@ -135,6 +142,7 @@ class TypedExamTest extends Component
                     'attempt_id' => $this->attempt->id,
                     'question_id' => $questionId,
                     'selected_option' => null,
+                    'correct_option' => $question->correct_option_number,
                     'is_correct' => null,
                 ]);
                 $order++;
@@ -154,7 +162,9 @@ class TypedExamTest extends Component
             ];
         })->toArray();
         $answers = TypedExamAttemptAnswer::where('attempt_id', $this->attempt->id)->get();
-        $this->answers = $answers->keyBy('question_id')->map(fn($a) => $a->selected_option)->toArray();
+        $this->answers = $answers->keyBy('question_id')
+            ->map(fn($answer) => $answer->selected_option === null ? null : (int) $answer->selected_option)
+            ->toArray();
         // Initialize question marks
         foreach ($this->questionsOrder as $q) {
             if (!isset($this->questionMarks[$q['question_id']])) {
@@ -164,26 +174,43 @@ class TypedExamTest extends Component
     }
     public function selectAnswer(int $questionId, int $optionNumber): void
     {
-        $current = $this->answers[$questionId] ?? null;
-        // اگر همین گزینه دوباره کلیک شد → جواب پاک شود
-        if ($current === $optionNumber) {
-            $this->answers[$questionId] = null;
-            TypedExamAttemptAnswer::where('attempt_id', $this->attempt->id)
-                ->where('question_id', $questionId)
-                ->update([
-                    'selected_option' => null,
-                    'answered_at' => null,
-                ]);
+        if (!$this->attempt || $this->attempt->is_finished || $optionNumber < 1 || $optionNumber > 4) {
             return;
         }
-        // حالت عادی: ثبت / تغییر گزینه
-        $this->answers[$questionId] = $optionNumber;
-        TypedExamAttemptAnswer::where('attempt_id', $this->attempt->id)
+
+        $belongsToAttempt = TypedExamStudentOrder::where('attempt_id', $this->attempt->id)
             ->where('question_id', $questionId)
-            ->update([
-                'selected_option' => $optionNumber,
-                'answered_at' => now(),
+            ->exists();
+
+        if (!$belongsToAttempt) {
+            return;
+        }
+
+        DB::transaction(function () use ($questionId, $optionNumber): void {
+            $answer = TypedExamAttemptAnswer::where('attempt_id', $this->attempt->id)
+                ->where('question_id', $questionId)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$answer) {
+                $question = Question::withTrashed()->find($questionId);
+                $answer = TypedExamAttemptAnswer::create([
+                    'attempt_id' => $this->attempt->id,
+                    'question_id' => $questionId,
+                    'correct_option' => $question?->correct_option_number,
+                ]);
+            }
+
+            $selectedOption = $answer->selected_option === $optionNumber ? null : $optionNumber;
+
+            $answer->update([
+                'selected_option' => $selectedOption,
+                'is_correct' => null,
+                'answered_at' => $selectedOption === null ? null : now(),
             ]);
+
+            $this->answers[$questionId] = $selectedOption;
+        });
     }
 
     public function selectAnswerByPosition(int $questionId, int $position): void
@@ -297,12 +324,14 @@ class TypedExamTest extends Component
     {
         $this->calculateRemainingTime();
         $exam = $this->assignment->typedExam;
-        $questions = $exam->questions->keyBy('id');
         if ($this->attempt && $this->attempt->is_finished) {
             return redirect()->route('client.profile.typed-exam.result', ['attemptId' => $this->attempt->id]);
         }
-        $exam = $this->assignment->typedExam;
-        $questions = $exam->questions->keyBy('id');
+        $questions = Question::withTrashed()
+            ->with(['content', 'options'])
+            ->whereIn('id', collect($this->questionsOrder)->pluck('question_id'))
+            ->get()
+            ->keyBy('id');
         $currentQuestionData = null;
         if (isset($this->questionsOrder[$this->currentQuestionIndex])) {
             $qData = $this->questionsOrder[$this->currentQuestionIndex];

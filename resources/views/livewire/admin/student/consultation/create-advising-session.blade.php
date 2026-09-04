@@ -1,4 +1,5 @@
-<div>
+<div class="student-ui student-ui-auto-collapse">
+    @include('livewire.admin.student._styles')
     <div class="app-page-head">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -7,6 +8,11 @@
             </ol>
         </nav>
     </div>
+
+    <section class="student-page-hero">
+        <div class="student-page-hero__main"><span class="student-page-hero__icon"><i class="fi fi-rr-calendar"></i></span><div><h3>تاریخچه جلسات {{ $this->studentDisplayName($student) }}</h3><p>جلسات برگزارشده، وضعیت پیش‌جلسه و برنامه هفتگی دانش‌آموز.</p></div></div>
+        <a href="{{ route('admin.advising-sessions') }}" class="btn btn-outline-primary btn-sm">بازگشت به جلسات</a>
+    </section>
 
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">

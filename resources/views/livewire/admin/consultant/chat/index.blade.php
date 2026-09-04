@@ -1,4 +1,5 @@
-<div>
+<div class="student-ui">
+    @include('livewire.admin.student._styles')
     <div class="app-page-head">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">

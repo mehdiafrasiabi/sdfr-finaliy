@@ -24,6 +24,7 @@ class StudentExamSchedule extends Model
         'access_expires_at' => 'datetime',
         'exam_program_started_sms_sent_at' => 'datetime',
         'exam_program_ended_sms_sent_at' => 'datetime',
+        'converted_to_trial_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

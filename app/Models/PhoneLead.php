@@ -22,6 +22,7 @@ class PhoneLead extends Model
         'grade'          => 'integer',
         'attempts_count' => 'integer',
         'next_call_at'   => 'datetime',
+        'disinterest_at' => 'datetime',
     ];
 
     const STATUS_ACTIVE = 'active';
@@ -74,6 +75,16 @@ class PhoneLead extends Model
         return $this->hasMany(PhoneCall::class)->orderBy('called_at');
     }
 
+    public function registrationLinks(): HasMany
+    {
+        return $this->hasMany(PhoneRegistrationLink::class, 'phone_lead_id');
+    }
+
+    public function latestRegistrationLink(): HasOne
+    {
+        return $this->hasOne(PhoneRegistrationLink::class, 'phone_lead_id')->latestOfMany();
+    }
+
     /**
      * رنگ نمایش لید (کلاس رنگ بوت‌استرپ). خاکستری اگر شماره مرده/خاکستری باشد،
      * در غیر این صورت بر اساس تعداد تماس (سقف رنگِ قرمز برای ۴ به بالا).
@@ -97,6 +108,11 @@ class PhoneLead extends Model
         }
 
         return PhoneCall::FAIL_LABELS[$this->grey_reason] ?? $this->grey_reason;
+    }
+
+    public function getLastOutcomeLabelAttribute(): string
+    {
+        return PhoneCall::labelForOutcome($this->last_outcome);
     }
 
     public function getGradeLabelAttribute(): string
@@ -123,6 +139,50 @@ class PhoneLead extends Model
             self::STATUS_DEAD   => 'خاکستری',
             default             => 'نامشخص',
         };
+    }
+
+    public function getDisinterestStatusLabelAttribute(): string
+    {
+        return PhoneCall::DISINTEREST_LABELS[$this->disinterest_status] ?? '—';
+    }
+
+    public function canStartPhoneAcquisitionCall(bool $allowEarlyDisinterestCall = false): bool
+    {
+        if ($this->isExhausted()) {
+            return false;
+        }
+
+        if ($this->disinterest_status === PhoneCall::DISINTEREST_DEFINITIVE) {
+            return false;
+        }
+
+        if (
+            $this->disinterest_status === PhoneCall::DISINTEREST_TEMPORARY
+            && $this->next_call_at
+            && $this->next_call_at->isFuture()
+            && ! $allowEarlyDisinterestCall
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function getDisinterestCallLockMessageAttribute(): ?string
+    {
+        if ($this->disinterest_status === PhoneCall::DISINTEREST_DEFINITIVE) {
+            return 'برای این شماره عدم تمایل قطعی ثبت شده و اجازه تماس مجدد وجود ندارد.';
+        }
+
+        if (
+            $this->disinterest_status === PhoneCall::DISINTEREST_TEMPORARY
+            && $this->next_call_at
+            && $this->next_call_at->isFuture()
+        ) {
+            return 'این شماره تا موعد عدم تمایل موقت قفل است. برای تماس قبل از موعد، گزینه تماس زودهنگام را بزنید.';
+        }
+
+        return null;
     }
 
     public function isExhausted(): bool
@@ -155,16 +215,12 @@ class PhoneLead extends Model
             if ($failReason === PhoneCall::FAIL_WRONG) {
                 return self::STATUS_DEAD;
             }
-            // ۵ بار تلاش ناموفق → خاکستری
-            if ($attempt >= self::MAX_ATTEMPTS) {
-                return self::STATUS_DEAD;
-            }
             // عدم پاسخ/خاموش/رد تماس → کادر زنده می‌ماند
             return self::STATUS_ACTIVE;
         }
 
-        // ثبت‌نام یا عدم تمایل → بسته‌شده
-        if (in_array($result, [PhoneCall::RESULT_REGISTERED, PhoneCall::RESULT_NO_INTEREST], true)) {
+        // عدم تمایل قطعی → بسته‌شده؛ ثبت نام تا زمان مصرف لینک در صف ثبت‌نام می‌ماند.
+        if ($result === PhoneCall::RESULT_NO_INTEREST) {
             return self::STATUS_CLOSED;
         }
 

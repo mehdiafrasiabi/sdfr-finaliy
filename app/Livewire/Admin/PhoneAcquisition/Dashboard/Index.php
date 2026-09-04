@@ -3,17 +3,14 @@
 namespace App\Livewire\Admin\PhoneAcquisition\Dashboard;
 
 use App\Livewire\Admin\PhoneAcquisition\Concerns\LogsPhoneCalls;
-use App\Models\Payment;
 use App\Models\PhoneCall;
 use App\Models\PhoneLead;
 use App\Models\PhoneLeadAssignment;
 use App\Models\PhoneRegistrationLink;
 use App\Models\RegistrationGoal;
-use App\Models\TrialWeek;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 /**
  * داشبورد مشاور جذب تلفنی — شماره‌هایی که موعد تماس مجددشان رسیده است
@@ -21,38 +18,18 @@ use Livewire\WithPagination;
  */
 class Index extends Component
 {
-    use WithPagination, LogsPhoneCalls;
+    use LogsPhoneCalls;
 
     public function render()
     {
         $adminId = Auth::guard('admin')->id();
 
-        $activeLeadsBase = fn () => PhoneLead::query()
-            ->whereHas('assignments', fn ($q) =>
-                $q->where('admin_id', $adminId)
-                  ->where('status', PhoneLeadAssignment::STATUS_ACTIVE)
-            );
-
-        $dueBase = fn () => $activeLeadsBase()
-            ->dueForCall()
-            ->orderBy('next_call_at');
-
-        $leads = $dueBase()
-            ->with(['state:id,name', 'city:id,name'])
-            ->paginate(15);
-
         $activeLead = $this->activeLeadId ? PhoneLead::find($this->activeLeadId) : null;
         $dashboardStats = $this->buildDashboardStats($adminId);
-        $pendingRegistrationCount = PhoneLead::query()
-            ->whereHas('assignments', fn ($q) =>
-                $q->where('admin_id', $adminId)
-                  ->where('status', PhoneLeadAssignment::STATUS_ACTIVE)
-            )
-            ->where('status', PhoneLead::STATUS_ACTIVE)
-            ->where('last_outcome', PhoneCall::RESULT_REGISTRATION_FOLLOW_UP)
-            ->whereNotNull('next_call_at')
-            ->where('next_call_at', '<=', now())
-            ->count();
+        $pendingRegistrationCount = $this->registrationQueueLinksQuery($adminId)->count();
+        $phoneFollowUpCount = $this->phoneFollowUpLeadsQuery($adminId)->where('next_call_at', '<=', now())->count();
+        $temporaryDisinterestCount = $this->disinterestLeadsQuery($adminId, PhoneCall::DISINTEREST_TEMPORARY)->count();
+        $definitiveDisinterestCount = $this->disinterestLeadsQuery($adminId, PhoneCall::DISINTEREST_DEFINITIVE)->count();
 
         // اهداف فعال (تیمی + شخصیِ این مشاور) که مهلتشان نگذشته است + پیشرفت.
         $goals = RegistrationGoal::query()
@@ -69,8 +46,7 @@ class Index extends Component
             });
 
         return view('livewire.admin.phone-acquisition.dashboard.index', [
-            'leads'                  => $leads,
-            'dueCount'               => $dueBase()->count(),
+            'dueCount'               => $phoneFollowUpCount,
             'goals'                  => $goals,
             'activeLead'             => $activeLead,
             'notCalledCount'         => $dashboardStats['notCalledCount'],
@@ -83,8 +59,55 @@ class Index extends Component
             'bestHour'               => $dashboardStats['bestHour'],
             'bestHourCandidates'     => $dashboardStats['bestHourCandidates'],
             'pendingRegistrationCount' => $pendingRegistrationCount,
+            'temporaryDisinterestCount' => $temporaryDisinterestCount,
+            'definitiveDisinterestCount' => $definitiveDisinterestCount,
             'now'                    => now(),
         ])->layout('layouts.admin.app');
+    }
+
+    protected function phoneFollowUpLeadsQuery(int $adminId)
+    {
+        return PhoneLead::query()
+            ->where('status', PhoneLead::STATUS_ACTIVE)
+            ->where('last_outcome', PhoneCall::RESULT_FOLLOW_UP)
+            ->whereDoesntHave('registrationLinks')
+            ->whereHas('assignments', fn ($assignmentQuery) => $assignmentQuery
+                ->where('admin_id', $adminId)
+                ->where('status', PhoneLeadAssignment::STATUS_ACTIVE)
+            );
+    }
+
+    protected function registrationQueueLinksQuery(int $adminId)
+    {
+        return PhoneRegistrationLink::query()
+            ->where('admin_id', $adminId)
+            ->whereNull('registered_user_id')
+            ->whereNotExists(function ($query) {
+                $query->selectRaw('1')
+                    ->from('phone_registration_links as newer_links')
+                    ->whereColumn('newer_links.phone_lead_id', 'phone_registration_links.phone_lead_id')
+                    ->whereNull('newer_links.registered_user_id')
+                    ->whereColumn('newer_links.id', '>', 'phone_registration_links.id');
+            })
+            ->whereHas('lead', fn ($leadQuery) => $leadQuery
+                ->where('status', PhoneLead::STATUS_ACTIVE)
+                ->whereIn('last_outcome', [
+                    PhoneCall::RESULT_REGISTERED,
+                    PhoneCall::RESULT_REGISTRATION_FOLLOW_UP,
+                ])
+                ->whereHas('assignments', fn ($assignmentQuery) => $assignmentQuery
+                    ->where('admin_id', $adminId)
+                    ->where('status', PhoneLeadAssignment::STATUS_ACTIVE)
+                )
+            );
+    }
+
+    protected function disinterestLeadsQuery(int $adminId, string $status)
+    {
+        return PhoneLead::query()
+            ->where('last_outcome', PhoneCall::RESULT_NO_INTEREST)
+            ->where('disinterest_status', $status)
+            ->whereHas('assignments', fn ($assignmentQuery) => $assignmentQuery->where('admin_id', $adminId));
     }
 
     protected function buildDashboardStats(int $adminId): array
@@ -103,7 +126,9 @@ class Index extends Component
         $consultantLinks = PhoneRegistrationLink::query()
             ->where('admin_id', $adminId)
             ->whereNotNull('registered_user_id')
-            ->get(['registered_user_id']);
+            ->with(['user.trialWeek', 'user.student.examSchedules', 'user.examSchedules'])
+            ->latest('used_at')
+            ->get();
 
         $callLogs = PhoneCall::query()
             ->where('admin_id', $adminId)
@@ -112,13 +137,15 @@ class Index extends Component
         return [
             'notCalledCount'     => $activeAssignedLeads->where('attempts_count', 0)->count(),
             'needsFollowUpCount' => $activeAssignedLeads->whereNotNull('next_call_at')->count(),
-            'myStudentsCount'    => $consultantLinks->pluck('registered_user_id')->filter()->unique()->count(),
+            'myStudentsCount'    => $this->buildRegistrationStats($consultantLinks)['total'],
             'colorCounts'        => $this->buildColorCounts($allAssignedLeads),
             'registrationStats'  => $this->buildRegistrationStats($consultantLinks),
             'teamRegistrationStats' => $this->buildRegistrationStats(
                 PhoneRegistrationLink::query()
                     ->whereNotNull('registered_user_id')
-                    ->get(['registered_user_id'])
+                    ->with(['user.trialWeek', 'user.student.examSchedules', 'user.examSchedules'])
+                    ->latest('used_at')
+                    ->get()
             ),
             'myCallsCount'       => $callLogs->count(),
             'totalTalkTimeLabel' => $this->formatTalkDuration((int) $callLogs->sum('talk_duration_seconds')),
@@ -153,50 +180,30 @@ class Index extends Component
             return [
                 'total'    => 0,
                 'trial'    => 0,
-                'purchase' => 0,
+                'exam'     => 0,
             ];
         }
 
-        $trialEvents = TrialWeek::query()
-            ->whereIn('user_id', $userIds)
-            ->get(['user_id', 'created_at'])
-            ->groupBy('user_id')
-            ->map(fn (Collection $items) => $items->min(fn (TrialWeek $trialWeek) => optional($trialWeek->created_at)->timestamp));
-
-        $purchaseEvents = Payment::query()
-            ->whereIn('user_id', $userIds)
-            ->where('status', 'completed')
-            ->where(function ($q) {
-                $q->whereIn('purpose', [Payment::PURPOSE_COURSE_FULL, Payment::PURPOSE_INSTALLMENT_INITIAL])
-                    ->orWhereNull('purpose');
-            })
-            ->get(['user_id', 'created_at', 'updated_at'])
-            ->groupBy('user_id')
-            ->map(fn (Collection $items) => $items->min(fn (Payment $payment) => optional($payment->updated_at ?? $payment->created_at)->timestamp));
-
         $trialCount = 0;
-        $purchaseCount = 0;
+        $examCount = 0;
 
-        foreach ($userIds as $userId) {
-            $trialAt = $trialEvents->get($userId);
-            $purchaseAt = $purchaseEvents->get($userId);
-
-            if (! $trialAt && ! $purchaseAt) {
+        foreach ($links->unique('registered_user_id') as $link) {
+            $programType = $link->completedRegistrationProgramType();
+            if (! $programType) {
                 continue;
             }
 
-            if ($trialAt && (! $purchaseAt || $trialAt <= $purchaseAt)) {
+            if ($programType === PhoneRegistrationLink::PLAN_EXAM) {
+                $examCount++;
+            } else {
                 $trialCount++;
-                continue;
             }
-
-            $purchaseCount++;
         }
 
         return [
-            'total'    => $trialCount + $purchaseCount,
+            'total'    => $trialCount + $examCount,
             'trial'    => $trialCount,
-            'purchase' => $purchaseCount,
+            'exam'     => $examCount,
         ];
     }
 

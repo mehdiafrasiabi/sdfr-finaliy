@@ -31,8 +31,7 @@ class AdvisorChat extends Component
         abort_if(! $this->student, 403);
 
         // قفلِ دوره‌ی هفته‌ی آزمایشی: تا قبل از دسترسی کامل، این بخش بسته است.
-        $trial = $this->student->trialWeek;
-        if ($trial && ! $trial->hasFullAccess()) {
+        if ($this->student->isAdvisorChatLocked()) {
             $this->locked = true;
             $this->seo()->setTitle('ارتباط با مشاور');
             return;

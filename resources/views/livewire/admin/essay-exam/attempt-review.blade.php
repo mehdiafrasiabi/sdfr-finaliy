@@ -1,4 +1,5 @@
-<div x-data="{ zoom: 1, answerModal: false }">
+<div class="student-ui student-ui-auto-collapse" x-data="{ zoom: 1, answerModal: false }">
+    @include('livewire.admin.student._styles')
     @push('link')
         <style>[x-cloak] { display: none !important; }</style>
 
@@ -130,4 +131,3 @@
         </div>
     </div>
 </div>
-

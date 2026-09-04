@@ -1,4 +1,5 @@
-<div>
+<div class="student-ui student-ui-auto-collapse">
+    @include('livewire.admin.student._styles')
     <div class="container-fluid">
         <div class="row mb-3">
             <div class="col-12 d-flex justify-content-between align-items-center">
@@ -75,4 +76,3 @@
         </div>
     </div>
 </div>
-

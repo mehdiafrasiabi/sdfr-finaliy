@@ -37,9 +37,7 @@ class EnsureClientHasActiveAccess
         $accessActive = $hasCompletedPayment && ! ($student && $student->accessExpired());
 
         // هفته آزمایشی فعال (منقضی نشده)
-        $trialWeek = $user->trialWeek;
-        $hasActiveTrial = $trialWeek
-            && (! $trialWeek->expires_at || $trialWeek->expires_at->isFuture());
+        $hasActiveTrial = $student?->hasActiveTrialAccess() ?? false;
 
         if ($accessActive || $hasActiveTrial) {
             return $next($request);

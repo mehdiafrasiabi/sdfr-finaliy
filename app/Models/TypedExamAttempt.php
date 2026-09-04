@@ -104,8 +104,11 @@ class TypedExamAttempt extends Model
     public function calculateScore(): float
 
     {
-        $totalQuestions = $this->assignment?->typedExam?->questions()->count()
-            ?? $this->answers()->count();
+        $totalQuestions = $this->studentOrders()->count();
+
+        if ($totalQuestions === 0) {
+            $totalQuestions = $this->answers()->count();
+        }
 
         if ($totalQuestions === 0) {
 
@@ -166,15 +169,15 @@ class TypedExamAttempt extends Model
     public function getUnansweredCountAttribute(): int
 
     {
-        $totalQuestions = $this->assignment?->typedExam?->questions()->count();
+        $totalQuestions = $this->studentOrders()->count();
 
-        if ($totalQuestions !== null) {
-            $answeredCount = $this->answers()->whereNotNull('selected_option')->count();
-
-            return max($totalQuestions - $answeredCount, 0);
+        if ($totalQuestions === 0) {
+            $totalQuestions = $this->answers()->count();
         }
 
-        return $this->answers()->whereNull('selected_option')->count();
+        $answeredCount = $this->answers()->whereNotNull('selected_option')->count();
+
+        return max($totalQuestions - $answeredCount, 0);
 
     }
 

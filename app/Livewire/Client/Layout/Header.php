@@ -92,9 +92,12 @@ class Header extends Component
         }
 
         // حالت آزمایشی → پشتیبان جذب
-        $trial = TrialWeek::where('user_id', $user->id)
-            ->whereNotNull('acquisition_supporter_id')
-            ->latest()->first();
+        $trial = $student?->is_trial
+            ? TrialWeek::where('user_id', $user->id)
+                ->whereNotNull('acquisition_supporter_id')
+                ->latest()
+                ->first()
+            : null;
         if ($trial && $trial->acquisitionSupporter) {
             $sup = $trial->acquisitionSupporter;
             $this->advisorInfo = [

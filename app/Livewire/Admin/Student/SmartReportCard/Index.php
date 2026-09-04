@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Student\SmartReportCard;
 use App\Models\GeneralSetting;
 use App\Models\SmartReportCard;
 use App\Models\Student;
+use App\Services\ExamPlanningService;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -32,17 +33,19 @@ class Index extends Component
 
     public function render()
     {
-        $adminId = auth()->id();
+        $admin = auth('admin')->user();
+        $examPlanning = app(ExamPlanningService::class);
+        $includePaidStudents = $this->smartReportCardManagerGateEnabled();
 
         $studentsQuery = Student::query()
             ->with([
                 'user.personalInformation',
                 'user.profile',
-            ])
-            ->where('is_trial', false)
-            ->where(function ($q) use ($adminId) {
-                $q->where('advisor_id', $adminId);
-            });
+                'trialWeek',
+            ]);
+
+        $examPlanning->applySmartReportCardStudentVisibility($studentsQuery, includePaidStudents: $includePaidStudents);
+        $examPlanning->applySmartReportCardOwnerVisibility($studentsQuery, $admin);
 
         if ($this->search !== '') {
             $studentsQuery->whereHas('user.personalInformation', function ($q) {
@@ -68,8 +71,19 @@ class Index extends Component
 
     private function ensureSmartReportCardAccess(): void
     {
-        $isEnabled = (bool) GeneralSetting::query()->value('smart_report_card_enabled');
+        if ($this->smartReportCardManagerGateEnabled()) {
+            return;
+        }
 
-        abort_unless($isEnabled, 403, 'دسترسی به کارنامه هوشمند توسط manager غیرفعال است.');
+        abort_unless(
+            app(ExamPlanningService::class)->adminHasAutomaticSmartReportCardStudents(),
+            403,
+            'دسترسی به کارنامه هوشمند توسط manager غیرفعال است.'
+        );
+    }
+
+    private function smartReportCardManagerGateEnabled(): bool
+    {
+        return (bool) GeneralSetting::query()->value('smart_report_card_enabled');
     }
 }

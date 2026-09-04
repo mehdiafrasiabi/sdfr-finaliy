@@ -1,4 +1,5 @@
-<div>
+<div class="em-page">
+    @include('livewire.admin.educational-manager._styles')
     <div class="app-page-head">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -7,6 +8,11 @@
             </ol>
         </nav>
     </div>
+
+    <section class="em-hero">
+        <div class="em-hero-main"><span class="em-hero-icon"><i class="fi fi-rr-time-past"></i></span><div><h3>تاریخچه تماس‌های جذب</h3><p>نتیجه تماس‌ها و وضعیت فعلی هر شماره را به‌صورت یکپارچه مشاهده کنید.</p></div></div>
+        <a class="btn btn-outline-primary" href="{{ route('admin.educational-manager.acquisition.details', ['channel'=>'phone','segment'=>'all']) }}">گزارش آماری کامل</a>
+    </section>
 
     <div class="statbox widget box box-shadow">
         <div class="widget-header">
@@ -43,9 +49,7 @@
                             <td><span class="badge bg-light text-dark border">{{ $lead->status_label }}</span></td>
                             <td>
                                 @if ($lead->last_outcome)
-                                    {{ \App\Models\PhoneCall::FAIL_LABELS[$lead->last_outcome]
-                                        ?? \App\Models\PhoneCall::RESULT_LABELS[$lead->last_outcome]
-                                        ?? $lead->last_outcome }}
+                                    {{ $lead->last_outcome_label }}
                                 @else
                                     —
                                 @endif

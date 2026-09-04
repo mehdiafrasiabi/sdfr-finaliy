@@ -595,9 +595,12 @@ class Dashboard extends Component
             ];
         }
 
-        $trial = TrialWeek::where('user_id', $this->user->id)
-            ->whereNotNull('acquisition_supporter_id')
-            ->latest()->first();
+        $trial = $this->student?->is_trial
+            ? TrialWeek::where('user_id', $this->user->id)
+                ->whereNotNull('acquisition_supporter_id')
+                ->latest()
+                ->first()
+            : null;
         if ($trial && $trial->acquisitionSupporter) {
             $sup = $trial->acquisitionSupporter;
             return [

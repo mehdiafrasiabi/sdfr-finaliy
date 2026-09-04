@@ -30,17 +30,20 @@ class SmartReportCardShow extends Component
 
     public function mount(SmartReportCard $smartReportCard): void
     {
-        $studentId = Auth::user()->student->id ?? null;
-        if (app(ExamPlanningService::class)->shouldHideTrialExamProgramSections(Auth::user())) {
+        $user = Auth::user();
+        $studentId = $user->student->id ?? null;
+        $examPlanning = app(ExamPlanningService::class);
+
+        if ($examPlanning->shouldHideTrialExamProgramReportCard($user)) {
             abort(404);
         }
 
-        // if (!$studentId || $smartReportCard->student_id !== $studentId || !$smartReportCard->is_active) {
-        //     abort(404);
-        // }
+        if (!$studentId || (int) $smartReportCard->student_id !== (int) $studentId || !$smartReportCard->is_active) {
+            abort(404);
+        }
 
         $this->card = $smartReportCard;
-        $this->studentGrade = (string) (Auth::user()->personalInformation->grade ?? '12');
+        $this->studentGrade = (string) ($user->personalInformation->grade ?? '12');
 
         $this->seo()->setTitle('کارنامه هوشمند ' . $this->card->month_name . ' ' . $this->card->jalali_year);
     }

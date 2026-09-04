@@ -1,4 +1,5 @@
-<div>
+<div class="em-page">
+    @include('livewire.admin.educational-manager._styles')
     <div class="app-page-head">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -7,6 +8,11 @@
             </ol>
         </nav>
     </div>
+
+    <section class="em-hero">
+        <div class="em-hero-main"><span class="em-hero-icon"><i class="fi fi-rr-calendar-clock"></i></span><div><h3>مرخصی مشاوران</h3><p>بررسی درخواست‌های مرخصی و مشاهده سابقه تصمیم‌های ثبت‌شده.</p></div></div>
+        <span class="badge bg-warning-subtle text-warning">{{ number_format($pending->count()) }} درخواست در انتظار</span>
+    </section>
 
     {{-- در انتظار تایید --}}
     <div class="statbox widget box box-shadow mb-4">

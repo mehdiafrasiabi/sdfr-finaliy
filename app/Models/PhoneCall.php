@@ -18,7 +18,6 @@ class PhoneCall extends Model
     protected $casts = [
         'connected'             => 'boolean',
         'attempt_number'        => 'integer',
-        'willingness'           => 'integer',
         'talk_duration_seconds' => 'integer',
         'spoke_with_people'     => 'array',
         'called_at'             => 'datetime',
@@ -52,11 +51,22 @@ class PhoneCall extends Model
     const RESULT_FOLLOW_UP   = 'fu';
     const RESULT_NO_INTEREST = 'no_int';
 
+    const DISINTEREST_TEMPORARY = 'temporary';
+    const DISINTEREST_DEFINITIVE = 'definitive';
+
     const RESULT_LABELS = [
-        'registered' => 'ثبت‌نام',
+        'registered' => 'ثبت نام',
         'reg_fu'     => 'نیاز به پیگیری مجدد ثبت نام',
-        'fu'         => 'نیاز به پیگیری مجدد جذب تلفنی',
+        'registration_follow_up' => 'نیاز به پیگیری مجدد ثبت نام',
+        'fu'         => 'نیاز پیگیری مجدد',
+        'follow_up'  => 'نیاز پیگیری مجدد',
         'no_int'     => 'عدم تمایل',
+        'no_interest' => 'عدم تمایل',
+    ];
+
+    const DISINTEREST_LABELS = [
+        self::DISINTEREST_TEMPORARY => 'عدم تمایل موقت',
+        self::DISINTEREST_DEFINITIVE => 'عدم تمایل قطعی',
     ];
 
     public function lead(): BelongsTo
@@ -76,7 +86,24 @@ class PhoneCall extends Model
 
     public function getResultLabelAttribute(): string
     {
-        return self::RESULT_LABELS[$this->result] ?? '—';
+        return self::labelForOutcome($this->result);
+    }
+
+    public static function labelForOutcome(?string $outcome): string
+    {
+        if (! $outcome) {
+            return '—';
+        }
+
+        return self::FAIL_LABELS[$outcome]
+            ?? self::RESULT_LABELS[$outcome]
+            ?? self::DISINTEREST_LABELS[$outcome]
+            ?? 'نامشخص';
+    }
+
+    public function getDisinterestStatusLabelAttribute(): string
+    {
+        return self::DISINTEREST_LABELS[$this->disinterest_status] ?? '—';
     }
 
     /**

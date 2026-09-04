@@ -29,6 +29,11 @@ class Guide extends Component
     {
         $this->seo()->setTitle('هفته آزمایشی');
         $this->trialWeek = TrialWeek::where('user_id', Auth::id())->latest()->first();
+
+        if (Auth::user()?->student && ! Auth::user()->student->is_trial) {
+            redirect()->route('client.profile.dashboard');
+            return;
+        }
         $this->examPlanningMode = app(ExamPlanningService::class)->shouldExposeTrialModule(Auth::user());
 
         if (!$this->trialWeek) {

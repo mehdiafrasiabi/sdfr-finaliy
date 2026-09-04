@@ -1,4 +1,5 @@
-<div>
+<div class="student-ui student-ui-auto-collapse">
+    @include('livewire.admin.student._styles')
     <div class="container-fluid">
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>

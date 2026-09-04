@@ -48,7 +48,7 @@ class TypedExamStudentOrder extends Model
 
     {
 
-        return $this->belongsTo(Question::class);
+        return $this->belongsTo(Question::class)->withTrashed();
 
     }
 

@@ -1,4 +1,5 @@
-<div>
+<div class="em-page">
+    @include('livewire.admin.educational-manager._styles')
     <div class="app-page-head">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -7,6 +8,11 @@
             </ol>
         </nav>
     </div>
+
+    <section class="em-hero">
+        <div class="em-hero-main"><span class="em-hero-icon"><i class="fi fi-rr-share"></i></span><div><h3>اختصاص شماره به مشاور</h3><p>لیدهای آزاد را انتخاب و به‌صورت گروهی به مشاور جذب تلفنی تخصیص دهید.</p></div></div>
+        <span class="badge bg-primary-subtle text-primary">{{ count($selectedLeadIds) }} شماره انتخاب‌شده</span>
+    </section>
 
     <div class="statbox widget box box-shadow">
         <div class="widget-header">

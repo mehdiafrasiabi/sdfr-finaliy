@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\TypedExam;
 
 use App\Models\TypedExamAttempt;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Livewire\Component;
 
@@ -23,9 +24,31 @@ class StudentResult extends Component
             'assignment.typedExam.questions.options',
             'assignment.typedExam.questions.subject',
             'answers',
-            'studentOrders',
+            'studentOrders.question.content',
+            'studentOrders.question.options',
+            'studentOrders.question.subject',
             'analysisUploads', // مهم
-        ])->findOrFail($attemptId);
+        ])
+            ->whereKey($attemptId)
+            ->whereHas('assignment', fn ($query) => $query->where('typed_exam_id', $examId))
+            ->whereHas('student', fn ($query) => $query->where('advisor_id', Auth::guard('admin')->id()))
+            ->firstOrFail();
+
+        foreach ($this->attempt->answers as $answer) {
+            $answer->checkCorrectness();
+        }
+        $this->attempt->updateScore();
+        $this->attempt->refresh()->load([
+            'student.user',
+            'assignment.typedExam.questions.content',
+            'assignment.typedExam.questions.options',
+            'assignment.typedExam.questions.subject',
+            'answers',
+            'studentOrders.question.content',
+            'studentOrders.question.options',
+            'studentOrders.question.subject',
+            'analysisUploads',
+        ]);
     }
 
     /**
@@ -94,17 +117,44 @@ class StudentResult extends Component
         $exam    = $this->attempt->assignment->typedExam;
         $answers = $this->attempt->answers->keyBy('question_id');
 
-        $questionsWithAnswers = $exam->questions->map(function ($question) use ($answers) {
-            $answer        = $answers->get($question->id);
-            $correctOption = $question->options->firstWhere('is_correct', true);
+        $orders = $this->attempt->studentOrders->sortBy('question_order');
+        $questionSource = $orders->isNotEmpty() ? $orders : $exam->questions;
+
+        $questionsWithAnswers = $questionSource->map(function ($item) use ($answers, $orders) {
+            $question = $orders->isNotEmpty() ? $item->question : $item;
+
+            if (!$question) {
+                return null;
+            }
+
+            $answer = $answers->get($question->id);
+            $optionsOrder = $orders->isNotEmpty()
+                ? array_map('intval', $item->options_order ?: [1, 2, 3, 4])
+                : [1, 2, 3, 4];
+            $correctOption = $answer?->correctOptionNumber() ?? $question->correct_option_number;
+            $selectedPosition = $answer?->selected_option === null
+                ? null
+                : array_search((int) $answer->selected_option, $optionsOrder, true);
+            $correctPosition = $correctOption === null
+                ? null
+                : array_search((int) $correctOption, $optionsOrder, true);
+            $options = $question->options->keyBy('option_number');
 
             return [
                 'question'              => $question,
                 'selected_option'       => $answer?->selected_option,
-                'is_correct'            => $answer?->is_correct,
-                'correct_option_number' => $correctOption?->option_number,
+                'selected_position'     => is_int($selectedPosition) ? $selectedPosition + 1 : null,
+                'is_correct'            => $answer?->selected_option === null
+                    ? null
+                    : (int) $answer->selected_option === (int) $correctOption,
+                'correct_option_number' => $correctOption,
+                'correct_position'      => is_int($correctPosition) ? $correctPosition + 1 : null,
+                'ordered_options'       => collect($optionsOrder)
+                    ->map(fn ($number) => $options->get($number))
+                    ->filter()
+                    ->values(),
             ];
-        });
+        })->filter()->values();
 
         $stats = [
             'correct'     => $this->attempt->correct_count,

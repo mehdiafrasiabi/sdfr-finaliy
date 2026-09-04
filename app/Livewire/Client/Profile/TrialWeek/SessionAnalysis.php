@@ -32,6 +32,11 @@ class SessionAnalysis extends Component
 
         $this->trialWeek = TrialWeek::where('user_id', Auth::id())->latest()->first();
 
+        if (Auth::user()?->student && ! Auth::user()->student->is_trial) {
+            redirect()->route('client.profile.dashboard');
+            return;
+        }
+
         if (!$this->trialWeek || !$this->trialWeek->canBuildProgram()) {
             if ($this->trialWeek?->status === TrialWeek::STATUS_PROGRAM_BUILT) {
                 // اگر برنامه قبلاً ساخته شده، اجازه مشاهده داشته باشد

@@ -1,4 +1,5 @@
-<div>
+<div class="em-page">
+    @include('livewire.admin.educational-manager._styles')
     <div class="app-page-head">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -14,6 +15,11 @@
     @php
         $colorFa = ['primary'=>'آبی','success'=>'سبز','warning'=>'زرد','danger'=>'قرمز','secondary'=>'خاکستری'];
     @endphp
+
+    <section class="em-hero">
+        <div class="em-hero-main"><span class="em-hero-icon"><i class="fi fi-rr-phone-call"></i></span><div><h3>{{ $lead->full_name ?: 'جزئیات شماره' }}</h3><p dir="ltr">{{ $lead->mobile }}</p></div></div>
+        <span class="badge bg-{{ $lead->color }}">{{ $lead->status_label }}</span>
+    </section>
 
     <div class="row g-3">
         {{-- اطلاعات شماره --}}
@@ -80,13 +86,12 @@
                                         <div class="col-md-6 mb-1"><strong>نتیجه:</strong>
                                             <span class="badge bg-success-subtle text-success">{{ $call->result_label }}</span></div>
                                         <div class="col-md-6 mb-1"><strong>صحبت با:</strong> {{ $call->spoke_with_label }}</div>
-                                        <div class="col-md-6 mb-1"><strong>درصد تمایل:</strong> {{ $call->willingness }}٪</div>
                                         @if ($call->result === \App\Models\PhoneCall::RESULT_FOLLOW_UP && $call->follow_up_at)
                                             <div class="col-md-6 mb-1"><strong>زمان پیگیری:</strong>
                                                 {{ jalali($call->follow_up_at)->format('%d %B %Y، %H:%M') }}</div>
                                         @endif
-                                        @if ($call->willingness !== null && $call->willingness < 50 && $call->low_willingness_reason)
-                                            <div class="col-12 mb-1 text-danger"><strong>علت عدم تمایل:</strong> {{ $call->low_willingness_reason }}</div>
+                                        @if ($call->result === \App\Models\PhoneCall::RESULT_NO_INTEREST && $call->disinterest_reason)
+                                            <div class="col-12 mb-1 text-danger"><strong>علت عدم تمایل:</strong> {{ $call->disinterest_reason }}</div>
                                         @endif
                                         @if ($call->summary)
                                             <div class="col-12 mt-1"><strong>خلاصهٔ گفتگو:</strong> {{ $call->summary }}</div>

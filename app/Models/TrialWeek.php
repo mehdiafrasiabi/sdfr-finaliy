@@ -27,6 +27,7 @@ class TrialWeek extends Model
         'acq_probability'          => 'integer',
         'acq_confirmed'            => 'boolean',
         'acq_reminder_at'          => 'datetime',
+        'acq_disinterest_at'       => 'datetime',
     ];
 
     const STATUS_PENDING               = 'pending';
@@ -35,6 +36,13 @@ class TrialWeek extends Model
     const STATUS_PRE_SESSION_DONE      = 'pre_session_done';
     const STATUS_PROGRAM_BUILT         = 'program_built';
     const PROGRAM_DAYS                 = 8;
+    const ACQ_DISINTEREST_TEMPORARY    = 'temporary';
+    const ACQ_DISINTEREST_DEFINITIVE   = 'definitive';
+
+    const ACQ_DISINTEREST_LABELS = [
+        self::ACQ_DISINTEREST_TEMPORARY => 'عدم تمایل موقت',
+        self::ACQ_DISINTEREST_DEFINITIVE => 'عدم تمایل قطعی',
+    ];
 
     // پایه‌ی ۱۳ = فارغ‌التحصیل (مدرسه‌اش تمام شده، فقط رشته دارد)
     const GRADE_GRADUATE = 13;
@@ -149,6 +157,19 @@ class TrialWeek extends Model
             self::STATUS_PROGRAM_BUILT       => 'success',
             default                          => 'secondary',
         };
+    }
+
+    public function scopeVisibleForAcquisition($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('acq_disinterest_status')
+                ->orWhere('acq_disinterest_status', '!=', self::ACQ_DISINTEREST_DEFINITIVE);
+        });
+    }
+
+    public function getAcqDisinterestLabelAttribute(): string
+    {
+        return self::ACQ_DISINTEREST_LABELS[$this->acq_disinterest_status] ?? '—';
     }
 
     public function hasCompletedAssessments(): bool

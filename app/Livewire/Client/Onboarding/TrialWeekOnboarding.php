@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
+use Morilog\Jalali\Jalalian;
 
 class TrialWeekOnboarding extends Component
 {
@@ -36,9 +37,9 @@ class TrialWeekOnboarding extends Component
     public string $avatar       = '';   // (B1) مسیرِ آواتارِ انتخابی
     public string $fatherMobile = '';
     public string $motherMobile = '';
-    public string $grade        = '10';
-    public string $field        = 'math';
-    public bool   $attendsSchool = true;
+    public string $grade        = '';
+    public string $field        = '';
+    public ?bool  $attendsSchool = null;
     public string $mobile       = '';
     public string $password     = '';
     public string $passwordConf = '';
@@ -163,7 +164,34 @@ class TrialWeekOnboarding extends Component
             'firstName'    => ['required', 'string', 'min:2', 'max:50', 'regex:/^[\p{Arabic}\s]+$/u'],
             'lastName'     => ['required', 'string', 'min:2', 'max:50', 'regex:/^[\p{Arabic}\s]+$/u'],
             'codeMell'     => ['required', 'digits:10', Rule::unique('personal_information', 'code_mell')],
-            'birthDate'    => ['required', 'regex:/^\d{4}\/\d{2}\/\d{2}$/'],
+            'birthDate'    => [
+                'required',
+                'regex:/^\d{4}\/\d{2}\/\d{2}$/',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (! is_string($value) || ! preg_match('/^(\d{4})\/(\d{2})\/(\d{2})$/', $value, $parts)) {
+                        return;
+                    }
+
+                    $year = (int) $parts[1];
+                    $currentJalaliYear = (int) Jalalian::now()->format('Y');
+
+                    if ($year < 1380 || $year > $currentJalaliYear) {
+                        $fail('سال تولد باید بین ۱۳۸۰ تا سال جاری باشد.');
+                        return;
+                    }
+
+                    try {
+                        $date = Jalalian::fromFormat('Y/m/d', $value);
+                    } catch (\Throwable) {
+                        $fail('تاریخ تولد انتخاب‌شده معتبر نیست.');
+                        return;
+                    }
+
+                    if ($date->format('Y/m/d') !== $value) {
+                        $fail('تاریخ تولد انتخاب‌شده معتبر نیست.');
+                    }
+                },
+            ],
             'gender'       => ['required', 'in:male,female'],
             'avatar'       => [
                 'required',
@@ -211,12 +239,16 @@ class TrialWeekOnboarding extends Component
         if ($this->grade !== '9') {
             $rules['field'] = ['required', Rule::in($this->availableFieldValues())];
         }
+        if (! $this->examPlanMode && $this->grade !== 'graduate') {
+            $rules['attendsSchool'] = ['required', 'boolean'];
+        }
 
         $v = Validator::make([
             'fatherMobile' => $this->fatherMobile,
             'motherMobile' => $this->motherMobile,
             'grade'        => $this->grade,
             'field'        => $this->field,
+            'attendsSchool' => $this->attendsSchool,
         ], $rules, [
             'fatherMobile.required'  => 'شماره پدر الزامی است.',
             'fatherMobile.regex'     => 'فرمت شماره پدر صحیح نیست.',
@@ -227,6 +259,8 @@ class TrialWeekOnboarding extends Component
             'grade.in'               => 'پایه انتخاب‌شده معتبر نیست.',
             'field.required'         => 'رشته الزامی است.',
             'field.in'               => 'رشته انتخاب‌شده معتبر نیست.',
+            'attendsSchool.required' => 'لطفاً مشخص کنید در حال حاضر مدرسه می‌روید یا نه.',
+            'attendsSchool.boolean'  => 'وضعیت مدرسه معتبر نیست.',
         ]);
 
         if ($v->fails()) {
@@ -276,13 +310,16 @@ class TrialWeekOnboarding extends Component
 
     public function updatedGrade(string $value): void
     {
-        if ($value === 'graduate') {
-            $this->attendsSchool = false;
-        }
+        $this->resetValidation(['grade', 'field']);
 
         if ($this->examPlanMode) {
             $this->normalizeExamPlanSelection();
         }
+    }
+
+    public function updatedField(): void
+    {
+        $this->resetValidation('field');
     }
 
     // (B1) با تغییرِ جنسیت، آواتارِ انتخابی پاک می‌شود تا آواتارِ هم‌جنسِ درست انتخاب شود.
@@ -297,6 +334,19 @@ class TrialWeekOnboarding extends Component
     public function updatedMotherMobile($value): void { $this->motherMobile = $this->convertToEnglishDigits($value); }
     public function updatedCodeMell($value): void     { $this->codeMell = $this->convertToEnglishDigits($value); }
     public function updatedBirthDate($value): void    { $this->birthDate = $this->convertToEnglishDigits($value); }
+
+    public function setBirthDate(string $value): void
+    {
+        $this->birthDate = $this->convertToEnglishDigits($value);
+        $this->resetValidation('birthDate');
+    }
+
+    public function setAttendsSchool(bool $value): void
+    {
+        $this->attendsSchool = $value;
+        $this->resetValidation('attendsSchool');
+    }
+
     public function updatedOtpInput($value): void
     {
         $this->otpInput = $this->normalizeOtpInput($value);
@@ -518,6 +568,10 @@ class TrialWeekOnboarding extends Component
             if ($link) {
                 $link->update(['registered_user_id' => $user->id, 'used_at' => now()]);
 
+                if ($link->admin_id) {
+                    $user->forceFill(['referrer_admin_id' => $link->admin_id])->save();
+                }
+
                 \App\Models\PhoneLead::whereKey($link->phone_lead_id)->update([
                     'status'       => \App\Models\PhoneLead::STATUS_CLOSED,
                     'last_outcome' => \App\Models\PhoneCall::RESULT_REGISTERED,
@@ -628,8 +682,11 @@ class TrialWeekOnboarding extends Component
     private function normalizeExamPlanSelection(): void
     {
         $gradeValues = $this->availableGradeValues();
-        if (! in_array((string) $this->grade, $gradeValues, true) && ! empty($gradeValues)) {
-            $this->grade = (int) $gradeValues[0];
+        if ($this->grade === '' || ! in_array((string) $this->grade, $gradeValues, true)) {
+            $this->grade = '';
+            $this->field = '';
+            $this->attendsSchool = true;
+            return;
         }
 
         if ((int) $this->grade === 9) {
@@ -639,8 +696,8 @@ class TrialWeekOnboarding extends Component
         }
 
         $fieldValues = $this->availableFieldValues();
-        if (! in_array($this->field, $fieldValues, true) && ! empty($fieldValues)) {
-            $this->field = $fieldValues[0];
+        if (! in_array($this->field, $fieldValues, true)) {
+            $this->field = '';
         }
 
         $this->attendsSchool = true;

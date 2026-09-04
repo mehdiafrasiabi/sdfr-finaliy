@@ -1,4 +1,5 @@
-<div>
+<div class="pa-page">
+    @include('livewire.admin.phone-acquisition._styles')
     <div class="app-page-head">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">

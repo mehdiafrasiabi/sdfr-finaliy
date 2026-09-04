@@ -32,6 +32,7 @@ class TrialAcquisitionCall extends Model
     const STAGE_DAY7      = 'day7';
     const STAGE_EMERGENCY = 'emergency';
     const STAGE_EXTRA     = 'extra';
+    const STAGE_REGISTRATION_FOLLOW_UP = 'registration_follow_up';
 
     const STAGE_LABELS = [
         'day1'      => 'روز اول (ثبت‌نام)',
@@ -39,6 +40,7 @@ class TrialAcquisitionCall extends Model
         'day7'      => 'روز هفتم',
         'emergency' => 'تماس اضطراری',
         'extra'     => 'تماس اضافه',
+        'registration_follow_up' => 'پیگیری ثبت‌نام',
     ];
 
     /** حداکثر تعداد تماس در هر مرحله */
@@ -54,11 +56,15 @@ class TrialAcquisitionCall extends Model
     const FAIL_NO_ANSWER = 'no_answer';
     const FAIL_OFF = 'off';
     const FAIL_REJECTED = 'rejected';
+    const FAIL_UNAVAILABLE = 'unavailable';
+    const FAIL_OTHER = 'other';
 
     const FAIL_LABELS = [
         self::FAIL_NO_ANSWER => 'عدم پاسخ',
         self::FAIL_OFF => 'خاموش',
         self::FAIL_REJECTED => 'رد تماس',
+        self::FAIL_UNAVAILABLE => 'عدم دسترس',
+        self::FAIL_OTHER => 'سایر',
     ];
 
     public function trialWeek(): BelongsTo

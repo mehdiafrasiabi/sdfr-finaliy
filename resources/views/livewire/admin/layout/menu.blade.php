@@ -2,7 +2,26 @@
     @php
         $admin = auth('admin')->user();
         $generalAdminMenu = $admin?->hasRole('super admin') || $admin?->hasRole('educational-manager') || $admin?->hasRole('مشاور تحصیلی');
+        // مدیر آموزشی فقط زمانی منوی دانش‌آموزان را می‌بیند که هم‌زمان مشاور تحصیلی هم باشد.
+        $studentMenu = $admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('super admin');
+        $educationalManagerActive = request()->routeIs('admin.educational-manager.*');
         $acquisitionMenu = $admin?->hasRole('site acquisition') || $admin?->hasRole('مشاور جذب تلفنی') || $admin?->hasRole('super admin');
+        $unifiedAcquisitionRole = $admin?->hasRole('site acquisition') || $admin?->hasRole('مشاور جذب تلفنی') || $admin?->hasRole('super admin');
+        $examMonitorTrialId = null;
+
+        if ($unifiedAcquisitionRole) {
+            $examMonitorTrialId = \App\Models\TrialWeek::query()
+                ->whereHas('student.examSchedules', fn ($scheduleQuery) => $scheduleQuery
+                    ->whereNotNull('weekly_program_id')
+                    ->whereNotNull('program_built_at'))
+                ->when(! $admin?->hasRole('super admin'), fn ($query) => $query->where('acquisition_supporter_id', $admin->id))
+                ->latest()
+                ->value('id');
+        }
+
+        $examMonitorHref = $examMonitorTrialId
+            ? route('admin.trial-acquisition.exam-monitor', $examMonitorTrialId)
+            : route('admin.trial-acquisition.exam-program-students');
     @endphp
         <!-- begin::NexLink Sidebar Menu -->
     <aside class="app-menubar-tabs" id="appMenubar">
@@ -33,7 +52,7 @@
                     @if($generalAdminMenu)
                     <li class="nav-item" data-bs-placement="right" data-bs-title="داشبورد" data-bs-toggle="tooltip">
                         <a aria-controls="dashboardTab" aria-selected="true"
-                           class="menu-link {{ ((($admin?->hasRole('site acquisition') || $admin?->hasRole('مشاور جذب تلفنی')) && !$admin?->hasRole('super admin')) || request()->routeIs('admin.trial-acquisition.*') || request()->routeIs('admin.phone-acquisition.*') || request()->routeIs('admin.notifications.index')) ? '' : 'active' }}"
+                           class="menu-link {{ ((($admin?->hasRole('site acquisition') || $admin?->hasRole('مشاور جذب تلفنی')) && !$admin?->hasRole('super admin')) || request()->routeIs('admin.trial-acquisition.*') || request()->routeIs('admin.phone-acquisition.*') || request()->routeIs('admin.notifications.index') || $educationalManagerActive) ? '' : 'active' }}"
                            data-bs-toggle="tab" href="#dashboardTab" role="tab">
                             <svg fill="none" height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -46,6 +65,7 @@
                             </svg>
                         </a>
                     </li>
+                    @if($studentMenu)
                     <li class="nav-item" data-bs-placement="right" data-bs-title="دانش آموزان" data-bs-toggle="tooltip">
                         <a aria-controls="appsTab" aria-selected="false" class="menu-link" data-bs-toggle="tab"
                            href="#appsTab" role="tab">
@@ -58,6 +78,7 @@
                             </svg>
                         </a>
                     </li>
+                    @endif
                     @endif
 
                         @if($acquisitionMenu)
@@ -80,9 +101,9 @@
 
 
                     @if($generalAdminMenu)
-                    <li class="nav-item" data-bs-placement="right" data-bs-title="مدیریت ادمین‌ها"
+                    <li class="nav-item" data-bs-placement="right" data-bs-title="{{ $admin?->hasRole('educational-manager') && !$admin?->hasRole('super admin') ? 'مدیر آموزشی' : 'مدیریت ادمین‌ها' }}"
                         data-bs-toggle="tooltip">
-                        <a aria-controls="adminUsersTab" aria-selected="false" class="menu-link" data-bs-toggle="tab"
+                        <a aria-controls="adminUsersTab" aria-selected="{{ $educationalManagerActive ? 'true' : 'false' }}" class="menu-link {{ $educationalManagerActive ? 'active' : '' }}" data-bs-toggle="tab"
                            href="#adminUsersTab" role="tab">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -197,7 +218,7 @@
                                     <li class="menu-heading">
                                         <span class="menu-label">مشاوره جذب</span>
                                     </li>
-                                    <li class="menu-item" wire:poll.10s>
+                                    <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.notifications.index') ? 'active' : '' }}"
                                            href="{{ route('admin.notifications.index') }}">
                                             <i class="fi fi-rr-bell"></i>
@@ -209,7 +230,7 @@
                                             @endif
                                         </a>
                                     </li>
-                                    @if($admin?->hasRole('site acquisition') || $admin?->hasRole('super admin'))
+                                    @if($unifiedAcquisitionRole)
                                     <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.trial-acquisition.dashboard') ? 'active' : '' }}"
                                            href="{{ route('admin.trial-acquisition.dashboard') }}">
@@ -224,7 +245,23 @@
                                                 <span class="menu-label">دانش‌آموزان من</span>
                                             </a>
                                         </li>
-
+                                        <li class="menu-item">
+                                            <a class="menu-link {{ request()->routeIs('admin.trial-acquisition.temporary-no-interest') ? 'active' : '' }}"
+                                               href="{{ route('admin.trial-acquisition.temporary-no-interest') }}">
+                                                <i class="fi fi-rr-clock-three"></i>
+                                                <span class="menu-label">عدم تمایل موقت</span>
+                                            </a>
+                                        </li>
+                                        <li class="menu-item">
+                                            <a class="menu-link {{ request()->routeIs('admin.trial-acquisition.definitive-no-interest') ? 'active' : '' }}"
+                                               href="{{ route('admin.trial-acquisition.definitive-no-interest') }}">
+                                                <i class="fi fi-rr-ban"></i>
+                                                <span class="menu-label">عدم تمایل قطعی</span>
+                                            </a>
+                                        </li>
+                                        <li class="menu-heading">
+                                            <span class="menu-label">یک هفته آزمایشی</span>
+                                        </li>
                                     <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.trial-acquisition.index') ? 'active' : '' }}"
                                            href="{{ route('admin.trial-acquisition.index') }}">
@@ -232,20 +269,32 @@
                                             <span class="menu-label">دانش‌آموزان یک هفته آزمایشی</span>
                                         </a>
                                     </li>
+
                                     <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.trial-acquisition.exam-program-students') ? 'active' : '' }}"
-                                           href="{{ route('admin.trial-acquisition.exam-program-students') }}">
-                                            <i class="fi fi-rr-book-alt"></i>
-                                            <span class="menu-label">دانش‌آموزان برنامه امتحانی</span>
+                                        <a class="menu-link {{ request()->routeIs('admin.trial-acquisition.monitor') ? 'active' : '' }}"
+                                           href="{{ route('admin.trial-acquisition.monitor') }}">
+                                            <i class="fi fi-rr-chart-histogram"></i>
+                                            <span class="menu-label">رصد دانش‌آموزان یک هفته آزمایشی</span>
                                         </a>
                                     </li>
-{{--                                    <li class="menu-item">--}}
-{{--                                        <a class="menu-link {{ request()->routeIs('admin.trial-acquisition.monitor') ? 'active' : '' }}"--}}
-{{--                                           href="{{ route('admin.trial-acquisition.monitor') }}">--}}
-{{--                                            <i class="fi fi-rr-chart-histogram"></i>--}}
-{{--                                            <span class="menu-label">رصد هفته آزمایشی</span>--}}
-{{--                                        </a>--}}
-{{--                                    </li>--}}
+                                        <li class="menu-heading">
+                                            <span class="menu-label">بازه امتحانات </span>
+                                        </li>
+                                        <li class="menu-item">
+                                            <a class="menu-link {{ request()->routeIs('admin.trial-acquisition.exam-program-students') ? 'active' : '' }}"
+                                               href="{{ route('admin.trial-acquisition.exam-program-students') }}">
+                                                <i class="fi fi-rr-graduation-cap"></i>
+                                                <span class="menu-label">دانش‌آموزان برنامه امتحانی</span>
+                                            </a>
+                                        </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.trial-acquisition.exam-monitor') ? 'active' : '' }}"
+                                           href="{{ $examMonitorHref }}">
+                                            <i class="fi fi-rr-chart-histogram"></i>
+                                            <span class="menu-label">رصد دانش‌آموزان بازه امتحانات</span>
+                                        </a>
+                                    </li>
+
                                     @endif
                                     @if($admin?->hasRole('مشاور جذب تلفنی') || $admin?->hasRole('super admin'))
                                     <li><div class="menu-divider"></div></li>
@@ -270,14 +319,28 @@
                                         <a class="menu-link {{ request()->routeIs('admin.phone-acquisition.needs-follow-up-acquisition') ? 'active' : '' }}"
                                            href="{{ route('admin.phone-acquisition.needs-follow-up-acquisition') }}">
                                             <i class="fi fi-rr-refresh"></i>
-                                            <span class="menu-label">نیاز پیگیری مجدد جذب تلفنی</span>
+                                            <span class="menu-label">نیاز پیگیری مجدد تلفنی</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.phone-acquisition.needs-follow-up-registration') ? 'active' : '' }}"
                                            href="{{ route('admin.phone-acquisition.needs-follow-up-registration') }}">
                                             <i class="fi fi-rr-user"></i>
-                                            <span class="menu-label">نیاز پیگیری مجدد ثبت نام</span>
+                                            <span class="menu-label">ارسال لینک بدون نتیجه</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.phone-acquisition.disinterest-temporary') ? 'active' : '' }}"
+                                           href="{{ route('admin.phone-acquisition.disinterest-temporary') }}">
+                                            <i class="fi fi-rr-clock-three"></i>
+                                            <span class="menu-label">عدم تمایل موقت</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.phone-acquisition.disinterest-definitive') ? 'active' : '' }}"
+                                           href="{{ route('admin.phone-acquisition.disinterest-definitive') }}">
+                                            <i class="fi fi-rr-ban"></i>
+                                            <span class="menu-label">عدم تمایل قطعی</span>
                                         </a>
                                     </li>
 
@@ -300,7 +363,7 @@
                                 || request()->routeIs('admin.phone-acquisition.*')
                                 || request()->routeIs('admin.notifications.index'));
                         @endphp
-                        <div class="tab-pane fade {{ $acquisitionActive ? '' : 'show active' }}" id="dashboardTab" role="tabpanel" tabindex="0">
+                        <div class="tab-pane fade {{ ($acquisitionActive || $educationalManagerActive) ? '' : 'show active' }}" id="dashboardTab" role="tabpanel" tabindex="0">
                             <nav class="app-navbar" data-simplebar="">
                                 <ul class="side-menubar">
                                     <li class="menu-heading">
@@ -320,6 +383,7 @@
                                 </ul>
                             </nav>
                         </div>
+                        @if($studentMenu)
                         <div class="tab-pane fade" id="appsTab" role="tabpanel" tabindex="0">
                             <nav class="app-navbar" data-simplebar="">
                                 <ul class="side-menubar">
@@ -425,8 +489,9 @@
                                 </ul>
                             </nav>
                         </div>
+                        @endif
 
-                        <div class="tab-pane fade" id="adminUsersTab" role="tabpanel" tabindex="0">
+                        <div class="tab-pane fade {{ $educationalManagerActive ? 'show active' : '' }}" id="adminUsersTab" role="tabpanel" tabindex="0">
                             <nav class="app-navbar" data-simplebar="">
                                 <ul class="side-menubar">
                                     {{-- مدیریت کارکنان فقط برای سوپرادمین؛ برای مدیر آموزشیِ خالص پنهان است --}}
@@ -476,7 +541,21 @@
                                         <a class="menu-link {{ request()->routeIs('admin.educational-manager.phone-acquisition.dashboard') ? 'active' : '' }}"
                                            href="{{ route('admin.educational-manager.phone-acquisition.dashboard') }}">
                                             <i class="fi fi-rr-dashboard"></i>
-                                            <span class="menu-label">داشبورد جذب تلفنی</span>
+                                            <span class="menu-label">داشبورد جامع جذب</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.educational-manager.acquisition.details') && request()->route('channel') === 'phone' ? 'active' : '' }}"
+                                           href="{{ route('admin.educational-manager.acquisition.details', ['channel' => 'phone', 'segment' => 'all']) }}">
+                                            <i class="fi fi-rr-phone-call"></i>
+                                            <span class="menu-label">جزئیات جذب تلفنی</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.educational-manager.acquisition.details') && request()->route('channel') === 'trial' ? 'active' : '' }}"
+                                           href="{{ route('admin.educational-manager.acquisition.details', ['channel' => 'trial', 'segment' => 'all']) }}">
+                                            <i class="fi fi-rr-rocket-lunch"></i>
+                                            <span class="menu-label">جزئیات جذب آزمایشی</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">

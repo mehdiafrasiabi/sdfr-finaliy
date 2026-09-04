@@ -28,10 +28,6 @@ return new class extends Migration
             // شاخهٔ موفق
             // با چه شخصی صحبت شد: father|mother|student|other
             $table->string('spoke_with', 20)->nullable();
-            // درصد تمایل به همکاری 0..100
-            $table->unsignedTinyInteger('willingness')->nullable();
-            // اگر زیر ۵۰٪ بود، علت عدم تمایل
-            $table->text('low_willingness_reason')->nullable();
             // نتیجه: registered | follow_up | no_interest
             $table->string('result', 20)->nullable();
             // تاریخ و ساعت پیگیری مجدد (در صورت follow_up)

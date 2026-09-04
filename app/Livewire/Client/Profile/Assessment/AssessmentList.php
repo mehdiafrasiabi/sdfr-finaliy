@@ -51,7 +51,7 @@ class AssessmentList extends Component
         $user = Auth::user();
 
         // کاربری که از قبل هفتهٔ آزمایشی دارد، انتخاب مسیر ندارد و ادامه می‌دهد.
-        if ($user->trialWeek) {
+        if ($user->student?->is_trial && $user->trialWeek) {
             $this->redirect(route('client.profile.trial.guide'), navigate: true);
             return;
         }
@@ -98,8 +98,13 @@ class AssessmentList extends Component
 
         $user = Auth::user();
 
-        if ($user->trialWeek) {
+        if ($user->student?->is_trial && $user->trialWeek) {
             $this->redirect(route('client.profile.trial.guide'), navigate: true);
+            return;
+        }
+
+        if ($user->student && $user->student->hasActivePaidAccess()) {
+            $this->redirect(route('client.profile.dashboard'), navigate: true);
             return;
         }
 
@@ -172,7 +177,7 @@ class AssessmentList extends Component
             'totalQuestions' => $totalQuestions,
             'answeredTotal'  => $answeredTotal,
             'summary'        => $summary,
-            'hasTrial'       => (bool) $user->trialWeek,
+            'hasTrial'       => (bool) ($user->student?->is_trial && $user->trialWeek),
             'trialChoiceCopy'=> $this->trialChoiceCopy,
         ])->layout('layouts.client.app');
     }

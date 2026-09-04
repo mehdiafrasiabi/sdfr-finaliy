@@ -7,7 +7,6 @@ use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Payments;
 use App\Models\Student;
-use Illuminate\Support\Facades\Auth;
 
 class Zibal implements PaymentGateWayInterface
 {
@@ -74,7 +73,7 @@ class Zibal implements PaymentGateWayInterface
         // اگر کاربر قبلاً (مثلاً از طریق هفته آزمایشی) Student داشته، همان رکورد
         // را به دانش‌آموز پرداختی ارتقا می‌دهیم. در غیر این صورت رکورد جدید
         // ساخته می‌شود.
-        $student = Student::query()->firstOrNew(['user_id' => Auth::id()]);
+        $student = Student::query()->firstOrNew(['user_id' => $payment->user_id]);
         $student->payment_id = $payment->id;
         $student->is_trial   = false;
         $student->save();

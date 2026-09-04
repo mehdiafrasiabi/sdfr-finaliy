@@ -38,6 +38,23 @@ class Student extends Model
         return $this->access_ends_at !== null && $this->access_ends_at->isPast();
     }
 
+    /** A historical TrialWeek row must not make a paid student trial-only again. */
+    public function hasActiveTrialAccess(): bool
+    {
+        $trial = $this->trialWeek;
+
+        return (bool) ($this->is_trial
+            && $trial
+            && (! $trial->expires_at || $trial->expires_at->isFuture()));
+    }
+
+    public function isAdvisorChatLocked(): bool
+    {
+        $trial = $this->trialWeek;
+
+        return (bool) ($this->is_trial && $trial && ! $trial->hasFullAccess());
+    }
+
     public function installmentPlans(): HasMany
     {
         return $this->hasMany(InstallmentPlan::class);

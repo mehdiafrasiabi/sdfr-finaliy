@@ -252,7 +252,8 @@
                                 $index    = $qItem['index'];
                             @endphp
 
-                            <div x-show="!pagedMode || currentQ === {{ $i }}" x-cloak
+                            <div wire:key="typed-exam-question-{{ $attempt->id }}-{{ $question->id }}"
+                                 x-show="!pagedMode || currentQ === {{ $i }}" x-cloak
                                  class="bg-secondary border border-border rounded-2xl overflow-hidden">
 
                                 {{-- هدر سوال --}}
@@ -311,18 +312,27 @@
                                     <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mt-4" dir="rtl">
                                         @foreach([1, 2, 3, 4] as $optNum)
                                             @php
-                                                $isSelected = $selectedPosition === $optNum;
+                                                $option = $options->get($optNum - 1);
+                                                $canonicalOption = (int) ($option?->option_number ?? $optNum);
+                                                $isSelected = $selected !== null && (int) $selected === $canonicalOption;
                                                 $optionLabel = ['۱', '۲', '۳', '۴'][$optNum - 1];
                                             @endphp
 
-                                            <button wire:click="selectAnswerByPosition({{ $question->id }}, {{ $optNum }})"
+                                            <button wire:click="selectAnswer({{ $question->id }}, {{ $canonicalOption }})"
                                                     class="flex items-center justify-start gap-2 px-4 py-2.5 rounded-lg border transition-all
                                                     {{ $isSelected
                                                         ? 'border-primary/40 bg-primary/5 text-primary font-bold'
                                                         : 'border-border bg-background/50 text-foreground/80 hover:border-primary/30 hover:bg-background' }}">
                                                 <span class="flex-shrink-0 w-4 h-4 rounded-[4px] transition-colors
                                                     {{ $isSelected ? 'bg-primary' : 'border border-border bg-background' }}"></span>
-                                                <span class="text-sm">گزینه {{ $optionLabel }}</span>
+                                                <span class="text-sm">
+                                                    @if($option?->content && !$question->content?->question_image_url)
+                                                        <span class="font-bold ml-1">{{ $optionLabel }}.</span>
+                                                        {!! $option->content !!}
+                                                    @else
+                                                        گزینه {{ $optionLabel }}
+                                                    @endif
+                                                </span>
                                             </button>
                                         @endforeach
                                     </div>
@@ -385,7 +395,8 @@
                                 };
                             @endphp
 
-                            <div class="w-full flex items-center gap-2 rounded-full pl-1.5 pr-2 py-1.5
+                            <div wire:key="typed-exam-mobile-answer-{{ $attempt->id }}-{{ $item['question_id'] }}"
+                                 class="w-full flex items-center gap-2 rounded-full pl-1.5 pr-2 py-1.5
                                         bg-sky-100/80 dark:bg-sky-950/30
                                         {{ $item['is_current'] ? 'ring-2 ring-primary' : '' }}">
                                 {{-- شماره سوال (چپ - LTR) - کلیک = برو به سوال --}}
@@ -437,7 +448,8 @@
                                 };
                             @endphp
 
-                            <div class="flex items-center gap-2 px-2 py-1.5 rounded-lg
+                            <div wire:key="typed-exam-desktop-answer-{{ $attempt->id }}-{{ $item['question_id'] }}"
+                                 class="flex items-center gap-2 px-2 py-1.5 rounded-lg
                                         {{ $item['is_current'] ? 'bg-primary/5 ring-1 ring-primary/40' : '' }}">
 
                                 {{-- شماره سوال (چپ - LTR) - کلیک = برو به سوال --}}

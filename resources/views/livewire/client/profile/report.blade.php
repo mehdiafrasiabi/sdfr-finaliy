@@ -6,21 +6,21 @@
      }">
 
 
-@assets
-        <style>
-            [x-cloak] { display: none !important; }
-            .spinner-circle {
-                width: 1.25rem; height: 1.25rem;
-                border: 2.5px solid currentColor;
-                border-right-color: transparent;
-                border-radius: 50%;
-                animation: spin 0.7s linear infinite;
-                display: inline-block;
-            }
-            .spinner-sm { width: 1rem; height: 1rem; border-width: 2px; }
-            @keyframes spin { to { transform: rotate(360deg); } }
-        </style>
-@endassets
+    @assets
+    <style>
+        [x-cloak] { display: none !important; }
+        .spinner-circle {
+            width: 1.25rem; height: 1.25rem;
+            border: 2.5px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: inline-block;
+        }
+        .spinner-sm { width: 1rem; height: 1rem; border-width: 2px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+    @endassets
     <div class="max-w-7xl space-y-6 px-4 mx-auto">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
 
@@ -457,6 +457,24 @@
 
                 <div class="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5">
 
+                    @if($errors->any())
+                        <div class="rounded-xl border border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-3.5 sm:p-4" role="alert">
+                            <div class="flex items-start gap-2.5">
+                                <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                <div class="min-w-0">
+                                    <p class="font-bold text-sm text-red-700 dark:text-red-300">لطفاً موارد زیر را اصلاح کنید:</p>
+                                    <ul class="mt-2 space-y-1 text-xs sm:text-sm text-red-600 dark:text-red-300 list-disc list-inside">
+                                        @foreach($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
                             <label class="font-semibold text-foreground text-sm sm:text-base">پارت‌های خوانده شده:</label>
@@ -747,14 +765,14 @@
                         @php $compPartHasStudyHours = in_array($missed['part']->id, $completedStudyParts); @endphp
 
                         <div @if($missed['has_study']) wire:click="toggleCompensatoryPart({{ $missed['part']->id }})" @endif
-                             wire:key="comp-part-{{ $missed['part']->id }}"
+                        wire:key="comp-part-{{ $missed['part']->id }}"
                              class="p-4 bg-muted/30 rounded-xl transition-all duration-200
      {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'border-2 border-green-500 bg-green-50/50 dark:bg-green-900/10' : 'border-2 border-transparent' }}
      {{ !$missed['has_study'] ? 'border-red-300 dark:border-red-800 opacity-70 cursor-not-allowed' : 'cursor-pointer' }}">
 
                             @if(!$missed['has_study'])
 
-                            <div class="flex items-center gap-2 mb-2">
+                                <div class="flex items-center gap-2 mb-2">
                                     <svg class="w-4 h-4 text-red-500 shrink-0" viewBox="0 0 24 24" fill="currentColor">
                                         <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
                                     </svg>

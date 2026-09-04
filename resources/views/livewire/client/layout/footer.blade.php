@@ -1,4 +1,14 @@
 <div>
+    <!-- Start FlowChat Widget -->
+{{--    <script>--}}
+{{--        window.flowchatSettings = {--}}
+{{--            chatbot_id: "6a773c2a4074cb2779d85858",--}}
+{{--        };--}}
+{{--    </script>--}}
+{{--    <script>--}}
+{{--        (()=>{var t=window,e=document;if(!t.FlowChat){var a=function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];a.storeArguments(t)};a.commandQueue=[],a.storeArguments=function(t){a.commandQueue.push(t)},t.FlowChat=a;var n=function(){var n,o=e.createElement("script");o.type="text/javascript",o.async=!0,o.src="https://widget.flowchat.tech/assets/script.js",o.onload=function(){a.commandQueue.forEach((function(e){t.FlowChat.apply(t,e)}))};var r=e.getElementsByTagName("script")[0];null===(n=r.parentNode)||void 0===n||n.insertBefore(o,r)};"complete"===e.readyState?n():t.attachEvent?t.attachEvent("onload",n):t.addEventListener("load",n,!1)}})();--}}
+{{--    </script>--}}
+    <!-- End FlowChat Widget -->
 
     <footer class="pt-20 {{ Route::is('client.profile*') ? 'hidden md:block' : '' }}">
         <div class="max-w-7xl px-4 mx-auto">

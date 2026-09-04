@@ -1,5 +1,6 @@
 
-<div>
+<div class="student-ui student-ui-auto-collapse">
+    @include('livewire.admin.student._styles')
     <div class="app-page-head">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -17,7 +18,15 @@
         </nav>
     </div>
 
+    <section class="student-page-hero">
+        <div class="student-page-hero__main"><span class="student-page-hero__icon"><i class="fi fi-rr-chart-histogram"></i></span><div><h3>گزارش فعالیت روزانه</h3><p>رصد ارسال گزارش، عملکرد درسی و وضعیت تست‌های دانش‌آموزان.</p></div></div>
+        <span class="badge bg-primary-subtle text-primary">گزارش جامع</span>
+    </section>
+
     {{-- ───────────── داشبورد جدید ───────────── --}}
+    <details class="su-data-drawer" open>
+        <summary>داشبورد آماری گزارش‌ها <span class="su-data-drawer__hint">برای باز و بسته‌کردن کلیک کنید</span></summary>
+        <div class="su-data-drawer__body">
     <div class="row g-3 mb-4">
         {{-- آمار کلی --}}
         <div class="col-xl-3 col-lg-6 col-md-6">
@@ -105,6 +114,8 @@
             </div>
         </div>
     </div>
+        </div>
+    </details>
 
 
     <div class="row">

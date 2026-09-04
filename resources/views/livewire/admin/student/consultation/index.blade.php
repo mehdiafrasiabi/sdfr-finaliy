@@ -1,4 +1,5 @@
-<div>
+<div class="student-ui student-ui-auto-collapse">
+    @include('livewire.admin.student._styles')
     @push('link')
         <style>
             /* ───────────── تعریف متغیرهای رنگی (لایت مود) ───────────── */
@@ -152,6 +153,9 @@
         </div>
 
         {{-- ───────────── داشبورد آمار ───────────── --}}
+        <details class="su-data-drawer" open>
+            <summary>خلاصه وضعیت مشاوره <span class="su-data-drawer__hint">دانش‌آموزان، جلسات و غیبت‌ها</span></summary>
+            <div class="su-data-drawer__body">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-4 mb-4">
             <!-- کارت 1 -->
             <div class="col">
@@ -210,6 +214,8 @@
                 </div>
             </div>
         </div>
+            </div>
+        </details>
 
         @php
             $renderStudentName = fn($st) => $this->studentDisplayName($st);

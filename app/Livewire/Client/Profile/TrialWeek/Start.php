@@ -41,6 +41,11 @@ class Start extends Component
 
     public function openConfirm(): void
     {
+        if (Auth::user()?->student && ! Auth::user()->student->is_trial) {
+            $this->redirect(route('client.profile.dashboard'), navigate: true);
+            return;
+        }
+
         $this->showConfirmModal = true;
     }
 
@@ -66,6 +71,11 @@ class Start extends Component
         $this->validate();
 
         $user = Auth::user();
+
+        if ($user?->student && ! $user->student->is_trial) {
+            $this->redirect(route('client.profile.dashboard'), navigate: true);
+            return;
+        }
 
         // جلوگیری از ثبت مجدد
         if (TrialWeek::where('user_id', $user->id)->exists()) {

@@ -185,6 +185,9 @@
                                 $selectedOption = $qa['selected_option'];
                                 $isCorrect = $qa['is_correct'];
                                 $correctOptionNumber = $qa['correct_option_number'];
+                                $optionNumbers = $qa['ordered_options']->isNotEmpty()
+                                    ? $qa['ordered_options']->pluck('option_number')->map(fn ($number) => (int) $number)->values()
+                                    : collect([1, 2, 3, 4]);
                             @endphp
                             <div
                                 class="question-box border rounded p-4 mb-4 {{ $isCorrect === true ? 'border-success' : ($isCorrect === false ? 'border-danger' : 'border-secondary') }}">
@@ -224,14 +227,11 @@
                                 <hr>
                                 <!-- Options (Simple numbered with correct/wrong indicators) -->
                                 <div class="options-list">
-                                    @php
-                                        // Get correct option from question model
-                                        $correctOpt = $question->correct_option ?? $question->options->firstWhere('is_correct', true)?->option_number;
-                                    @endphp
-                                    @foreach([1, 2, 3, 4] as $optNum)
+                                    @foreach($optionNumbers as $positionIndex => $optNum)
                                         @php
-                                            $isSelected = $selectedOption === $optNum;
-                                            $isCorrectOption = $correctOpt === $optNum;
+                                            $position = $positionIndex + 1;
+                                            $isSelected = (int) $selectedOption === (int) $optNum;
+                                            $isCorrectOption = (int) $correctOptionNumber === (int) $optNum;
                                             $bgClass = '';
                                             if ($isCorrectOption) {
                                                 $bgClass = 'bg-success-subtle border border-success';
@@ -244,9 +244,9 @@
                                             <span
                                                 class="badge {{ $isCorrectOption ? 'bg-success' : ($isSelected ? 'bg-danger' : 'bg-secondary') }}"
                                                 style="width: 30px;">
-                                                {{ $optNum }}
+                                                {{ $position }}
                                             </span>
-                                            <div class="flex-grow-1">گزینه {{ $optNum }}</div>
+                                            <div class="flex-grow-1">گزینه {{ $position }}</div>
                                             @if($isSelected)
                                                 <span class="badge bg-primary">انتخاب شده</span>
                                             @endif

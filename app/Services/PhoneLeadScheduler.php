@@ -9,25 +9,21 @@ use Carbon\Carbon;
 /**
  * منطق چرخهٔ حیات شمارهٔ «مشاور جذب تلفنی» پس از یک تماسِ ناموفق.
  *
- * قواعد (هر علت مستقل؛ با تغییر علت رشته از اول شروع می‌شود):
- *   • عدم پاسخ (no_answer):  ۲ بار در همان روز → موکول به فردا؛ فردا هم ۲ بار → خاکستری «عدم پاسخ».
- *   • رد تماس (rejected):    مثل عدم پاسخ (۲ بار در روز، ۲ روز) → خاکستری «رد تماس».
- *   • خاموش (off):           هر بار موکول به فردا؛ بعد از ۴ بار → خاکستری «خاموش».
+ * قواعد:
  *   • شماره اشتباه (wrong):  بلافاصله خاکستری «شماره اشتباه».
+ *   • هر ۵ تماس ناموفق پشت‌سرهم با علت‌های دیگر: عدم تمایل قطعی.
+ *   • قبل از ۵ تماس ناموفق، زمان‌بندی پیگیری مثل قبل انجام می‌شود.
  */
 class PhoneLeadScheduler
 {
     /** حداکثر تماس در یک روز برای عدم‌پاسخ/رد تماس. */
     const PER_DAY = 2;
 
-    /** حداکثر تماسِ خاموش پیش از خاکستری‌شدن. */
-    const OFF_MAX = 4;
-
     /**
      * وضعیت/زمان‌بندی بعدی شماره را پس از ثبت تماسِ ناموفق تعیین می‌کند.
      * پیش‌فرض: رکورد تماسِ ناموفق همین‌الان ساخته شده و در تاریخچهٔ lead موجود است.
      *
-     * @return array{status:string, grey_reason:?string, next_call_at:?\Carbon\Carbon}
+     * @return array{status:string, grey_reason:?string, next_call_at:?\Carbon\Carbon, last_outcome?:string, disinterest_status?:string, disinterest_reason?:string, disinterest_at?:\Carbon\Carbon}
      */
     public function afterFail(PhoneLead $lead, string $reason): array
     {
@@ -36,16 +32,18 @@ class PhoneLeadScheduler
             return $this->grey(PhoneCall::FAIL_WRONG);
         }
 
-        $streak = $this->currentFailStreak($lead, $reason);
-
-        // خاموش: هر بار به فردا، بعد از ۴ بار خاکستری
-        if ($reason === PhoneCall::FAIL_OFF) {
-            return count($streak) >= self::OFF_MAX
-                ? $this->grey(PhoneCall::FAIL_OFF)
-                : $this->active($this->nextDay());
+        if (count($this->currentUnansweredStreak($lead)) >= PhoneLead::MAX_ATTEMPTS) {
+            return $this->definitiveDisinterest();
         }
 
-        // عدم پاسخ / رد تماس: ۲ بار در روز برای ۲ روز، سپس خاکستری
+        $streak = $this->currentFailStreak($lead, $reason);
+
+        // خاموش: هر بار به فردا؛ تبدیل نهایی فقط با ۵ تماس ناموفق پشت‌سرهم انجام می‌شود.
+        if ($reason === PhoneCall::FAIL_OFF) {
+            return $this->active($this->nextDay());
+        }
+
+        // عدم پاسخ / رد تماس: ۲ بار در روز؛ بعد از سقف روزانه موکول به فردا.
         $byDate = [];
         foreach ($streak as $c) {
             $d = $c->called_at->toDateString();
@@ -53,21 +51,9 @@ class PhoneLeadScheduler
         }
         ksort($byDate);
 
-        $dayIndex   = count($byDate);              // امروز همیشه آخرین (بزرگ‌ترین) تاریخ است
         $todayCount = $byDate[array_key_last($byDate)];
 
-        // روز سوم به بعد نباید رخ دهد؛ اگر رخ داد، خاکستری می‌کنیم.
-        if ($dayIndex >= 3) {
-            return $this->grey($reason);
-        }
-
-        // روز دوم و رسیدن به سقف روزانه → خاکستری
-        if ($dayIndex === 2 && $todayCount >= self::PER_DAY) {
-            return $this->grey($reason);
-        }
-
-        // رسیدن به سقف روزانه در روز اول → موکول به فردا
-        if ($dayIndex === 1 && $todayCount >= self::PER_DAY) {
+        if ($todayCount >= self::PER_DAY) {
             return $this->active($this->nextDay());
         }
 
@@ -92,6 +78,23 @@ class PhoneLeadScheduler
         return $streak;
     }
 
+    /** آخرین رشتهٔ پیوستهٔ تماس‌های ناموفق با هر علتی به‌جز شماره اشتباه. */
+    protected function currentUnansweredStreak(PhoneLead $lead): array
+    {
+        $calls = $lead->calls()->orderByDesc('called_at')->orderByDesc('id')->get();
+
+        $streak = [];
+        foreach ($calls as $call) {
+            if (! $call->connected && $call->fail_reason !== PhoneCall::FAIL_WRONG) {
+                $streak[] = $call;
+            } else {
+                break;
+            }
+        }
+
+        return $streak;
+    }
+
     protected function nextDay(): Carbon
     {
         // فردا، ابتدای ساعات تماس
@@ -106,5 +109,18 @@ class PhoneLeadScheduler
     protected function active(Carbon $nextCallAt): array
     {
         return ['status' => PhoneLead::STATUS_ACTIVE, 'grey_reason' => null, 'next_call_at' => $nextCallAt];
+    }
+
+    protected function definitiveDisinterest(): array
+    {
+        return [
+            'status' => PhoneLead::STATUS_CLOSED,
+            'grey_reason' => null,
+            'next_call_at' => null,
+            'last_outcome' => PhoneCall::RESULT_NO_INTEREST,
+            'disinterest_status' => PhoneCall::DISINTEREST_DEFINITIVE,
+            'disinterest_reason' => 'پس از ۵ تماس ناموفق پشت‌سرهم، سیستم به‌صورت خودکار عدم تمایل قطعی ثبت کرد.',
+            'disinterest_at' => Carbon::now(),
+        ];
     }
 }

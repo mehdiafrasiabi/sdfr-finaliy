@@ -25,34 +25,32 @@ class ReportStudentStudy extends Component
     {
         $user = Auth::user();
         $studentId = $user->student->id ?? null;
-        $hideForExamProgramTrialStudent = app(ExamPlanningService::class)
-            ->shouldHideTrialExamProgramSections($user);
+        $examPlanning = app(ExamPlanningService::class);
+        $hideForExamProgramTrialStudent = $examPlanning
+            ->shouldHideTrialExamProgramReportCard($user);
+        $isExamProgramReport = $examPlanning
+            ->trialExamProgramReportCardUnlockedForUser($user);
 
         if ($hideForExamProgramTrialStudent) {
             return view('livewire.client.profile.report-student-study', [
                 'reportMonthly'  => collect(),
                 'smartCards'     => collect(),
                 'isTrial'        => false,
+                'isExamProgramReport' => false,
                 'reportUnlocked' => true,
                 'trialDay'       => null,
                 'hideForExamProgramTrialStudent' => true,
             ])->layout('layouts.client.app');
         }
 
-        // ── حالتِ یک هفته آزمایشی + قفلِ کارنامه تا روز ششم ──
+        // ── حالتِ یک هفته آزمایشی: قفل اصلی یک روز قبل پایان دسترسی در سرویس اعمال می‌شود. ──
         $trial = $user->trialWeek;
         $isTrial = $trial && ! $user->isSchoolStudent()
-            && ! ($user->student && $user->student->hasActivePaidAccess());
+            && ! ($user->student && $user->student->hasActivePaidAccess())
+            && ! $isExamProgramReport;
 
         $reportUnlocked = true;
         $trialDay = null;
-        if ($isTrial) {
-            $anchor = $trial->program_built_at ?? $trial->created_at;
-            // روزِ ساختِ برنامه = روز ۱؛ کارنامه از روز ۶ فعال می‌شود.
-            $trialDay = (int) \Carbon\Carbon::parse($anchor)->startOfDay()
-                ->diffInDays(\Carbon\Carbon::now()->startOfDay()) + 1;
-            $reportUnlocked = $trialDay >= 6;
-        }
 
         $reportMonthly = ReportMonthly::query()
             ->where('student_id', $studentId)
@@ -70,6 +68,7 @@ class ReportStudentStudy extends Component
             'reportMonthly'  => $reportMonthly,
             'smartCards'     => $smartCards,
             'isTrial'        => $isTrial,
+            'isExamProgramReport' => $isExamProgramReport,
             'reportUnlocked' => $reportUnlocked,
             'trialDay'       => $trialDay,
             'hideForExamProgramTrialStudent' => false,

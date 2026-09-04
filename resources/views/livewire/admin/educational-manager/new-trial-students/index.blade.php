@@ -1,4 +1,5 @@
-<div>
+<div class="em-page">
+    @include('livewire.admin.educational-manager._styles')
     <div class="app-page-head">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -7,6 +8,11 @@
             </ol>
         </nav>
     </div>
+
+    <section class="em-hero">
+        <div class="em-hero-main"><span class="em-hero-icon"><i class="fi fi-rr-user-add"></i></span><div><h3>دانش‌آموزان جدید آزمایشی</h3><p>دانش‌آموزان بدون پشتیبان را جست‌وجو و به مشاور جذب مناسب تخصیص دهید.</p></div></div>
+        <span class="badge bg-primary-subtle text-primary">تخصیص پشتیبان جذب</span>
+    </section>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>

@@ -71,14 +71,14 @@
                                                     {{-- اطلاعات --}}
                                                     <div class="p-4 space-y-3" dir="rtl">
                                                         <h3 class="font-bold text-foreground text-base flex items-center gap-2 flex-wrap">
-                                                            {{ $isTrial ? 'یک هفته آزمایشی' : $card->month_name }}
+                                                            {{ $isExamProgramReport ? 'برنامه امتحانی' : ($isTrial ? 'یک هفته آزمایشی' : $card->month_name) }}
                                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/15 text-green-600 dark:text-green-400 text-xs rounded-full">
                                                                 <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                                                                 فعال
                                                             </span>
                                                         </h3>
 
-                                                        @unless($isTrial)<p class="text-sm text-muted">سال {{ $card->jalali_year }}</p>@endunless
+                                                        @unless($isTrial || $isExamProgramReport)<p class="text-sm text-muted">سال {{ $card->jalali_year }}</p>@endunless
 
                                                         <p class="text-xs text-muted">
                                                             <span class="inline-flex items-center gap-1">
@@ -119,8 +119,8 @@
                                                         {{-- راست: عنوان + سال + تاریخ + بج --}}
                                                         <div class="space-y-2 flex-1 min-w-0">
                                                             <h3 class="font-bold text-foreground text-base flex items-center gap-2 flex-wrap">
-                                                                {{ $isTrial ? 'یک هفته آزمایشی' : $card->month_name }}
-                                                                @unless($isTrial)<span class="text-sm text-muted font-normal">سال {{ $card->jalali_year }}</span>@endunless
+                                                                {{ $isExamProgramReport ? 'برنامه امتحانی' : ($isTrial ? 'یک هفته آزمایشی' : $card->month_name) }}
+                                                                @unless($isTrial || $isExamProgramReport)<span class="text-sm text-muted font-normal">سال {{ $card->jalali_year }}</span>@endunless
                                                             </h3>
 
                                                             <p class="text-sm text-muted">

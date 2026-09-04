@@ -1,4 +1,5 @@
-<div>
+<div class="student-ui student-ui-auto-collapse">
+    @include('livewire.admin.student._styles')
     <div class="app-page-head">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -14,6 +15,11 @@
             </ol>
         </nav>
     </div>
+
+    <section class="student-page-hero">
+        <div class="student-page-hero__main"><span class="student-page-hero__icon"><i class="fi fi-rr-file-medical-alt"></i></span><div><h3>کارنامه هوشمند</h3><p>دسترسی سریع به کارنامه‌های فعال و تحلیل ماهانه هر دانش‌آموز.</p></div></div>
+        <span class="badge bg-primary-subtle text-primary">تحلیل ماهانه</span>
+    </section>
 
     <div class="row">
         <div class="col-lg-12">

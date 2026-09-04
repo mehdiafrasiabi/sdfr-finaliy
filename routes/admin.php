@@ -64,6 +64,10 @@ Route::name('admin.')->group(function () {
             Route::get('/my-students', \App\Livewire\Admin\TrialAcquisition\MyStudents::class)->name('my-students');
             Route::get('/exam-program-students', \App\Livewire\Admin\TrialAcquisition\ExamProgramStudents::class)
                 ->name('exam-program-students');
+            Route::get('/temporary-no-interest', \App\Livewire\Admin\TrialAcquisition\TemporaryNoInterestStudents::class)
+                ->name('temporary-no-interest');
+            Route::get('/definitive-no-interest', \App\Livewire\Admin\TrialAcquisition\DefinitiveNoInterestStudents::class)
+                ->name('definitive-no-interest');
             Route::get('/monitor/{trialWeek?}', \App\Livewire\Admin\TrialAcquisition\Monitor::class)
                 ->name('monitor')
                 ->middleware('admin.permission:acquisition.monitor');
@@ -146,6 +150,13 @@ Route::name('admin.')->group(function () {
                     ->name('receipts');
             });
 
+        // مدیر آموزشی — جزئیات آماری و فقط‌خواندنی دو جریان جذب
+        Route::get('/educational-manager/acquisition/{channel}/{segment?}',
+            \App\Livewire\Admin\EducationalManager\Acquisition\Details::class)
+            ->whereIn('channel', ['phone', 'trial'])
+            ->name('educational-manager.acquisition.details')
+            ->middleware('admin.permission:phone-acquisition.manage');
+
         // مشاور جذب تلفنی — پنل مشاور
         Route::prefix('phone-acquisition')
             ->name('phone-acquisition.')
@@ -163,6 +174,17 @@ Route::name('admin.')->group(function () {
                 Route::get('/needs-follow-up-registration',
                     \App\Livewire\Admin\PhoneAcquisition\FollowUpNeeds\Registration::class)
                     ->name('needs-follow-up-registration');
+                Route::get('/without-registration',
+                    \App\Livewire\Admin\PhoneAcquisition\FollowUpNeeds\NoRegistration::class)
+                    ->name('without-registration');
+                Route::get('/disinterest-temporary',
+                    \App\Livewire\Admin\PhoneAcquisition\FollowUpNeeds\Disinterest::class)
+                    ->defaults('status', \App\Models\PhoneCall::DISINTEREST_TEMPORARY)
+                    ->name('disinterest-temporary');
+                Route::get('/disinterest-definitive',
+                    \App\Livewire\Admin\PhoneAcquisition\FollowUpNeeds\Disinterest::class)
+                    ->defaults('status', \App\Models\PhoneCall::DISINTEREST_DEFINITIVE)
+                    ->name('disinterest-definitive');
                 Route::get('/receipts',
                     \App\Livewire\Admin\PhoneAcquisition\Receipts\Index::class)
                     ->name('receipts');

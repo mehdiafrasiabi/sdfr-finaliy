@@ -1,6 +1,7 @@
-<div class="container-fluid"
+<div class="student-ui student-ui-auto-collapse container-fluid"
      x-data="{ ok:'' }"
      x-on:success.window="ok = ($event.detail && ($event.detail[0] ?? $event.detail)) || ''; setTimeout(() => ok='', 3500)">
+    @include('livewire.admin.student._styles')
 
     <h4 class="mb-3">تماس اورژانسی</h4>
     <div x-show="ok" x-cloak class="alert alert-success py-2" x-text="ok"></div>

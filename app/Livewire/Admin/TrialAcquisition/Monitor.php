@@ -2,9 +2,7 @@
 
 namespace App\Livewire\Admin\TrialAcquisition;
 
-use App\Models\AdvisingPreSession;
 use App\Models\DailyReport;
-use App\Models\DailyReportDetail;
 use App\Models\MakeupSession;
 use App\Models\ProgramPart;
 use App\Models\Student;
@@ -28,17 +26,14 @@ class Monitor extends Component
     const REPORT_CUTOFF_HOUR = 6;
 
     public string $search = '';
-    public string $reportStatus = 'pending';
+    public string $reportStatus = 'all';
     public ?int $selectedTrialId = null;
     public ?string $viewDate = null;
-
-    public array $selectedReports = [];
-    public bool $selectAll = false;
 
     public bool $commentModalOpen = false;
     public ?int $commentReportId = null;
     public string $advisorCommentInput = '';
-    public string $commentStatusInput = 'pending';
+    public string $commentStatusInput = '';
     public bool $advisorCommentReadonly = false;
     public string $commentStudentName = '';
     public ?string $commentStudentReply = null;
@@ -61,7 +56,7 @@ class Monitor extends Component
 
     public function mount(?TrialWeek $trialWeek = null): void
     {
-        if ($trialWeek && $this->canAccessTrial($trialWeek)) {
+        if ($trialWeek && $this->baseTrialQuery()->whereKey($trialWeek->id)->exists()) {
             $this->selectedTrialId = $trialWeek->id;
         }
     }
@@ -74,7 +69,6 @@ class Monitor extends Component
     public function updatingReportStatus(): void
     {
         $this->resetPage();
-        $this->resetSelection();
     }
 
     public function selectTrial(int $trialId): void
@@ -87,27 +81,61 @@ class Monitor extends Component
 
         $this->selectedTrialId = $trial->id;
         $this->resetPage();
-        $this->resetSelection();
     }
 
     protected function baseTrialQuery(): Builder
     {
-        $query = TrialWeek::query()->with([
+        $query = TrialWeek::query()->visibleForAcquisition()->with([
             'user.personalInformation',
+            'user.profile',
             'student',
             'trialAcquisitionCalls',
             'acquisitionSupporter',
             'student.examSchedules' => fn ($scheduleQuery) => $scheduleQuery
-                ->whereNotNull('weekly_program_id')
-                ->whereNotNull('program_built_at')
-                ->latest('program_built_at'),
+                ->with(['setting', 'days', 'weeklyProgram'])
+                ->latest('program_built_at')
+                ->latest('updated_at'),
         ]);
 
         if (! Auth::guard('admin')->user()?->hasRole('super admin')) {
             $query->where('acquisition_supporter_id', Auth::guard('admin')->id());
         }
 
-        return $query;
+        return $this->applyStudentTypeScope($query);
+    }
+
+    protected function applyStudentTypeScope(Builder $query): Builder
+    {
+        return $query->whereDoesntHave('student.examSchedules');
+    }
+
+    protected function builtExamProgramConstraint(Builder $query): void
+    {
+        $query->whereNotNull('weekly_program_id')
+            ->whereNotNull('program_built_at');
+    }
+
+    protected function applySearch(Builder $query): Builder
+    {
+        $term = trim($this->search);
+
+        if ($term === '') {
+            return $query;
+        }
+
+        return $query->where(function (Builder $searchQuery) use ($term) {
+            $searchQuery
+                ->whereHas('user', function (Builder $userQuery) use ($term) {
+                    $userQuery->where('name', 'like', "%{$term}%")
+                        ->orWhere('mobile', 'like', "%{$term}%");
+                })
+                ->orWhereHas('user.personalInformation', function (Builder $infoQuery) use ($term) {
+                    $infoQuery->where('name', 'like', "%{$term}%")
+                        ->orWhere('name_full', 'like', "%{$term}%")
+                        ->orWhere('father_mobile', 'like', "%{$term}%")
+                        ->orWhere('mother_mobile', 'like', "%{$term}%");
+                });
+        });
     }
 
     protected function canAccessTrial(TrialWeek $trialWeek): bool
@@ -128,21 +156,13 @@ class Monitor extends Component
 
     protected function examProgramSummary(?TrialWeek $trialWeek): ?array
     {
-        if (! $trialWeek?->student_id) {
-            return null;
-        }
-
-        $schedule = StudentExamSchedule::query()
-            ->with(['setting', 'days'])
-            ->where('student_id', $trialWeek->student_id)
-            ->whereNotNull('weekly_program_id')
-            ->whereNotNull('program_built_at')
-            ->latest('program_built_at')
-            ->first();
+        $schedule = $this->currentExamSchedule($trialWeek);
 
         if (! $schedule) {
             return null;
         }
+
+        $stage = $this->examProgramStage($trialWeek);
 
         return [
             'title' => $schedule->setting?->title ?? 'برنامه امتحانی',
@@ -151,7 +171,93 @@ class Monitor extends Component
                 ? jdate($schedule->exam_starts_at)->format('Y/m/d') . ' تا ' . jdate($schedule->exam_ends_at)->format('Y/m/d')
                 : 'بازه ثبت نشده',
             'program_built_at' => $schedule->program_built_at ? jdate($schedule->program_built_at)->format('Y/m/d H:i') : '-',
+            'stage_label' => $stage['label'] ?? 'نامشخص',
+            'stage_color' => $stage['color'] ?? 'secondary',
         ];
+    }
+
+    public function examProgramStage(?TrialWeek $trialWeek): ?array
+    {
+        $schedule = $this->scheduleFromTrial($trialWeek);
+
+        if (! $schedule) {
+            return null;
+        }
+
+        if (! $schedule->exam_starts_at || ! $schedule->exam_ends_at) {
+            return [
+                'label' => 'در انتظار انتخاب بازه امتحانات',
+                'color' => 'warning',
+            ];
+        }
+
+        if ($schedule->days->isEmpty()) {
+            return [
+                'label' => 'در انتظار اضافه کردن دروس امتحانات',
+                'color' => 'info',
+            ];
+        }
+
+        if (! $schedule->program_built_at || ! $schedule->weekly_program_id) {
+            return [
+                'label' => 'در انتظار ساخت برنامه',
+                'color' => 'primary',
+            ];
+        }
+
+        return [
+            'label' => 'برنامه ساخته شده',
+            'color' => 'success',
+        ];
+    }
+
+    protected function currentExamSchedule(?TrialWeek $trialWeek): ?StudentExamSchedule
+    {
+        if (! $trialWeek?->student_id) {
+            return null;
+        }
+
+        return StudentExamSchedule::query()
+            ->with([
+                'setting',
+                'days.subject',
+                'weeklyProgram.parts.ccChapter',
+                'weeklyProgram.parts.ccTopic',
+                'weeklyProgram.parts.ccSubject',
+                'weeklyProgram.restDays',
+                'weeklyProgram.examDays',
+            ])
+            ->where('student_id', $trialWeek->student_id)
+            ->orderByRaw('program_built_at IS NULL')
+            ->latest('program_built_at')
+            ->latest('updated_at')
+            ->first();
+    }
+
+    protected function scheduleFromTrial(?TrialWeek $trialWeek): ?StudentExamSchedule
+    {
+        $loadedSchedule = $trialWeek?->student?->examSchedules?->sortByDesc(fn ($item) => $item->program_built_at?->timestamp ?? 0)->first();
+
+        if ($loadedSchedule) {
+            if (! $loadedSchedule->relationLoaded('days')) {
+                $loadedSchedule->load('days');
+            }
+
+            return $loadedSchedule;
+        }
+
+        return $this->currentExamSchedule($trialWeek);
+    }
+
+    protected function weeklyProgramForTrial(?TrialWeek $trialWeek): ?WeeklyProgram
+    {
+        return $trialWeek?->student_id
+            ? WeeklyProgram::with(['parts.ccChapter', 'parts.ccTopic', 'parts.ccSubject', 'restDays', 'examDays'])
+                ->where('student_id', $trialWeek->student_id)
+                ->where('is_active', true)
+                ->latest('start_date')
+                ->first()
+            : null;
     }
 
     protected function scopedStudentIds()
@@ -186,7 +292,6 @@ class Monitor extends Component
         if ($prevDay->gte($minDate)) {
             $this->viewDate = $prevDay->format('Y-m-d');
             $this->resetPage();
-            $this->resetSelection();
             return;
         }
 
@@ -201,7 +306,6 @@ class Monitor extends Component
         if ($nextDay->lte($effectiveToday)) {
             $this->viewDate = $nextDay->isSameDay($effectiveToday) ? null : $nextDay->format('Y-m-d');
             $this->resetPage();
-            $this->resetSelection();
         }
     }
 
@@ -209,7 +313,6 @@ class Monitor extends Component
     {
         $this->viewDate = null;
         $this->resetPage();
-        $this->resetSelection();
     }
 
     protected function reportsQuery(): Builder
@@ -225,7 +328,6 @@ class Monitor extends Component
             ])
             ->whereIn('student_id', $this->scopedStudentIds())
             ->whereDate('report_date', $this->getReportDate())
-            ->when($this->reportStatus !== 'all', fn ($q) => $q->whereHas('detail', fn ($d) => $d->where('status', $this->reportStatus)))
             ->latest();
     }
 
@@ -245,67 +347,44 @@ class Monitor extends Component
             ->findOrFail($reportId);
     }
 
-    public function updatedSelectAll($value): void
+    public function sendReportReminder(int $studentId, string $reportDate): void
     {
-        $currentPageIds = $this->reportsQuery()->paginate(10)->pluck('id')->toArray();
-        $this->selectedReports = $value
-            ? array_values(array_unique(array_merge($this->selectedReports, $currentPageIds)))
-            : array_values(array_diff($this->selectedReports, $currentPageIds));
-    }
-
-    public function updatedSelectedReports(): void
-    {
-        $currentPageIds = $this->reportsQuery()->paginate(10)->pluck('id')->toArray();
-        $this->selectAll = ! empty($currentPageIds)
-            && count(array_intersect($this->selectedReports, $currentPageIds)) === count($currentPageIds);
-    }
-
-    public function bulkAction(string $action): void
-    {
-        if (empty($this->selectedReports)) {
-            $this->dispatch('warning', 'هیچ گزارشی انتخاب نشده است.');
+        $allowedStudentIds = $this->scopedStudentIds()->map(fn ($id) => (int) $id)->toArray();
+        if (! in_array($studentId, $allowedStudentIds, true)) {
+            $this->dispatch('warning', 'دانش‌آموز برای شما یافت نشد.');
             return;
         }
 
-        if (! in_array($action, ['approved', 'rejected'], true)) {
-            $this->dispatch('warning', 'عملیات نامعتبر است.');
+        $student = Student::with(['user.personalInformation', 'user.profile'])->find($studentId);
+        if (! $student) {
+            $this->dispatch('warning', 'دانش‌آموز برای شما یافت نشد.');
             return;
         }
 
-        $reports = DailyReport::with(['student.user.personalInformation', 'student.user.profile'])
-            ->whereIn('id', $this->selectedReports)
-            ->whereIn('student_id', $this->scopedStudentIds())
-            ->get();
+        $reportDateLabel = jdate(Carbon::parse($reportDate))->format('Y/m/d');
+        $studentName = $this->studentName($student);
 
-        DailyReportDetail::whereIn('daily_report_id', $reports->pluck('id'))->update(['status' => $action]);
+        NotificationService::sendToStudent(
+            $studentId,
+            'یادآوری ارسال گزارش روزانه',
+            "{$studentName} عزیز\nلطفا گزارش مطالعه تاریخ {$reportDateLabel} را هرچه زودتر ارسال کن.\nبا تشکر",
+            Auth::guard('admin')->id()
+        );
 
-        foreach ($reports as $report) {
-            $this->sendReportStatusNotification($report, $action);
-        }
-
-        $this->resetSelection();
-        $this->dispatch('success', 'عملیات گروهی با موفقیت انجام شد.');
-    }
-
-    public function setReportStatus(int $reportId, string $status): void
-    {
-        if (! in_array($status, ['approved', 'rejected'], true)) {
-            return;
-        }
-
-        $report = $this->scopedReport($reportId);
-        $report->detail()->updateOrCreate(['daily_report_id' => $report->id], ['status' => $status]);
-        $this->sendReportStatusNotification($report, $status);
-        $this->dispatch('success', $status === 'approved' ? 'گزارش تایید شد.' : 'گزارش رد شد.');
+        $this->dispatch('success', 'اعلان یادآوری گزارش ارسال شد.');
     }
 
     public function openCommentModal(int $reportId): void
     {
         $report = $this->scopedReport($reportId);
 
+        $this->detailModalOpen = false;
+        $this->dayDetailModalOpen = false;
         $this->commentReportId = $report->id;
         $this->advisorCommentInput = $report->feedback->advisor_comment ?? '';
-        $this->commentStatusInput = $report->detail->status ?? 'pending';
+        $this->commentStatusInput = in_array($report->detail?->status, ['approved', 'rejected'], true)
+            ? $report->detail->status
+            : '';
         $this->advisorCommentReadonly = ! empty($report->feedback->advisor_comment);
         $this->commentStudentName = $this->studentName($report->student);
         $this->commentStudentReply = $report->feedback->student_reply;
@@ -315,7 +394,7 @@ class Monitor extends Component
     public function closeCommentModal(): void
     {
         $this->reset(['commentModalOpen', 'commentReportId', 'advisorCommentInput', 'commentStudentName', 'commentStudentReply']);
-        $this->commentStatusInput = 'pending';
+        $this->commentStatusInput = '';
         $this->advisorCommentReadonly = false;
     }
 
@@ -334,15 +413,20 @@ class Monitor extends Component
         }
 
         $validated = $this->validate([
-            'advisorCommentInput' => ['nullable', 'string', 'max:1000'],
-            'commentStatusInput' => ['required', 'in:pending,approved,rejected'],
+            'advisorCommentInput' => ['required', 'string', 'min:3', 'max:1000'],
+            'commentStatusInput' => ['required', 'in:approved,rejected'],
+        ], [
+            'advisorCommentInput.required' => 'نوشتن نظر مشاور الزامی است.',
+            'advisorCommentInput.min' => 'نظر مشاور باید حداقل ۳ کاراکتر باشد.',
+            'commentStatusInput.required' => 'وضعیت گزارش را انتخاب کنید.',
+            'commentStatusInput.in' => 'وضعیت انتخاب‌شده معتبر نیست.',
         ]);
 
         $report->feedback()->updateOrCreate(
             ['daily_report_id' => $report->id],
             [
-                'advisor_comment' => $validated['advisorCommentInput'] ?: null,
-                'advisor_commented_at' => $validated['advisorCommentInput'] ? now() : null,
+                'advisor_comment' => $validated['advisorCommentInput'],
+                'advisor_commented_at' => now(),
             ]
         );
 
@@ -351,20 +435,16 @@ class Monitor extends Component
             ['status' => $validated['commentStatusInput']]
         );
 
-        if (in_array($validated['commentStatusInput'], ['approved', 'rejected'], true)) {
-            $this->sendReportStatusNotification($report, $validated['commentStatusInput']);
-        }
+        $this->sendReportStatusNotification($report, $validated['commentStatusInput']);
 
-        if ($validated['advisorCommentInput']) {
-            NotificationService::sendToStudent(
-                $report->student_id,
-                'پیام مشاور درباره گزارش روزانه',
-                $validated['advisorCommentInput'],
-                Auth::guard('admin')->id()
-            );
-        }
+        NotificationService::sendToStudent(
+            $report->student_id,
+            'پیام مشاور درباره گزارش روزانه',
+            $validated['advisorCommentInput'],
+            Auth::guard('admin')->id()
+        );
 
-        $this->dispatch('success', 'نظر و وضعیت با موفقیت ثبت شد.');
+        $this->dispatch('success', 'نظر و وضعیت گزارش با موفقیت ثبت شد.');
         $this->closeCommentModal();
     }
 
@@ -380,7 +460,6 @@ class Monitor extends Component
             'description' => $report->detail?->description ?? '',
             'missed_parts_reason' => $report->detail?->missed_parts_reason ?? '',
             'is_compensatory' => $report->is_compensatory,
-            'status' => $report->detail->status ?? 'pending',
             'advisor_comment' => $report->feedback->advisor_comment ?? '',
             'student_reply' => $report->feedback->student_reply ?? '',
             'created_at' => $report->created_at ? jdate($report->created_at)->format('Y/m/d H:i') : '-',
@@ -432,13 +511,9 @@ class Monitor extends Component
             return;
         }
 
-        $weeklyProgram = WeeklyProgram::with(['parts.ccChapter', 'parts.ccTopic', 'parts.ccSubject', 'restDays', 'examDays'])
-            ->where('student_id', $selectedTrial->student_id)
-            ->where('is_active', true)
-            ->latest('start_date')
-            ->first();
+        $weeklyProgram = $this->weeklyProgramForTrial($selectedTrial);
 
-        if (! $weeklyProgram || $dayIndex < 0 || $dayIndex > 7) {
+        if (! $weeklyProgram || $dayIndex < 0 || $dayIndex > $this->maxProgramDayIndex($weeklyProgram)) {
             $this->dispatch('warning', 'روز برنامه یافت نشد.');
             return;
         }
@@ -724,33 +799,115 @@ class Monitor extends Component
             ->toArray();
     }
 
+    protected function makeupSessionsForMonitor(?TrialWeek $trial, ?WeeklyProgram $weeklyProgram): array
+    {
+        if (! $trial?->student_id) {
+            return [];
+        }
+
+        $query = MakeupSession::query()
+            ->where('student_id', $trial->student_id)
+            ->whereNotNull('ended_at')
+            ->with(['ccChapter.subject', 'ccTopic.chapter.subject']);
+
+        if ($weeklyProgram?->start_date && $weeklyProgram?->end_date) {
+            $query->whereBetween('ended_at', [
+                Carbon::parse($weeklyProgram->start_date)->startOfDay(),
+                Carbon::parse($weeklyProgram->end_date)->addDay()->setHour(self::REPORT_CUTOFF_HOUR)->startOfHour(),
+            ]);
+        }
+
+        return $query->latest('ended_at')
+            ->limit(50)
+            ->get()
+            ->map(function (MakeupSession $session) {
+                $chapter = $session->ccChapter ?? $session->ccTopic?->chapter;
+                $durationSeconds = (int) ($session->duration_seconds ?? 0);
+
+                if ($durationSeconds <= 0 && $session->started_at && $session->ended_at) {
+                    $durationSeconds = (int) $session->started_at->diffInSeconds($session->ended_at);
+                }
+
+                return [
+                    'subject_name' => $chapter?->subject?->name ?: 'درس نامشخص',
+                    'chapter_name' => $chapter?->name ?: ($session->ccTopic?->name ?: 'فصل نامشخص'),
+                    'part_type_label' => $session->part_type_label,
+                    'duration_label' => $this->formatSeconds($durationSeconds),
+                    'date_label' => $session->ended_at ? jdate($session->ended_at)->format('Y/m/d') : '—',
+                    'time_label' => $session->started_at && $session->ended_at
+                        ? $session->started_at->format('H:i') . ' تا ' . $session->ended_at->format('H:i')
+                        : ($session->ended_at?->format('H:i') ?? '—'),
+                    'note' => $session->note,
+                ];
+            })
+            ->values()
+            ->toArray();
+    }
+
     protected function sendReportStatusNotification(DailyReport $report, string $status): void
     {
         $studentName = $this->studentName($report->student);
         $reportDate = jdate($report->report_date)->format('Y/m/d');
+        $approved = $status === 'approved';
 
-        $title = $status === 'approved' ? 'تایید گزارش روزانه' : 'رد گزارش روزانه';
-        $message = $status === 'approved'
-            ? "{$studentName} عزیز\nگزارش مطالعه شما در تاریخ {$reportDate} تایید شد. به همین روند ادامه بده!\nبا تشکر"
-            : "{$studentName} عزیز\nگزارش مطالعه شما در تاریخ {$reportDate} رد شد. لطفا گزارش را بررسی و اصلاح کنید.\nبا تشکر";
-
-        NotificationService::sendToStudent($report->student_id, $title, $message, Auth::guard('admin')->id());
+        NotificationService::sendToStudent(
+            $report->student_id,
+            $approved ? 'تأیید گزارش روزانه' : 'رد گزارش روزانه',
+            $approved
+                ? "{$studentName} عزیز\nگزارش مطالعه شما در تاریخ {$reportDate} تأیید شد. به همین روند ادامه بده!\nبا تشکر"
+                : "{$studentName} عزیز\nگزارش مطالعه شما در تاریخ {$reportDate} رد شد. لطفاً گزارش را بررسی و اصلاح کنید.\nبا تشکر",
+            Auth::guard('admin')->id()
+        );
     }
 
-    protected function studentName(?Student $student): string
+    public function studentName(?Student $student): string
     {
         $user = $student?->user;
 
-        return $user?->profile?->full_name
-            ?? $user?->personalInformation?->name
-            ?? $user?->name
-            ?? 'نامشخص';
+        return $this->fullNameFromUser($user);
     }
 
-    protected function resetSelection(): void
+    public function trialStudentFullName(?TrialWeek $trialWeek): string
     {
-        $this->selectedReports = [];
-        $this->selectAll = false;
+        return $this->fullNameFromUser($trialWeek?->user);
+    }
+
+    public function trialStudentMobile(?TrialWeek $trialWeek): string
+    {
+        return $trialWeek?->user?->mobile ?: '—';
+    }
+
+    public function trialFatherMobile(?TrialWeek $trialWeek): string
+    {
+        return $trialWeek?->father_mobile
+            ?: $trialWeek?->user?->personalInformation?->father_mobile
+            ?: $trialWeek?->student?->father_mobile
+            ?: '—';
+    }
+
+    public function trialMotherMobile(?TrialWeek $trialWeek): string
+    {
+        return $trialWeek?->mother_mobile
+            ?: $trialWeek?->user?->personalInformation?->mother_mobile
+            ?: $trialWeek?->student?->mother_mobile
+            ?: '—';
+    }
+
+    protected function fullNameFromUser($user): string
+    {
+        $info = $user?->personalInformation;
+        $personalName = trim(implode(' ', array_filter([
+            $info?->name,
+            $info?->name_full,
+        ], fn ($value) => filled($value))));
+
+        if ($personalName !== '') {
+            return $personalName;
+        }
+
+        $profileName = trim((string) ($user?->profile?->full_name ?? ''));
+
+        return $profileName !== '' ? $profileName : ($user?->name ?: 'نامشخص');
     }
 
     protected function monitorSummary(?TrialWeek $selectedTrial, ?WeeklyProgram $weeklyProgram): array
@@ -787,7 +944,7 @@ class Monitor extends Component
         $restDayIndices = $weeklyProgram->restDays()->pluck('day_index')->map(fn ($i) => (int) $i)->toArray();
         $dueReportDates = collect();
         if ($lastDueDate->gte($startDate)) {
-            $maxIndex = min(7, $startDate->diffInDays($lastDueDate));
+            $maxIndex = min($this->maxProgramDayIndex($weeklyProgram), $startDate->diffInDays($lastDueDate));
             for ($i = 0; $i <= $maxIndex; $i++) {
                 if (! in_array($i, $restDayIndices, true)) {
                     $dueReportDates->push($startDate->copy()->addDays($i)->format('Y-m-d'));
@@ -822,6 +979,106 @@ class Monitor extends Component
         ];
     }
 
+    protected function expectedReportRows(?TrialWeek $selectedTrial, ?WeeklyProgram $weeklyProgram): array
+    {
+        if (! $selectedTrial?->student_id || ! $weeklyProgram) {
+            return [];
+        }
+
+        $student = $selectedTrial->student ?: Student::with(['user.personalInformation', 'user.profile'])->find($selectedTrial->student_id);
+        $studentId = (int) $selectedTrial->student_id;
+        $startDate = Carbon::parse($weeklyProgram->start_date)->startOfDay();
+        $endDate = $weeklyProgram->end_date
+            ? Carbon::parse($weeklyProgram->end_date)->startOfDay()
+            : $this->lastProgramDate($weeklyProgram, $startDate);
+
+        if ($endDate->lt($startDate)) {
+            return [];
+        }
+
+        $reportsByDate = DailyReport::with(['student.user.personalInformation', 'student.user.profile', 'weeklyProgram.parts', 'reportParts.programPart', 'detail', 'feedback'])
+            ->where('student_id', $studentId)
+            ->where('weekly_program_id', $weeklyProgram->id)
+            ->where('is_compensatory', false)
+            ->whereDate('report_date', '>=', $startDate)
+            ->whereDate('report_date', '<=', $endDate)
+            ->latest()
+            ->get()
+            ->unique(fn (DailyReport $report) => $report->report_date->toDateString())
+            ->keyBy(fn (DailyReport $report) => $report->report_date->toDateString());
+
+        $restDayIndices = $weeklyProgram->restDays->pluck('day_index')->map(fn ($index) => (int) $index)->toArray();
+        $partsByDay = $weeklyProgram->parts->groupBy('day_of_week');
+        $rows = [];
+        $now = now();
+        $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            $dayIndex = (int) $startDate->diffInDays($date);
+            $parts = $partsByDay->get($dayIndex, collect());
+
+            if (in_array($dayIndex, $restDayIndices, true) || $parts->isEmpty()) {
+                continue;
+            }
+
+            $dateKey = $date->toDateString();
+            $report = $reportsByDate->get($dateKey);
+            $deadline = $date->copy()->addDay()->setTime(self::REPORT_CUTOFF_HOUR, 0, 0);
+            $statusKey = $report ? 'sent' : ($now->gt($deadline) ? 'missing' : 'waiting');
+
+            $rows[] = [
+                'student_id' => $studentId,
+                'student_name' => $this->studentName($student),
+                'report_date' => $dateKey,
+                'report_date_label' => jdate($date)->format('Y/m/d'),
+                'day_name' => $dayNames[jdate($date)->getDayOfWeek()] ?? '-',
+                'deadline_label' => jdate($deadline)->format('Y/m/d H:i'),
+                'status_key' => $statusKey,
+                'status_label' => match ($statusKey) {
+                    'sent' => 'ارسال کرده',
+                    'missing' => 'عدم ارسال',
+                    default => 'در انتظار ارسال',
+                },
+                'status_color' => match ($statusKey) {
+                    'sent' => 'success',
+                    'missing' => 'danger',
+                    default => 'warning',
+                },
+                'report' => $report,
+                'parts_total' => $parts->count(),
+                'parts_done' => $report ? $report->reportParts->where('is_read', true)->count() : 0,
+                'tests_total' => (int) $parts->sum('test_count'),
+                'rating' => $report ? (float) $report->calculated_rating : 0,
+            ];
+        }
+
+        $rows = array_reverse($rows);
+
+        if (in_array($this->reportStatus, ['sent', 'missing', 'waiting'], true)) {
+            return array_values(array_filter($rows, fn (array $row) => $row['status_key'] === $this->reportStatus));
+        }
+
+        return $rows;
+    }
+
+    protected function lastProgramDate(WeeklyProgram $weeklyProgram, Carbon $startDate): Carbon
+    {
+        return $startDate->copy()->addDays($this->maxProgramDayIndex($weeklyProgram));
+    }
+
+    protected function maxProgramDayIndex(WeeklyProgram $weeklyProgram): int
+    {
+        $startDate = Carbon::parse($weeklyProgram->start_date)->startOfDay();
+        $endIndex = $weeklyProgram->end_date
+            ? (int) $startDate->diffInDays(Carbon::parse($weeklyProgram->end_date)->startOfDay())
+            : 7;
+        $lastPartIndex = (int) ($weeklyProgram->parts->max('day_of_week') ?? 0);
+        $lastRestIndex = (int) ($weeklyProgram->restDays->max('day_index') ?? 0);
+        $lastExamIndex = (int) ($weeklyProgram->examDays->max('day_index') ?? 0);
+
+        return max(0, $endIndex, $lastPartIndex, $lastRestIndex, $lastExamIndex);
+    }
+
     protected function weekDays(?WeeklyProgram $weeklyProgram, ?int $studentId = null): array
     {
         if (! $weeklyProgram || ! $studentId) {
@@ -841,7 +1098,7 @@ class Monitor extends Component
             ->get()
             ->groupBy('day_of_week');
 
-        for ($i = 0; $i < 8; $i++) {
+        for ($i = 0; $i <= $this->maxProgramDayIndex($weeklyProgram); $i++) {
             $date = $startDate->copy()->addDays($i);
             $parts = $partsByDay->get($i, collect());
             $report = $this->reportForDay($studentId, $weeklyProgram->id, $date);
@@ -927,16 +1184,6 @@ class Monitor extends Component
             && WeeklyProgramRestDay::where('weekly_program_id', $program->id)->where('day_index', $dayIndex)->exists();
     }
 
-    public function getStatusColor(string $status): string
-    {
-        return match ($status) {
-            'pending' => 'warning',
-            'approved' => 'success',
-            'rejected' => 'danger',
-            default => 'secondary',
-        };
-    }
-
     public function getRatingLabel($rating): string
     {
         $rating = (float) $rating;
@@ -953,11 +1200,7 @@ class Monitor extends Component
 
     public function render()
     {
-        $trials = $this->baseTrialQuery()
-            ->when($this->search, fn ($q) => $q->whereHas('user', fn ($u) => $u
-                ->where('name', 'like', "%{$this->search}%")
-                ->orWhere('mobile', 'like', "%{$this->search}%")
-            ))
+        $trials = $this->applySearch($this->baseTrialQuery())
             ->latest()
             ->limit(30)
             ->get();
@@ -966,24 +1209,14 @@ class Monitor extends Component
             ? $this->baseTrialQuery()->with(['user.personalInformation', 'student.user.personalInformation', 'advisingSession'])->find($this->selectedTrialId)
             : $trials->first();
 
-        if (! $this->selectedTrialId && $selectedTrial) {
+        if (! $selectedTrial && $trials->isNotEmpty()) {
+            $selectedTrial = $trials->first();
+            $this->selectedTrialId = $selectedTrial->id;
+        } elseif (! $this->selectedTrialId && $selectedTrial) {
             $this->selectedTrialId = $selectedTrial->id;
         }
 
-        $weeklyProgram = $selectedTrial?->student_id
-            ? WeeklyProgram::with(['parts', 'restDays', 'examDays'])
-                ->where('student_id', $selectedTrial->student_id)
-                ->where('is_active', true)
-                ->latest('start_date')
-                ->first()
-            : null;
-
-        $preSessions = $selectedTrial?->student_id
-            ? AdvisingPreSession::where('student_id', $selectedTrial->student_id)
-                ->with(['advisingSession', 'exams', 'assignments', 'qas', 'miscellaneous', 'requestedParts'])
-                ->latest()
-                ->get()
-            : collect();
+        $weeklyProgram = $this->weeklyProgramForTrial($selectedTrial);
 
         $reports = $this->reportsQuery()->paginate(10);
         $studentIds = $this->scopedStudentIds()->map(fn ($id) => (int) $id)->toArray();
@@ -1003,7 +1236,8 @@ class Monitor extends Component
             'examProgramSummary' => $this->examProgramSummary($selectedTrial),
             'monitorSummary' => $this->monitorSummary($selectedTrial, $weeklyProgram),
             'weekDays' => $this->weekDays($weeklyProgram, $selectedTrial?->student_id ? (int) $selectedTrial->student_id : null),
-            'preSessions' => $preSessions,
+            'expectedReportRows' => $this->expectedReportRows($selectedTrial, $weeklyProgram),
+            'makeupSessions' => $this->makeupSessionsForMonitor($selectedTrial, $weeklyProgram),
             'reports' => $reports,
             'missingReports' => $this->missingReports($studentIds),
             'reportDateJalali' => jdate($reportDate)->format('Y/m/d'),

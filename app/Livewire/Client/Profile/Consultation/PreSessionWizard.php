@@ -159,7 +159,7 @@ class PreSessionWizard extends Component
             return false;
         }
 
-        $trial = $user->trialWeek;
+        $trial = $user->student?->is_trial ? $user->trialWeek : null;
         if ($trial) {
             return ! $trial->needsClassSchedule();
         }
@@ -619,7 +619,8 @@ class PreSessionWizard extends Component
         $this->dispatch('success', 'پیش‌جلسه با موفقیت ثبت شد.');
 
         // دانش‌آموز آزمایشی: پیشروی خودکار + بازگشت به راهنما (بدون نیاز به تایید پشتیبان).
-        $trial = \Illuminate\Support\Facades\Auth::user()?->trialWeek;
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $trial = $user?->student?->is_trial ? $user->trialWeek : null;
         if ($trial) {
             $this->maybeAdvanceTrial($trial, $trialService);
             redirect()->route('client.profile.trial.guide');

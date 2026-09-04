@@ -37,6 +37,11 @@ class WaitingForSupporter extends Component
         $this->seo()->setTitle('انتخاب مشاور');
         $this->trialWeek = TrialWeek::where('user_id', Auth::id())->latest()->first();
 
+        if (Auth::user()?->student && ! Auth::user()->student->is_trial) {
+            redirect()->route('client.profile.dashboard');
+            return;
+        }
+
         if (!$this->trialWeek) {
             redirect()->route('client.profile.dashboard');
             return;

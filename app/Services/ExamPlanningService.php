@@ -3,12 +3,14 @@
 namespace App\Services;
 
 use App\Models\AdvisingSession;
+use App\Models\Admin;
 use App\Models\CcChapter;
 use App\Models\CcField;
 use App\Models\CcGrade;
 use App\Models\CcSubject;
 use App\Models\ExamPlanningSetting;
 use App\Models\ProgramPart;
+use App\Models\Student;
 use App\Models\StudentExamSchedule;
 use App\Models\StudentExamScheduleDay;
 use App\Models\StudentExamStudyAllocation;
@@ -29,6 +31,7 @@ class ExamPlanningService
 
     private const ALLOCATION_STEP_MINUTES = 30;
     private const PART_MINUTES = [90, 60, 30];
+    private const NIGHT_BEFORE_EXAM_MINUTES = 90;
 
     public function resolveAcademicProfile(User $user): ?array
     {
@@ -88,7 +91,14 @@ class ExamPlanningService
         $student = $profile['student'];
         $trial = $profile['trial'];
         $paidAccess = ! $student->is_trial && $student->hasActivePaidAccess();
+        $convertedToOrdinaryTrial = $trial && StudentExamSchedule::query()
+            ->where('user_id', $user->id)
+            ->where('student_id', $student->id)
+            ->where('exam_planning_setting_id', $setting->id)
+            ->whereNotNull('converted_to_trial_at')
+            ->exists();
         $trialAccess = ! $paidAccess
+            && ! $convertedToOrdinaryTrial
             && $trial
             && (! $trial->expires_at || $trial->expires_at->isFuture());
 
@@ -159,6 +169,245 @@ class ExamPlanningService
             && $trial
             && $hasBuiltExamProgram
         );
+    }
+
+    public function shouldHideTrialExamProgramReportCard(User $user): bool
+    {
+        if (! $this->isAutomaticTrialReportCardStudent($user)) {
+            return false;
+        }
+
+        return ! $this->automaticTrialReportCardUnlockedForUser($user);
+    }
+
+    public function isTrialExamProgramStudent(User $user): bool
+    {
+        $student = $user->student;
+
+        return (bool) (
+            $student
+            && $student->is_trial
+            && ! $student->hasActivePaidAccess()
+            && $user->trialWeek
+            && $this->latestBuiltExamScheduleForStudent($student)
+        );
+    }
+
+    public function isAutomaticTrialReportCardStudent(User $user): bool
+    {
+        $student = $user->student;
+        $trial = $user->trialWeek;
+
+        return (bool) (
+            $student
+            && $student->is_trial
+            && ! $student->hasActivePaidAccess()
+            && $trial
+            && (
+                $this->latestBuiltExamScheduleForStudent($student)
+                || $trial->program_built_at
+                || $trial->status === TrialWeek::STATUS_PROGRAM_BUILT
+            )
+        );
+    }
+
+    public function automaticTrialReportCardUnlockedForUser(User $user, ?Carbon $now = null): bool
+    {
+        $student = $user->student;
+
+        return $student
+            ? $this->automaticTrialReportCardUnlockedForStudent($student, $now)
+            : false;
+    }
+
+    public function automaticTrialReportCardUnlockedForStudent(Student $student, ?Carbon $now = null): bool
+    {
+        $accessExpiresAt = $this->automaticTrialReportCardAccessExpiresAt($student);
+
+        return $this->reportCardUnlockedForAccessExpiry($accessExpiresAt, $now);
+    }
+
+    public function trialExamProgramReportCardUnlockedForUser(User $user, ?Carbon $now = null): bool
+    {
+        $student = $user->student;
+
+        return $student
+            ? $this->trialExamProgramReportCardUnlockedForStudent($student, $now)
+            : false;
+    }
+
+    public function trialExamProgramReportCardUnlockedForStudent(Student $student, ?Carbon $now = null): bool
+    {
+        $schedule = $this->latestBuiltExamScheduleForStudent($student);
+
+        return $schedule
+            ? $this->examScheduleReportCardUnlocked($schedule, $now)
+            : false;
+    }
+
+    public function examScheduleReportCardUnlocked(StudentExamSchedule $schedule, ?Carbon $now = null): bool
+    {
+        $accessExpiresAt = $schedule->access_expires_at
+            ? Carbon::parse($schedule->access_expires_at)
+            : ($schedule->exam_ends_at ? Carbon::parse($schedule->exam_ends_at)->addDay()->endOfDay() : null);
+
+        return $this->reportCardUnlockedForAccessExpiry($accessExpiresAt, $now);
+    }
+
+    public function reportCardUnlockedForAccessExpiry(?Carbon $accessExpiresAt, ?Carbon $now = null): bool
+    {
+        if (! $accessExpiresAt) {
+            return false;
+        }
+
+        $unlockAt = $accessExpiresAt->copy()->subDay()->startOfDay();
+
+        return ($now ?: Carbon::now())->copy()->startOfDay()->gte($unlockAt);
+    }
+
+    public function studentIsVisibleInSmartReportCards(Student $student, ?Carbon $now = null): bool
+    {
+        if (! $student->is_trial) {
+            return true;
+        }
+
+        return $this->automaticTrialReportCardUnlockedForStudent($student, $now);
+    }
+
+    public function adminCanViewSmartReportCardStudent(Student $student, ?Admin $admin = null): bool
+    {
+        $admin = $admin ?: auth('admin')->user();
+        if (! $admin) {
+            return false;
+        }
+
+        if ($admin->hasRole('super admin')) {
+            return true;
+        }
+
+        $adminId = (int) $admin->id;
+
+        return (int) $student->advisor_id === $adminId
+            || $student->trialWeek()
+                ->where('acquisition_supporter_id', $adminId)
+                ->exists();
+    }
+
+    public function applySmartReportCardStudentVisibility($query, ?Carbon $now = null, bool $includePaidStudents = true)
+    {
+        $today = ($now ?: Carbon::now())->copy()->startOfDay();
+        $accessExpiresBy = $today->copy()->addDay()->toDateString();
+        $examEndsBy = $today->toDateString();
+
+        return $query->where(function ($q) use ($accessExpiresBy, $examEndsBy, $includePaidStudents) {
+            if ($includePaidStudents) {
+                $q->where('is_trial', false)
+                    ->orWhere(function ($trialQuery) use ($accessExpiresBy, $examEndsBy) {
+                        $this->applyAutomaticTrialReportCardConditions($trialQuery, $accessExpiresBy, $examEndsBy);
+                    });
+
+                return;
+            }
+
+            $this->applyAutomaticTrialReportCardConditions($q, $accessExpiresBy, $examEndsBy);
+        });
+    }
+
+    private function applyAutomaticTrialReportCardConditions($query, string $accessExpiresBy, string $examEndsBy): void
+    {
+        $query
+            ->where(function ($trialQuery) use ($accessExpiresBy, $examEndsBy) {
+                $trialQuery
+                    ->where(function ($ordinaryTrialQuery) use ($accessExpiresBy) {
+                        $ordinaryTrialQuery
+                            ->where('is_trial', true)
+                            ->whereHas('trialWeek', function ($trialWeekQuery) use ($accessExpiresBy) {
+                                $trialWeekQuery
+                                    ->where(function ($builtQuery) {
+                                        $builtQuery
+                                            ->whereNotNull('program_built_at')
+                                            ->orWhere('status', TrialWeek::STATUS_PROGRAM_BUILT);
+                                    })
+                                    ->whereDate('expires_at', '<=', $accessExpiresBy);
+                            });
+                    })
+                    ->orWhere(function ($examTrialQuery) use ($accessExpiresBy, $examEndsBy) {
+                        $examTrialQuery
+                            ->where('is_trial', true)
+                            ->whereHas('examSchedules', function ($scheduleQuery) use ($accessExpiresBy, $examEndsBy) {
+                                $scheduleQuery
+                                    ->whereNotNull('weekly_program_id')
+                                    ->whereNotNull('program_built_at')
+                                    ->where(function ($dateQuery) use ($accessExpiresBy, $examEndsBy) {
+                                        $dateQuery
+                                            ->whereDate('access_expires_at', '<=', $accessExpiresBy)
+                                            ->orWhere(function ($fallbackQuery) use ($examEndsBy) {
+                                                $fallbackQuery
+                                                    ->whereNull('access_expires_at')
+                                                    ->whereDate('exam_ends_at', '<=', $examEndsBy);
+                                            });
+                                    });
+                            });
+                    });
+            });
+    }
+
+    public function applySmartReportCardOwnerVisibility($query, ?Admin $admin = null)
+    {
+        $admin = $admin ?: auth('admin')->user();
+
+        if (! $admin || $admin->hasRole('super admin')) {
+            return $query;
+        }
+
+        $adminId = (int) $admin->id;
+
+        return $query->where(function ($q) use ($adminId) {
+            $q->where('advisor_id', $adminId)
+                ->orWhereHas('trialWeek', function ($trialQuery) use ($adminId) {
+                    $trialQuery->where('acquisition_supporter_id', $adminId);
+                });
+        });
+    }
+
+    public function adminHasAutomaticSmartReportCardStudents(?Admin $admin = null): bool
+    {
+        $admin = $admin ?: auth('admin')->user();
+        if (! $admin) {
+            return false;
+        }
+
+        $query = Student::query();
+
+        $this->applySmartReportCardStudentVisibility($query, includePaidStudents: false);
+        $this->applySmartReportCardOwnerVisibility($query, $admin);
+
+        return $query->exists();
+    }
+
+    private function latestBuiltExamScheduleForStudent(Student $student): ?StudentExamSchedule
+    {
+        return $student->examSchedules()
+            ->whereNotNull('weekly_program_id')
+            ->whereNotNull('program_built_at')
+            ->orderByDesc('program_built_at')
+            ->orderByDesc('id')
+            ->first();
+    }
+
+    private function automaticTrialReportCardAccessExpiresAt(Student $student): ?Carbon
+    {
+        $schedule = $this->latestBuiltExamScheduleForStudent($student);
+
+        if ($schedule) {
+            return $schedule->access_expires_at
+                ? Carbon::parse($schedule->access_expires_at)
+                : ($schedule->exam_ends_at ? Carbon::parse($schedule->exam_ends_at)->addDay()->endOfDay() : null);
+        }
+
+        $trial = $student->trialWeek;
+
+        return $trial?->expires_at ? Carbon::parse($trial->expires_at) : null;
     }
 
     public function prepareScheduleForUser(User $user): ?StudentExamSchedule
@@ -373,15 +622,17 @@ class ExamPlanningService
         foreach ($days->groupBy(fn ($day) => $day->exam_date->toDateString()) as $examDate => $group) {
             $examCarbon = Carbon::parse($examDate);
             $segmentStart = $previousExamDate
-                ? Carbon::parse($previousExamDate)
+                ? Carbon::parse($previousExamDate)->addDay()
                 : $today->copy();
             if ($segmentStart->lt($today)) {
                 $segmentStart = $today->copy();
             }
             $segmentEnd = $examCarbon->copy()->subDay();
-            $dayCount = $segmentEnd->lt($segmentStart) ? 0 : $segmentStart->diffInDays($segmentEnd) + 1;
-            $capacityMinutes = $dayCount * $dailyMinutes;
+            $dayCount = (int) ($segmentEnd->lt($segmentStart) ? 0 : $segmentStart->diffInDays($segmentEnd) + 1);
             $segmentSubjectIds = $group->pluck('cc_subject_id')->map(fn ($id) => (int) $id)->values();
+            $totalCapacityMinutes = $dayCount * $dailyMinutes;
+            $requiredNightBeforeMinutes = $segmentSubjectIds->count() * self::NIGHT_BEFORE_EXAM_MINUTES;
+            $capacityMinutes = $totalCapacityMinutes;
             $enteredMinutes = (int) $segmentSubjectIds->sum(fn ($subjectId) => $allocationTotals[$subjectId] ?? 0);
             $segmentKey = 'segment_' . $examCarbon->format('Ymd');
 
@@ -391,6 +642,8 @@ class ExamPlanningService
                 'starts_at' => $segmentStart,
                 'ends_at' => $segmentEnd,
                 'day_count' => $dayCount,
+                'total_capacity_minutes' => $totalCapacityMinutes,
+                'required_night_before_minutes' => $requiredNightBeforeMinutes,
                 'capacity_minutes' => $capacityMinutes,
                 'entered_minutes' => $enteredMinutes,
                 'remaining_minutes' => max(0, $capacityMinutes - $enteredMinutes),
@@ -402,6 +655,8 @@ class ExamPlanningService
                 $subjects[$subjectId] = [
                     'segment_key' => $segmentKey,
                     'exam_date' => $examCarbon,
+                    'total_capacity_minutes' => $totalCapacityMinutes,
+                    'required_night_before_minutes' => $requiredNightBeforeMinutes,
                     'capacity_minutes' => $capacityMinutes,
                     'subject_entered_minutes' => (int) ($allocationTotals[$subjectId] ?? 0),
                     'segment_entered_minutes' => $enteredMinutes,
@@ -853,7 +1108,7 @@ class ExamPlanningService
                 throw new LogicException('جمع ساعت‌های ثبت‌شده برای یکی از بازه‌های امتحانی از ظرفیت قابل مطالعه بیشتر است.');
             }
 
-            if (count($segment['subject_ids']) * 90 > ((int) $schedule->max_daily_study_hours * 60)) {
+            if (count($segment['subject_ids']) * self::NIGHT_BEFORE_EXAM_MINUTES > ((int) $schedule->max_daily_study_hours * 60)) {
                 throw new LogicException('تعداد امتحان‌های یک روز آن‌قدر زیاد است که پارت اجباری ۹۰ دقیقه‌ای شب قبل در ظرفیت روزانه جا نمی‌شود.');
             }
         }
@@ -1002,7 +1257,7 @@ class ExamPlanningService
                             $program,
                             $date,
                             $partOrderMap,
-                            90,
+                            self::NIGHT_BEFORE_EXAM_MINUTES,
                             $subjectId,
                             null,
                             'حل نمونه سوال تشریحی - ' . $subjectName,
@@ -1011,7 +1266,12 @@ class ExamPlanningService
                             $dayIndex
                         );
 
-                        $dayRemaining -= 90;
+                        $dayRemaining -= self::NIGHT_BEFORE_EXAM_MINUTES;
+                        $this->consumeAllocationPoolForMandatoryPart(
+                            $allocationPool,
+                            $subjectId,
+                            self::NIGHT_BEFORE_EXAM_MINUTES
+                        );
                     }
                 }
 
@@ -1135,6 +1395,34 @@ class ExamPlanningService
         unset($items);
 
         return $pool;
+    }
+
+    private function consumeAllocationPoolForMandatoryPart(array &$allocationPool, int $subjectId, int $minutes): void
+    {
+        $remaining = $minutes;
+
+        if (! isset($allocationPool[$subjectId]) || $remaining <= 0) {
+            return;
+        }
+
+        for ($index = count($allocationPool[$subjectId]) - 1; $index >= 0 && $remaining > 0; $index--) {
+            $available = (int) ($allocationPool[$subjectId][$index]['remaining_minutes'] ?? 0);
+
+            if ($available <= 0) {
+                unset($allocationPool[$subjectId][$index]);
+                continue;
+            }
+
+            $used = min($available, $remaining);
+            $allocationPool[$subjectId][$index]['remaining_minutes'] = $available - $used;
+            $remaining -= $used;
+
+            if ((int) $allocationPool[$subjectId][$index]['remaining_minutes'] <= 0) {
+                unset($allocationPool[$subjectId][$index]);
+            }
+        }
+
+        $allocationPool[$subjectId] = array_values($allocationPool[$subjectId]);
     }
 
     private function normalizeWholeBookAllocations(StudentExamSchedule $schedule): void

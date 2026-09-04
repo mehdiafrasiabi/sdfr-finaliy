@@ -455,8 +455,10 @@
                         @php
                             $question = $qa['question'];
                             $selectedOption = $qa['selected_option'];
+                            $selectedPosition = $qa['selected_position'];
                             $isCorrect = $qa['is_correct'];
                             $correctOptionNum = $qa['correct_option_number'];
+                            $correctPosition = $qa['correct_position'];
                             $displayOptions = $qa['ordered_options']->isNotEmpty()
                                 ? $qa['ordered_options']
                                 : collect([1, 2, 3, 4])->map(fn ($num) => (object) ['option_number' => $num, 'is_correct' => (int) $correctOptionNum === $num, 'content' => null]);
@@ -525,13 +527,13 @@
                                     <div class="rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm">
                                         <span class="block text-xs text-muted mb-1">کلید شما</span>
                                         <span class="font-bold text-foreground">
-                                            {{ $selectedOption !== null ? 'گزینه ' . $selectedOption : 'وجود ندارد' }}
+                                            {{ $selectedPosition !== null ? 'گزینه ' . $selectedPosition : 'وجود ندارد' }}
                                         </span>
                                     </div>
                                     <div class="rounded-xl border border-green-500/20 bg-green-500/10 p-3 text-sm">
                                         <span class="block text-xs text-muted mb-1">کلید درست</span>
                                         <span class="font-bold text-green-600 dark:text-green-400">
-                                            {{ $correctOptionNum !== null ? 'گزینه ' . $correctOptionNum : 'وجود ندارد' }}
+                                            {{ $correctPosition !== null ? 'گزینه ' . $correctPosition : 'وجود ندارد' }}
                                         </span>
                                     </div>
                                 </div>
@@ -556,7 +558,7 @@
                                         @foreach($displayOptions as $optIndex => $option)
                                             @php
                                                 $isSelected = $selectedOption === $option->option_number;
-                                                $isCorrectOpt = $option->is_correct;
+                                                $isCorrectOpt = (int) $correctOptionNum === (int) $option->option_number;
                                                 $optionLabel = ['۱', '۲', '۳', '۴'][$optIndex] ?? ($optIndex + 1);
                                             @endphp
                                             <div class="flex flex-col items-center gap-1">
@@ -587,7 +589,7 @@
                                         @foreach($displayOptions as $optIndex => $option)
                                             @php
                                                 $isSelected = $selectedOption === $option->option_number;
-                                                $isCorrectOpt = $option->is_correct;
+                                                $isCorrectOpt = (int) $correctOptionNum === (int) $option->option_number;
                                                 $optionLabel = ['الف', 'ب', 'ج', 'د'][$optIndex] ?? ($optIndex + 1);
                                             @endphp
                                             <div class="flex items-start gap-3 p-3 rounded-xl

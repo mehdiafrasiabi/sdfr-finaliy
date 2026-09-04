@@ -26,6 +26,16 @@ class Index extends Component
         $this->resetPage();
     }
 
+    protected function shouldCollectLeadFullName(PhoneLead $lead): bool
+    {
+        return ! preg_match('/^\S+(?:\s+\S+)+$/u', trim((string) $lead->full_name));
+    }
+
+    protected function inviteSendLimitForContext(): ?int
+    {
+        return 2;
+    }
+
     public function render()
     {
         $adminId = Auth::guard('admin')->id();
@@ -43,6 +53,8 @@ class Index extends Component
                     ->orWhereNotIn('last_outcome', [
                         \App\Models\PhoneCall::RESULT_FOLLOW_UP,
                         \App\Models\PhoneCall::RESULT_REGISTRATION_FOLLOW_UP,
+                        \App\Models\PhoneCall::RESULT_REGISTERED,
+                        \App\Models\PhoneCall::RESULT_NO_INTEREST,
                     ]);
             })
             // تماس‌های ناموفقِ موکول‌شده به فردا، تا فرارسیدن موعد در صف نمایش داده نمی‌شوند

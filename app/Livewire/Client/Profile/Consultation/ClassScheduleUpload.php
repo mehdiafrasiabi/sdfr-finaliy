@@ -135,7 +135,7 @@ class ClassScheduleUpload extends Component
             'attends_school_change_count' => $personalInfo->attends_school_change_count + 1,
         ]);
 
-        if ($trial = $user?->trialWeek) {
+        if ($user?->student?->is_trial && ($trial = $user->trialWeek)) {
             $trial->update([
                 'attends_school' => $newStatus && ! $trial->isGraduate(),
             ]);
@@ -413,7 +413,8 @@ class ClassScheduleUpload extends Component
             ? 'تغییرات برنامه کلاسی با موفقیت به‌روزرسانی و نهایی شد.'
             : 'برنامه کلاسی با موفقیت نهایی شد.');
 
-        $trial = \Illuminate\Support\Facades\Auth::user()?->trialWeek;
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $trial = $user?->student?->is_trial ? $user->trialWeek : null;
         if ($trial) {
             if ($trial->status === \App\Models\TrialWeek::STATUS_CLASSIFICATION_DONE
                 && $trial->advisingSession?->preSession?->status === 'completed') {

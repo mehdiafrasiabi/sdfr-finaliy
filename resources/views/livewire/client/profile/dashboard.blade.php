@@ -745,7 +745,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            @elseif($trialWeek)
+                            @elseif($showTrialBanner && $trialWeek)
                                 <div data-tour="trial"
                                      class="glass rise flex items-center justify-between p-4 rounded-2xl"
                                      style="animation-delay:0s">

@@ -177,7 +177,7 @@ class QuestionForm extends Component
         $this->questionId = $question->id;
         $this->questionCode = $question->code;
         $this->difficulty = $question->difficulty;
-        $this->correctOption = $question->correct_option ?? 1;
+        $this->correctOption = $question->correct_option_number ?? 1;
         $chapter = $question->topic?->chapter ?? $question->chapter;
         if ($chapter) {
             $topic = $question->topic;
@@ -580,6 +580,8 @@ class QuestionForm extends Component
             'correct_option' => $correctOpt,
         ]);
 
+        $this->synchronizeOptionKeys($question, $correctOpt);
+
         QuestionContent::create([
             'question_id' => $question->id,
             'question_image' => $questionImageName,
@@ -622,6 +624,7 @@ class QuestionForm extends Component
             'difficulty' => $this->difficulty,
             'correct_option' => $this->correctOption,
         ]);
+        $this->synchronizeOptionKeys($question, $this->correctOption);
         $content = $question->content;
         $folderHash = $content->folder_hash ?? sha1($question->code . now()->timestamp . uniqid());
         $data = ['folder_hash' => $folderHash];
@@ -651,6 +654,14 @@ class QuestionForm extends Component
             $data['explanation'] = '';
             QuestionContent::create($data);
         }
+    }
+
+    protected function synchronizeOptionKeys(Question $question, int $correctOption): void
+    {
+        $question->options()->update(['is_correct' => false]);
+        $question->options()
+            ->where('option_number', $correctOption)
+            ->update(['is_correct' => true]);
     }
 
     /**

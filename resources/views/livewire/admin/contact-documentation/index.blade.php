@@ -1,4 +1,5 @@
-<div>
+<div class="student-ui student-ui-auto-collapse">
+    @include('livewire.admin.student._styles')
     <div class="row g-4">
         <div class="col-12">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
@@ -12,6 +13,12 @@
             </div>
         </div>
 
+        <details class="su-data-drawer col-12 mb-0" open>
+            <summary>
+                داشبورد آماری تماس‌ها
+                <span class="su-data-drawer__hint">برای نمایش یا پنهان‌کردن جزئیات کلیک کنید</span>
+            </summary>
+            <div class="su-data-drawer__body">
         <div class="col-12">
             <div class="row g-3">
                 <div class="col-6 col-xl-3">
@@ -147,6 +154,9 @@
                 </div>
             </div>
         </div>
+
+            </div>
+        </details>
 
         <div class="col-12">
             <div class="card shadow-sm">

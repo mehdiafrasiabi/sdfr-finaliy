@@ -3,8 +3,16 @@ const initAppToggler = () => {
 	const appTogglers = document.querySelectorAll(".app-toggler");
 	const appMenubars = document.getElementById("appMenubar");
 
+	const closeMobileMenu = () => {
+		appTogglers.forEach(toggler => toggler.classList.remove("active"));
+		if (appMenubars) {
+			appMenubars.classList.remove("open");
+		}
+	};
+
 	appTogglers.forEach(toggler => {
-		toggler.addEventListener("click", () => {
+		toggler.addEventListener("click", (event) => {
+			event.stopPropagation();
 			toggler.classList.toggle("active");
 
 			if (window.innerWidth >= 1480) {
@@ -22,6 +30,24 @@ const initAppToggler = () => {
 	});
 
 	if (appMenubars) {
+		appMenubars.addEventListener("click", (event) => {
+			event.stopPropagation();
+
+			if (window.innerWidth < 1480 && event.target.closest(".app-navbar .menu-link[href]:not([href^='#'])")) {
+				closeMobileMenu();
+			}
+		});
+
+		document.addEventListener("click", (event) => {
+			if (window.innerWidth >= 1480 || ! appMenubars.classList.contains("open")) {
+				return;
+			}
+
+			if (! event.target.closest("#appMenubar") && ! event.target.closest(".app-toggler")) {
+				closeMobileMenu();
+			}
+		});
+
 		appMenubars.addEventListener("mouseenter", () => {
 			if (document.documentElement.getAttribute("data-app-sidebar") === "mini") {
 				document.documentElement.setAttribute("data-app-sidebar", "mini-hover");
@@ -833,7 +859,6 @@ $(document).ready(function() {
     }
 });
 // پایان تقویم انتخابگر درون خطی
-
 
 
 

@@ -1,4 +1,5 @@
-<div>
+<div class="em-page">
+    @include('livewire.admin.educational-manager._styles')
     <div class="app-page-head">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -7,6 +8,11 @@
             </ol>
         </nav>
     </div>
+
+    <section class="em-hero">
+        <div class="em-hero-main"><span class="em-hero-icon"><i class="fi fi-rr-exchange"></i></span><div><h3>درخواست‌های جابه‌جایی مشاور</h3><p>بررسی درخواست دانش‌آموز، ظرفیت مشاور جدید و ثبت تصمیم نهایی.</p></div></div>
+        <span class="badge bg-warning-subtle text-warning">{{ number_format($pendingCount) }} درخواست در انتظار</span>
+    </section>
 
     <div class="row g-3 mb-4">
         <div class="col-lg-4">

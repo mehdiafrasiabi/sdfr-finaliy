@@ -48,8 +48,7 @@ class Sidebar extends Component
             return;
         }
 
-        $trial = $student->trialWeek;
-        $this->advisorChatLocked = $trial && ! $trial->hasFullAccess();
+        $this->advisorChatLocked = $student->isAdvisorChatLocked();
 
         $conversation = $student->conversation;
         $this->advisorUnread = $conversation ? $conversation->unreadCountFor('student') : 0;
