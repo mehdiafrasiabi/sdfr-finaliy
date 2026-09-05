@@ -58,7 +58,12 @@ class AssessmentInterpretationService
 
             $custom = $this->interpretCustom($cr, $assessment);
             if (! empty($custom['facets'])) {
-                $summary['custom'][$assessment->name_fa] = $custom['facets'];
+                $summary['custom'][$assessment->name_fa] = [
+                    'facets'          => $custom['facets'],
+                    'overall_percent' => $custom['overall_percent'] ?? 0,
+                    'overall_level'   => $custom['overall_level'] ?? 'medium',
+                    'overall_text'    => $custom['overall_text'] ?? null,
+                ];
             }
             foreach ($custom['flags'] ?? [] as $flagKey => $flag) {
                 $summary['flags'][$flagKey] = $flag;
@@ -178,11 +183,11 @@ class AssessmentInterpretationService
         }
 
         return match ($flag) {
-//            'flag' => [
-//                'severity' => 'warning',
-//                'title'    => 'پرچم بالینی',
-//                'text'     => 'پاسخ‌های flag در آزمون نشان از احتمال بالای نیاز به ارجاع پزشک متخصص است (مثلاً ADHD).',
-//            ],
+            'flag' => [
+                'severity' => 'warning',
+                'title'    => 'پرچم بالینی',
+                'text'     => 'پاسخ‌های flag در آزمون نشان از احتمال بالای نیاز به ارجاع پزشک متخصص است (مثلاً ADHD).',
+            ],
             default => [
                 'severity' => 'info',
                 'title'    => $this->humanize($flag),

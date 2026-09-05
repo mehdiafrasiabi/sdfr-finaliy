@@ -71,13 +71,25 @@
         .sheet-handle{width:44px;height:5px;background:hsl(var(--muted-foreground)/.35);border-radius:999px;margin:10px auto 4px}
         @media(min-width:768px){.sheet-handle{display:none}}
 
-        /* انیمیشن باز شدن خود مودال (نگه داشتم چون طبیعیه) */
-        @keyframes overlay-in{from{opacity:0}to{opacity:1}}
-        @keyframes sheet-slide-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
-        @keyframes sheet-desktop-in{from{opacity:0;transform:translate(-50%,-45%) scale(.95)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-        .sheet-overlay{animation:overlay-in .25s ease forwards}
-        .sheet{animation:sheet-slide-up .3s cubic-bezier(.16,1,.3,1) forwards}
-        @media(min-width:768px){.sheet{animation:sheet-desktop-in .25s cubic-bezier(.16,1,.3,1) forwards}}
+        /* ─── modal enter/leave transitions (Alpine x-transition) ───
+           موبایل: باز شدن از پایین صفحه، بسته شدن با اسلاید نرم از بالا (موقعیت فعلی) به پایین (خارج صفحه).
+           دسکتاپ: باز/بسته شدن با فید + اسکیل ملایم. */
+        .sheet-ov-enter-active,.sheet-ov-leave-active{transition:opacity .25s ease}
+        .sheet-ov-enter-start,.sheet-ov-leave-end{opacity:0}
+        .sheet-ov-enter-end,.sheet-ov-leave-start{opacity:1}
+
+        .sheet-tr-enter-active{transition:transform .32s cubic-bezier(.16,1,.3,1),opacity .32s ease}
+        .sheet-tr-leave-active{transition:transform .28s cubic-bezier(.4,0,.2,1),opacity .22s ease}
+        .sheet-tr-enter-start,.sheet-tr-leave-end{opacity:0;transform:translateY(100%)}
+        .sheet-tr-enter-end,.sheet-tr-leave-start{opacity:1;transform:translateY(0)}
+        @media(min-width:768px){
+            .sheet-tr-enter-start,.sheet-tr-leave-end{opacity:0;transform:translate(-50%,-46%) scale(.96)}
+            .sheet-tr-enter-end,.sheet-tr-leave-start{opacity:1;transform:translate(-50%,-50%) scale(1)}
+        }
+
+        /* دکمه‌ی شیشه‌ای کارت‌های خالی (هنوز چیزی ثبت نشده) */
+        .glass-btn{transition:filter .15s ease,background-color .15s ease}
+        .glass-btn:hover{filter:brightness(1.15)}
 
         .date-grid-btn{transition:background .15s ease, border-color .15s ease, color .15s ease}
         .date-grid-btn.active{background:linear-gradient(135deg,rgb(37 99 235),rgb(59 130 246));color:white;border-color:rgb(37 99 235);box-shadow:0 4px 14px rgb(59 130 246/.4)}
@@ -106,7 +118,18 @@
             <div class="absolute inset-0 bg-gradient-to-br from-blue-700 via-blue-600 to-blue-400"></div>
             <div class="absolute -top-20 -left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
             <div class="absolute -bottom-20 -right-10 w-72 h-72 bg-blue-300/20 rounded-full blur-3xl"></div>
-            <div class="relative px-5 py-6 sm:px-7 sm:py-7">
+
+            {{-- دکمه‌ی چشم: مشاهده‌ی سریع و کامل موارد ثبت‌شده --}}
+            <button type="button" wire:click="openModal('summary')"
+                    class="absolute top-4 left-4 sm:top-5 sm:left-5 z-10 w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur flex items-center justify-center text-white transition-colors"
+                    title="مشاهده کامل موارد ثبت‌شده">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+            </button>
+
+            <div class="relative pr-5 pl-16 py-6 sm:pr-7 sm:pl-16 sm:py-7">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 class="text-xl sm:text-2xl font-bold text-white mb-1">پیش‌جلسه مشاوره ({{ $session->title }})</h1>
@@ -223,17 +246,21 @@
                             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         </button>
                     @elseif($canEdit)
-                        <button wire:click="openModal('{{ $key }}')"
-                                class="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-colors"
-                                style="background:linear-gradient(135deg,rgb({{ $card['hex'] }}),rgb({{ $card['hex'] }}/.85));box-shadow:0 4px 14px rgb({{ $card['hex'] }}/.4);">
-                            @if($card['count'] > 0)
+                        @if($card['count'] > 0)
+                            <button wire:click="openModal('{{ $key }}')"
+                                    class="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-colors"
+                                    style="background:linear-gradient(135deg,rgb({{ $card['hex'] }}),rgb({{ $card['hex'] }}/.85));box-shadow:0 4px 14px rgb({{ $card['hex'] }}/.4);">
                                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
                                 ویرایش
-                            @else
+                            </button>
+                        @else
+                            <button wire:click="openModal('{{ $key }}')"
+                                    class="glass-btn w-full inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-bold transition-colors"
+                                    style="background:rgb({{ $card['hex'] }}/.08);border-color:rgb({{ $card['hex'] }}/.3);color:rgb({{ $card['hex'] }});backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
                                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                افزودن
-                            @endif
-                        </button>
+                                ثبت
+                            </button>
+                        @endif
                     @else
                         @if($card['count'] > 0)
                             <button wire:click="openModal('{{ $key }}')"
@@ -260,8 +287,22 @@
         {{-- ── EXAMS MODAL ── --}}
         @if($openCard === 'exams')
             <div wire:key="modal-exams">
-                <div class="sheet-overlay" wire:click="closeModal"></div>
-                <div class="sheet glass" @click.stop>
+                <div class="sheet-overlay"
+                     x-transition:enter="sheet-ov-enter-active"
+                     x-transition:enter-start="sheet-ov-enter-start"
+                     x-transition:enter-end="sheet-ov-enter-end"
+                     x-transition:leave="sheet-ov-leave-active"
+                     x-transition:leave-start="sheet-ov-leave-start"
+                     x-transition:leave-end="sheet-ov-leave-end"
+                     wire:click="closeModal"></div>
+                <div class="sheet glass"
+                     x-transition:enter="sheet-tr-enter-active"
+                     x-transition:enter-start="sheet-tr-enter-start"
+                     x-transition:enter-end="sheet-tr-enter-end"
+                     x-transition:leave="sheet-tr-leave-active"
+                     x-transition:leave-start="sheet-tr-leave-start"
+                     x-transition:leave-end="sheet-tr-leave-end"
+                     @click.stop>
                     <div class="sheet-handle"></div>
 
                     {{-- HEADER (جدا با border-b) --}}
@@ -408,8 +449,22 @@
         {{-- ── QAS MODAL ── --}}
         @if($openCard === 'qas')
             <div wire:key="modal-qas">
-                <div class="sheet-overlay" wire:click="closeModal"></div>
-                <div class="sheet glass" @click.stop>
+                <div class="sheet-overlay"
+                     x-transition:enter="sheet-ov-enter-active"
+                     x-transition:enter-start="sheet-ov-enter-start"
+                     x-transition:enter-end="sheet-ov-enter-end"
+                     x-transition:leave="sheet-ov-leave-active"
+                     x-transition:leave-start="sheet-ov-leave-start"
+                     x-transition:leave-end="sheet-ov-leave-end"
+                     wire:click="closeModal"></div>
+                <div class="sheet glass"
+                     x-transition:enter="sheet-tr-enter-active"
+                     x-transition:enter-start="sheet-tr-enter-start"
+                     x-transition:enter-end="sheet-tr-enter-end"
+                     x-transition:leave="sheet-tr-leave-active"
+                     x-transition:leave-start="sheet-tr-leave-start"
+                     x-transition:leave-end="sheet-tr-leave-end"
+                     @click.stop>
                     <div class="sheet-handle"></div>
 
                     <div class="shrink-0 px-5 py-4 border-b border-border flex items-center justify-between">
@@ -528,8 +583,22 @@
         {{-- ── ASSIGNMENTS MODAL ── --}}
         @if($openCard === 'assignments')
             <div wire:key="modal-assignments">
-                <div class="sheet-overlay" wire:click="closeModal"></div>
-                <div class="sheet glass" @click.stop>
+                <div class="sheet-overlay"
+                     x-transition:enter="sheet-ov-enter-active"
+                     x-transition:enter-start="sheet-ov-enter-start"
+                     x-transition:enter-end="sheet-ov-enter-end"
+                     x-transition:leave="sheet-ov-leave-active"
+                     x-transition:leave-start="sheet-ov-leave-start"
+                     x-transition:leave-end="sheet-ov-leave-end"
+                     wire:click="closeModal"></div>
+                <div class="sheet glass"
+                     x-transition:enter="sheet-tr-enter-active"
+                     x-transition:enter-start="sheet-tr-enter-start"
+                     x-transition:enter-end="sheet-tr-enter-end"
+                     x-transition:leave="sheet-tr-leave-active"
+                     x-transition:leave-start="sheet-tr-leave-start"
+                     x-transition:leave-end="sheet-tr-leave-end"
+                     @click.stop>
                     <div class="sheet-handle"></div>
 
                     <div class="shrink-0 px-5 py-4 border-b border-border flex items-center justify-between">
@@ -638,8 +707,22 @@
         {{-- ── REQUESTED PARTS MODAL ── --}}
         @if($openCard === 'requested')
             <div wire:key="modal-requested">
-                <div class="sheet-overlay" wire:click="closeModal"></div>
-                <div class="sheet glass" @click.stop>
+                <div class="sheet-overlay"
+                     x-transition:enter="sheet-ov-enter-active"
+                     x-transition:enter-start="sheet-ov-enter-start"
+                     x-transition:enter-end="sheet-ov-enter-end"
+                     x-transition:leave="sheet-ov-leave-active"
+                     x-transition:leave-start="sheet-ov-leave-start"
+                     x-transition:leave-end="sheet-ov-leave-end"
+                     wire:click="closeModal"></div>
+                <div class="sheet glass"
+                     x-transition:enter="sheet-tr-enter-active"
+                     x-transition:enter-start="sheet-tr-enter-start"
+                     x-transition:enter-end="sheet-tr-enter-end"
+                     x-transition:leave="sheet-tr-leave-active"
+                     x-transition:leave-start="sheet-tr-leave-start"
+                     x-transition:leave-end="sheet-tr-leave-end"
+                     @click.stop>
                     <div class="sheet-handle"></div>
 
                     <div class="shrink-0 px-5 py-4 border-b border-border flex items-center justify-between">
@@ -751,8 +834,22 @@
         {{-- ── MISC MODAL ── --}}
         @if($openCard === 'misc')
             <div wire:key="modal-misc">
-                <div class="sheet-overlay" wire:click="closeModal"></div>
-                <div class="sheet glass" @click.stop>
+                <div class="sheet-overlay"
+                     x-transition:enter="sheet-ov-enter-active"
+                     x-transition:enter-start="sheet-ov-enter-start"
+                     x-transition:enter-end="sheet-ov-enter-end"
+                     x-transition:leave="sheet-ov-leave-active"
+                     x-transition:leave-start="sheet-ov-leave-start"
+                     x-transition:leave-end="sheet-ov-leave-end"
+                     wire:click="closeModal"></div>
+                <div class="sheet glass"
+                     x-transition:enter="sheet-tr-enter-active"
+                     x-transition:enter-start="sheet-tr-enter-start"
+                     x-transition:enter-end="sheet-tr-enter-end"
+                     x-transition:leave="sheet-tr-leave-active"
+                     x-transition:leave-start="sheet-tr-leave-start"
+                     x-transition:leave-end="sheet-tr-leave-end"
+                     @click.stop>
                     <div class="sheet-handle"></div>
 
                     <div class="shrink-0 px-5 py-4 border-b border-border flex items-center justify-between">
@@ -790,8 +887,22 @@
         {{-- ── SUMMARY MODAL ── --}}
         @if($openCard === 'summary')
             <div wire:key="modal-summary">
-                <div class="sheet-overlay" wire:click="closeModal"></div>
-                <div class="sheet glass" @click.stop>
+                <div class="sheet-overlay"
+                     x-transition:enter="sheet-ov-enter-active"
+                     x-transition:enter-start="sheet-ov-enter-start"
+                     x-transition:enter-end="sheet-ov-enter-end"
+                     x-transition:leave="sheet-ov-leave-active"
+                     x-transition:leave-start="sheet-ov-leave-start"
+                     x-transition:leave-end="sheet-ov-leave-end"
+                     wire:click="closeModal"></div>
+                <div class="sheet glass"
+                     x-transition:enter="sheet-tr-enter-active"
+                     x-transition:enter-start="sheet-tr-enter-start"
+                     x-transition:enter-end="sheet-tr-enter-end"
+                     x-transition:leave="sheet-tr-leave-active"
+                     x-transition:leave-start="sheet-tr-leave-start"
+                     x-transition:leave-end="sheet-tr-leave-end"
+                     @click.stop>
                     <div class="sheet-handle"></div>
 
                     <div class="shrink-0 px-5 py-4 border-b border-border flex items-center justify-between">

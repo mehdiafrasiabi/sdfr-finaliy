@@ -63,17 +63,40 @@
                 <div class="card">
                     <div class="card-header"><h5 class="mb-0">زمان‌بندی آزمون</h5></div>
                     <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">تاریخ و ساعت شروع *</label>
-                            <input type="datetime-local" wire:model.defer="start_at" class="form-control">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">تاریخ و ساعت پایان *</label>
-                            <input type="datetime-local" wire:model.defer="end_at" class="form-control">
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label">تاریخ شروع *</label>
+                                <input type="text"
+                                       wire:model.blur="startDateJalali"
+                                       data-jdp data-jdp-only-date
+                                       autocomplete="off" dir="ltr" readonly
+                                       class="form-control text-center @error('startDateJalali') is-invalid @enderror"
+                                       placeholder="1405/06/13">
+                                @error('startDateJalali')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">تاریخ پایان *</label>
+                                <input type="text"
+                                       wire:model.blur="endDateJalali"
+                                       data-jdp data-jdp-only-date
+                                       autocomplete="off" dir="ltr" readonly
+                                       class="form-control text-center @error('endDateJalali') is-invalid @enderror"
+                                       placeholder="1405/06/14">
+                                @error('endDateJalali')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">ساعت شروع *</label>
+                                <input type="time" wire:model="startTime" class="form-control @error('startTime') is-invalid @enderror">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">ساعت پایان *</label>
+                                <input type="time" wire:model="endTime" class="form-control @error('endTime') is-invalid @enderror">
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">مدت زمان آزمون (دقیقه) *</label>
-                            <input type="number" min="5" max="600" wire:model.defer="duration_minutes" class="form-control">
+                            <input type="number" min="5" max="600" wire:model.defer="duration_minutes" class="form-control @error('duration_minutes') is-invalid @enderror">
+                            @error('duration_minutes')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
                         <button type="button" wire:click="assign" class="btn btn-primary w-100">
                             <span wire:loading.remove wire:target="assign">اختصاص به {{ count($selected) }} دانش‌آموز</span>

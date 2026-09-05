@@ -120,7 +120,7 @@ class TypedExamList extends Component
 
     {
 
-        $query = TypedExam::with(['settings', 'questions'])
+        $query = TypedExam::with(['settings', 'questions', 'creator'])
             ->withCount('questions');
 
 

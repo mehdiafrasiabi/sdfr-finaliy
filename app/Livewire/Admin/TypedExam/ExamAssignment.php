@@ -88,8 +88,8 @@ class ExamAssignment extends Component
         return [
 
             'selectedStudents' => 'required|array|min:1',
-            'startDate' => 'required|date',
-            'endDate' => 'required|date|after_or_equal:startDate',
+            'startDate' => 'required|string',
+            'endDate' => 'required|string',
             'startTime' => 'required',
             'endTime' => 'required',
             'durationMinutes' => 'required|integer|min:1|max:1440',
@@ -114,8 +114,6 @@ class ExamAssignment extends Component
 
             'endDate.required' => 'تاریخ پایان الزامی است.',
 
-            'endDate.after_or_equal' => 'تاریخ پایان باید بعد از تاریخ شروع باشد.',
-
             'startTime.required' => 'ساعت شروع الزامی است.',
 
             'endTime.required' => 'ساعت پایان الزامی است.',
@@ -135,15 +133,56 @@ class ExamAssignment extends Component
 
         $this->examId = $examId;
 
-        $this->exam = TypedExam::with('settings')->findOrFail($examId);
+        $adminId = Auth::guard('admin')->id();
+
+        // مشاور فقط می‌تواند آزمون‌های رسمی (مدیریتی) و آزمون‌های اختصاصیِ خودش را اختصاص دهد؛
+        // نه پیش‌نویس یا آزمون خصوصیِ سایر مشاوران.
+        $this->exam = TypedExam::with('settings')
+            ->where('is_published', true)
+            ->where(function ($query) use ($adminId) {
+                $query->whereNull('admin_id')->orWhere('admin_id', $adminId);
+            })
+            ->findOrFail($examId);
 
 
         // Set default dates
 
-        $this->startDate = now()->format('Y-m-d');
+        $this->startDate = $this->toJalali(now()->toDateString());
 
-        $this->endDate = now()->addDays(7)->format('Y-m-d');
+        $this->endDate = $this->toJalali(now()->addDays(7)->toDateString());
         $this->durationMinutes = 60; // 👈 پیش‌فرض ۶۰ دقیقه
+    }
+
+    /**
+     * تبدیل تاریخ میلادی (Y-m-d) به رشته شمسی نمایشی (Y/m/d)
+     */
+    protected function toJalali(?string $value): string
+    {
+        return $value ? Jalalian::fromDateTime($value)->format('Y/m/d') : '';
+    }
+
+    /**
+     * تبدیل رشته شمسی ورودی کاربر (Y/m/d) به تاریخ میلادی (Y-m-d)؛ در صورت نامعتبر بودن null برمی‌گرداند.
+     */
+    protected function fromJalali(?string $value): ?string
+    {
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        $normalized = strtr($value, [
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+            '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+            '-' => '/',
+        ]);
+
+        try {
+            return Jalalian::fromFormat('Y/m/d', $normalized)->toCarbon()->toDateString();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
 
@@ -160,13 +199,49 @@ class ExamAssignment extends Component
     {
         $this->showAssignModal = false;
         $this->reset(['selectedStudents', 'startTime', 'endTime', 'durationMinutes', 'resultVisibility', 'answerKeyVisibility']);
-        $this->startDate = now()->format('Y-m-d');
-        $this->endDate = now()->addDays(7)->format('Y-m-d');
+        $this->startDate = $this->toJalali(now()->toDateString());
+        $this->endDate = $this->toJalali(now()->addDays(7)->toDateString());
         $this->startTime = '08:00';
         $this->endTime = '18:00';
         $this->durationMinutes = 60;
         $this->resultVisibility = 'after_exam_end';
         $this->answerKeyVisibility = 'after_exam_end';
+    }
+
+    /**
+     * انتخاب همه دانش‌آموزانِ (فیلترشده) قابل‌انتخاب
+     */
+    public function selectAllVisibleStudents(): void
+    {
+        $admin = Auth::guard('admin')->user();
+
+        $studentsQuery = Student::where('advisor_id', $admin->id);
+
+        if ($this->studentSearch) {
+            $studentsQuery->whereHas('user', function ($q) {
+                $q->where('name', 'like', "%{$this->studentSearch}%")
+                    ->orWhere('mobile', 'like', "%{$this->studentSearch}%");
+            });
+        }
+
+        $visibleIds = $studentsQuery->pluck('id')->toArray();
+
+        $alreadyAssigned = TypedExamAssignment::where('typed_exam_id', $this->examId)
+            ->whereNull('deleted_at')
+            ->pluck('student_id')
+            ->toArray();
+
+        $selectable = array_diff($visibleIds, $alreadyAssigned);
+
+        $this->selectedStudents = array_values(array_unique(array_merge($this->selectedStudents, $selectable)));
+    }
+
+    /**
+     * لغو انتخاب همه دانش‌آموزان
+     */
+    public function clearSelectedStudents(): void
+    {
+        $this->selectedStudents = [];
     }
 
 
@@ -193,6 +268,25 @@ class ExamAssignment extends Component
 
         $this->validate();
 
+        $startDateGregorian = $this->fromJalali($this->startDate);
+        $endDateGregorian = $this->fromJalali($this->endDate);
+
+        if (!$startDateGregorian) {
+            $this->addError('startDate', 'تاریخ شروع را به‌صورت شمسی و معتبر وارد کنید؛ مثل 1405/06/13.');
+        }
+
+        if (!$endDateGregorian) {
+            $this->addError('endDate', 'تاریخ پایان را به‌صورت شمسی و معتبر وارد کنید؛ مثل 1405/06/13.');
+        }
+
+        if ($startDateGregorian && $endDateGregorian && $endDateGregorian < $startDateGregorian) {
+            $this->addError('endDate', 'تاریخ پایان باید بعد از تاریخ شروع باشد.');
+        }
+
+        if ($this->getErrorBag()->isNotEmpty()) {
+            return;
+        }
+
 
         $admin = Auth::guard('admin')->user();
 
@@ -200,7 +294,7 @@ class ExamAssignment extends Component
         $assignedStudentIds = [];
 
 
-        DB::transaction(function () use ($admin, &$assignedStudentIds) {
+        DB::transaction(function () use ($admin, &$assignedStudentIds, $startDateGregorian, $endDateGregorian) {
 
 
             foreach ($this->selectedStudents as $studentId) {
@@ -246,9 +340,9 @@ class ExamAssignment extends Component
 
                     'assignment_id' => $assignment->id,
 
-                    'start_date' => $this->startDate,
+                    'start_date' => $startDateGregorian,
 
-                    'end_date' => $this->endDate,
+                    'end_date' => $endDateGregorian,
 
                     'start_time' => $this->startTime,
 
@@ -301,9 +395,9 @@ class ExamAssignment extends Component
 
         $examTitle = $this->exam->title ?? 'آزمون';
 
-        $startDateJalali = Jalalian::fromDateTime($this->startDate)->format('Y/m/d');
+        $startDateJalali = $this->startDate;
 
-        $endDateJalali = Jalalian::fromDateTime($this->endDate)->format('Y/m/d');
+        $endDateJalali = $this->endDate;
 
         $durationMinutes = $this->durationMinutes;
 
@@ -345,8 +439,8 @@ class ExamAssignment extends Component
         $assignment = TypedExamAssignment::with('time')->findOrFail($assignmentId);
 
         $this->editingAssignmentId = $assignmentId;
-        $this->editStartDate = $assignment->time?->start_date?->format('Y-m-d') ?? '';
-        $this->editEndDate = $assignment->time?->end_date?->format('Y-m-d') ?? '';
+        $this->editStartDate = $assignment->time?->start_date ? $this->toJalali($assignment->time->start_date->format('Y-m-d')) : '';
+        $this->editEndDate = $assignment->time?->end_date ? $this->toJalali($assignment->time->end_date->format('Y-m-d')) : '';
         $this->editStartTime = $assignment->time?->start_time ?? '';
         $this->editEndTime = $assignment->time?->end_time ?? '';
         $this->editDurationMinutes = $assignment->time?->duration_minutes ?? 60;
@@ -368,8 +462,8 @@ class ExamAssignment extends Component
     public function updateAssignment(): void
     {
         $this->validate([
-            'editStartDate' => 'required|date',
-            'editEndDate' => 'required|date|after_or_equal:editStartDate',
+            'editStartDate' => 'required|string',
+            'editEndDate' => 'required|string',
             'editStartTime' => 'required',
             'editEndTime' => 'required',
             'editDurationMinutes' => 'required|integer|min:1|max:1440',
@@ -378,6 +472,25 @@ class ExamAssignment extends Component
             'editAnswerKeyVisibility' => 'required|in:after_exam_end,immediately',
 
         ]);
+
+        $startDateGregorian = $this->fromJalali($this->editStartDate);
+        $endDateGregorian = $this->fromJalali($this->editEndDate);
+
+        if (!$startDateGregorian) {
+            $this->addError('editStartDate', 'تاریخ شروع را به‌صورت شمسی و معتبر وارد کنید؛ مثل 1405/06/13.');
+        }
+
+        if (!$endDateGregorian) {
+            $this->addError('editEndDate', 'تاریخ پایان را به‌صورت شمسی و معتبر وارد کنید؛ مثل 1405/06/13.');
+        }
+
+        if ($startDateGregorian && $endDateGregorian && $endDateGregorian < $startDateGregorian) {
+            $this->addError('editEndDate', 'تاریخ پایان باید بعد از تاریخ شروع باشد.');
+        }
+
+        if ($this->getErrorBag()->isNotEmpty()) {
+            return;
+        }
 
 
         $assignment = TypedExamAssignment::findOrFail($this->editingAssignmentId);
@@ -389,8 +502,8 @@ class ExamAssignment extends Component
         $assignment->time()->updateOrCreate(
             ['assignment_id' => $assignment->id],
             [
-                'start_date' => $this->editStartDate,
-                'end_date' => $this->editEndDate,
+                'start_date' => $startDateGregorian,
+                'end_date' => $endDateGregorian,
                 'start_time' => $this->editStartTime,
                 'end_time' => $this->editEndTime,
                 'duration_minutes' => $this->editDurationMinutes,

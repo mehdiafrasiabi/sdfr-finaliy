@@ -53,6 +53,45 @@ class TypedExam extends Model
 
 
     /**
+     * مشاوری که این آزمون را ساخته (null یعنی آزمون رسمی/مدیریتی)
+     */
+
+    public function creator(): BelongsTo
+
+    {
+
+        return $this->belongsTo(Admin::class, 'admin_id');
+
+    }
+
+
+    /**
+     * آزمون‌های رسمی (ساخته‌شده توسط مدیر، بدون مالک مشخص)
+     */
+
+    public function scopeOfficial($query)
+
+    {
+
+        return $query->whereNull('admin_id');
+
+    }
+
+
+    /**
+     * آزمون‌های ساخته‌شده توسط یک مشاور مشخص
+     */
+
+    public function scopeOwnedBy($query, int $adminId)
+
+    {
+
+        return $query->where('admin_id', $adminId);
+
+    }
+
+
+    /**
      * مبحث مرتبط
      */
 

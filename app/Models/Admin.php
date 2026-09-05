@@ -30,6 +30,14 @@ class Admin extends Authenticatable
         return $this->hasMany(Student::class);
     }
 
+    /**
+     * آزمون‌های تایپی‌ای که این ادمین/مشاور برای خودش ساخته است.
+     */
+    public function typedExams()
+    {
+        return $this->hasMany(TypedExam::class, 'admin_id');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class); // اگر admin → user_id دارد

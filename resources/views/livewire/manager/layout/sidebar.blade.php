@@ -275,6 +275,10 @@
                                                 <a href="{{route('manager.questions.index')}}" class="nav-link"
                                                    data-key="t-basic">سوالات</a>
                                             </li>
+                                            <li class="nav-item">
+                                                <a href="{{ route('manager.typed-exams.advisors-overview') }}" class="nav-link"
+                                                   data-key="t-basic">نظارت بر آزمون‌های مشاوران</a>
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>

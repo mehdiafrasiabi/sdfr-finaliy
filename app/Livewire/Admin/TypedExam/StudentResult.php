@@ -23,7 +23,9 @@ class StudentResult extends Component
             'assignment.typedExam.questions.content',
             'assignment.typedExam.questions.options',
             'assignment.typedExam.questions.subject',
-            'answers',
+            'answers.question.content',
+            'answers.question.options',
+            'answers.question.subject',
             'studentOrders.question.content',
             'studentOrders.question.options',
             'studentOrders.question.subject',
@@ -43,7 +45,9 @@ class StudentResult extends Component
             'assignment.typedExam.questions.content',
             'assignment.typedExam.questions.options',
             'assignment.typedExam.questions.subject',
-            'answers',
+            'answers.question.content',
+            'answers.question.options',
+            'answers.question.subject',
             'studentOrders.question.content',
             'studentOrders.question.options',
             'studentOrders.question.subject',
@@ -118,16 +122,19 @@ class StudentResult extends Component
         $answers = $this->attempt->answers->keyBy('question_id');
 
         $orders = $this->attempt->studentOrders->sortBy('question_order');
-        $questionSource = $orders->isNotEmpty() ? $orders : $exam->questions;
+        // اگر رکورد ترتیبی برای این تلاش وجود ندارد (مثلاً تلاش‌های قدیمی قبل از قابلیت درهم‌ریزی)،
+        // نباید سوالات فعلیِ آزمون (که ممکن است بعداً ویرایش شده باشد) به‌عنوان منبع استفاده شود؛
+        // به‌جای آن از answers استفاده می‌شود که دقیقاً همان سوالات ثبت‌شده در لحظه شروع آزمون است.
+        $questionSource = $orders->isNotEmpty() ? $orders : $this->attempt->answers->sortBy('id')->values();
 
         $questionsWithAnswers = $questionSource->map(function ($item) use ($answers, $orders) {
-            $question = $orders->isNotEmpty() ? $item->question : $item;
+            $question = $item->question;
 
             if (!$question) {
                 return null;
             }
 
-            $answer = $answers->get($question->id);
+            $answer = $orders->isNotEmpty() ? $answers->get($question->id) : $item;
             $optionsOrder = $orders->isNotEmpty()
                 ? array_map('intval', $item->options_order ?: [1, 2, 3, 4])
                 : [1, 2, 3, 4];

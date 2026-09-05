@@ -52,7 +52,13 @@ class ExamStats extends Component
 
         $this->examId = $examId;
 
+        $adminId = Auth::guard('admin')->id();
+
         $this->exam = TypedExam::with(['settings', 'questions.options', 'questions.content', 'questions.subject'])
+
+            ->where(function ($query) use ($adminId) {
+                $query->whereNull('admin_id')->orWhere('admin_id', $adminId);
+            })
 
             ->findOrFail($examId);
 
@@ -138,9 +144,11 @@ class ExamStats extends Component
         $this->scoreRanges = array_values($ranges);
         // Overall Answer Stats (correct, wrong, unanswered)
         $allAnswers = TypedExamAttemptAnswer::whereIn('attempt_id', $attempts->pluck('id'))->get();
+        // نکته: Collection::where() مقایسه شل (==) دارد و null == false در PHP برابر true است؛
+        // برای جلوگیری از قاطی‌شدن سوالات بدون‌پاسخ با غلط‌ها حتماً از whereStrict استفاده می‌شود.
         $this->answerStats = [
-            'correct' => $allAnswers->where('is_correct', true)->count(),
-            'wrong' => $allAnswers->where('is_correct', false)->whereNotNull('selected_option')->count(),
+            'correct' => $allAnswers->whereStrict('is_correct', true)->count(),
+            'wrong' => $allAnswers->whereStrict('is_correct', false)->count(),
             'unanswered' => $allAnswers->whereNull('selected_option')->count(),
         ];
         // Per-Question Stats

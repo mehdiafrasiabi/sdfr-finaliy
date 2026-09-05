@@ -688,61 +688,46 @@
 
 
     @script
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-
-        document.addEventListener('DOMContentLoaded', function () {
+        // نکته: Chart.js همین الان توسط layouts.client.link به‌صورت سراسری (و همگام) لود شده
+        // (همون که در سایدبار/سایر بخش‌ها هم استفاده می‌شود)، پس نباید دوباره از CDN لودش کنیم؛
+        // لود مجدد یک نسخه‌ی دیگر از این کتابخانه، window.Chart را با نسخه‌ی متفاوتی جایگزین
+        // می‌کند و می‌تواند نمودارهای دیگر صفحه (مثلاً در سایدبار) را خراب کند.
+        // با این‌حال چون این بلوک ممکن است زودتر از اجرای اسکریپت لایه اجرا شود، کوتاه صبر می‌کنیم.
+        (function initTypedExamResultDonutChart() {
+            if (typeof Chart === 'undefined') {
+                setTimeout(initTypedExamResultDonutChart, 100);
+                return;
+            }
 
             const ctx = document.getElementById('donutChart');
 
-            if (ctx) {
-
-                new Chart(ctx, {
-
-                    type: 'doughnut',
-
-                    data: {
-
-                        labels: ['صحیح', 'غلط', 'بدون پاسخ'],
-
-                        datasets: [{
-
-                            data: [{{ $stats['correct'] }}, {{ $stats['wrong'] }}, {{ $stats['unanswered'] }}],
-
-                            backgroundColor: ['#22c55e', '#ef4444', '#9ca3af'],
-
-                            borderWidth: 0
-
-                        }]
-
-                    },
-
-                    options: {
-
-                        responsive: true,
-
-                        maintainAspectRatio: true,
-
-                        cutout: '70%',
-
-                        plugins: {
-
-                            legend: {
-
-                                display: false
-
-                            }
-
-                        }
-
-                    }
-
-                });
-
+            if (!ctx) {
+                return;
             }
 
-        });
-
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['صحیح', 'غلط', 'بدون پاسخ'],
+                    datasets: [{
+                        data: [{{ $stats['correct'] }}, {{ $stats['wrong'] }}, {{ $stats['unanswered'] }}],
+                        backgroundColor: ['#22c55e', '#ef4444', '#9ca3af'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        })();
     </script>
     @endscript
 

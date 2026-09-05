@@ -125,6 +125,7 @@ Route::name('manager.')->group(function () {
         // Typed Exam Routes (آزمون‌های تایپی)
         Route::get('/typed-exams', TypedExamList::class)->name('typed-exams.index');
         Route::get('/typed-exams/form/{id?}', TypedExamWizard::class)->name('typed-exams.form');
+        Route::get('/typed-exams/advisors-overview', \App\Livewire\Manager\TypedExam\AdvisorExamsOverview::class)->name('typed-exams.advisors-overview');
         Route::get('/academic-year', ExamPeriodIndex::class)->name('academicYear');
         // قیمت‌گذاری بر اساس پایه تحصیلی
         Route::get('/grade-prices', \App\Livewire\Manager\GradePrice\Index::class)

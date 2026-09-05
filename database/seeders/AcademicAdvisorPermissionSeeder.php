@@ -155,6 +155,8 @@ class AcademicAdvisorPermissionSeeder extends Seeder
 
                 'مشاهده نتایج دانش‌آموز' => 'admin.typed-exams.results',
 
+                'ساخت و مدیریت آزمون اختصاصی' => 'admin.typed-exams.manage',
+
             ],
 
 
@@ -424,6 +426,8 @@ class AcademicAdvisorPermissionSeeder extends Seeder
                 'مشاهده آمار آزمون' => 'admin.typed-exams.stats',
 
                 'مشاهده نتایج دانش‌آموز' => 'admin.typed-exams.results',
+
+                'ساخت و مدیریت آزمون اختصاصی' => 'admin.typed-exams.manage',
 
             ],
 

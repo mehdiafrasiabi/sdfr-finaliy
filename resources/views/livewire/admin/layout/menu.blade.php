@@ -477,6 +477,15 @@
                                         </a>
                                     </li>
                                     <li class="menu-item">
+                                        <a class="menu-link" href="{{route('admin.typed-exams.my-exams')}}">
+                                            <i class="fi fi-rr-edit">
+                                            </i>
+                                            <span class="menu-label">
+                                              آزمون‌های اختصاصی من
+                                        </span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
                                         <a class="menu-link" href="{{route('admin.essay-exams.index')}}">
                                             <i class="fi fi-rr-unlock">
                                             </i>

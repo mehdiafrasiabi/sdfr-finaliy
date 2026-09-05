@@ -45,6 +45,26 @@
         placeholder: @js($placeholder),
         disabled: @js($disabled),
         initialValue: @js((string) $currentValue),
+        dropUp: {{ $dropUp ? 'true' : 'false' }},
+        menuStyle: '',
+
+        // موقعیت‌دهیِ واقعیِ منو نسبت به viewport (نه والدِ نزدیک)، تا وقتی dropUp فعاله
+        // منو همیشه دقیقاً بالای دکمه باز بشه و هیچ‌وقت (مخصوصاً روی سافاری iOS، وقتی
+        // یکی از والدها transform/animation داره) به اشتباه پایین باز نشه یا از صفحه بیرون نزنه.
+        positionMenu() {
+            if (!this.dropUp) return;
+            this.$nextTick(() => {
+                const btn  = this.$refs.trigger;
+                const menu = this.$refs.menu;
+                if (!btn || !menu) return;
+                const rect   = btn.getBoundingClientRect();
+                const gap    = 4;
+                const menuH  = menu.offsetHeight;
+                let top = rect.top - menuH - gap;
+                if (top < 8) top = 8; // اگر بالای صفحه هم جا نشد، به لبه‌ی بالای viewport بچسبه
+                this.menuStyle = `left:${rect.left}px; top:${top}px; width:${rect.width}px;`;
+            });
+        },
 
         get filtered() {
             if (!this.search) return this.options;
@@ -103,11 +123,13 @@
         @if($wireModel)
         $watch('$wire.{{ $wireModel }}', val => syncFromValue(val));
         @endif
-        $watch('open', () => syncStackLayer());
+        $watch('open', (v) => { syncStackLayer(); if (v) positionMenu(); });
         syncStackLayer();
         window.addEventListener('close-selects', e => { if (e.detail.except !== '{{ $componentId }}') open = false; });
     "
         @keydown.escape.window="open = false"
+        @resize.window="if (open) positionMenu()"
+        @scroll.window="if (open) positionMenu()"
         :class="open ? 'z-[120]' : 'z-0'"
         class="relative w-full"
         dir="rtl"
@@ -118,6 +140,7 @@
         {{-- Trigger --}}
         <button
             type="button"
+            x-ref="trigger"
             @click.stop="if (!disabled) { if (!open) window.dispatchEvent(new CustomEvent('close-selects', { detail: { except: '{{ $componentId }}' } })); open = !open; }"
             :disabled="disabled"
             :class="{
@@ -152,68 +175,48 @@
         </button>
 
         {{-- Dropdown --}}
-        <div
-            x-show="open"
-            x-transition:enter="transition ease-out duration-150"
-            x-transition:enter-start="opacity-0 -translate-y-1 scale-[0.98]"
-            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-            x-transition:leave="transition ease-in duration-100"
-            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-            x-transition:leave-end="opacity-0 -translate-y-1 scale-[0.98]"
-            @click.outside="open = false"
-            class="absolute z-[99999] {{ $dropUp ? 'bottom-full mb-1' : 'mt-1' }} w-full rounded-xl overflow-hidden border border-border bg-secondary shadow-xl shadow-black/40"
-            style="min-width: 100%; z-index: 9999;"
-            role="listbox"
-        >
-            @if($searchable)
-                <div class="p-2 border-b border-border">
-                    <div class="relative">
-                <span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
-                    </svg>
-                </span>
-                        <input type="text" x-model="search" x-ref="searchInput"
-                               x-init="$watch('open', v => v && $nextTick(() => $refs.searchInput?.focus()))"
-                               placeholder="{{ $searchPlaceholder }}"
-                               class="w-full rounded-lg border border-border bg-background text-foreground placeholder:text-muted pr-8 pl-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition"
-                               @keydown.escape.stop="open = false"
-                        >
-                    </div>
+        @if($dropUp)
+            {{-- با x-teleport به body منتقل می‌شود تا هیچ والدی (مثلاً مودال‌های bottom-sheet که
+                 transform/animation دارند) روی containing-block و clipping آن اثر نگذارد؛ این دقیقاً
+                 همان چیزی‌ست که باعث می‌شد در بعضی نسخه‌های سافاری iOS، با اینکه dropUp فعال بود،
+                 منو گاهی پایین و بیرون از صفحه باز شود. موقعیت دقیق با positionMenu() (نسبت‌به‌viewport،
+                 هماهنگ با getBoundingClientRect) محاسبه و از طریق menuStyle اعمال می‌شود. --}}
+            <template x-teleport="body">
+                <div
+                    x-ref="menu"
+                    x-show="open"
+                    x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 -translate-y-1 scale-[0.98]"
+                    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                    x-transition:leave="transition ease-in duration-100"
+                    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                    x-transition:leave-end="opacity-0 -translate-y-1 scale-[0.98]"
+                    @click.outside="open = false"
+                    class="fixed z-[99999] w-full rounded-xl overflow-hidden border border-border bg-secondary shadow-xl shadow-black/40"
+                    :style="menuStyle"
+                    dir="rtl"
+                    role="listbox"
+                >
+                    @include('components.ui.select-menu-content', ['searchable' => $searchable, 'searchPlaceholder' => $searchPlaceholder, 'placeholder' => $placeholder])
                 </div>
-            @endif
-
-            <div class="max-h-56 overflow-y-auto py-1" role="listbox">
-
-                <button type="button"
-                        @mousedown.prevent="clearSelection(); open = false"
-                        class="w-full text-right px-3 py-2 text-sm text-muted hover:bg-background transition-colors"
-                        role="option"
-                >{{ $placeholder }}</button>
-
-                <template x-for="opt in filtered" :key="opt.value">
-                    <button
-                        type="button"
-                        @mousedown.prevent="selectOption(opt)"
-                        :class="{
-                        'bg-primary text-primary-foreground': String(selected) === String(opt.value),
-                        'text-foreground hover:bg-background': String(selected) !== String(opt.value),
-                    }"
-                        class="w-full text-right px-3 py-2.5  text-sm flex items-center justify-between gap-2 transition-colors"
-                        role="option"
-                        :aria-selected="String(selected) === String(opt.value)"
-                    >
-                        <span x-text="opt.label" class="truncate"></span>
-                        <svg x-show="String(selected) === String(opt.value)" class="w-4 h-4 shrink-0 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                        </svg>
-                    </button>
-                </template>
-
-                <div x-show="filtered.length === 0" class="px-3 py-4 text-center text-xs text-muted">
-                    نتیجه‌ای یافت نشد
-                </div>
+            </template>
+        @else
+            <div
+                x-ref="menu"
+                x-show="open"
+                x-transition:enter="transition ease-out duration-150"
+                x-transition:enter-start="opacity-0 -translate-y-1 scale-[0.98]"
+                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                x-transition:leave="transition ease-in duration-100"
+                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                x-transition:leave-end="opacity-0 -translate-y-1 scale-[0.98]"
+                @click.outside="open = false"
+                class="absolute z-[99999] mt-1 w-full rounded-xl overflow-hidden border border-border bg-secondary shadow-xl shadow-black/40"
+                style="min-width: 100%; z-index: 9999;"
+                role="listbox"
+            >
+                @include('components.ui.select-menu-content', ['searchable' => $searchable, 'searchPlaceholder' => $searchPlaceholder, 'placeholder' => $placeholder])
             </div>
-        </div>
+        @endif
     </div>
 </div>

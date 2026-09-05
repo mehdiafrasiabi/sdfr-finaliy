@@ -43,7 +43,9 @@ class TypedExamResult extends Component
             'assignment.typedExam.questions.options',
             'assignment.typedExam.questions.subject',
             'assignment.time',
-            'answers',
+            'answers.question.content',
+            'answers.question.options',
+            'answers.question.subject',
             'studentOrders.question.content',
             'studentOrders.question.options',
             'studentOrders.question.subject',
@@ -89,7 +91,9 @@ class TypedExamResult extends Component
                 'assignment.typedExam.questions.options',
                 'assignment.typedExam.questions.subject',
                 'assignment.time',
-                'answers',
+                'answers.question.content',
+                'answers.question.options',
+                'answers.question.subject',
                 'studentOrders.question.content',
                 'studentOrders.question.options',
                 'studentOrders.question.subject',
@@ -237,10 +241,16 @@ class TypedExamResult extends Component
         $orders = $this->attempt->studentOrders->sortBy('question_order');
 
         if ($orders->isEmpty()) {
-            return $exam->questions->values()->map(function ($question) use ($answers) {
-                $answer = $answers->get($question->id);
+            // این تلاش هیچ رکورد ترتیبی ندارد (مثلاً مربوط به قبل از قابلیت درهم‌ریزی گزینه‌هاست).
+            // نباید سوالات فعلیِ آزمون خوانده شود چون ممکن است بعداً ویرایش شده باشد؛
+            // منبع معتبر همیشه answers است که دقیقاً همان سوالاتی‌ست که در لحظه شروع آزمون برای این دانش‌آموز ثبت شده.
+            return $this->attempt->answers->sortBy('id')->values()->map(function ($answer) {
+                $question = $answer->question;
+                if (!$question) {
+                    return null;
+                }
                 return $this->formatQuestionAnswer($question, $answer, [1, 2, 3, 4]);
-            });
+            })->filter()->values();
         }
 
         return $orders->map(function ($order) use ($answers) {
@@ -319,8 +329,11 @@ class TypedExamResult extends Component
     {
         $exam = $this->attempt->assignment->typedExam;
         $questionsWithAnswers = $this->buildQuestionAnswerData($exam);
-        $correctCount = $questionsWithAnswers->where('is_correct', true)->count();
-        $wrongCount = $questionsWithAnswers->where('is_correct', false)->count();
+        // نکته مهم: Collection::where() مقایسه شل (==) انجام می‌دهد و در PHP مقدار null == false برابر true است؛
+        // پس اگر اینجا از where('is_correct', false) استفاده شود، سوالاتِ بدون‌پاسخ (is_correct === null)
+        // هم به اشتباه در تعداد غلط‌ها شمرده می‌شوند. باید حتماً مقایسه دقیق (strict) انجام شود.
+        $correctCount = $questionsWithAnswers->whereStrict('is_correct', true)->count();
+        $wrongCount = $questionsWithAnswers->whereStrict('is_correct', false)->count();
         $unansweredCount = $questionsWithAnswers->where('selected_option', null)->count();
         $totalQuestions = $questionsWithAnswers->count();
         $score = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 100, 2) : 0;

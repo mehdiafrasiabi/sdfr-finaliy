@@ -263,6 +263,10 @@ Route::name('admin.')->group(function () {
         // آزمون‌های تایپی
         Route::get('/typed-exams', \App\Livewire\Admin\TypedExam\ExamIndex::class)->name('typed-exams.index')
             ->middleware('admin.permission:admin.typed-exams.view');
+        Route::get('/typed-exams/my-exams', \App\Livewire\Admin\TypedExam\MyExamList::class)->name('typed-exams.my-exams')
+            ->middleware('admin.permission:admin.typed-exams.manage');
+        Route::get('/typed-exams/my-exams/form/{id?}', \App\Livewire\Admin\TypedExam\ExamWizard::class)->name('typed-exams.my-exams.form')
+            ->middleware('admin.permission:admin.typed-exams.manage');
         Route::get('/typed-exams/{examId}/assignment', \App\Livewire\Admin\TypedExam\ExamAssignment::class)->name('typed-exams.assignment')
             ->middleware('admin.permission:admin.typed-exams.assign');
         Route::get('/typed-exams/{examId}/stats', \App\Livewire\Admin\TypedExam\ExamStats::class)->name('typed-exams.stats')

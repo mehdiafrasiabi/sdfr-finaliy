@@ -113,6 +113,8 @@ class WeeklyProgramUpload extends Component
     public string $examAssignmentType = 'typed';
     public int $examAssignmentStep = 1;
     public string $examAssignmentSearch = '';
+    // ترتیب نمایش لیست آزمون‌ها در مودال اختصاص: newest | oldest | title_asc | title_desc
+    public string $examAssignmentSort = 'newest';
     public ?int $selectedTypedExamId = null;
     public ?int $selectedEssayExamId = null;
     public array $examAssignmentForm = [
@@ -142,8 +144,10 @@ class WeeklyProgramUpload extends Component
     // ==================== Classification ====================
     public bool    $showClassificationModal      = false;
     public array   $classificationTopics         = [];
+    public array   $classificationTopicsAll      = [];
     public ?string $classificationProjectName    = null;
-    public string  $classificationSort           = 'rating';
+    public string  $classificationRatingFilter    = ''; // '' | 1..4 (StudentClassification::RATINGS key)
+    public string  $classificationLessonTypeFilter = ''; // '' | general | specialized
     public ?int    $classificationSelectedTopicId = null;
     public ?string $classificationSelectedKind = null; // 'chapter' | 'subject'
     public array   $classificationAddForm = [
@@ -711,7 +715,39 @@ class WeeklyProgramUpload extends Component
         $this->partForm['part_mode'] = $mode;
         $this->reviewChapterIds      = [];
         $this->showPartModeStep      = false;
+
+        // «دوره تحصیلی» دیگر توسط کاربر انتخاب نمی‌شود؛ خودکار از روی اطلاعات خود دانش‌آموز تعیین می‌شود.
+        if (!$this->partForm['education_level_id']) {
+            $levelId = $this->resolveStudentEducationLevelId();
+            if ($levelId) {
+                $this->partForm['education_level_id'] = $levelId;
+                $this->partForm['cc_field_id']         = $this->getStudentFieldFilter() ?: '';
+                $this->grades = $this->loadGradesForStudent($levelId);
+            }
+        }
+
         $this->dispatch('modal-opened');
+    }
+
+    /**
+     * دورهٔ تحصیلیِ متناظر با پایهٔ فعلی دانش‌آموز را (بدون دخالت کاربر) پیدا می‌کند.
+     */
+    protected function resolveStudentEducationLevelId(): ?int
+    {
+        $filter = $this->getStudentGradeFilter();
+        if (empty($filter['grade_numbers'])) {
+            return null;
+        }
+
+        $currentGradeNumber = max($filter['grade_numbers']);
+        $fieldId            = $filter['field_id'];
+
+        return CcGrade::where('grade_number', $currentGradeNumber)
+            ->where('is_active', true)
+            ->when($fieldId, fn($q) => $q->where(function ($q2) use ($fieldId) {
+                $q2->where('cc_field_id', $fieldId)->orWhereNull('cc_field_id');
+            }))
+            ->value('education_level_id');
     }
 
     // بازگشت به مرحله انتخاب حالت پارت
@@ -832,16 +868,21 @@ class WeeklyProgramUpload extends Component
         $this->dispatchSelectUpdates(['grades', 'subjects', 'chapters', 'topics']);
     }
 
-    // بارگذاری پایه‌ها فقط برای پایه‌های مجاز خود دانش‌آموز
+    // بارگذاری پایه‌ها فقط برای پایه‌های مجاز و رشتهٔ خود دانش‌آموز (تا هم‌زمان دو رشته نمایش داده نشود)
     protected function loadGradesForStudent($educationLevelId)
     {
         if (!$educationLevelId) return collect();
 
-        $allowedGrades = $this->getStudentGradeFilter()['grade_numbers'];
+        $gradeFilter   = $this->getStudentGradeFilter();
+        $allowedGrades = $gradeFilter['grade_numbers'];
+        $fieldId       = $gradeFilter['field_id'];
 
         return CcGrade::where('education_level_id', $educationLevelId)
             ->where('is_active', true)
             ->when($allowedGrades !== null, fn($q) => $q->whereIn('grade_number', $allowedGrades))
+            ->when($fieldId, fn($q) => $q->where(function ($q2) use ($fieldId) {
+                $q2->where('cc_field_id', $fieldId)->orWhereNull('cc_field_id');
+            }))
             ->with('field')->orderBy('order')->get();
     }
 
@@ -1115,7 +1156,7 @@ class WeeklyProgramUpload extends Component
         if ($wholeBookOnly) {
             usort($results, fn($a, $b) => $a['sort'] <=> $b['sort']);
             $results = array_map(fn($r) => array_diff_key($r, ['sort' => '']), $results);
-            $this->globalSearchResults = array_slice($results, 0, 15);
+            $this->globalSearchResults = $this->attachClassificationRatings(array_slice($results, 0, 15));
             return;
         }
 
@@ -1218,7 +1259,73 @@ class WeeklyProgramUpload extends Component
 
         usort($results, fn($a, $b) => $a['sort'] <=> $b['sort']);
         $results = array_map(fn($r) => array_diff_key($r, ['sort' => '']), $results);
-        $this->globalSearchResults = array_slice($results, 0, 15);
+        $this->globalSearchResults = $this->attachClassificationRatings(array_slice($results, 0, 15));
+    }
+
+    /**
+     * پیدا کردن پروژهٔ طبقه‌بندی فعال (یا آخرین پروژهٔ پایان‌یافته به‌عنوان جایگزین).
+     */
+    protected function getActiveClassificationProject(): ?ClassificationProject
+    {
+        return ClassificationProject::active()->latest('start_at')->first()
+            ?? ClassificationProject::orderBy('end_at', 'desc')->first();
+    }
+
+    /**
+     * افزودن امتیاز طبقه‌بندیِ فصل/کتاب به نتایج جستجوی سریع (برای نمایش در سمت چپ هر ردیف).
+     */
+    protected function attachClassificationRatings(array $results): array
+    {
+        if (empty($results)) {
+            return $results;
+        }
+
+        $project = $this->getActiveClassificationProject();
+        $student = Student::find($this->studentId);
+        $userId  = $student?->user_id;
+        if (!$project || !$userId) {
+            return $results;
+        }
+
+        $chapterIds = [];
+        $subjectIds = [];
+        foreach ($results as $r) {
+            if (($r['type'] ?? null) === 'subject') {
+                $subjectIds[] = $r['subject_id'] ?? null;
+            } elseif (!empty($r['chapter_id'])) {
+                $chapterIds[] = $r['chapter_id'];
+            }
+        }
+        $chapterIds = array_values(array_unique(array_filter($chapterIds)));
+        $subjectIds = array_values(array_unique(array_filter($subjectIds)));
+
+        $chapterRatings = $chapterIds ? StudentClassification::where('user_id', $userId)
+            ->where('classification_project_id', $project->id)
+            ->where('ratable_type', \App\Models\CcChapter::class)
+            ->whereIn('ratable_id', $chapterIds)
+            ->get()->keyBy('ratable_id') : collect();
+
+        $subjectRatings = $subjectIds ? StudentClassification::where('user_id', $userId)
+            ->where('classification_project_id', $project->id)
+            ->where('ratable_type', \App\Models\CcSubject::class)
+            ->whereIn('ratable_id', $subjectIds)
+            ->get()->keyBy('ratable_id') : collect();
+
+        foreach ($results as &$r) {
+            $rating = null;
+            if (($r['type'] ?? null) === 'subject') {
+                $rating = $subjectRatings->get($r['subject_id'] ?? null);
+            } elseif (!empty($r['chapter_id'])) {
+                $rating = $chapterRatings->get($r['chapter_id']);
+            }
+            if ($rating) {
+                $r['rating_label'] = $rating->ratingLabel;
+                $r['rating_color'] = $rating->ratingColor;
+            }
+        }
+        unset($r);
+
+        return $results;
     }
 
     public function selectGlobalResult(int $index): void
@@ -1359,9 +1466,9 @@ class WeeklyProgramUpload extends Component
             $lessonName = $subjectName;
         }
 
-        // در حالت کل کتاب و پارت مروری «نوع پارت» و «تعداد تست» معنا ندارند
-        $partType  = $mode === 'normal' ? $this->partForm['part_type'] : 'descriptive';
-        $testCount = $mode === 'normal' ? $this->partForm['test_count'] : null;
+        // «نوع پارت» و «تعداد تست» در همهٔ حالت‌ها (عادی، کل کتاب، مروری) توسط کاربر انتخاب می‌شود
+        $partType  = $this->partForm['part_type'];
+        $testCount = in_array($partType, ['test', 'topic_exam'], true) ? $this->partForm['test_count'] : null;
 
         $commonData = [
             'lesson_name'        => $lessonName,
@@ -1538,11 +1645,13 @@ class WeeklyProgramUpload extends Component
         $student = Student::find($this->studentId);
         $userId  = $student?->user_id;
 
-        $project = ClassificationProject::active()->latest('start_at')->first()
-            ?? ClassificationProject::orderBy('end_at', 'desc')->first();
+        $project = $this->getActiveClassificationProject();
 
-        $this->classificationProjectName = $project?->name;
-        $this->classificationTopics      = [];
+        $this->classificationProjectName      = $project?->name;
+        $this->classificationTopics           = [];
+        $this->classificationTopicsAll        = [];
+        $this->classificationRatingFilter     = '';
+        $this->classificationLessonTypeFilter = '';
 
         if ($project && $userId) {
             $classifications = StudentClassification::where('user_id', $userId)
@@ -1610,32 +1719,48 @@ class WeeklyProgramUpload extends Component
                 ];
             })->filter()->values()->toArray();
 
-            $this->applySortToClassificationTopics();
+            $this->classificationTopicsAll = $this->classificationTopics;
+            $this->applyClassificationFilters();
         }
 
         $this->showClassificationModal = true;
     }
 
-    private function applySortToClassificationTopics(): void
+    /**
+     * فیلترهای امتیاز و نوع درس روی لیست کامل (classificationTopicsAll) به‌صورت AND اعمال می‌شوند.
+     */
+    protected function applyClassificationFilters(): void
     {
-        $collection = collect($this->classificationTopics);
+        $collection = collect($this->classificationTopicsAll);
 
-        $this->classificationTopics = match ($this->classificationSort) {
-            'rating_asc'             => $collection->sortBy('rating')->values()->toArray(),
-            'grade_12'               => $collection->filter(fn($i) => $i['grade'] === '12')->values()->toArray(),
-            'grade_11'               => $collection->filter(fn($i) => $i['grade'] === '11')->values()->toArray(),
-            'grade_10'               => $collection->filter(fn($i) => $i['grade'] === '10')->values()->toArray(),
-            'lesson_type_general'    => $collection->filter(fn($i) => $i['lesson_type'] === 'general')->values()->toArray(),
-            'lesson_type_specialized'=> $collection->filter(fn($i) => $i['lesson_type'] === 'specialized')->values()->toArray(),
-            'lesson_type_all'        => $collection->sortBy('lesson_type')->values()->toArray(),
-            default                  => $collection->sortByDesc('rating')->values()->toArray(), // rating_desc
-        };
+        if ($this->classificationRatingFilter !== '') {
+            $ratingFilter = $this->classificationRatingFilter;
+            $collection   = $collection->filter(fn($i) => (string)$i['rating'] === (string)$ratingFilter);
+        }
+
+        if ($this->classificationLessonTypeFilter !== '') {
+            $lessonTypeFilter = $this->classificationLessonTypeFilter;
+            $collection       = $collection->filter(fn($i) => $i['lesson_type'] === $lessonTypeFilter);
+        }
+
+        $this->classificationTopics = $collection->sortByDesc('rating')->values()->toArray();
     }
 
-    public function sortClassification(string $sort): void
+    public function updatedClassificationRatingFilter(): void
     {
-        $this->classificationSort = $sort;
-        $this->applySortToClassificationTopics();
+        $this->applyClassificationFilters();
+    }
+
+    public function updatedClassificationLessonTypeFilter(): void
+    {
+        $this->applyClassificationFilters();
+    }
+
+    public function resetClassificationFilters(): void
+    {
+        $this->classificationRatingFilter     = '';
+        $this->classificationLessonTypeFilter = '';
+        $this->applyClassificationFilters();
     }
 
     public function closeClassificationModal(): void
@@ -1693,7 +1818,7 @@ class WeeklyProgramUpload extends Component
     {
         if (!$this->classificationSelectedTopicId || !$this->classificationSelectedKind) return;
 
-        $dayIndices = array_filter(array_map('intval', (array)($this->classificationAddForm['day_indices'] ?? [])));
+        $dayIndices = array_values(array_unique(array_map('intval', (array)($this->classificationAddForm['day_indices'] ?? []))));
         if (empty($dayIndices)) {
             $this->dispatch('warning', 'لطفاً حداقل یک روز انتخاب کنید.');
             return;
@@ -2169,6 +2294,7 @@ class WeeklyProgramUpload extends Component
         $this->examAssignmentType      = $type;
         $this->examAssignmentStep      = 1;
         $this->examAssignmentSearch    = '';
+        $this->examAssignmentSort      = 'newest';
         $this->selectedTypedExamId     = null;
         $this->selectedEssayExamId     = null;
         $this->resetExamAssignmentForm();
@@ -2182,6 +2308,7 @@ class WeeklyProgramUpload extends Component
         $this->examAssignmentType      = 'typed';
         $this->examAssignmentStep      = 1;
         $this->examAssignmentSearch    = '';
+        $this->examAssignmentSort      = 'newest';
         $this->selectedTypedExamId     = null;
         $this->selectedEssayExamId     = null;
         $this->resetExamAssignmentForm();
@@ -3347,7 +3474,7 @@ class WeeklyProgramUpload extends Component
     {
         if (!$this->prevPartInlineSelectedId) return;
 
-        $dayIndices = array_filter(array_map('intval', (array)($this->prevPartInlineForm['day_indices'] ?? [])));
+        $dayIndices = array_values(array_unique(array_map('intval', (array)($this->prevPartInlineForm['day_indices'] ?? []))));
         if (empty($dayIndices)) {
             $this->dispatch('warning', 'لطفاً حداقل یک روز انتخاب کنید.');
 
@@ -4168,18 +4295,34 @@ class WeeklyProgramUpload extends Component
         $essayExamsForAssignment = collect();
         $typedAssignedExamIds = [];
         $essayAssignedExamIds = [];
+        $typedCompletedExamIds = [];
+        $essayCompletedExamIds = [];
         $selectedExamForAssignment = null;
         $visibilityOptions = [
             'after_exam_end' => 'بعد از پایان آزمون',
             'immediately' => 'بلافاصله پس از ثبت پاسخ',
         ];
+        $examAssignmentSortOptions = [
+            'newest'    => 'جدیدترین',
+            'oldest'    => 'قدیمی‌ترین',
+            'title_asc' => 'عنوان (الف تا ی)',
+            'title_desc' => 'عنوان (ی تا الف)',
+        ];
 
         if ($this->showExamAssignmentModal) {
+            [$examSortColumn, $examSortDirection] = match ($this->examAssignmentSort) {
+                'oldest'     => ['created_at', 'asc'],
+                'title_asc'  => ['title', 'asc'],
+                'title_desc' => ['title', 'desc'],
+                default      => ['created_at', 'desc'],
+            };
+
             $typedExamsForAssignment = TypedExam::query()
                 ->withCount('questions')
                 ->where('is_published', true)
                 ->when($this->examAssignmentSearch !== '', fn($q) => $q->where('title', 'like', '%' . $this->examAssignmentSearch . '%'))
-                ->latest()
+                ->with(['topic.chapter.subject.grade', 'topic.chapter.subject.field', 'field'])
+                ->orderBy($examSortColumn, $examSortDirection)
                 ->limit(20)
                 ->get();
 
@@ -4187,15 +4330,39 @@ class WeeklyProgramUpload extends Component
                 ->where('admin_id', Auth::guard('admin')->id())
                 ->withCount('questions')
                 ->when($this->examAssignmentSearch !== '', fn($q) => $q->where('title', 'like', '%' . $this->examAssignmentSearch . '%'))
-                ->latest()
+                ->with(['topic.chapter.subject.grade', 'topic.chapter.subject.field'])
+                ->orderBy($examSortColumn, $examSortDirection)
                 ->limit(20)
                 ->get();
+
+            // برای هر آزمون، پایه و رشته را (در صورت وجود مبحث/رشته مرتبط) به‌صورت خصوصیت پویا اضافه می‌کنیم
+            // تا در ویو بدون فراخوانی روابط تودرتو قابل نمایش باشد.
+            foreach ($typedExamsForAssignment as $typedExamItem) {
+                $subject = $typedExamItem->topic?->chapter?->subject;
+                $typedExamItem->grade_name = $subject?->grade?->name;
+                $typedExamItem->field_name = $subject?->field?->name ?? $typedExamItem->field?->name;
+            }
+            foreach ($essayExamsForAssignment as $essayExamItem) {
+                $subject = $essayExamItem->topic?->chapter?->subject;
+                $essayExamItem->grade_name = $subject?->grade?->name;
+                $essayExamItem->field_name = $subject?->field?->name;
+            }
 
             if ($typedExamsForAssignment->isNotEmpty()) {
                 $typedAssignedExamIds = TypedExamAssignment::query()
                     ->where('student_id', $this->studentId)
                     ->whereIn('typed_exam_id', $typedExamsForAssignment->pluck('id'))
                     ->whereNull('deleted_at')
+                    ->pluck('typed_exam_id')
+                    ->map(fn($id) => (int) $id)
+                    ->all();
+
+                // «شرکت شده»: فقط آزمون‌هایی که دانش‌آموز واقعاً آن‌ها را کامل کرده (نه صرفاً اختصاص‌یافته)
+                $typedCompletedExamIds = TypedExamAssignment::query()
+                    ->where('student_id', $this->studentId)
+                    ->whereIn('typed_exam_id', $typedExamsForAssignment->pluck('id'))
+                    ->whereNull('deleted_at')
+                    ->where('status', 'completed')
                     ->pluck('typed_exam_id')
                     ->map(fn($id) => (int) $id)
                     ->all();
@@ -4206,6 +4373,16 @@ class WeeklyProgramUpload extends Component
                     ->where('student_id', $this->studentId)
                     ->whereIn('essay_exam_id', $essayExamsForAssignment->pluck('id'))
                     ->whereNull('deleted_at')
+                    ->pluck('essay_exam_id')
+                    ->map(fn($id) => (int) $id)
+                    ->all();
+
+                // «شرکت شده»: پاسخ‌برگ ارسال یا تصحیح شده باشد
+                $essayCompletedExamIds = EssayExamAssignment::query()
+                    ->where('student_id', $this->studentId)
+                    ->whereIn('essay_exam_id', $essayExamsForAssignment->pluck('id'))
+                    ->whereNull('deleted_at')
+                    ->whereIn('status', [EssayExamAssignment::STATUS_SUBMITTED, EssayExamAssignment::STATUS_GRADED])
                     ->pluck('essay_exam_id')
                     ->map(fn($id) => (int) $id)
                     ->all();
@@ -4232,6 +4409,9 @@ class WeeklyProgramUpload extends Component
             'essayExamsForAssignment' => $essayExamsForAssignment,
             'typedAssignedExamIds' => $typedAssignedExamIds,
             'essayAssignedExamIds' => $essayAssignedExamIds,
+            'typedCompletedExamIds' => $typedCompletedExamIds,
+            'essayCompletedExamIds' => $essayCompletedExamIds,
+            'examAssignmentSortOptions' => $examAssignmentSortOptions,
             'selectedExamForAssignment' => $selectedExamForAssignment,
             'visibilityOptions' => $visibilityOptions,
         ])->layout('layouts.admin.app');

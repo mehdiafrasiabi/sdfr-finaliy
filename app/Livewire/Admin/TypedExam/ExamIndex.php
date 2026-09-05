@@ -117,7 +117,15 @@ class ExamIndex extends Component
                 })
                     ->where('status', 'completed');
             }])
-            ->where('is_published', true)
+            // آزمون‌های رسمی (مدیریتی) منتشرشده برای همه قابل مشاهده‌اند؛ همچنین هر مشاور
+            // تمام آزمون‌های اختصاصی خودش را نیز اینجا می‌بیند تا بتواند آن‌ها را از همین
+            // صفحه اختصاص دهد (فارغ از اینکه منتشر شده باشند یا هنوز پیش‌نویس باشند).
+            // آزمون‌های اختصاصیِ سایر مشاوران هرگز به هم نمایش داده نمی‌شود.
+            ->where(function ($q) use ($admin) {
+                $q->where(function ($q2) {
+                    $q2->where('is_published', true)->whereNull('admin_id');
+                })->orWhere('admin_id', $admin->id);
+            })
             ->when($this->search, function ($q) {
                 $q->where('title', 'like', "%{$this->search}%");
             })

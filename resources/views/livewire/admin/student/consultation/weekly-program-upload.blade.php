@@ -1,5 +1,29 @@
-<div class="student-ui student-ui-auto-collapse">
+<div class="student-ui student-ui-auto-collapse" id="wpu-root">
     @include('livewire.admin.student._styles')
+    {{-- پیش‌فرض بسته بودن باکس‌های باز/بسته‌شونده فقط در همین صفحه (بدون تغییر رفتار سایر صفحات) --}}
+    @push('script')
+        <script>
+            (() => {
+                const collapseByDefault = () => {
+                    document.querySelectorAll('#wpu-root .su-collapsible-card').forEach((card) => {
+                        if (card.hasAttribute('data-wpu-default-applied')) return;
+                        card.setAttribute('data-wpu-default-applied', '1');
+                        card.classList.add('su-collapsed');
+                        const toggle = card.querySelector(':scope > .card-header .su-card-toggle, :scope > .widget-header .su-card-toggle, :scope > .modern-card-header .su-card-toggle');
+                        if (toggle) toggle.setAttribute('aria-expanded', 'false');
+                    });
+                };
+                document.addEventListener('DOMContentLoaded', collapseByDefault);
+                document.addEventListener('livewire:navigated', collapseByDefault);
+                document.addEventListener('livewire:init', () => {
+                    if (window.Livewire?.hook) {
+                        Livewire.hook('morph.updated', () => queueMicrotask(collapseByDefault));
+                    }
+                });
+                collapseByDefault();
+            })();
+        </script>
+    @endpush
     {{-- ====== GLOBAL LOADING INDICATORS ====== --}}
     @push('link')
         <style>
@@ -13,6 +37,53 @@
                 position: fixed !important;
                 inset: 0 0 auto 0 !important;
                 width: 100% !important;
+            }
+
+            /* ===== Select2 — هماهنگ با دارک‌مود (متن/گزینه‌ها تا قبل از hover دیده نمی‌شدند) ===== */
+            #wpu-root .select2-container--default .select2-selection--single {
+                height: auto; min-height: 42px; display: flex; align-items: center;
+                background-color: var(--su-surface, var(--bs-body-bg));
+                border: 1px solid var(--su-border, var(--bs-border-color));
+                border-radius: 9px;
+            }
+            #wpu-root .select2-container--default .select2-selection--single .select2-selection__rendered {
+                color: var(--su-text, var(--bs-body-color));
+                line-height: 1.4; padding-inline-start: 12px; padding-inline-end: 12px;
+            }
+            #wpu-root .select2-container--default .select2-selection--single .select2-selection__placeholder {
+                color: var(--su-muted, var(--bs-secondary-color));
+            }
+            #wpu-root .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 40px;
+            }
+            #wpu-root .select2-selection__clear {
+                color: var(--su-muted, var(--bs-secondary-color));
+            }
+            .select2-dropdown {
+                background-color: var(--su-surface, var(--bs-body-bg));
+                border-color: var(--su-border, var(--bs-border-color));
+                color: var(--su-text, var(--bs-body-color));
+                z-index: 2000;
+            }
+            .select2-container--default .select2-search--dropdown .select2-search__field {
+                background-color: var(--su-surface, var(--bs-body-bg));
+                border-color: var(--su-border, var(--bs-border-color));
+                color: var(--su-text, var(--bs-body-color));
+            }
+            .select2-container--default .select2-results__option {
+                color: var(--su-text, var(--bs-body-color));
+                background-color: var(--su-surface, var(--bs-body-bg));
+            }
+            .select2-container--default .select2-results__option--highlighted[aria-selected] {
+                background-color: var(--bs-primary, #2563eb);
+                color: #fff;
+            }
+            .select2-container--default .select2-results__option[aria-selected="true"] {
+                background-color: var(--su-soft, var(--bs-tertiary-bg));
+                color: var(--su-text, var(--bs-body-color));
+            }
+            .select2-container--default .select2-results__group {
+                color: var(--su-muted, var(--bs-secondary-color));
             }
         </style>
     @endpush
@@ -176,21 +247,21 @@
             </div>
             <div class="row g-3">
                 <div class="col-6">
-                    <button type="button" wire:click="openExamAssignmentModal('essay')"
-                            class="w-100 d-flex flex-column align-items-center justify-content-center p-4 text-center border border-warning border-opacity-25 rounded-4 h-100 bg-warning bg-opacity-10 text-reset"
-                            style="min-height:100px;">
-                        <i class="material-symbols-outlined d-block mb-2 text-warning" style="font-size:32px;">description</i>
-                        <span class="fw-semibold d-block">آزمون تشریحی</span>
-                        <span class="small text-muted mt-1">انتخاب آزمون و زمان‌بندی</span>
-                    </button>
-                </div>
-                <div class="col-6">
                     <button type="button" wire:click="openExamAssignmentModal('typed')"
                             class="w-100 d-flex flex-column align-items-center justify-content-center p-4 text-center border border-primary border-opacity-25 rounded-4 h-100 bg-primary bg-opacity-10 text-reset"
                             style="min-height:100px;">
                         <i class="material-symbols-outlined d-block mb-2 text-primary" style="font-size:32px;">check_box</i>
                         <span class="fw-semibold d-block">آزمون تستی</span>
                         <span class="small text-muted mt-1">اختصاص با تاریخ جلالی</span>
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button type="button" wire:click="openExamAssignmentModal('essay')"
+                            class="w-100 d-flex flex-column align-items-center justify-content-center p-4 text-center border border-warning border-opacity-25 rounded-4 h-100 bg-warning bg-opacity-10 text-reset"
+                            style="min-height:100px;">
+                        <i class="material-symbols-outlined d-block mb-2 text-warning" style="font-size:32px;">description</i>
+                        <span class="fw-semibold d-block">آزمون تشریحی</span>
+                        <span class="small text-muted mt-1">انتخاب آزمون و زمان‌بندی</span>
                     </button>
                 </div>
             </div>
@@ -207,27 +278,52 @@
         </div>
         <div class="card-body">
             @if($assessmentSummary)
+                @php
+                    $customCount = count($assessmentSummary['custom'] ?? []);
+                    $flagCount   = count($assessmentSummary['flags'] ?? []);
+                    $varkProfile = $assessmentSummary['vark']['profile'] ?? null;
+                @endphp
+                {{-- ===== نوار خلاصهٔ آماری (KPI) ===== --}}
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    @if($varkProfile)
+                        <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2">
+                            <i class="material-symbols-outlined align-middle" style="font-size:14px;">visibility</i>
+                            سبک یادگیری: {{ $varkProfile }}
+                        </span>
+                    @endif
+                    <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2">
+                        <i class="material-symbols-outlined align-middle" style="font-size:14px;">fact_check</i>
+                        {{ $customCount }} آزمون تکمیل‌شده
+                    </span>
+                    @if($flagCount > 0)
+                        <span class="badge bg-warning-subtle text-warning rounded-pill px-3 py-2">
+                            <i class="material-symbols-outlined align-middle" style="font-size:14px;">warning</i>
+                            {{ $flagCount }} هشدار
+                        </span>
+                    @endif
+                </div>
+
                 <div class="row g-3">
-                    @if(!empty($assessmentSummary['vark']['profile']))
+                    @if($varkProfile)
                         <div class="col-12">
-                            <div class="border rounded-4 p-3 h-100 bg-body">
-                                <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
-                                    <h6 class="mb-0 fw-bold">سبک یادگیری (VARK)</h6>
-                                    <span class="badge bg-primary-subtle text-primary rounded-pill">{{ $assessmentSummary['vark']['profile'] }}</span>
+                            <div class="border rounded-4 p-3 bg-body">
+                                <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                                    <h6 class="mb-0 fw-bold small">سبک یادگیری (VARK)</h6>
+                                    <span class="badge bg-primary-subtle text-primary rounded-pill">{{ $varkProfile }}</span>
                                 </div>
-                                <div class="row g-3">
+                                <div class="row g-2">
                                     @foreach(($assessmentSummary['vark']['modalities'] ?? []) as $modality)
-                                        <div class="col-md-6 col-xl-3">
-                                            <div class="border rounded-3 p-3 h-100 {{ !empty($modality['dominant']) ? 'border-primary border-opacity-50 bg-primary bg-opacity-10' : '' }}">
+                                        <div class="col-6 col-md-3">
+                                            <div class="border rounded-3 p-2 h-100 {{ !empty($modality['dominant']) ? 'border-primary border-opacity-50 bg-primary bg-opacity-10' : '' }}">
                                                 <div class="d-flex align-items-center justify-content-between small mb-1">
                                                     <span class="fw-semibold">{{ $modality['title'] }}</span>
-                                                    <span>{{ $modality['percent'] }}%</span>
+                                                    <span class="fw-bold">{{ $modality['percent'] }}%</span>
                                                 </div>
-                                                <div class="progress mb-2" style="height:7px;">
+                                                <div class="progress mb-1" style="height:5px;">
                                                     <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $modality['percent'] }}%"></div>
                                                 </div>
                                                 @if(!empty($modality['tip']))
-                                                    <p class="small text-muted mb-0">{{ $modality['tip'] }}</p>
+                                                    <p class="small text-muted mb-0" style="font-size:.7rem;line-height:1.5;">{{ $modality['tip'] }}</p>
                                                 @endif
                                             </div>
                                         </div>
@@ -237,31 +333,65 @@
                         </div>
                     @endif
 
-                    @foreach(($assessmentSummary['custom'] ?? []) as $testName => $facets)
+                    @foreach(($assessmentSummary['custom'] ?? []) as $testName => $testData)
+                        @php
+                            $facets        = $testData['facets'] ?? [];
+                            $overallPct    = $testData['overall_percent'] ?? null;
+                            $overallLevel  = $testData['overall_level'] ?? 'medium';
+                            $overallText   = $testData['overall_text'] ?? null;
+                            $overallColor  = match($overallLevel) {
+                                'low'  => 'success',
+                                'high' => 'danger',
+                                default => 'warning',
+                            };
+                            $overallLevelLabel = match($overallLevel) {
+                                'low'  => 'پایین',
+                                'high' => 'بالا',
+                                default => 'متوسط',
+                            };
+                        @endphp
                         <div class="col-lg-6">
                             <div class="border rounded-4 p-3 h-100 bg-body">
-                                <h6 class="mb-3 fw-bold">{{ $testName }}</h6>
-                                @foreach($facets as $facet)
-                                    @php
-                                        $barClass = match($facet['level'] ?? 'medium') {
-                                            'low' => 'bg-success',
-                                            'high' => 'bg-danger',
-                                            default => 'bg-warning',
-                                        };
-                                    @endphp
-                                    <div class="mb-3">
-                                        <div class="d-flex align-items-center justify-content-between small mb-1">
-                                            <span class="fw-semibold">{{ $facet['label'] }}</span>
-                                            <span>{{ $facet['percent'] }}%</span>
-                                        </div>
-                                        <div class="progress" style="height:7px;">
-                                            <div class="progress-bar {{ $barClass }}" role="progressbar" style="width: {{ $facet['percent'] }}%"></div>
-                                        </div>
-                                        @if(!empty($facet['text']) && $facet['text'] !== '—')
-                                            <p class="small text-muted mb-0 mt-2">{{ $facet['text'] }}</p>
-                                        @endif
+                                <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                                    <h6 class="mb-0 fw-bold small">{{ $testName }}</h6>
+                                    @if($overallPct !== null)
+                                        <span class="badge bg-{{ $overallColor }}-subtle text-{{ $overallColor }} fw-bold">
+                                            {{ $overallLevelLabel }} ({{ $overallPct }}%)
+                                        </span>
+                                    @endif
+                                </div>
+                                @if(!empty($overallText))
+                                    <p class="small text-muted border-start border-3 border-{{ $overallColor }} ps-2 mb-3" style="line-height:1.7;">
+                                        {{ $overallText }}
+                                    </p>
+                                @endif
+                                @if(count($facets) > 0)
+                                    <div class="row g-2">
+                                        @foreach($facets as $facet)
+                                            @php
+                                                $facetColor = match($facet['level'] ?? 'medium') {
+                                                    'low' => 'success',
+                                                    'high' => 'danger',
+                                                    default => 'warning',
+                                                };
+                                            @endphp
+                                            <div class="col-6 col-xl-4">
+                                                <div class="border rounded-3 p-2 h-100">
+                                                    <div class="d-flex align-items-center justify-content-between small mb-1">
+                                                        <span class="fw-semibold text-truncate" style="max-width:75%;">{{ $facet['label'] }}</span>
+                                                        <span class="badge bg-{{ $facetColor }}-subtle text-{{ $facetColor }} fw-bold" style="font-size:10px;">{{ $facet['percent'] }}%</span>
+                                                    </div>
+                                                    <div class="progress mb-1" style="height:4px;">
+                                                        <div class="progress-bar bg-{{ $facetColor }}" role="progressbar" style="width: {{ $facet['percent'] }}%"></div>
+                                                    </div>
+                                                    @if(!empty($facet['text']) && $facet['text'] !== '—')
+                                                        <p class="text-muted mb-0" style="font-size:.68rem;line-height:1.5;">{{ $facet['text'] }}</p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endforeach
                                     </div>
-                                @endforeach
+                                @endif
                             </div>
                         </div>
                     @endforeach
@@ -269,22 +399,29 @@
                     @if(!empty($assessmentSummary['flags']))
                         <div class="col-12">
                             <div class="border rounded-4 p-3 bg-body-tertiary">
-                                <h6 class="mb-3 fw-bold">هشدارهای مهم</h6>
+                                <h6 class="mb-3 fw-bold d-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined text-warning">warning</i>
+                                    هشدارهای مهم
+                                </h6>
                                 <div class="row g-2">
                                     @foreach($assessmentSummary['flags'] as $flag)
                                         @php
-                                            $flagClass = ($flag['severity'] ?? 'info') === 'critical'
-                                                ? 'border-danger bg-danger bg-opacity-10'
-                                                : (($flag['severity'] ?? 'info') === 'warning'
-                                                    ? 'border-warning bg-warning bg-opacity-10'
-                                                    : 'border-info bg-info bg-opacity-10');
+                                            $severity = $flag['severity'] ?? 'info';
+                                            [$flagClass, $flagIcon, $flagIconColor] = match($severity) {
+                                                'critical' => ['border-danger bg-danger bg-opacity-10', 'error', 'text-danger'],
+                                                'warning'  => ['border-warning bg-warning bg-opacity-10', 'warning', 'text-warning'],
+                                                default    => ['border-info bg-info bg-opacity-10', 'info', 'text-info'],
+                                            };
                                         @endphp
-                                        <div class="col-12">
-                                            <div class="border rounded-3 p-3 {{ $flagClass }}">
-                                                <div class="fw-semibold mb-1">{{ $flag['title'] ?? '' }}</div>
-                                                @if(!empty($flag['text']))
-                                                    <p class="small mb-0 text-muted">{{ $flag['text'] }}</p>
-                                                @endif
+                                        <div class="col-12 col-lg-6">
+                                            <div class="border rounded-3 p-3 h-100 d-flex align-items-start gap-2 {{ $flagClass }}">
+                                                <i class="material-symbols-outlined {{ $flagIconColor }}">{{ $flagIcon }}</i>
+                                                <div>
+                                                    <div class="fw-semibold mb-1">{{ $flag['title'] ?? '' }}</div>
+                                                    @if(!empty($flag['text']))
+                                                        <p class="small mb-0 text-muted">{{ $flag['text'] }}</p>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                     @endforeach
@@ -749,12 +886,12 @@
                         <div class="overflow-x-auto">
                             @php $pwCols = max($pw['max_parts_per_day'], 1); @endphp
                             <table class="table table-bordered align-middle mb-0"
-                                   style="min-width:{{ 520 + ($pwCols * 220) }}px;table-layout:fixed;border-collapse:separate;border-spacing:0;">
+                                   style="min-width:{{ 462 + ($pwCols * 220) }}px;table-layout:fixed;border-collapse:separate;border-spacing:0;">
                                 <thead>
                                 <tr style="background:linear-gradient(90deg,#6d28d9,#4f46e5);">
-                                    <th class="text-center text-white fw-bold" style="width:150px;position:sticky;right:0;z-index:6;background:linear-gradient(90deg,#6d28d9,#4f46e5);">روز / تاریخ</th>
-                                    <th class="text-center text-white fw-bold" style="width:130px;position:sticky;right:150px;z-index:6;background:linear-gradient(90deg,#6d28d9,#4f46e5);">ساعت</th>
-                                    <th class="text-center text-white fw-bold" style="width:210px;position:sticky;right:280px;z-index:6;background:linear-gradient(90deg,#6d28d9,#4f46e5);">وضعیت گزارش</th>
+                                    <th class="text-center text-white fw-bold" style="width:92px;position:sticky;right:0;z-index:6;background:linear-gradient(90deg,#6d28d9,#4f46e5);">روز / تاریخ</th>
+                                    <th class="text-center text-white fw-bold" style="width:130px;position:sticky;right:92px;z-index:6;background:linear-gradient(90deg,#6d28d9,#4f46e5);">ساعت</th>
+                                    <th class="text-center text-white fw-bold" style="width:210px;position:sticky;right:222px;z-index:6;background:linear-gradient(90deg,#6d28d9,#4f46e5);">وضعیت گزارش</th>
                                     @for($i = 1; $i <= $pwCols; $i++)
                                         <th class="text-center text-white fw-bold" style="width:220px;min-width:200px;">پارت {{ $i }}</th>
                                     @endfor
@@ -774,7 +911,7 @@
                                         </td>
 
                                         {{-- ساعت --}}
-                                        <td class="text-center" style="position:sticky;right:150px;z-index:2;background-color:var(--bs-body-bg);">
+                                        <td class="text-center" style="position:sticky;right:92px;z-index:2;background-color:var(--bs-body-bg);">
                                             @if($day['is_rest_day'])
                                                 <span class="text-success fw-bold">-</span>
                                             @else
@@ -792,7 +929,7 @@
                                         </td>
 
                                         {{-- وضعیت گزارش --}}
-                                        <td class="text-center" style="position:sticky;right:280px;z-index:2;background-color:var(--bs-body-bg);box-shadow:-4px 0 10px rgba(0,0,0,.05);">
+                                        <td class="text-center" style="position:sticky;right:222px;z-index:2;background-color:var(--bs-body-bg);box-shadow:-4px 0 10px rgba(0,0,0,.05);">
                                             <div class="d-flex flex-column gap-1 align-items-center">
                                                 @if($day['is_rest_day'])
                                                     <span class="badge bg-success-subtle text-success fw-bold d-flex align-items-center gap-1">
@@ -1161,9 +1298,9 @@
                    style="min-width:1800px;table-layout:fixed;border-collapse:separate;border-spacing:0;">
                 <thead>
                 <tr style="background:linear-gradient(90deg,#1d4ed8,#2563eb);">
-                    <th class="text-center text-white fw-bold" style="width:130px;position:sticky;right:0;z-index:6;background:linear-gradient(90deg,#1d4ed8,#2563eb);">روز / تاریخ</th>
-                    <th class="text-center text-white fw-bold" style="width:110px;position:sticky;right:130px;z-index:6;background:linear-gradient(90deg,#1d4ed8,#2563eb);">ساعت</th>
-                    <th class="text-center text-white fw-bold" style="width:155px;position:sticky;right:240px;z-index:6;background:linear-gradient(90deg,#1d4ed8,#2563eb);">وضعیت روز</th>
+                    <th class="text-center text-white fw-bold" style="width:92px;position:sticky;right:0;z-index:6;background:linear-gradient(90deg,#1d4ed8,#2563eb);">روز / تاریخ</th>
+                    <th class="text-center text-white fw-bold" style="width:110px;position:sticky;right:92px;z-index:6;background:linear-gradient(90deg,#1d4ed8,#2563eb);">ساعت</th>
+                    <th class="text-center text-white fw-bold" style="width:155px;position:sticky;right:202px;z-index:6;background:linear-gradient(90deg,#1d4ed8,#2563eb);">وضعیت روز</th>
                     @for($i = 1; $i <= $maxParts; $i++)
                         <th class="text-center text-white fw-bold" style="width:220px;min-width:200px;">پلن {{ $i }}</th>
                     @endfor
@@ -1183,7 +1320,7 @@
                         </td>
 
                         {{-- ساعت --}}
-                        <td class="text-center" style="position:sticky;right:130px;z-index:2;background-color:var(--bs-body-bg);">
+                        <td class="text-center" style="position:sticky;right:92px;z-index:2;background-color:var(--bs-body-bg);">
                             @if(!$day['is_rest_day'])
                                 <div class="fw-bold small">{{ $this->fmtDuration($day['total_minutes']) }}</div>
                             @else
@@ -1192,7 +1329,7 @@
                         </td>
 
                         {{-- وضعیت روز --}}
-                        <td class="text-center" style="position:sticky;right:240px;z-index:2;background-color:var(--bs-body-bg);box-shadow:-4px 0 10px rgba(0,0,0,.07);">
+                        <td class="text-center" style="position:sticky;right:202px;z-index:2;background-color:var(--bs-body-bg);box-shadow:-4px 0 10px rgba(0,0,0,.07);">
                             <div class="d-flex flex-column gap-1 align-items-center">
                                 @if(!$day['is_rest_day'])
                                     <span class="badge bg-warning-subtle text-warning fw-bold">
@@ -1525,10 +1662,10 @@
                                     <span class="spinner-border spinner-border-sm text-primary"></span>
                                 </div>
                                 @if(count($globalSearchResults) > 0)
-                                    <div class="list-group position-absolute w-100 mt-1 shadow rounded-3 border overflow-auto" style="z-index:1060;max-height:280px;">
+                                    <div class="list-group bg-body position-absolute w-100 mt-1 shadow rounded-3 border overflow-auto" style="z-index:1060;max-height:280px;">
                                         @foreach($globalSearchResults as $idx => $result)
                                             <button type="button" wire:click="selectGlobalResult({{ $idx }})"
-                                                    class="list-group-item list-group-item-action py-2 px-3 d-flex align-items-center gap-2 flex-wrap">
+                                                    class="list-group-item list-group-item-action bg-body py-2 px-3 d-flex align-items-center gap-2 flex-wrap">
                                                 @if($result['type'] === 'topic')
                                                     <span class="badge bg-success-subtle text-success small">مبحث</span>
                                                 @elseif($result['type'] === 'chapter')
@@ -1540,6 +1677,11 @@
                                                     <span class="badge bg-primary-subtle text-primary small">پایه {{ $result['grade_name'] }}</span>
                                                 @endif
                                                 <span class="small text-truncate flex-fill">{{ $result['label'] }}</span>
+                                                @if(!empty($result['rating_label']))
+                                                    <span class="badge bg-{{ $result['rating_color'] }}-subtle text-{{ $result['rating_color'] }} fw-bold" title="امتیاز طبقه‌بندی">
+                                                        {{ $result['rating_label'] }}
+                                                    </span>
+                                                @endif
                                             </button>
                                         @endforeach
                                     </div>
@@ -1547,24 +1689,13 @@
                                 <small class="text-muted">با جستجو تمام فیلدها خودکار پر می‌شوند</small>
                             </div>
                             <hr>
-                            {{-- دوره و پایه --}}
+                            {{-- پایه (دورهٔ تحصیلی دیگر پرسیده نمی‌شود؛ خودکار از روی پروندهٔ دانش‌آموز تعیین می‌شود) --}}
                             <div class="row g-3 mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">دوره تحصیلی <span class="text-danger">*</span></label>
-                                    <div wire:ignore>
-                                        <select id="education-level-select" class="form-select select2-modal">
-                                            <option value="">انتخاب کنید</option>
-                                            @foreach($educationLevels as $level)
-                                                <option value="{{ $level->id }}" {{ $partForm['education_level_id'] == $level->id ? 'selected' : '' }}>{{ $level->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
+                                <div class="col-12">
                                     <label class="form-label fw-semibold">پایه تحصیلی <span class="text-danger">*</span></label>
                                     <div wire:ignore>
                                         <select id="grade-select" class="form-select select2-modal" {{ empty($grades) ? 'disabled' : '' }}>
-                                            <option value="">{{ empty($grades) ? 'ابتدا دوره را انتخاب کنید' : 'انتخاب کنید' }}</option>
+                                            <option value="">{{ empty($grades) ? 'در حال بارگذاری...' : 'انتخاب کنید' }}</option>
                                             @foreach($grades as $grade)
                                                 <option value="{{ $grade->id }}" {{ $partForm['cc_grade_id'] == $grade->id ? 'selected' : '' }}>{{ $grade->name }}</option>
                                             @endforeach
@@ -1636,30 +1767,26 @@
                                 <label class="form-label fw-semibold">توضیحات</label>
                                 <textarea wire:model="partForm.description" rows="3" class="form-control" placeholder="مسیر انتخاب شده یا توضیحات دلخواه"></textarea>
                             </div>
-                            {{-- نوع / زمان / تست --}}
-                            @php $isModeNormal = ($partForm['part_mode'] ?? 'normal') === 'normal'; @endphp
+                            {{-- نوع / زمان / تست (در همهٔ حالت‌های پارت: عادی، کل کتاب، مروری) --}}
                             <div class="row g-3"
                                  x-data="{
-                                        isNormalMode: {{ $isModeNormal ? 'true' : 'false' }},
                                         partType: $wire.entangle('partForm.part_type'),
                                         totalMinutes: $wire.entangle('partForm.duration_minutes'),
                                         hours:0, minutes:0,
-                                        get needsTest(){ return this.isNormalMode && ['test','topic_exam'].includes(this.partType); },
-                                        get durCol(){ if(!this.isNormalMode) return 'col-12'; return this.needsTest ? 'col-md-4' : 'col-md-8'; },
+                                        get needsTest(){ return ['test','topic_exam'].includes(this.partType); },
+                                        get durCol(){ return this.needsTest ? 'col-md-4' : 'col-md-8'; },
                                         init(){ let v=parseInt(this.totalMinutes)||0; this.hours=Math.floor(v/60); this.minutes=v%60; this.$watch('totalMinutes',(v)=>{ let val=parseInt(v)||0; this.hours=Math.floor(val/60); this.minutes=val%60; }); },
                                         update(){ let h=Math.min(Math.max(parseInt(this.hours)||0,0),24); let m=Math.min(Math.max(parseInt(this.minutes)||0,0),59); this.hours=h; this.minutes=m; this.totalMinutes=(h*60)+m; }
                                      }" x-init="init()">
-                                @if($isModeNormal)
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold">نوع پارت <span class="text-danger">*</span></label>
-                                        <select x-model="partType" class="form-select">
-                                            <option value="descriptive">تشریحی</option>
-                                            <option value="test">تستی</option>
-                                            <option value="video">ویدئو</option>
-                                            <option value="topic_exam">آزمون مبحثی</option>
-                                        </select>
-                                    </div>
-                                @endif
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">نوع پارت <span class="text-danger">*</span></label>
+                                    <select x-model="partType" class="form-select">
+                                        <option value="descriptive">تشریحی</option>
+                                        <option value="test">تستی</option>
+                                        <option value="video">ویدئو</option>
+                                        <option value="topic_exam">آزمون مبحثی</option>
+                                    </select>
+                                </div>
                                 <div :class="durCol">
                                     <label class="form-label fw-semibold">مدت زمان <span class="text-danger">*</span></label>
                                     <div class="d-flex align-items-center gap-2">
@@ -1679,13 +1806,11 @@
                                     </small>
                                     @error('partForm.duration_minutes')<div class="text-danger small">{{ $message }}</div>@enderror
                                 </div>
-                                @if($isModeNormal)
-                                    <div class="col-md-4" x-show="needsTest" x-cloak>
-                                        <label class="form-label fw-semibold">تعداد تست <span class="text-danger">*</span></label>
-                                        <input type="number" min="1" wire:model="partForm.test_count" class="form-control" placeholder="تعداد تست">
-                                        @error('partForm.test_count')<div class="text-danger small">{{ $message }}</div>@enderror
-                                    </div>
-                                @endif
+                                <div class="col-md-4" x-show="needsTest" x-cloak>
+                                    <label class="form-label fw-semibold">تعداد تست <span class="text-danger">*</span></label>
+                                    <input type="number" min="1" wire:model="partForm.test_count" class="form-control" placeholder="تعداد تست">
+                                    @error('partForm.test_count')<div class="text-danger small">{{ $message }}</div>@enderror
+                                </div>
                             </div>
                         @endif
                     </div>
@@ -2201,16 +2326,30 @@
                         <button type="button" class="btn-close btn-close-white" wire:click="closeClassificationModal"></button>
                     </div>
                     <div class="modal-body">
+                        {{-- فیلترها (ترکیبی/AND) --}}
+                        <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                            <span class="small fw-semibold text-muted">فیلتر:</span>
+                            <select wire:model.live="classificationRatingFilter" class="form-select form-select-sm w-auto">
+                                <option value="">همه امتیازها</option>
+                                <option value="4">فقط A</option>
+                                <option value="3">فقط B</option>
+                                <option value="2">فقط C</option>
+                                <option value="1">فقط D</option>
+                            </select>
+                            <select wire:model.live="classificationLessonTypeFilter" class="form-select form-select-sm w-auto">
+                                <option value="">عمومی/تخصصی (همه)</option>
+                                <option value="general">فقط عمومی</option>
+                                <option value="specialized">فقط تخصصی</option>
+                            </select>
+                            @if($classificationRatingFilter !== '' || $classificationLessonTypeFilter !== '')
+                                <button type="button" wire:click="resetClassificationFilters" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+                                    <i class="material-symbols-outlined" style="font-size:14px;">filter_alt_off</i> پاک کردن فیلتر
+                                </button>
+                            @endif
+                            <span class="badge bg-primary-subtle text-primary">{{ count($classificationTopics) }} مورد</span>
+                        </div>
+
                         @if(count($classificationTopics) > 0)
-                            {{-- Sort --}}
-                            <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
-                                <span class="small fw-semibold text-muted">مرتب‌سازی:</span>
-                                <select wire:model.live="classificationSort" class="form-select form-select-sm w-auto">
-                                    <option value="rating">رتبه (زیاد به کم)</option>
-                                    <option value="grade">پایه</option>
-                                    <option value="lesson_type">عمومی/تخصصی</option>
-                                </select>
-                            </div>
 
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
@@ -2342,6 +2481,13 @@
                                     @endforeach
                                     </tbody>
                                 </table>
+                            </div>
+                        @elseif(count($classificationTopicsAll) > 0)
+                            {{-- فیلترها فعال هستند اما موردی مطابقت نداشت --}}
+                            <div class="text-center py-5">
+                                <i class="material-symbols-outlined text-muted" style="font-size:56px;">filter_alt_off</i>
+                                <p class="text-muted mt-2">با این فیلترها موردی یافت نشد.</p>
+                                <button type="button" wire:click="resetClassificationFilters" class="btn btn-sm btn-outline-secondary">پاک کردن فیلتر</button>
                             </div>
                         @else
                             <div class="text-center py-5">
@@ -2539,9 +2685,17 @@
                     <div class="modal-body">
                         @if($examAssignmentStep === 1)
                             <div class="row g-3 mb-3">
-                                <div class="col-lg-8">
+                                <div class="col-lg-5">
                                     <label class="form-label fw-semibold">جستجوی آزمون</label>
                                     <input type="text" wire:model.live.debounce.300ms="examAssignmentSearch" class="form-control" placeholder="نام آزمون را جستجو کنید...">
+                                </div>
+                                <div class="col-lg-3">
+                                    <label class="form-label fw-semibold">ترتیب نمایش</label>
+                                    <select wire:model.live="examAssignmentSort" class="form-select">
+                                        @foreach($examAssignmentSortOptions as $sortValue => $sortLabel)
+                                            <option value="{{ $sortValue }}">{{ $sortLabel }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="col-lg-4">
                                     <label class="form-label fw-semibold">دانش‌آموز</label>
@@ -2552,20 +2706,29 @@
                             @php
                                 $examItems = $examAssignmentType === 'typed' ? $typedExamsForAssignment : $essayExamsForAssignment;
                                 $assignedIds = $examAssignmentType === 'typed' ? $typedAssignedExamIds : $essayAssignedExamIds;
+                                $completedIds = $examAssignmentType === 'typed' ? $typedCompletedExamIds : $essayCompletedExamIds;
                             @endphp
 
                             <div class="row g-3">
                                 @forelse($examItems as $exam)
-                                    @php $isAssigned = in_array($exam->id, $assignedIds, true); @endphp
+                                    @php
+                                        $isCompleted = in_array($exam->id, $completedIds, true);
+                                        $isAssigned = in_array($exam->id, $assignedIds, true);
+                                    @endphp
                                     <div class="col-md-6 col-xl-4">
                                         <button type="button"
                                                 wire:click="selectExamAssignmentExam({{ $exam->id }})"
-                                                class="w-100 text-start border rounded-4 p-3 h-100 bg-body {{ $isAssigned ? 'border-success border-opacity-50' : 'border-opacity-25' }}">
+                                                class="w-100 text-start border rounded-4 p-3 h-100 bg-body {{ $isCompleted ? 'border-info border-opacity-50' : ($isAssigned ? 'border-success border-opacity-50' : 'border-opacity-25') }}">
                                             <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
                                                 <h6 class="mb-0 fw-bold">{{ $exam->title }}</h6>
-                                                @if($isAssigned)
-                                                    <span class="badge bg-success-subtle text-success">قبلاً اختصاص داده شده</span>
-                                                @endif
+                                                <div class="d-flex flex-column gap-1 align-items-end">
+                                                    @if($isCompleted)
+                                                        <span class="badge bg-info-subtle text-info">شرکت شده</span>
+                                                    @endif
+                                                    @if($isAssigned)
+                                                        <span class="badge bg-success-subtle text-success">قبلاً اختصاص داده شده</span>
+                                                    @endif
+                                                </div>
                                             </div>
                                             <div class="small text-muted d-flex flex-wrap gap-2">
                                                 @if(isset($exam->questions_count))
@@ -2573,6 +2736,12 @@
                                                 @endif
                                                 @if($examAssignmentType === 'typed' && isset($exam->difficulty_label))
                                                     <span>سطح {{ $exam->difficulty_label }}</span>
+                                                @endif
+                                                @if(!empty($exam->grade_name))
+                                                    <span>پایه {{ $exam->grade_name }}</span>
+                                                @endif
+                                                @if(!empty($exam->field_name))
+                                                    <span>رشته {{ $exam->field_name }}</span>
                                                 @endif
                                             </div>
                                             <div class="small mt-3 text-primary fw-semibold d-flex align-items-center gap-1">
@@ -3065,6 +3234,9 @@
                     autoHide: true,
                     showTodayBtn: true,
                     showEmptyBtn: true,
+                    // z-index بالاتر از همه‌ی مودال‌های این صفحه (حداکثر z-index مودال‌ها 1070 است)
+                    // تا تقویم شمسی همیشه روی مودال‌ها (از جمله مودال اختصاص آزمون) نمایش داده شود.
+                    zIndex: 2000,
                 });
             }
 
@@ -3152,7 +3324,6 @@
             document.addEventListener('livewire:init', () => {
                 const select2Config = { dir: 'rtl', language: 'fa', allowClear: true, width: '100%' };
                 const selectMappings = {
-                    'education-level-select': 'partForm.education_level_id',
                     'grade-select': 'partForm.cc_grade_id',
                     'subject-select': 'partForm.cc_subject_id',
                     'chapter-select': 'partForm.cc_chapter_id',
