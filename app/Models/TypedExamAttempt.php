@@ -138,6 +138,70 @@ class TypedExamAttempt extends Model
 
 
     /**
+     * محاسبه‌ی کامل و یکسانِ آمار نتیجه (صحیح/غلط/بدون‌پاسخ/درصد/نمره منفی) این تلاش.
+     *
+     * این متد منبعِ واحدِ محاسبه است: هم صفحه‌ی «کارنامه»ی خودِ دانش‌آموز و هم بخش
+     * «آزمون‌های قبلاً شرکت‌شده»ی پنل مشاور باید از همینجا نتیجه بگیرند، تا این دو صفحه
+     * هیچ‌وقت عدد متفاوت یا نادرست (مثلاً منفی، یا با تعداد کل سوالات اشتباه) نشان ندهند.
+     *
+     * تعداد کل سوالات همیشه بر اساس studentOrders محاسبه می‌شود (دقیقاً همان چیدمانی که در
+     * لحظه‌ی شروعِ آزمون برای این دانش‌آموز ثبت شده)؛ فقط اگر این رکورد وجود نداشته باشد
+     * (تلاش‌های خیلی قدیمی، قبل از قابلیتِ درهم‌ریزی گزینه‌ها) از answers استفاده می‌شود.
+     */
+    public function computeResultStats(): array
+    {
+        $orders = $this->relationLoaded('studentOrders') ? $this->studentOrders : $this->studentOrders()->get();
+        $answers = ($this->relationLoaded('answers') ? $this->answers : $this->answers()->get())
+            ->keyBy('question_id');
+
+        if ($orders->isNotEmpty()) {
+            $totalQuestions = $orders->count();
+            $correctCount = 0;
+            $wrongCount = 0;
+            $unansweredCount = 0;
+
+            foreach ($orders as $order) {
+                $answer = $answers->get($order->question_id);
+
+                if (!$answer || $answer->selected_option === null) {
+                    $unansweredCount++;
+                    continue;
+                }
+
+                if ($answer->is_correct) {
+                    $correctCount++;
+                } else {
+                    $wrongCount++;
+                }
+            }
+        } else {
+            $totalQuestions = $answers->count();
+            $correctCount = $answers->where('is_correct', true)->count();
+            $wrongCount = $answers->filter(
+                fn (TypedExamAttemptAnswer $a) => $a->is_correct === false && $a->selected_option !== null
+            )->count();
+            $unansweredCount = max($totalQuestions - $correctCount - $wrongCount, 0);
+        }
+
+        $score = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 100, 2) : 0;
+        $negativePenaltyCount = intdiv($wrongCount, 3);
+        $negativeCorrectCount = max($correctCount - $negativePenaltyCount, 0);
+        $negativeScore = $totalQuestions > 0 ? round(($negativeCorrectCount / $totalQuestions) * 100, 2) : 0;
+
+        return [
+            'total'                  => $totalQuestions,
+            'correct'                => $correctCount,
+            'wrong'                  => $wrongCount,
+            'unanswered'             => $unansweredCount,
+            'score'                  => $score,
+            'negative_penalty_count' => $negativePenaltyCount,
+            'negative_correct'       => $negativeCorrectCount,
+            'negative_score'         => $negativeScore,
+        ];
+    }
+
+
+    /**
      * تعداد پاسخ‌های صحیح
      */
 

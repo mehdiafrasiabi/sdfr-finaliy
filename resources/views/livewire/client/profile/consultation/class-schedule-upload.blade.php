@@ -98,27 +98,32 @@
                                     @if(!$isGraduate)
                                         <p class="text-xs text-muted">
                                             {{ $this->attendsSchoolSwitchLocked
-                                                ? 'سقف ۲ بار تغییر برای این بخش استفاده شده و دیگر قابل ویرایش نیست.'
-                                                : 'فقط ۲ بار امکان تغییر داری. تعداد باقی‌مانده: ' . $this->remainingAttendsSchoolChanges . ' بار' }}
+                                                ? 'سقف ' . $this->maxAttendsSchoolChanges . ' بار تغییر برای این بخش استفاده شده و دیگر قابل ویرایش نیست.'
+                                                : 'فقط ' . $this->maxAttendsSchoolChanges . ' بار امکان تغییر داری. تعداد باقی‌مانده: ' . $this->remainingAttendsSchoolChanges . ' بار' }}
                                         </p>
                                     @else
                                         <p class="text-xs text-muted">برای دانش‌آموز فارغ‌التحصیل امکان تغییر این وضعیت وجود ندارد.</p>
                                     @endif
                                 </div>
 
-                                <label class="inline-flex items-center gap-3 {{ $this->attendsSchoolSwitchLocked ? 'cursor-not-allowed opacity-70' : 'cursor-pointer' }}">
+                                <button type="button"
+                                        role="switch"
+                                        aria-checked="{{ $attendsSchool ? 'true' : 'false' }}"
+                                        wire:loading.attr="disabled"
+                                        wire:target="changeAttendsSchool"
+                                        @if(! $this->attendsSchoolSwitchLocked)
+                                            @click="$dispatch('open-attends-school-modal', { next: {{ $attendsSchool ? 'false' : 'true' }} })"
+                                        @endif
+                                        @disabled($this->attendsSchoolSwitchLocked)
+                                        class="inline-flex items-center gap-3 {{ $this->attendsSchoolSwitchLocked ? 'cursor-not-allowed opacity-70' : 'cursor-pointer' }}">
                                     <span class="text-sm font-semibold text-foreground">
                                         {{ $attendsSchool ? 'به مدرسه می‌روم' : 'به مدرسه نمی‌روم' }}
                                     </span>
-                                    <span class="relative inline-flex items-center">
-                                        <input type="checkbox"
-                                               class="peer sr-only"
-                                               wire:model.live="attendsSchool"
-                                               @disabled($this->attendsSchoolSwitchLocked)>
-                                        <span class="block h-8 w-14 rounded-full bg-secondary transition peer-checked:bg-primary"></span>
-                                        <span class="absolute right-1 h-6 w-6 rounded-full bg-white shadow transition peer-checked:right-7"></span>
+                                    <span class="relative inline-flex items-center" wire:loading.class="opacity-50" wire:target="changeAttendsSchool">
+                                        <span class="block h-8 w-14 rounded-full transition {{ $attendsSchool ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                        <span class="absolute h-6 w-6 rounded-full bg-white shadow transition {{ $attendsSchool ? 'right-7' : 'right-1' }}"></span>
                                     </span>
-                                </label>
+                                </button>
                             </div>
                         </div>
 
@@ -541,6 +546,100 @@
             </div>
         </div>
 
+        {{-- ======================================================= --}}
+        {{-- مودال تایید تغییر وضعیت مدرسه (Alpine.js) --}}
+        {{-- ======================================================= --}}
+        <div
+            x-data="{
+        show: false,
+        next: null,
+        open(e) {
+            this.next = e.detail.next;
+            this.show = true;
+            document.body.classList.add('overflow-hidden'); // جلوگیری از اسکرول
+        },
+        close() {
+            this.show = false;
+            document.body.classList.remove('overflow-hidden'); // بازگرداندن اسکرول
+        }
+    }"
+            @open-attends-school-modal.window="open($event)"
+            x-show="show"
+            x-cloak
+            class="fixed inset-0 z-[76] flex flex-col justify-end sm:items-center sm:justify-center"
+            @keydown.escape.window="close()">
+
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                 x-show="show"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @click="close()"></div>
+
+            <div
+                class="relative z-10 w-full sm:max-w-sm bg-background dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl  sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                x-show="show"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-8"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-y-0"
+                x-transition:leave-end="opacity-0 translate-y-8"
+                dir="rtl">
+
+                <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                    <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                </div>
+
+                <div class="p-6 text-center">
+                    <div
+                        class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-primary" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-foreground text-lg mb-2">تغییر وضعیت مدرسه</h3>
+                    <p class="text-sm text-muted">
+                        آیا مطمئن هستید می‌خواهید وضعیت را به
+                        <span class="font-bold text-foreground"
+                              x-text="next ? '«به مدرسه می‌روم»' : '«به مدرسه نمی‌روم»'"></span>
+                        تغییر دهید؟
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-3  border-border px-5 pb-5">
+                    <button @click="close()"
+                            class="w-full rounded-xl border border-border py-2.5 px-4 text-sm font-semibold text-foreground
+                                   bg-background dark:bg-zinc-900 hover:bg-muted/50 dark:hover:bg-zinc-800 transition-colors">
+                        انصراف
+                    </button>
+                    <button
+                        @click="$wire.changeAttendsSchool(next); close();"
+                        wire:loading.attr="disabled"
+                        wire:target="changeAttendsSchool"
+                        class="w-full rounded-xl py-2.5 px-4 text-sm font-semibold text-white
+                               bg-primary hover:bg-primary/90 transition-colors
+                               inline-flex items-center justify-center gap-2">
+                        <span wire:loading wire:target="changeAttendsSchool">
+                            <svg class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                 viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                        </span>
+                        <span wire:loading.remove wire:target="changeAttendsSchool">بله، تغییر بده</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         {{-- مودال ثبت نهایی (Alpine - instant open) --}}
         <div x-data="{ finalizeOpen: @entangle('showFinalizeModal') }"
              x-init="$watch('finalizeOpen', value => {
@@ -617,10 +716,17 @@
         {{-- مودال انتخاب درس (Alpine instant-open + loading) --}}
         <div x-data="{
     partModalOpen: false,
+    partLoading: false,
     openPart(day, part) {
         this.partModalOpen = true;
+        this.partLoading = true; // بلافاصله لودینگ نمایش داده شود تا محتوای قدیمی/خالی برای یک لحظه دیده نشود
         document.body.classList.add('overflow-hidden'); // جلوگیری از اسکرول
-        $wire.openPartModal(day, part);
+        const startedAt = Date.now();
+        $wire.openPartModal(day, part).then(() => {
+            // حداقل زمان نمایش لودینگ، فقط برای حس روان‌تر — حتی اگر پاسخ فوری برسد
+            const remaining = Math.max(0, 300 - (Date.now() - startedAt));
+            setTimeout(() => { this.partLoading = false }, remaining);
+        });
     },
     closePart() {
         this.partModalOpen = false;
@@ -670,34 +776,35 @@
                 </div>
 
                 <div class="flex-1 overflow-y-auto p-4">
-                    {{-- Loading skeleton --}}
-                    <div wire:loading wire:target="openPartModal" class="space-y-2">
+                    {{-- Loading skeleton — فقط برای حس روان‌تر، مستقل از سرعت واقعی پاسخ --}}
+                    <div x-show="partLoading" x-cloak class="space-y-2">
                         @for($i = 0; $i < 5; $i++)
                             <div class="h-12 bg-muted/40 rounded-xl animate-pulse"></div>
                         @endfor
                     </div>
 
                     {{-- Content --}}
-                    <div wire:loading.remove wire:target="openPartModal">
+                    <div x-show="!partLoading" x-cloak>
                         @if(count($subjects) > 0)
-                            @php
-                                $maxSelectable = \App\Models\ClassSchedule::MAX_PARTS_PER_DAY - ($selectedPart ?? 1) + 1;
-                                $selectedCount = count($selectedSubjectIds);
-                            @endphp
-
-                            {{-- هدر: راهنما + شمارنده --}}
-                            <div class="flex items-center justify-between mb-3 gap-2">
-                                <p class="text-sm text-muted">یک یا چند درس انتخاب کنید:</p>
-                                <span class="shrink-0 text-xs px-2.5 py-1 rounded-full font-bold
-                {{ $selectedCount > 0 ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted' }}">
-                {{ $selectedCount }} از {{ $maxSelectable }}
-            </span>
-                            </div>
-
-                            @if($selectedCount >= $maxSelectable)
-                                <div class="mb-3 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 text-xs">
-                                    به حداکثر تعداد قابل انتخاب رسیدید.
+                            @if($isEditingFilledPart)
+                                {{-- ویرایش یک پارتِ از قبل پرشده: فقط یک درس --}}
+                                <p class="text-sm text-muted mb-3">درس این پارت را انتخاب کنید:</p>
+                            @else
+                                @php $selectedCount = count($selectedSubjectIds); @endphp
+                                {{-- افزودن پارت خالی: چند درس هم‌زمان قابل انتخاب است --}}
+                                <div class="flex items-center justify-between mb-3 gap-2">
+                                    <p class="text-sm text-muted">یک یا چند درس انتخاب کنید:</p>
+                                    <span class="shrink-0 text-xs px-2.5 py-1 rounded-full font-bold
+                        {{ $selectedCount > 0 ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted' }}">
+                        {{ $selectedCount }} از {{ $this->maxSelectableSubjects }}
+                    </span>
                                 </div>
+
+                                @if($selectedCount >= $this->maxSelectableSubjects)
+                                    <div class="mb-3 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 text-xs">
+                                        به حداکثر تعداد قابل انتخاب رسیدید.
+                                    </div>
+                                @endif
                             @endif
 
                             <div class="space-y-2">
@@ -705,7 +812,7 @@
                                     @php
                                         $isSelected = in_array($subject->id, $selectedSubjectIds);
                                         $orderIndex = $isSelected ? array_search($subject->id, $selectedSubjectIds) : null;
-                                        $assignedPart = $isSelected ? ($selectedPart + $orderIndex) : null;
+                                        $assignedPart = (! $isEditingFilledPart && $isSelected) ? ($selectedPart + $orderIndex) : null;
                                     @endphp
 
                                     <button wire:click="toggleSubject({{ $subject->id }})"
@@ -716,25 +823,29 @@
                             ? 'border-primary bg-primary/10 text-primary font-bold'
                             : 'border-border bg-background dark:bg-zinc-900 hover:border-primary/40 hover:bg-primary/5 text-foreground' }}">
                                         <div class="flex items-center justify-between gap-3">
-                                            {{-- چپ‌چین: تیک + نام --}}
+                                            {{-- چپ‌چین: تیک/رادیو + نام --}}
                                             <div class="flex items-center gap-3 min-w-0 flex-1">
-                            <span class="flex-shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors
+                            <span class="flex-shrink-0 w-5 h-5 {{ $isEditingFilledPart ? 'rounded-full' : 'rounded-md' }} border-2 flex items-center justify-center transition-colors
                                    {{ $isSelected
                                        ? 'bg-primary border-primary'
                                        : 'border-border bg-background dark:bg-zinc-900' }}">
                                 @if($isSelected)
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-white"
-                                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                                    </svg>
+                                    @if($isEditingFilledPart)
+                                        <span class="w-2 h-2 rounded-full bg-white"></span>
+                                    @else
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-white"
+                                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    @endif
                                 @endif
                             </span>
                                                 <span class="truncate text-sm">{{ $subject->name }}</span>
                                             </div>
 
-                                            {{-- راست‌چین: شماره پارت اختصاص‌یافته + نوع --}}
+                                            {{-- راست‌چین: شماره پارت اختصاص‌یافته (در حالت چندانتخابی) + نوع --}}
                                             <div class="flex items-center gap-2 shrink-0">
-                                                @if($isSelected)
+                                                @if($assignedPart)
                                                     <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-primary text-white font-bold">
                                     پارت {{ $assignedPart }}
                                 </span>
@@ -781,7 +892,7 @@
             </svg>
         </span>
                         <span wire:loading.remove wire:target="savePart" class="font-bold text-sm text-white">
-            ذخیره @if(count($selectedSubjectIds) > 1) ({{ count($selectedSubjectIds) }} پارت) @endif
+            ذخیره @if(!$isEditingFilledPart && count($selectedSubjectIds) > 1) ({{ count($selectedSubjectIds) }} پارت) @endif
         </span>
                     </button>
                 </div>

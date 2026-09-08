@@ -44,7 +44,6 @@ class DatabaseSeeder extends Seeder
             AssessmentSeeder::class,
             GradePriceSeeder::class,
             PhoneAcquisitionDemoSeeder::class,
-            SchoolManagerDemoSeeder::class,
         ]);
     }
 }

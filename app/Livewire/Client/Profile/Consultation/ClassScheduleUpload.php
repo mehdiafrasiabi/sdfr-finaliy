@@ -17,7 +17,7 @@ class ClassScheduleUpload extends Component
 {
     use SEOTools;
 
-    private const MAX_ATTENDS_SCHOOL_CHANGES = 2;
+    private const MAX_ATTENDS_SCHOOL_CHANGES = 10;
 
     public bool $showModal = false;
     public ?int $selectedDay = null;
@@ -25,6 +25,9 @@ class ClassScheduleUpload extends Component
 
     /** @var array<int> آی‌دی درس‌های انتخاب‌شده — به ترتیب کلیک */
     public array $selectedSubjectIds = [];
+
+    /** true = پارتِ از قبل پرشده در حال ویرایش است (تک‌انتخابی) / false = پارت خالی در حال افزودن است (چندانتخابی) */
+    public bool $isEditingFilledPart = false;
 
     public bool $showFinalizeModal = false;
 
@@ -84,6 +87,25 @@ class ClassScheduleUpload extends Component
         return max(0, self::MAX_ATTENDS_SCHOOL_CHANGES - $this->attendsSchoolChangeCount);
     }
 
+    public function getMaxAttendsSchoolChangesProperty(): int
+    {
+        return self::MAX_ATTENDS_SCHOOL_CHANGES;
+    }
+
+    /**
+     * حداکثر تعداد درسی که در مودال فعلی می‌توان انتخاب کرد.
+     * در حالت ویرایشِ یک پارتِ پرشده فقط ۱ (تک‌انتخابی)؛
+     * در حالت افزودنِ پارت خالی، به تعداد اسلات‌های خالیِ باقی‌مانده تا آخر روز (چندانتخابی).
+     */
+    public function getMaxSelectableSubjectsProperty(): int
+    {
+        if ($this->isEditingFilledPart) {
+            return 1;
+        }
+
+        return max(1, ClassSchedule::MAX_PARTS_PER_DAY - ($this->selectedPart ?? 1) + 1);
+    }
+
     public function getAttendsSchoolSwitchLockedProperty(): bool
     {
         return $this->isGraduate || $this->remainingAttendsSchoolChanges <= 0;
@@ -104,7 +126,10 @@ class ClassScheduleUpload extends Component
         return false;
     }
 
-    public function updatedAttendsSchool($value): void
+    /**
+     * تغییر وضعیت «مدرسه می‌روم / نمی‌روم» — فقط بعد از تأیید کاربر در مودال صدا زده می‌شود.
+     */
+    public function changeAttendsSchool($value): void
     {
         $newStatus = (bool) $value;
         $user = Auth::user();
@@ -126,7 +151,7 @@ class ClassScheduleUpload extends Component
             $this->attendsSchool = $currentStatus;
             $this->dispatch('warning', $this->isGraduate
                 ? 'برای دانش‌آموز فارغ‌التحصیل امکان تغییر این وضعیت وجود ندارد.'
-                : 'امکان تغییر وضعیت مدرسه فقط تا ۲ بار وجود دارد و حالا قفل شده است.');
+                : 'امکان تغییر وضعیت مدرسه فقط تا ' . self::MAX_ATTENDS_SCHOOL_CHANGES . ' بار وجود دارد و حالا قفل شده است.');
             return;
         }
 
@@ -201,10 +226,11 @@ class ClassScheduleUpload extends Component
             }
         }
 
-        // ریست انتخاب‌ها قبل از set کردن
+        // ریست انتخاب قبل از set کردن
         $this->selectedSubjectIds = [];
+        $this->isEditingFilledPart = false;
 
-        // اگر این پارت قبلاً پر شده، درس فعلی‌اش به‌عنوان انتخاب اولیه
+        // اگر این پارت قبلاً پر شده، یعنی داریم ویرایشش می‌کنیم: تک‌انتخابی، با درس فعلی‌اش به‌عنوان انتخاب اولیه
         if ($schedule) {
             $existingPart = ClassSchedulePart::where('class_schedule_id', $schedule->id)
                 ->where('day_of_week', $dayOfWeek)
@@ -213,8 +239,10 @@ class ClassScheduleUpload extends Component
 
             if ($existingPart) {
                 $this->selectedSubjectIds = [$existingPart->cc_subject_id];
+                $this->isEditingFilledPart = true;
             }
         }
+        // در غیر این صورت (پارت خالی از طریق دکمه «افزودن» باز شده) چندانتخابی باقی می‌ماند
 
         $this->selectedDay = $dayOfWeek;
         $this->selectedPart = $partOrder;
@@ -224,20 +252,28 @@ class ClassScheduleUpload extends Component
     }
 
     /**
-     * تغییر وضعیت انتخاب یک درس (toggle)
+     * تغییر وضعیت انتخاب یک درس.
+     * حالت ویرایشِ پارتِ پرشده: تک‌انتخابی — کلیک روی درس دیگر جایگزین می‌کند، کلیک دوباره پاک می‌کند.
+     * حالت افزودنِ پارت خالی: چندانتخابی — هر درس انتخاب‌شده در یک پارت متوالی بعدی قرار می‌گیرد.
      */
     public function toggleSubject(int $subjectId): void
     {
+        if ($this->isEditingFilledPart) {
+            $this->selectedSubjectIds = in_array($subjectId, $this->selectedSubjectIds, true)
+                ? []
+                : [$subjectId];
+            return;
+        }
+
         if (in_array($subjectId, $this->selectedSubjectIds, true)) {
-            // اگر انتخاب بود، حذفش کن (و ایندکس‌ها رو reset کن)
+            // اگر انتخاب بود، حذفش کن
             $this->selectedSubjectIds = array_values(array_diff($this->selectedSubjectIds, [$subjectId]));
             return;
         }
 
         // محدودیت: تعداد انتخاب نمی‌تواند از اسلات‌های باقی‌مانده بیشتر شود
-        $availableSlots = ClassSchedule::MAX_PARTS_PER_DAY - ($this->selectedPart ?? 1) + 1;
-        if (count($this->selectedSubjectIds) >= $availableSlots) {
-            $this->dispatch('warning', 'حداکثر ' . $availableSlots . ' درس می‌توانید برای این روز انتخاب کنید.');
+        if (count($this->selectedSubjectIds) >= $this->maxSelectableSubjects) {
+            $this->dispatch('warning', 'حداکثر ' . $this->maxSelectableSubjects . ' درس می‌توانید برای این روز انتخاب کنید.');
             return;
         }
 
@@ -277,9 +313,9 @@ class ClassScheduleUpload extends Component
 
         $savedCount = 0;
 
-        // هر درس انتخاب‌شده به‌ترتیب در یک پارت متوالی ذخیره می‌شود
+        // در حالت ویرایش فقط همین پارت؛ در حالت افزودن، هر درس انتخاب‌شده به‌ترتیب در یک پارت متوالی ذخیره می‌شود
         foreach ($this->selectedSubjectIds as $i => $subjectId) {
-            $partOrder = $this->selectedPart + $i;
+            $partOrder = $this->isEditingFilledPart ? $this->selectedPart : $this->selectedPart + $i;
 
             if ($partOrder > ClassSchedule::MAX_PARTS_PER_DAY) {
                 break;
@@ -430,6 +466,7 @@ class ClassScheduleUpload extends Component
         $this->selectedDay = null;
         $this->selectedPart = null;
         $this->selectedSubjectIds = [];
+        $this->isEditingFilledPart = false;
         $this->subjects = [];
     }
 

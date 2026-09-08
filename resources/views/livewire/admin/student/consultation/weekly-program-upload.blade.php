@@ -1,26 +1,113 @@
 <div class="student-ui student-ui-auto-collapse" id="wpu-root">
     @include('livewire.admin.student._styles')
-    {{-- پیش‌فرض بسته بودن باکس‌های باز/بسته‌شونده فقط در همین صفحه (بدون تغییر رفتار سایر صفحات) --}}
+    {{-- پیش‌فرض بسته بودن باکس‌های باز/بسته‌شونده + کلیک روی هدر + رفتار آکاردئونی، فقط در همین صفحه.
+         نکته‌ی مهم: لایوایر در هر رندر مجدد (morph) کلاس‌ها/attribute هایی را که سمت کلاینت به DOM
+         اضافه کرده باشیم (از جمله su-collapsed) می‌تواند پاک کند. به همین دلیل «وضعیتِ باز/بسته» هر
+         باکس را در یک WeakMap نگه می‌داریم (نه یک بار روی DOM) و در هر رویداد (بارگذاری، ناوبری،
+         و هر morph.updated لایوایر — یعنی بعد از هر wire:click مثل کپی/کات/حذف پارت و غیره) دوباره
+         از روی همان WeakMap روی DOM اعمالش می‌کنیم؛ این‌طوری حتی اگر لایوایر کلاس را پاک کند، بلافاصله
+         با وضعیتِ درست جایگزین می‌شود و باکس‌ها بعد از هیچ دکمه‌ای به‌اشتباه باز نمی‌مانند. --}}
     @push('script')
         <script>
             (() => {
-                const collapseByDefault = () => {
-                    document.querySelectorAll('#wpu-root .su-collapsible-card').forEach((card) => {
-                        if (card.hasAttribute('data-wpu-default-applied')) return;
-                        card.setAttribute('data-wpu-default-applied', '1');
-                        card.classList.add('su-collapsed');
-                        const toggle = card.querySelector(':scope > .card-header .su-card-toggle, :scope > .widget-header .su-card-toggle, :scope > .modern-card-header .su-card-toggle');
-                        if (toggle) toggle.setAttribute('aria-expanded', 'false');
+                const CARD_SELECTOR = '#wpu-root .su-collapsible-card:not(#wpu-prev-week-card):not(#wpu-session-note-card)';
+                const SELF_MANAGED_SELECTOR = '#wpu-prev-week-card, #wpu-session-note-card';
+
+                // وضعیتِ منطقیِ باز/بسته‌یِ هر باکس (true = بسته). منبعِ حقیقتِ اصلی همین است، نه کلاسِ DOM.
+                const collapsedState = new WeakMap();
+                const headerClickBoundCards = new WeakSet();
+
+                const getHeaderOf = (card) => card.querySelector(':scope > .card-header, :scope > .widget-header, :scope > .modern-card-header');
+                const getToggleOf = (card) => card.querySelector(':scope > .card-header .su-card-toggle, :scope > .widget-header .su-card-toggle, :scope > .modern-card-header .su-card-toggle');
+
+                // باکس‌هایی که خودشان یک مکانیزم باز/بسته شدنِ اختصاصی (سمت سرور/لایوایر) دارند،
+                // یا باید همیشه باز/قابل‌مشاهده بمانند (مثل یادداشت جلسه)، نباید توسط سیستم عمومی
+                // باز/بسته‌شدن مدیریت شوند (تا با هم تداخل نکنند).
+                const neutralizeSelfManagedCards = () => {
+                    document.querySelectorAll(SELF_MANAGED_SELECTOR).forEach((card) => {
+                        card.classList.remove('su-collapsible-card', 'su-collapsed');
+                        const toggle = getToggleOf(card);
+                        if (toggle) toggle.remove();
                     });
                 };
-                document.addEventListener('DOMContentLoaded', collapseByDefault);
-                document.addEventListener('livewire:navigated', collapseByDefault);
+
+                const isCollapsed = (card) => {
+                    if (!collapsedState.has(card)) collapsedState.set(card, true); // پیش‌فرض: بسته
+                    return collapsedState.get(card);
+                };
+
+                const setCollapsed = (card, collapsed) => {
+                    collapsedState.set(card, collapsed);
+                    card.classList.toggle('su-collapsed', collapsed);
+                    const toggle = getToggleOf(card);
+                    if (toggle) toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                };
+
+                const closeOtherCards = (exceptCard) => {
+                    document.querySelectorAll(CARD_SELECTOR).forEach((other) => {
+                        if (other === exceptCard) return;
+                        if (!isCollapsed(other)) setCollapsed(other, true);
+                    });
+                };
+
+                // اعمالِ دوبارهٔ وضعیتِ ذخیره‌شده روی تمام باکس‌ها (چه تازه دیده شده باشند چه قبلاً):
+                // چون کلاسِ su-collapsed ممکن است با هر رندر مجددِ لایوایر پاک شده باشد، ولی
+                // collapsedState وضعیتِ واقعی و همیشگیِ هر باکس را نگه می‌دارد.
+                const resyncCollapsedState = () => {
+                    neutralizeSelfManagedCards();
+                    document.querySelectorAll(CARD_SELECTOR).forEach((card) => {
+                        setCollapsed(card, isCollapsed(card));
+                    });
+                };
+
+                // کلیکِ خودِ دکمه‌ی باز/بسته (تعریف‌شده در _styles.blade.php): در فاز capture
+                // (پیش از هندلر خودِ دکمه) اجرا می‌شود تا بدانیم باکس در حال باز شدن است یا خیر،
+                // و بعد از اجرای هندلرِ خودِ دکمه (که کلاس را toggle می‌کند) وضعیتِ نهایی را در
+                // collapsedState هم ثبت می‌کنیم تا در رویدادهای بعدی از بین نرود.
+                document.addEventListener('click', (event) => {
+                    const toggleBtn = event.target.closest(CARD_SELECTOR + ' .su-card-toggle');
+                    if (!toggleBtn) return;
+                    const card = toggleBtn.closest('.su-collapsible-card');
+                    if (!card || card.id === 'wpu-prev-week-card' || card.id === 'wpu-session-note-card') return;
+                    const willOpen = isCollapsed(card);
+                    queueMicrotask(() => {
+                        setCollapsed(card, card.classList.contains('su-collapsed'));
+                        if (willOpen) closeOtherCards(card);
+                    });
+                }, true);
+
+                const enhanceHeaderClick = () => {
+                    document.querySelectorAll(CARD_SELECTOR).forEach((card) => {
+                        if (headerClickBoundCards.has(card)) return;
+                        const header = getHeaderOf(card);
+                        if (!header) return;
+                        headerClickBoundCards.add(card);
+                        header.style.cursor = 'pointer';
+                        header.addEventListener('click', (event) => {
+                            // اگر روی دکمه‌ی toggle یا لینک/دکمه/فیلد دیگری داخل هدر کلیک شده، خودشان مدیریت می‌کنند
+                            if (event.target.closest('.su-card-toggle, a, button, input, select, textarea, label')) return;
+                            const collapsed = !isCollapsed(card);
+                            setCollapsed(card, collapsed);
+                            if (!collapsed) closeOtherCards(card);
+                        });
+                    });
+                };
+
+                const runAll = () => {
+                    resyncCollapsedState();
+                    enhanceHeaderClick();
+                };
+
+                document.addEventListener('DOMContentLoaded', runAll);
+                document.addEventListener('livewire:navigated', runAll);
                 document.addEventListener('livewire:init', () => {
                     if (window.Livewire?.hook) {
-                        Livewire.hook('morph.updated', () => queueMicrotask(collapseByDefault));
+                        // هر رندرِ مجددِ لایوایر (از جمله بعد از کپی/کات/حذف پارت و هر wire:click دیگر)
+                        // این تابع را دوباره اجرا می‌کند تا وضعیتِ باز/بسته‌ی درست بازیابی شود.
+                        Livewire.hook('morph.updated', () => queueMicrotask(runAll));
                     }
                 });
-                collapseByDefault();
+                runAll();
             })();
         </script>
     @endpush
@@ -103,7 +190,7 @@
     {{-- ====== BODY SCROLL LOCK WHEN MODAL OPEN ====== --}}
     @if($showPartModal || $showPrevProgramModal || $showPrevReportModal || $showClassificationModal ||
         $showClassScheduleModal || $showNoScheduleModal || $showRestDayConfirmModal || $showExamDayConfirmModal ||
-        $showExamPartModal || $showExamDaySelectModal || $showExamAssignmentModal || $showDistributeHomeworkModal || $showDistributeExamModal ||
+        $showExamPartModal || $showExamDaySelectModal || $showExamAssignmentModal || $showExamHistoryModal || $showDistributeHomeworkModal || $showDistributeExamModal ||
         $showDistributeQaModal || $showBulkDeleteConfirmModal || $showZeroTimeWarningModal)
         @push('link')
             <style>html, body { overflow: hidden !important; overscroll-behavior: none !important; }</style>
@@ -148,121 +235,74 @@
         </div>
     </div>
 
-    {{-- ====== QUICK ACCESS ====== --}}
-    <div class="card mb-4 border rounded-4 shadow-sm" x-data="{
-        iframeModal: false, iframeUrl: '', iframeTitle: '', iframeColor: '#2563eb',
-        openIframe(url, title, color) { this.iframeUrl=url; this.iframeTitle=title; this.iframeColor=color||'#2563eb'; this.iframeModal=true; }
-    }">
-        {{-- Iframe Modal --}}
-        <template x-teleport="body">
-            <div x-show="iframeModal" x-cloak
-                 class="position-fixed top-0 start-0 w-100 h-100"
-                 style="z-index:1080;background:rgba(2,6,23,.65);backdrop-filter:blur(4px);"
-                 @keydown.escape.window="iframeModal=false">
-                <div class="d-flex align-items-center justify-content-center w-100 h-100 p-3">
-                    <div class="rounded-4 overflow-hidden shadow d-flex flex-column bg-body"
-                         style="width:100%;max-width:1200px;height:90vh;">
-                        <div class="d-flex align-items-center justify-content-between px-4 py-3 text-white"
-                             :style="'background:'+iframeColor">
-                            <h5 class="mb-0 fw-bold d-flex align-items-center gap-2">
-                                <i class="material-symbols-outlined">open_in_new</i>
-                                <span x-text="iframeTitle"></span>
-                            </h5>
-                            <div class="d-flex gap-2 align-items-center">
-                                <a :href="iframeUrl" target="_blank" class="btn btn-sm btn-light d-flex align-items-center gap-1">
-                                    <i class="material-symbols-outlined" style="font-size:16px;">open_in_new</i>
-                                    تب جدید
-                                </a>
-                                <button @click="iframeModal=false" class="btn-close btn-close-white"></button>
+    {{-- ====== یادداشت جلسه (خصوصی مشاور) ====== --}}
+    <div class="card mb-4 border rounded-4 shadow-sm border-warning border-opacity-50" id="wpu-session-note-card" x-data="{ showHistory: false, revealed: false }">
+        <div class="card-header d-flex align-items-center justify-content-between rounded-top-4 bg-warning bg-opacity-10">
+            <div class="d-flex align-items-center gap-2">
+                <i class="material-symbols-outlined text-warning">sticky_note_2</i>
+                <h5 class="mb-0">یادداشت جلسه</h5>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <small class="text-muted d-none d-sm-inline">خصوصی — فقط برای مشاوران</small>
+                {{-- دکمه‌ی نمایش/پنهان‌سازی: پیش‌فرض پنهان تا کسی که کنار مشاور نشسته محتوای یادداشت را نبیند --}}
+                <button type="button"
+                        class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1"
+                        @click="revealed = !revealed"
+                        :title="revealed ? 'پنهان کردن یادداشت' : 'نمایش یادداشت'">
+                    <i class="material-symbols-outlined" style="font-size:16px;" x-text="revealed ? 'visibility_off' : 'visibility'"></i>
+                    <span x-text="revealed ? 'پنهان کردن' : 'نمایش'"></span>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div x-show="!revealed" class="text-center text-muted small py-4 d-flex flex-column align-items-center gap-2">
+                <i class="material-symbols-outlined" style="font-size:30px;">visibility_off</i>
+                <span>محتوای این بخش خصوصی است؛ برای مشاهده و ثبت یادداشت روی «نمایش» بزنید.</span>
+            </div>
+            <div x-show="revealed" x-cloak>
+                @if($previousSessionNote)
+                    <div class="alert alert-info d-flex align-items-start gap-2 mb-3">
+                        <i class="material-symbols-outlined text-info">history</i>
+                        <div>
+                            <div class="fw-bold small mb-1">
+                                یادداشت جلسه‌ی قبل
+                                @if($previousSessionNote['date'])
+                                    <span class="text-muted fw-normal">({{ $previousSessionNote['date'] }})</span>
+                                @endif
                             </div>
-                        </div>
-                        <div class="flex-fill overflow-hidden">
-                            <iframe :src="iframeUrl" class="w-100 h-100 border-0" loading="lazy"></iframe>
+                            <p class="small mb-0" style="white-space:pre-line;line-height:1.9;">{{ $previousSessionNote['note'] }}</p>
                         </div>
                     </div>
-                </div>
-            </div>
-        </template>
+                @endif
 
-        <div class="card-header d-flex align-items-center justify-content-between rounded-top-4">
-            <div class="d-flex align-items-center gap-2">
-                <i class="material-symbols-outlined text-primary">bolt</i>
-                <h5 class="mb-0">دسترسی سریع</h5>
-            </div>
-            <small class="text-muted">میانبرهای پرکاربرد</small>
-        </div>
-
-        <div class="card-body">
-            <div class="row g-3 mb-3">
-                <div class="col-6 col-md-2">
-                    <a href="#"
-                       @click.prevent="openIframe('{{ route('admin.student.studySession.detail', $student->user_id) }}','ساعت مطالعه','linear-gradient(135deg,#059669,#10b981)')"
-                       class="d-block p-3 text-center text-reset text-decoration-none border rounded-4 h-100 bg-body shadow-sm">
-                        <i class="material-symbols-outlined d-block mb-2 text-success" style="font-size:28px;">schedule</i>
-                        <span class="small fw-semibold d-block">ساعت مطالعه</span>
-                        <span class="small text-muted">جلسات مطالعه</span>
-                    </a>
-                </div>
-                <div class="col-6 col-md-2">
-                    <a href="#"
-                       @click.prevent="openIframe('{{ route('admin.student.reportDailyActivities.detail', $student->user_id) }}','گزارش فعالیت روزانه','linear-gradient(135deg,#0891b2,#06b6d4)')"
-                       class="d-block p-3 text-center text-reset text-decoration-none border rounded-4 h-100 bg-body shadow-sm">
-                        <i class="material-symbols-outlined d-block mb-2 text-info" style="font-size:28px;">summarize</i>
-                        <span class="small fw-semibold d-block">گزارش</span>
-                        <span class="small text-muted">فعالیت روزانه</span>
-                    </a>
-                </div>
-                <div class="col-6 col-md-2">
-                    <a href="#"
-                       @click.prevent="openIframe('{{ route('admin.typed-exams.index') }}','آزمون‌ها','linear-gradient(135deg,#d97706,#f59e0b)')"
-                       class="d-block p-3 text-center text-reset text-decoration-none border rounded-4 h-100 bg-body shadow-sm">
-                        <i class="material-symbols-outlined d-block mb-2 text-warning" style="font-size:28px;">quiz</i>
-                        <span class="small fw-semibold d-block">آزمون‌ها</span>
-                        <span class="small text-muted">مرور آزمون</span>
-                    </a>
-                </div>
-                <div class="col-6 col-md-2">
-                    <a href="#" wire:click.prevent="openClassificationModal"
-                       class="d-block p-3 text-center text-reset text-decoration-none border rounded-4 h-100 bg-body shadow-sm">
-                        <i class="material-symbols-outlined d-block mb-2 text-secondary" style="font-size:28px;">category</i>
-                        <span class="small fw-semibold d-block">طبقه‌بندی</span>
-                        <span class="small text-muted">دسته‌بندی موارد</span>
-                    </a>
-                </div>
-                <div class="col-6 col-md-2">
-                    <a href="#" wire:click.prevent="openClassScheduleModal"
-                       class="d-block p-3 text-center text-reset text-decoration-none border rounded-4 h-100 bg-body shadow-sm">
-                        <i class="material-symbols-outlined d-block mb-2 text-danger" style="font-size:28px;">menu_book</i>
-                        <span class="small fw-semibold d-block">برنامه کلاسی</span>
-                        <span class="small text-muted">مشاهده برنامه</span>
-                    </a>
-                </div>
-            </div>
-
-            <hr class="my-3">
-            <div class="d-flex align-items-center gap-2 mb-3">
-                <i class="material-symbols-outlined text-primary">quiz</i>
-                <h6 class="mb-0 fw-bold">آزمون‌ها</h6>
-                <small class="text-muted">اختصاص مستقیم از همین صفحه</small>
-            </div>
-            <div class="row g-3">
-                <div class="col-6">
-                    <button type="button" wire:click="openExamAssignmentModal('typed')"
-                            class="w-100 d-flex flex-column align-items-center justify-content-center p-4 text-center border border-primary border-opacity-25 rounded-4 h-100 bg-primary bg-opacity-10 text-reset"
-                            style="min-height:100px;">
-                        <i class="material-symbols-outlined d-block mb-2 text-primary" style="font-size:32px;">check_box</i>
-                        <span class="fw-semibold d-block">آزمون تستی</span>
-                        <span class="small text-muted mt-1">اختصاص با تاریخ جلالی</span>
+                <label class="form-label fw-semibold small">یادداشت این جلسه <span class="text-muted">(اختیاری)</span></label>
+                <textarea wire:model="currentSessionNote" rows="3" class="form-control"
+                          placeholder="مثلاً: هفته دیگه از این دانش‌آموز باید آزمون ریاضی فصل فلان بگیرم..."></textarea>
+                <div class="d-flex align-items-center justify-content-between mt-2 flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" @click="showHistory = !showHistory">
+                        <i class="material-symbols-outlined" style="font-size:15px;">manage_search</i>
+                        <span x-text="showHistory ? 'بستن تاریخچه' : 'تاریخچه یادداشت‌ها ({{ count($sessionNotesHistory) }})'"></span>
+                    </button>
+                    <button type="button" wire:click="saveSessionNote" class="btn btn-sm btn-warning text-white d-flex align-items-center gap-1">
+                        <span wire:loading.remove wire:target="saveSessionNote"><i class="material-symbols-outlined" style="font-size:15px;">save</i> ذخیره یادداشت</span>
+                        <span wire:loading wire:target="saveSessionNote">در حال ذخیره...</span>
                     </button>
                 </div>
-                <div class="col-6">
-                    <button type="button" wire:click="openExamAssignmentModal('essay')"
-                            class="w-100 d-flex flex-column align-items-center justify-content-center p-4 text-center border border-warning border-opacity-25 rounded-4 h-100 bg-warning bg-opacity-10 text-reset"
-                            style="min-height:100px;">
-                        <i class="material-symbols-outlined d-block mb-2 text-warning" style="font-size:32px;">description</i>
-                        <span class="fw-semibold d-block">آزمون تشریحی</span>
-                        <span class="small text-muted mt-1">انتخاب آزمون و زمان‌بندی</span>
-                    </button>
+
+                <div x-show="showHistory" x-cloak class="mt-3 pt-3 border-top">
+                    @forelse($sessionNotesHistory as $historyItem)
+                        <div class="border rounded-3 p-2 mb-2 bg-body-tertiary">
+                            <div class="small text-muted mb-1">
+                                {{ $historyItem['date'] ?? '—' }}
+                                @if($historyItem['advisor_name'])
+                                    · {{ $historyItem['advisor_name'] }}
+                                @endif
+                            </div>
+                            <p class="small mb-0" style="white-space:pre-line;line-height:1.8;">{{ $historyItem['note'] }}</p>
+                        </div>
+                    @empty
+                        <div class="text-center text-muted small py-2">یادداشتی از جلسات قبلی ثبت نشده است.</div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -436,6 +476,199 @@
                     هنوز ارزیابیِ تکمیل‌شده‌ای برای این دانش‌آموز ثبت نشده است.
                 </div>
             @endif
+        </div>
+    </div>
+
+    {{-- ====== QUICK ACCESS ====== --}}
+    <div class="card mb-4 border rounded-4 shadow-sm" x-data="{
+        iframeModal: false, iframeUrl: '', iframeTitle: '', iframeColor: '#2563eb',
+        openIframe(url, title, color) { this.iframeUrl=url; this.iframeTitle=title; this.iframeColor=color||'#2563eb'; this.iframeModal=true; }
+    }">
+        {{-- Iframe Modal --}}
+        <template x-teleport="body">
+            <div x-show="iframeModal" x-cloak
+                 class="position-fixed top-0 start-0 w-100 h-100"
+                 style="z-index:1080;background:rgba(2,6,23,.65);backdrop-filter:blur(4px);"
+                 @keydown.escape.window="iframeModal=false">
+                <div class="d-flex align-items-center justify-content-center w-100 h-100 p-3">
+                    <div class="rounded-4 overflow-hidden shadow d-flex flex-column bg-body"
+                         style="width:100%;max-width:1200px;height:90vh;">
+                        <div class="d-flex align-items-center justify-content-between px-4 py-3 text-white"
+                             :style="'background:'+iframeColor">
+                            <h5 class="mb-0 fw-bold d-flex align-items-center gap-2">
+                                <i class="material-symbols-outlined">open_in_new</i>
+                                <span x-text="iframeTitle"></span>
+                            </h5>
+                            <div class="d-flex gap-2 align-items-center">
+                                <a :href="iframeUrl" target="_blank" class="btn btn-sm btn-light d-flex align-items-center gap-1">
+                                    <i class="material-symbols-outlined" style="font-size:16px;">open_in_new</i>
+                                    تب جدید
+                                </a>
+                                <button @click="iframeModal=false" class="btn-close btn-close-white"></button>
+                            </div>
+                        </div>
+                        <div class="flex-fill overflow-hidden">
+                            <iframe :src="iframeUrl" class="w-100 h-100 border-0" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <div class="card-header d-flex align-items-center justify-content-between rounded-top-4">
+            <div class="d-flex align-items-center gap-2">
+                <i class="material-symbols-outlined text-primary">bolt</i>
+                <h5 class="mb-0">دسترسی سریع</h5>
+            </div>
+            <small class="text-muted">میانبرهای پرکاربرد</small>
+        </div>
+
+        <div class="card-body">
+            {{-- ====== آمار کلی دانش‌آموز (اولویت نمایش: اول) ====== --}}
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <i class="material-symbols-outlined text-primary">insights</i>
+                <h6 class="mb-0 fw-bold">آمار کلی دانش‌آموز</h6>
+                <small class="text-muted">مجموع از ابتدای شروع مشاوره تاکنون</small>
+            </div>
+            <div class="row g-3">
+                <div class="col-6 col-lg-3">
+                    <div class="border rounded-4 p-3 h-100 bg-body">
+                        <div class="d-flex align-items-center gap-2 mb-1 text-primary">
+                            <i class="material-symbols-outlined" style="font-size:20px;">event_available</i>
+                            <span class="small fw-semibold">کل برنامه تنظیم‌شده</span>
+                        </div>
+                        <div class="fw-bold" dir="ltr">{{ $studentStats['totalProgramFormatted'] }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="border rounded-4 p-3 h-100 bg-body">
+                        <div class="d-flex align-items-center gap-2 mb-1 text-success">
+                            <i class="material-symbols-outlined" style="font-size:20px;">menu_book</i>
+                            <span class="small fw-semibold">مطالعه‌ی انجام‌شده</span>
+                        </div>
+                        <div class="fw-bold" dir="ltr">{{ $studentStats['totalStudiedFormatted'] }}</div>
+                        <div class="small text-muted" style="font-size:.7rem;">به‌جز مطالعه‌ی جبرانی</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="border rounded-4 p-3 h-100 bg-body">
+                        <div class="d-flex align-items-center gap-2 mb-1 text-info">
+                            <i class="material-symbols-outlined" style="font-size:20px;">auto_stories</i>
+                            <span class="small fw-semibold">مطالعه‌ی جبرانی</span>
+                        </div>
+                        <div class="fw-bold" dir="ltr">{{ $studentStats['totalMakeupFormatted'] }}</div>
+                        <div class="small text-muted" style="font-size:.7rem;">خودانگیخته توسط دانش‌آموز</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="border rounded-4 p-3 h-100 bg-body">
+                        <div class="d-flex align-items-center gap-2 mb-1 text-secondary">
+                            <i class="material-symbols-outlined" style="font-size:20px;">summarize</i>
+                            <span class="small fw-semibold">گزارش‌های الزامی</span>
+                        </div>
+                        <div class="fw-bold">{{ $studentStats['submittedReportsCount'] }} از {{ $studentStats['requiredReportsCount'] }}</div>
+                        <div class="small text-muted" style="font-size:.7rem;">ارسال‌شده از موردنیاز</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="border rounded-4 p-3 h-100 {{ $studentStats['missingReportsCount'] > 0 ? 'bg-danger bg-opacity-10' : 'bg-body' }}">
+                        <div class="d-flex align-items-center gap-2 mb-1 text-danger">
+                            <i class="material-symbols-outlined" style="font-size:20px;">report</i>
+                            <span class="small fw-semibold">گزارش‌های ارسال‌نشده</span>
+                        </div>
+                        <div class="fw-bold">{{ $studentStats['missingReportsCount'] }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="border rounded-4 p-3 h-100 bg-body">
+                        <div class="d-flex align-items-center gap-2 mb-1 text-warning">
+                            <i class="material-symbols-outlined" style="font-size:20px;">volunteer_activism</i>
+                            <span class="small fw-semibold">گزارش‌های جبرانی</span>
+                        </div>
+                        <div class="fw-bold">{{ $studentStats['compensatoryReportsCount'] }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="border rounded-4 p-3 h-100 bg-body">
+                        <div class="d-flex align-items-center gap-2 mb-1 text-primary">
+                            <i class="material-symbols-outlined" style="font-size:20px;">check_box</i>
+                            <span class="small fw-semibold">آزمون‌های تستی اختصاص‌یافته</span>
+                        </div>
+                        <div class="fw-bold">{{ $studentStats['assignedTestsCount'] }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="border rounded-4 p-3 h-100 bg-body">
+                        <div class="d-flex align-items-center gap-2 mb-1 text-primary">
+                            <i class="material-symbols-outlined" style="font-size:20px;">fact_check</i>
+                            <span class="small fw-semibold">آزمون‌های تستی شرکت‌شده</span>
+                        </div>
+                        <div class="fw-bold">{{ $studentStats['takenTestsCount'] }}</div>
+                        <div class="small text-muted" style="font-size:.7rem;">
+                            @if($studentStats['extraTestsCount'] > 0)
+                                {{ $studentStats['extraTestsCount'] }} مورد بیش از اختصاص‌یافته
+                            @else
+                                {{ $studentStats['untakenTestsCount'] }} مورد باقی‌مانده
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-primary bg-primary bg-opacity-10 border-primary border-opacity-25 mt-3 mb-0 d-flex align-items-start gap-2">
+                <i class="material-symbols-outlined text-primary">smart_toy</i>
+                <div>
+                    <div class="fw-bold small mb-1">تحلیل خودکار وضعیت دانش‌آموز</div>
+                    <p class="small mb-0" style="line-height:1.9;">{{ $studentStatusAnalysis }}</p>
+                </div>
+            </div>
+
+            <hr class="my-3">
+            <div class="row g-3">
+                <div class="col-6 col-md-3">
+                    <a href="#" wire:click.prevent="openClassificationModal"
+                       class="d-block p-3 text-center text-reset text-decoration-none border rounded-4 h-100 bg-body shadow-sm">
+                        <i class="material-symbols-outlined d-block mb-2 text-secondary" style="font-size:28px;">category</i>
+                        <span class="small fw-semibold d-block">طبقه‌بندی</span>
+                        <span class="small text-muted">دسته‌بندی موارد</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a href="#" wire:click.prevent="openClassScheduleModal"
+                       class="d-block p-3 text-center text-reset text-decoration-none border rounded-4 h-100 bg-body shadow-sm">
+                        <i class="material-symbols-outlined d-block mb-2 text-danger" style="font-size:28px;">menu_book</i>
+                        <span class="small fw-semibold d-block">برنامه کلاسی</span>
+                        <span class="small text-muted">مشاهده برنامه</span>
+                    </a>
+                </div>
+            </div>
+
+            <hr class="my-3">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <i class="material-symbols-outlined text-primary">quiz</i>
+                <h6 class="mb-0 fw-bold">آزمون‌ها</h6>
+                <small class="text-muted">مشاهده‌ی آزمون‌های قبلاً شرکت‌شده</small>
+            </div>
+            <div class="row g-3">
+                <div class="col-6">
+                    <button type="button" wire:click="openExamHistoryModal('typed')"
+                            class="w-100 d-flex flex-column align-items-center justify-content-center p-4 text-center border border-primary border-opacity-25 rounded-4 h-100 bg-primary bg-opacity-10 text-reset"
+                            style="min-height:100px;">
+                        <i class="material-symbols-outlined d-block mb-2 text-primary" style="font-size:32px;">check_box</i>
+                        <span class="fw-semibold d-block">آزمون تستی</span>
+                        <span class="small text-muted mt-1">مشاهده‌ی نتایج شرکت‌شده</span>
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button type="button" wire:click="openExamHistoryModal('essay')"
+                            class="w-100 d-flex flex-column align-items-center justify-content-center p-4 text-center border border-warning border-opacity-25 rounded-4 h-100 bg-warning bg-opacity-10 text-reset"
+                            style="min-height:100px;">
+                        <i class="material-symbols-outlined d-block mb-2 text-warning" style="font-size:32px;">description</i>
+                        <span class="fw-semibold d-block">آزمون تشریحی</span>
+                        <span class="small text-muted mt-1">مشاهده‌ی نتایج شرکت‌شده</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -657,7 +890,7 @@
     {{-- ====== PREVIOUS WEEK PREVIEW (TIMETABLE) ====== --}}
     @if(!empty($prevWeekPreview['exists']))
         @php $pw = $prevWeekPreview; @endphp
-        <div class="card mb-4 border rounded-4 shadow-sm">
+        <div class="card mb-4 border rounded-4 shadow-sm" id="wpu-prev-week-card">
             <div class="card-header rounded-top-4"
                  style="background:linear-gradient(135deg,#7c3aed 0%,#6366f1 50%,#2563eb 100%);">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 text-white">
@@ -2570,11 +2803,6 @@
                                 <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
                                     <h6 class="fw-bold mb-0">تایم پیش‌خوانی و روزخوانی</h6>
                                     <div class="d-flex gap-2 align-items-center">
-                                        <select wire:model.live="readingTypeFilter" class="form-select form-select-sm w-auto">
-                                            <option value="">همه</option>
-                                            <option value="daily">روزخوانی</option>
-                                            <option value="pre">پیش‌خوانی</option>
-                                        </select>
                                         <button wire:click="previewWeeklyReadings" class="btn btn-sm btn-outline-secondary">
                                             <i class="material-symbols-outlined" style="font-size:15px;">refresh</i>
                                             <span wire:loading wire:target="previewWeeklyReadings"><span class="spinner-border spinner-border-sm"></span></span>
@@ -2584,40 +2812,54 @@
 
                                 <div class="alert alert-info small py-2 mb-2">
                                     <i class="material-symbols-outlined align-middle" style="font-size:14px;">info</i>
-                                    برای هر درس یک تایم وارد کنید. اگر تایم ۰ باشد، آن درس اضافه نمی‌شود.
+                                    برای هر درس، دقیقه‌ی روزخوانی و پیش‌خوانی را جداگانه وارد کنید. اگر یکی از دو مقدار ۰ باشد، همان مورد اضافه نمی‌شود؛
+                                    اگر هر دو مقدار ۰ باشند، آن درس اصلاً به برنامه اضافه نخواهد شد.
                                 </div>
 
-                                <div class="table-responsive mb-3" style="max-height:300px;overflow-y:auto;">
+                                <div class="table-responsive mb-3" style="max-height:340px;overflow-y:auto;">
                                     <table class="table table-sm align-middle mb-0">
                                         <thead class="table-light sticky-top">
                                         <tr>
-                                            <th>نوع</th><th>درس</th><th>روزهای اعمال</th><th class="text-center" style="width:90px;">دقیقه</th>
+                                            <th>درس</th>
+                                            <th>روزهای روزخوانی</th>
+                                            <th class="text-center" style="width:110px;">دقیقه روزخوانی</th>
+                                            <th>روزهای پیش‌خوانی</th>
+                                            <th class="text-center" style="width:110px;">دقیقه پیش‌خوانی</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         @foreach($weeklyReadingsPreview as $idx => $item)
-                                            @if($readingTypeFilter === '' || $item['type'] === $readingTypeFilter)
-                                                <tr>
-                                                    <td>
-                                                        <span class="badge {{ $item['type'] === 'daily' ? 'bg-primary-subtle text-primary' : 'bg-info-subtle text-info' }}">
-                                                            {{ $item['type'] === 'daily' ? 'روزخوانی' : 'پیش‌خوانی' }}
-                                                        </span>
-                                                    </td>
-                                                    <td class="fw-semibold small">{{ $item['subject'] }}</td>
-                                                    <td>
-                                                        <div class="d-flex flex-wrap gap-1">
-                                                            @foreach($item['day_names'] as $dn)
-                                                                <span class="badge bg-body-tertiary text-body border rounded-pill" style="font-size:10px;">{{ $dn }}</span>
-                                                            @endforeach
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <input type="number" wire:model.lazy="weeklyReadingsPreview.{{ $idx }}.duration_minutes"
-                                                               class="form-control form-control-sm text-center mx-auto {{ $item['duration_minutes'] == 0 ? 'border-warning' : '' }}"
-                                                               min="0" max="300" style="width:70px;">
-                                                    </td>
-                                                </tr>
-                                            @endif
+                                            <tr>
+                                                <td class="fw-semibold small">{{ $item['subject'] }}</td>
+                                                <td>
+                                                    <div class="d-flex flex-wrap gap-1">
+                                                        @forelse($item['daily_day_names'] as $dn)
+                                                            <span class="badge bg-primary-subtle text-primary rounded-pill" style="font-size:10px;">{{ $dn }}</span>
+                                                        @empty
+                                                            <span class="text-muted small">-</span>
+                                                        @endforelse
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">
+                                                    <input type="number" wire:model.lazy="weeklyReadingsPreview.{{ $idx }}.daily_minutes"
+                                                           class="form-control form-control-sm text-center mx-auto {{ ($item['daily_minutes'] ?? 0) == 0 ? 'border-warning' : '' }}"
+                                                           min="0" max="300" style="width:85px;">
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex flex-wrap gap-1">
+                                                        @forelse($item['pre_day_names'] as $dn)
+                                                            <span class="badge bg-info-subtle text-info rounded-pill" style="font-size:10px;">{{ $dn }}</span>
+                                                        @empty
+                                                            <span class="text-muted small">-</span>
+                                                        @endforelse
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">
+                                                    <input type="number" wire:model.lazy="weeklyReadingsPreview.{{ $idx }}.pre_minutes"
+                                                           class="form-control form-control-sm text-center mx-auto {{ ($item['pre_minutes'] ?? 0) == 0 ? 'border-warning' : '' }}"
+                                                           min="0" max="300" style="width:85px;">
+                                                </td>
+                                            </tr>
                                         @endforeach
                                         </tbody>
                                     </table>
@@ -2841,6 +3083,144 @@
                                 <span wire:loading wire:target="assignExamFromWeeklyProgram">در حال ثبت...</span>
                             </button>
                         @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- ====== MODAL: مشاهده‌ی آزمون تستی / تشریحی قبلاً شرکت‌شده ====== --}}
+    @if($showExamHistoryModal)
+        <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:1060;">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <div class="modal-header text-white rounded-top-4" style="background:{{ $examHistoryType === 'typed' ? 'linear-gradient(135deg,#2563eb,#1d4ed8,#0ea5e9)' : 'linear-gradient(135deg,#d97706,#f59e0b,#fbbf24)' }};">
+                        <div>
+                            <h5 class="modal-title d-flex align-items-center gap-2 mb-1">
+                                <i class="material-symbols-outlined">{{ $examHistoryType === 'typed' ? 'check_box' : 'description' }}</i>
+                                {{ $examHistoryType === 'typed' ? 'آزمون‌های تستی شرکت‌شده' : 'آزمون‌های تشریحی شرکت‌شده' }}
+                            </h5>
+                            <small class="text-white-50">{{ $examHistoryItems->count() }} آزمون</small>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" wire:click="closeExamHistoryModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3 mb-3">
+                            <div class="col-lg-4">
+                                <label class="form-label fw-semibold">ترتیب نمایش</label>
+                                <select wire:model.live="examHistorySort" class="form-select">
+                                    @foreach($examHistorySortOptions as $sortValue => $sortLabel)
+                                        <option value="{{ $sortValue }}">{{ $sortLabel }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            @forelse($examHistoryItems as $item)
+                                <div class="col-md-6">
+                                    <div class="border rounded-4 p-3 h-100 bg-body">
+                                        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                                            <h6 class="mb-0 fw-bold">{{ $item->title }}</h6>
+                                            @if($examHistoryType === 'typed')
+                                                <span class="badge bg-primary-subtle text-primary fw-bold">{{ $item->total }} سوال</span>
+                                            @else
+                                                <span class="badge bg-warning-subtle text-warning fw-bold">
+                                                    {{ $item->percent !== null ? $item->percent.'%' : '-' }}
+                                                    @if($item->max_score)
+                                                        ({{ $item->score }} از {{ $item->max_score }})
+                                                    @endif
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <div class="small text-muted d-flex flex-wrap gap-2 mb-3">
+                                            @if(!empty($item->grade_name))
+                                                <span>پایه {{ $item->grade_name }}</span>
+                                            @endif
+                                            @if(!empty($item->field_name))
+                                                <span>رشته {{ $item->field_name }}</span>
+                                            @endif
+                                            @if(!empty($item->subject_name))
+                                                <span>درس {{ $item->subject_name }}</span>
+                                            @endif
+                                            @if(!empty($item->chapter_name))
+                                                <span>فصل {{ $item->chapter_name }}</span>
+                                            @endif
+                                            @if(!empty($item->topic_name))
+                                                <span>مبحث {{ $item->topic_name }}</span>
+                                            @endif
+                                            @if($item->submitted_at)
+                                                <span>{{ jdate($item->submitted_at)->format('Y/m/d') }}</span>
+                                            @endif
+                                        </div>
+
+                                        @if($examHistoryType === 'typed')
+                                            {{-- دقیقاً هم‌فرمول و هم‌شکل با بخش «کارنامه»ی صفحه‌ی نتیجه‌ی خودِ دانش‌آموز
+                                                 (تا مشاور و دانش‌آموز همیشه یک عدد یکسان و درست ببینند) --}}
+                                            <div class="row g-2 text-center mb-2">
+                                                <div class="col-4">
+                                                    <div class="border rounded-3 p-2 bg-success bg-opacity-10">
+                                                        <div class="fw-bold text-success">{{ $item->correct_count }}</div>
+                                                        <div class="small text-muted" style="font-size:.66rem;">پاسخ صحیح</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="border rounded-3 p-2 bg-danger bg-opacity-10">
+                                                        <div class="fw-bold text-danger">{{ $item->wrong_count }}</div>
+                                                        <div class="small text-muted" style="font-size:.66rem;">پاسخ غلط</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="border rounded-3 p-2 bg-secondary bg-opacity-10">
+                                                        <div class="fw-bold text-secondary">{{ $item->unanswered_count }}</div>
+                                                        <div class="small text-muted" style="font-size:.66rem;">بدون پاسخ</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row g-2">
+                                                <div class="col-6">
+                                                    <div class="rounded-3 border border-success border-opacity-25 bg-success bg-opacity-10 p-2 h-100">
+                                                        <div class="small text-muted" style="font-size:.66rem;">اگر آزمون بدون نمره منفی باشد</div>
+                                                        <div class="fw-bold text-success">{{ number_format($item->score, 1) }}%</div>
+                                                        <div class="small text-muted" style="font-size:.66rem;">{{ $item->correct_count }} پاسخ صحیح از {{ $item->total }} سوال</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="rounded-3 border border-danger border-opacity-25 bg-danger bg-opacity-10 p-2 h-100">
+                                                        <div class="small text-muted" style="font-size:.66rem;">اگر آزمون با نمره منفی باشد</div>
+                                                        <div class="fw-bold text-danger">{{ number_format($item->negative_score, 1) }}%</div>
+                                                        <div class="small text-muted" style="font-size:.63rem;">{{ $item->wrong_count }} غلط ثبت شده و {{ $item->negative_penalty_count }} پاسخ صحیح از امتیاز کم می‌شود.</div>
+                                                        <div class="small text-muted" style="font-size:.63rem;">نتیجه نهایی: {{ $item->negative_correct }} پاسخ صحیح موثر از {{ $item->total }} سوال</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="small">
+                                                <span class="badge {{ $item->status === 'graded' ? 'bg-success-subtle text-success' : 'bg-info-subtle text-info' }}">
+                                                    {{ $item->status === 'graded' ? 'تصحیح شده' : 'ارسال شده' }}
+                                                </span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="col-12">
+                                    <div class="text-center py-5 text-muted border rounded-4 bg-body-tertiary">
+                                        <i class="material-symbols-outlined d-block mb-2" style="font-size:36px;">quiz</i>
+                                        هنوز آزمونی از این نوع توسط دانش‌آموز شرکت نشده است.
+                                    </div>
+                                </div>
+                            @endforelse
+                        </div>
+                        @if($examHistoryType === 'typed' && $examHistoryItems->isNotEmpty())
+                            <div class="alert alert-warning small d-flex align-items-center gap-2 mt-3 mb-0">
+                                <i class="material-symbols-outlined" style="font-size:18px;">info</i>
+                                هر ۳ پاسخ غلط، ۱ پاسخ صحیح را از امتیاز کم می‌کند. سوالات بدون پاسخ، نمره منفی ندارند.
+                            </div>
+                        @endif
+                    </div>
+                    <div class="modal-footer bg-body-tertiary rounded-bottom-4">
+                        <button type="button" class="btn btn-outline-dark" wire:click="closeExamHistoryModal">بستن</button>
                     </div>
                 </div>
             </div>
@@ -3245,6 +3625,8 @@
                 const body = document.body;
                 if (!body) return;
 
+                const isCurrentlyLocked = body.classList.contains('modal-open-custom');
+
                 if (locked) {
                     if (!body.dataset.scrollLockTop) {
                         body.dataset.scrollLockTop = String(window.scrollY || window.pageYOffset || 0);
@@ -3254,6 +3636,10 @@
                     body.style.top = `-${body.dataset.scrollLockTop}px`;
                     return;
                 }
+
+                // اگر قبلاً قفل نبوده، کاری لازم نیست — این‌جا بود که با هر رندر مجدد لایوایر
+                // (حتی وقتی هیچ مودالی هم باز نبوده) صفحه به‌صورت ناخواسته اسکرول می‌شد به بالا.
+                if (!isCurrentlyLocked) return;
 
                 const lockedTop = parseInt(body.dataset.scrollLockTop || '0', 10) || 0;
                 html.classList.remove('modal-open-custom');

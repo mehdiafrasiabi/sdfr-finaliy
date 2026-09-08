@@ -5,9 +5,11 @@ namespace App\Livewire\Client\Parent;
 use App\Models\AdvisingSession;
 use App\Models\DailyReport;
 use App\Models\DailyReportPart;
+use App\Models\EssayExamAssignment;
 use App\Models\ProgramPart;
 use App\Models\Student;
 use App\Models\StudyPartSession;
+use App\Models\TypedExamAssignment;
 use App\Models\WeeklyProgram;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Carbon\Carbon;
@@ -22,6 +24,9 @@ class ParentDashboard extends Component
     public string $studentName = '';
 
     public string $parentRole = '';
+
+    /** فرزندانی که با موبایلِ تاییدشده‌ی همین والد مرتبط‌اند (برای سوییچر چند فرزند). */
+    public array $children = [];
 
     /** نام روزهای هفته (0=شنبه تا 6=جمعه) */
     protected array $weekDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
@@ -41,6 +46,7 @@ class ParentDashboard extends Component
 
         $this->studentName = $auth['student_name'] ?? ($this->student->user?->name ?? 'دانش‌آموز');
         $this->parentRole = $auth['parent_role'] ?? '';
+        $this->children = $auth['children'] ?? [];
 
         $this->seo()->setTitle('پنل والدین');
     }
@@ -49,6 +55,30 @@ class ParentDashboard extends Component
     {
         session()->forget('parent_portal');
         return redirect()->route('client.parent.portal.login');
+    }
+
+    /**
+     * سوییچ بین فرزندان (وقتی یک والد چند فرزند روی پلتفرم دارد).
+     * فقط اجازه‌ی سوییچ به فرزندی داده می‌شود که در فهرستِ تاییدشده‌ی همین نشست (بعد از OTP) باشد —
+     * تا کسی نتواند با دستکاری پارامتر به اطلاعات دانش‌آموزِ دیگری دسترسی پیدا کند.
+     */
+    public function switchChild(int $studentId)
+    {
+        $auth = session('parent_portal');
+        $children = $auth['children'] ?? [];
+
+        $target = collect($children)->first(fn($child) => (int) $child['id'] === $studentId);
+        if (!$target) {
+            return;
+        }
+
+        session()->put('parent_portal', array_merge($auth, [
+            'student_id' => $target['id'],
+            'student_name' => $target['name'],
+            'parent_role' => $target['role'],
+        ]));
+
+        return redirect()->route('client.parent.portal.dashboard');
     }
 
     public function getParentRoleLabelProperty(): string
@@ -119,6 +149,111 @@ class ParentDashboard extends Component
     }
 
     /**
+     * آزمون‌های واقعیِ اختصاص‌داده‌شده (تستی + تشریحی) — بر خلاف «امتحانات این هفته»
+     * (که فقط پارت‌های امتحانیِ برنامه‌ی هفتگی جاری‌اند)، این‌ها آزمون‌های واقعی با
+     * تاریخ/بازه‌ی زمانیِ مشخص و — در صورت برگزاری — نمره هستند. آخرین ۸ مورد
+     * (تستی + تشریحی با هم) بر اساس نزدیک‌ترین بازه‌ی زمانی نمایش داده می‌شود.
+     *
+     * @return array<int, array{type:string, title:string, start_date:?string, start_time:?string, end_date:?string, end_time:?string, status:string, score:?float}>
+     */
+    protected function getRealExams(): array
+    {
+        $now = now();
+
+        $typed = TypedExamAssignment::with(['typedExam', 'time', 'latestAttempt'])
+            ->where('student_id', $this->student->id)
+            ->whereHas('typedExam', fn($q) => $q->where('is_published', true))
+            ->latest()
+            ->limit(10)
+            ->get()
+            ->map(function (TypedExamAssignment $a) use ($now) {
+                $status = 'pending';
+                $sortAt = $a->created_at;
+                if ($a->time) {
+                    $start = Carbon::parse($a->time->start_date->format('Y-m-d') . ' ' . $a->time->start_time);
+                    $end = Carbon::parse($a->time->end_date->format('Y-m-d') . ' ' . $a->time->end_time);
+                    $sortAt = $start;
+                    if ($now->lt($start)) {
+                        $status = 'not_started';
+                    } elseif ($now->gt($end)) {
+                        $status = 'expired';
+                    } else {
+                        $status = 'available';
+                    }
+                }
+                if ($a->latestAttempt?->is_finished) {
+                    $status = 'completed';
+                }
+
+                return [
+                    'type' => 'typed',
+                    'title' => $a->typedExam->title ?? 'آزمون تستی',
+                    'start_date' => $a->time ? jdate($a->time->start_date)->format('Y/m/d') : null,
+                    'start_time' => $a->time->start_time ?? null,
+                    'end_date' => $a->time ? jdate($a->time->end_date)->format('Y/m/d') : null,
+                    'end_time' => $a->time->end_time ?? null,
+                    'status' => $status,
+                    'score' => $status === 'completed' ? $a->latestAttempt?->score : null,
+                    'sort_at' => $sortAt,
+                ];
+            });
+
+        $essay = EssayExamAssignment::with(['essayExam', 'time'])
+            ->where('student_id', $this->student->id)
+            ->latest()
+            ->limit(10)
+            ->get()
+            ->map(function (EssayExamAssignment $a) use ($now) {
+                $status = 'pending';
+                $sortAt = $a->created_at;
+                if ($a->time) {
+                    $sortAt = $a->time->start_at;
+                    if ($now->lt($a->time->start_at)) {
+                        $status = 'not_started';
+                    } elseif ($now->gt($a->time->end_at)) {
+                        $status = 'expired';
+                    } else {
+                        $status = 'available';
+                    }
+                }
+                if (in_array($a->status, [EssayExamAssignment::STATUS_SUBMITTED, EssayExamAssignment::STATUS_GRADED], true)) {
+                    $status = $a->status === EssayExamAssignment::STATUS_GRADED ? 'completed' : 'submitted';
+                }
+
+                return [
+                    'type' => 'essay',
+                    'title' => $a->essayExam->title ?? 'آزمون تشریحی',
+                    'start_date' => $a->time ? jdate($a->time->start_at)->format('Y/m/d') : null,
+                    'start_time' => $a->time?->start_at?->format('H:i'),
+                    'end_date' => $a->time ? jdate($a->time->end_at)->format('Y/m/d') : null,
+                    'end_time' => $a->time?->end_at?->format('H:i'),
+                    'status' => $status,
+                    'score' => null, // نمره‌ی تشریحی نیازمند تصحیح دستی است؛ فعلاً فقط وضعیت نمایش داده می‌شود.
+                    'sort_at' => $sortAt,
+                ];
+            });
+
+        return $typed->concat($essay)
+            ->sortByDesc('sort_at')
+            ->take(8)
+            ->map(fn($row) => collect($row)->except('sort_at')->all())
+            ->values()
+            ->all();
+    }
+
+    public function examStatusLabel(string $status): string
+    {
+        return match ($status) {
+            'not_started' => 'هنوز شروع نشده',
+            'available' => 'در بازه برگزاری',
+            'completed' => 'برگزار شده',
+            'submitted' => 'ارسال‌شده (در انتظار تصحیح)',
+            'expired' => 'منقضی‌شده',
+            default => 'زمان‌بندی نشده',
+        };
+    }
+
+    /**
      * تبدیل پارت برنامه به آرایه نمایش برای لیست‌ها (امتحان/پرسش‌وپاسخ/تکلیف)
      */
     protected function partToRow(ProgramPart $part, array $secondsMap): array
@@ -150,6 +285,8 @@ class ParentDashboard extends Component
             'location' => $session->location_label,
         ] : null;
 
+        $realExams = $this->getRealExams();
+
         $data = [
             'has_program' => false,
             'week_range' => null,
@@ -160,6 +297,7 @@ class ParentDashboard extends Component
             'exams' => [],
             'qa' => [],
             'homework' => [],
+            'real_exams' => $realExams,
         ];
 
         if ($program) {
@@ -243,6 +381,7 @@ class ParentDashboard extends Component
                 'exams' => $examParts->map(fn($p) => $this->partToRow($p, $secondsMap))->values()->all(),
                 'qa' => $qaParts->map(fn($p) => $this->partToRow($p, $secondsMap))->values()->all(),
                 'homework' => $homeworkParts->map(fn($p) => $this->partToRow($p, $secondsMap))->values()->all(),
+                'real_exams' => $realExams,
             ];
         }
 

@@ -329,29 +329,22 @@ class TypedExamResult extends Component
     {
         $exam = $this->attempt->assignment->typedExam;
         $questionsWithAnswers = $this->buildQuestionAnswerData($exam);
-        // نکته مهم: Collection::where() مقایسه شل (==) انجام می‌دهد و در PHP مقدار null == false برابر true است؛
-        // پس اگر اینجا از where('is_correct', false) استفاده شود، سوالاتِ بدون‌پاسخ (is_correct === null)
-        // هم به اشتباه در تعداد غلط‌ها شمرده می‌شوند. باید حتماً مقایسه دقیق (strict) انجام شود.
-        $correctCount = $questionsWithAnswers->whereStrict('is_correct', true)->count();
-        $wrongCount = $questionsWithAnswers->whereStrict('is_correct', false)->count();
-        $unansweredCount = $questionsWithAnswers->where('selected_option', null)->count();
-        $totalQuestions = $questionsWithAnswers->count();
-        $score = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 100, 2) : 0;
-        $negativePenaltyCount = intdiv($wrongCount, 3);
-        $negativeCorrectCount = max($correctCount - $negativePenaltyCount, 0);
-        $negativeScore = $totalQuestions > 0 ? round(($negativeCorrectCount / $totalQuestions) * 100, 2) : 0;
+
+        // منبعِ واحدِ محاسبه‌ی آمار (صحیح/غلط/بدون‌پاسخ/درصد/نمره منفی): همین متد روی مدل، تا این
+        // صفحه و بخشِ «آزمون‌های قبلاً شرکت‌شده»ی پنل مشاور همیشه دقیقاً همان عدد را نشان دهند.
+        $resultStats = $this->attempt->computeResultStats();
 
         $stats = [
-            'score' => $score,
-            'correct' => $correctCount,
-            'wrong' => $wrongCount,
-            'unanswered' => $unansweredCount,
-            'negative_penalty_count' => $negativePenaltyCount,
-            'negative_correct' => $negativeCorrectCount,
-            'negative_score' => $negativeScore,
+            'score' => $resultStats['score'],
+            'correct' => $resultStats['correct'],
+            'wrong' => $resultStats['wrong'],
+            'unanswered' => $resultStats['unanswered'],
+            'negative_penalty_count' => $resultStats['negative_penalty_count'],
+            'negative_correct' => $resultStats['negative_correct'],
+            'negative_score' => $resultStats['negative_score'],
             'duration' => $this->attempt->formatted_duration,
             'duration_seconds' => $this->attempt->duration_in_seconds,
-            'total' => $totalQuestions,
+            'total' => $resultStats['total'],
             'started_at' => $this->attempt->started_at,
             'submitted_at' => $this->attempt->submitted_at,
         ];

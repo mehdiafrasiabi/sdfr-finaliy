@@ -7,7 +7,6 @@ use App\Models\AdvisingPreSession;
 use App\Models\AdvisingPreSessionExam;
 use App\Models\AdvisingPreSessionAssignment;
 use App\Models\AdvisingPreSessionQa;
-use App\Models\AdvisingPreSessionMisc;
 use App\Models\AdvisingPreSessionRequestedPart;
 use App\Models\Student;
 use App\Models\CcGrade;
@@ -31,15 +30,21 @@ class PreSessionWizard extends Component
     /**
      * اگر دانش‌آموز مدرسه نمی‌رود یا فارغ‌التحصیل است، بخش‌های مدرسه‌ای
      * (امتحانات، پرسش و پاسخ کلاسی، تکالیف) قفل می‌شوند و فقط
-     * «پارت درخواستی» و «متفرقه» قابل ثبت هستند.
+     * «پارت درخواستی» قابل ثبت است.
      */
     public bool $schoolLocked = false;
 
     // ─── حل مشکل پریدن مودال: openCard در Livewire نگه داشته میشه ───
     public $openCard = '';
 
+    /**
+     * وقتی مودال با دکمه‌ی «چشم» (نمایش سریع) باز شده باشه، فرم افزودن/ویرایش
+     * و دکمه‌های حذف مخفی می‌مونن و فقط موارد ثبت‌شده نمایش داده می‌شن.
+     */
+    public bool $viewOnly = false;
+
     public $currentStep = 1;
-    public $totalSteps  = 6;
+    public $totalSteps  = 5;
 
     public $availableSubjects     = [];
     public $availableChapters     = [];
@@ -81,10 +86,7 @@ class PreSessionWizard extends Component
         'due_date'      => '',
     ];
 
-    // ─── مرحله ۴: متفرقه ───
-    public $miscDescription = '';
-
-    // ─── مرحله ۵: پارت درخواستی ───
+    // ─── مرحله ۴: پارت درخواستی ───
     public $requestedParts    = [];
     public $requestedPartForm = [
         'subject'       => '',
@@ -176,18 +178,20 @@ class PreSessionWizard extends Component
     private const SCHOOL_CARDS = ['exams', 'qas', 'assignments'];
 
     // ─── باز / بسته کردن مودال از سرور ───
-    public function openModal(string $card): void
+    public function openModal(string $card, bool $viewOnly = false): void
     {
         if ($this->schoolLocked && in_array($card, self::SCHOOL_CARDS, true)) {
             $this->dispatch('warning', 'چون مدرسه نمی‌روی، این بخش برای تو غیرفعال است.');
             return;
         }
+        $this->viewOnly = $viewOnly;
         $this->openCard = $card;
     }
 
     public function closeModal(): void
     {
         $this->openCard = '';
+        $this->viewOnly = false;
     }
 
     protected function loadStudentSubjects(AdvisingSession $session): void
@@ -356,8 +360,6 @@ class PreSessionWizard extends Component
         $this->qas            = $this->preSession->qas()->get()->toArray();
         $this->assignments    = $this->preSession->assignments()->get()->toArray();
         $this->requestedParts = $this->preSession->requestedParts()->get()->toArray();
-        $misc = $this->preSession->miscellaneous;
-        $this->miscDescription = $misc ? $misc->description : '';
     }
 
     public function nextStep(): void
@@ -596,25 +598,11 @@ class PreSessionWizard extends Component
         $this->requestedPartChapters = [];
     }
 
-    // ════════ مرحله ۴: متفرقه ════════
-
-    public function saveMiscellaneous(): void
-    {
-        if (!$this->canEdit) { $this->dispatch('warning', 'امکان ویرایش وجود ندارد.'); return; }
-        AdvisingPreSessionMisc::updateOrCreate(
-            ['pre_session_id' => $this->preSession->id],
-            ['description'    => $this->miscDescription]
-        );
-        $this->closeModal();
-        $this->dispatch('success', 'توضیحات متفرقه ذخیره شد.');
-    }
-
     // ════════ ثبت نهایی ════════
 
     public function finalSubmit(\App\Services\TrialWeekService $trialService): void
     {
         if (!$this->canEdit) { $this->dispatch('warning', 'امکان ثبت وجود ندارد.'); return; }
-        if ($this->miscDescription) $this->saveMiscellaneous();
         $this->preSession->update(['status' => 'completed']);
         $this->dispatch('success', 'پیش‌جلسه با موفقیت ثبت شد.');
 
@@ -688,8 +676,7 @@ class PreSessionWizard extends Component
             2 => 'پرسش و پاسخ کلاسی',
             3 => 'تکالیف',
             4 => 'پارت درخواستی',
-            5 => 'متفرقه',
-            6 => 'نمایش نهایی',
+            5 => 'نمایش نهایی',
         ];
 
         return view('livewire.client.profile.consultation.pre-session-wizard', [

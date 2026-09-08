@@ -22,6 +22,48 @@
         }
         .spinner-sm { width: 1rem; height: 1rem; border-width: 2px; }
         @keyframes jdp-spin { to { transform: rotate(360deg); } }
+
+        /* ═══ OTP segmented input ═══ */
+        .otp-slot {
+            width: 2.75rem;
+            height: 3.25rem;
+            text-align: center;
+            caret-color: hsl(var(--primary));
+        }
+        @media (min-width: 400px) {
+            .otp-slot { width: 3rem; height: 3.5rem; }
+        }
+        .otp-slot.is-filled {
+            background: hsl(var(--secondary));
+            border-color: hsl(var(--primary) / 0.5);
+        }
+        .otp-slot.is-error {
+            border-color: hsl(0 84% 60%) !important;
+            color: hsl(0 84% 60%);
+            box-shadow: 0 0 0 3px hsl(0 84% 60% / 0.15) !important;
+        }
+        .otp-slot.is-success {
+            border-color: hsl(152 69% 40%) !important;
+            color: hsl(152 69% 40%);
+            box-shadow: 0 0 0 3px hsl(152 69% 40% / 0.15) !important;
+        }
+        @keyframes otp-pop {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.12); }
+            100% { transform: scale(1); }
+        }
+        .otp-slot.is-pop { animation: otp-pop 0.18s ease-out; }
+
+        @keyframes otp-shake-edit {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake { animation: otp-shake-edit 0.4s ease; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .otp-slot, .shake { animation: none !important; transition: none !important; }
+        }
     </style>
     @endassets
 
@@ -415,33 +457,69 @@
                                 <span class="text-sm text-blue-600 dark:text-blue-300">کد تایید به شماره موبایل شما ارسال خواهد شد</span>
                             </div>
 
-                            <div class="space-y-2">
-                                <label class="font-semibold text-xs text-foreground">کد تایید</label>
-                                <div class="flex gap-2 flex-wrap sm:flex-nowrap">
-                                    <input type="text" inputmode="numeric" dir="ltr" wire:model.live="otp_code" placeholder="کد ۶ رقمی" maxlength="6"
-                                           :disabled="$wire.otp_verified"
-                                           class="flex-1 min-w-0 h-12 !ring-0 bg-secondary border border-border focus:border-primary rounded-xl text-sm text-foreground px-4 transition-all outline-none disabled:opacity-50 text-center tracking-widest font-mono">
-
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between gap-3 flex-wrap">
+                                    <label class="font-semibold text-xs text-foreground">کد تایید</label>
                                     <button type="button" wire:click="sendOtp" wire:loading.attr="disabled" wire:target="sendOtp" x-show="!$wire.otp_verified && countdown === 0"
-                                            class="h-12 px-5 bg-primary hover:bg-primary/90 text-white rounded-xl text-sm font-semibold transition-all whitespace-nowrap disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[110px]">
+                                            class="h-10 px-5 bg-primary hover:bg-primary/90 text-white rounded-xl text-sm font-semibold transition-all whitespace-nowrap disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[110px]">
                                         <span wire:loading.remove wire:target="sendOtp">ارسال کد</span>
                                         <span wire:loading wire:target="sendOtp" class="spinner-circle text-white"></span>
                                     </button>
                                 </div>
 
-                                <div x-show="!$wire.otp_verified && countdown > 0" x-cloak class="text-xs text-muted">
+                                {{-- ═══ Segmented OTP input ═══ --}}
+                                <div class="relative"
+                                     x-data="otpInput({ length: 6, hasServerError: @js($errors->has('otp_code')), autoSubmit: false })"
+                                     x-init="init()"
+                                     @otp-cleared.window="reset()"
+                                     @otp-error.window="triggerError()"
+                                     @otp-success.window="triggerSuccess()">
+
+                                    <input type="hidden" wire:model.live="otp_code" x-ref="hidden">
+
+                                    <div class="flex items-center justify-center gap-2 sm:gap-2.5" dir="ltr"
+                                         :class="{ 'shake': status === 'error' }">
+                                        <template x-for="(digit, index) in digits" :key="index">
+                                            <input
+                                                type="text"
+                                                inputmode="numeric"
+                                                autocomplete="one-time-code"
+                                                maxlength="1"
+                                                data-otp-slot
+                                                :value="digits[index]"
+                                                :disabled="$wire.otp_verified"
+                                                :aria-label="'رقم ' + (index + 1) + ' از ' + length"
+                                                wire:loading.attr="disabled"
+                                                wire:target="otp_code, verifyOtp"
+                                                @input="handleInput($event, index)"
+                                                @keydown="handleKeydown($event, index)"
+                                                @paste="handlePaste($event)"
+                                                @focus="$event.target.select()"
+                                                class="otp-slot glass-input rounded-xl text-xl sm:text-2xl font-bold font-mono disabled:opacity-50"
+                                                :class="{
+                                                    'is-filled': digit !== '' && status === 'idle',
+                                                    'is-error': status === 'error',
+                                                    'is-success': status === 'success',
+                                                    'is-pop': poppedIndex === index
+                                                }"
+                                            >
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <div x-show="!$wire.otp_verified && countdown > 0" x-cloak class="text-xs text-muted text-center">
                                     ارسال مجدد تا <span class="font-mono text-primary" x-text="countdown"></span> ثانیه
                                 </div>
 
                                 {{-- کد به محض کامل شدن ۶ رقم خودکار بررسی می‌شود --}}
-                                <div wire:loading wire:target="otp_code, verifyOtp" x-show="!$wire.otp_verified" class="inline-flex items-center gap-2 text-xs text-muted mt-1">
+                                <div wire:loading wire:target="otp_code, verifyOtp" x-show="!$wire.otp_verified" class="inline-flex items-center gap-2 text-xs text-muted mt-1 justify-center w-full">
                                     <span class="spinner-circle spinner-sm text-primary"></span>
                                     <span>در حال بررسی کد...</span>
                                 </div>
 
-                                @error('otp_code')<div class="font-medium text-xs text-red-500">{{ $message }}</div>@enderror
+                                @error('otp_code')<div class="font-medium text-xs text-red-500 text-center">{{ $message }}</div>@enderror
 
-                                <div x-show="$wire.otp_verified" class="inline-flex items-center gap-2 text-xs text-emerald-500 mt-1">
+                                <div x-show="$wire.otp_verified" class="inline-flex items-center gap-2 text-xs text-emerald-500 mt-1 justify-center w-full">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                     </svg>
@@ -492,6 +570,154 @@
 
 @push('script')
     <script>
+        function otpInput(config) {
+            return {
+                length: config.length || 6,
+                digits: Array(config.length || 6).fill(''),
+                status: 'idle', // idle | error | success
+                hasServerError: config.hasServerError || false,
+                autoSubmit: config.autoSubmit !== false,
+                poppedIndex: -1,
+
+                get code() {
+                    return this.digits.join('');
+                },
+
+                init() {
+                    if (this.hasServerError) {
+                        this.triggerError();
+                    }
+                    this.$nextTick(() => this.focusSlot(0));
+                },
+
+                toEnglishDigits(str) {
+                    return str
+                        .replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+                        .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+                },
+
+                sync() {
+                    this.$refs.hidden.value = this.code;
+                    this.$refs.hidden.dispatchEvent(new Event('input'));
+                },
+
+                pop(index) {
+                    this.poppedIndex = index;
+                    setTimeout(() => {
+                        if (this.poppedIndex === index) this.poppedIndex = -1;
+                    }, 180);
+                },
+
+                maybeSubmit() {
+                    if (!this.autoSubmit) return;
+                    if (this.status !== 'idle') return;
+                    if (this.digits.every((d) => d !== '')) {
+                        this.$nextTick(() => this.$wire.call('verifyOtp'));
+                    }
+                },
+
+                applySequence(seq, startIndex) {
+                    const chars = seq.split('');
+                    for (let i = 0; i < chars.length && (startIndex + i) < this.length; i++) {
+                        this.digits[startIndex + i] = chars[i];
+                    }
+                    this.sync();
+                    this.pop(Math.min(startIndex + chars.length - 1, this.length - 1));
+                    const nextIndex = Math.min(startIndex + chars.length, this.length - 1);
+                    this.focusSlot(nextIndex);
+                    this.maybeSubmit();
+                },
+
+                handleInput(e, index) {
+                    if (this.status === 'error') this.status = 'idle';
+
+                    let val = this.toEnglishDigits(e.target.value).replace(/[^0-9]/g, '');
+
+                    if (val.length > 1) {
+                        e.target.value = this.digits[index] || '';
+                        this.applySequence(val, index);
+                        return;
+                    }
+
+                    this.digits[index] = val;
+                    e.target.value = val;
+                    this.sync();
+
+                    if (val) {
+                        this.pop(index);
+                        if (index < this.length - 1) this.focusSlot(index + 1);
+                    }
+
+                    this.maybeSubmit();
+                },
+
+                handleKeydown(e, index) {
+                    if (e.key === 'Backspace') {
+                        e.preventDefault();
+                        if (this.status === 'error') this.status = 'idle';
+                        if (this.digits[index]) {
+                            this.digits[index] = '';
+                            this.sync();
+                        } else if (index > 0) {
+                            this.digits[index - 1] = '';
+                            this.sync();
+                            this.focusSlot(index - 1);
+                        }
+                    } else if (e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        if (index > 0) this.focusSlot(index - 1);
+                    } else if (e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        if (index < this.length - 1) this.focusSlot(index + 1);
+                    } else if (e.key === 'Home') {
+                        e.preventDefault();
+                        this.focusSlot(0);
+                    } else if (e.key === 'End') {
+                        e.preventDefault();
+                        this.focusSlot(this.length - 1);
+                    }
+                },
+
+                handlePaste(e) {
+                    e.preventDefault();
+                    const pasted = (e.clipboardData || window.clipboardData).getData('text');
+                    const cleaned = this.toEnglishDigits(pasted).replace(/[^0-9]/g, '').slice(0, this.length);
+                    if (!cleaned) return;
+                    if (this.status === 'error') this.status = 'idle';
+                    this.digits = Array(this.length).fill('');
+                    this.applySequence(cleaned, 0);
+                },
+
+                focusSlot(i) {
+                    this.$nextTick(() => {
+                        const el = this.$root.querySelectorAll('[data-otp-slot]')[i];
+                        if (el) el.focus();
+                    });
+                },
+
+                reset() {
+                    this.digits = Array(this.length).fill('');
+                    this.status = 'idle';
+                    this.sync();
+                    this.focusSlot(0);
+                },
+
+                triggerError() {
+                    this.status = 'error';
+                    setTimeout(() => {
+                        this.digits = Array(this.length).fill('');
+                        this.status = 'idle';
+                        this.sync();
+                        this.focusSlot(0);
+                    }, 550);
+                },
+
+                triggerSuccess() {
+                    this.status = 'success';
+                }
+            };
+        }
+
         function profileOtpForm() {
             return {
                 countdown: 0,

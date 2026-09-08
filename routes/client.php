@@ -24,7 +24,6 @@ use App\Livewire\Client\Profile\Financial as ProfileFinancial;
 use App\Livewire\Client\Profile\Notification as ProfileNotification;
 use App\Livewire\Client\Profile\Report as ProfileReport;
 use App\Livewire\Client\Profile\ReportStudentStudy as ProfileReportStudentStudy;
-use App\Livewire\Client\Profile\Ticket\Create as ProfileTicketCreate;
 use App\Livewire\Client\Profile\Ticket\Index as ProfileTicketIndex;
 use App\Livewire\Client\Profile\Ticket\Show as ProfileTicketShow;
 use App\Livewire\Client\Profile\Assessment\AssessmentList;
@@ -133,7 +132,6 @@ Route::name('client.')->group(function () {
 //          Ticketing Route
             Route::get('/ticket',ProfileTicketIndex::class)->name('ticket');
             Route::get('/ticket/{ticket}/show',ProfileTicketShow::class)->name('ticket.show');
-            Route::get('/ticket-create',ProfileTicketCreate::class)->name('ticket.create');
 
             // نوتیفیکیشن
             Route::get('/notification',ProfileNotification::class)->name('notification');

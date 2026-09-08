@@ -772,11 +772,23 @@
 
                             @if(!$missed['has_study'])
 
-                                <div class="flex items-center gap-2 mb-2">
-                                    <svg class="w-4 h-4 text-red-500 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
-                                    </svg>
-                                    <span class="text-[10px] sm:text-xs text-red-600 dark:text-red-400 font-semibold">ساعت مطالعه ثبت نشده — ابتدا از بخش «ثبت ساعت مطالعه» اقدام کنید</span>
+                                <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-red-500 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-[10px] sm:text-xs text-red-600 dark:text-red-400 font-semibold">ساعت مطالعه این پارت هنوز ثبت نشده</span>
+                                    </div>
+                                    @if($currentProgram)
+                                        <a href="{{ route('client.profile.consultation.weekly-program', ['program' => $currentProgram->id, 'focus_part' => $missed['part']->id]) }}"
+                                           wire:navigate
+                                           class="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-amber-500 text-white text-[11px] sm:text-xs font-bold px-3 py-1.5 hover:bg-amber-600 active:scale-95 transition-all duration-150">
+                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z"/>
+                                            </svg>
+                                            شروع و ثبت ساعت مطالعه
+                                        </a>
+                                    @endif
                                 </div>
                             @endif
 

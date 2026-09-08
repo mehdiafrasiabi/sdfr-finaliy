@@ -197,12 +197,17 @@ class Edit extends Component
         $this->showForgotPassword = !$this->showForgotPassword;
         $this->reset(['otp_code', 'forgot_new_password', 'forgot_new_password_confirmation', 'otp_verified', 'countdown']);
         $this->resetErrorBag();
+        $this->dispatch('otp-cleared');
     }
     /**
      * ارسال کد OTP
      */
     public function sendOtp()
     {
+        $this->otp_code = '';
+        $this->otp_verified = false;
+        $this->dispatch('otp-cleared');
+
         $user = Auth::user();
         if (!$user->mobile) {
             $this->addError('otp_code', 'شماره موبایل در حساب کاربری ثبت نشده است.');
@@ -285,6 +290,7 @@ class Edit extends Component
         if (! $otp) {
             $this->addError('otp_code', 'کد تایید صحیح نیست.');
             $this->dispatch('warning',"کد تایید صحیح نیست.");
+            $this->dispatch('otp-error');
             return;
         }
 
@@ -292,6 +298,7 @@ class Edit extends Component
             $this->countdown = 0;
             $this->addError('otp_code', 'کد تایید منقضی شده است. لطفاً کد جدید دریافت کنید.');
             $this->dispatch('warning',"کد تایید منقضی شده است. لطفاً کد جدید دریافت کنید.");
+            $this->dispatch('otp-error');
             return;
         }
 
@@ -303,11 +310,13 @@ class Edit extends Component
         if (! $markedAsUsed) {
             $this->addError('otp_code', 'این کد قبلاً استفاده شده است. دوباره کد جدید بگیرید.');
             $this->dispatch('warning',"این کد قبلاً استفاده شده است. دوباره کد جدید بگیرید.");
+            $this->dispatch('otp-error');
             return;
         }
 
         $this->otp_verified = true;
         session()->flash('otp_verified', 'کد تایید با موفقیت تایید شد.');
+        $this->dispatch('otp-success');
         $this->dispatch('success',"کد تایید با موفقیت تایید شد.");
     }
 

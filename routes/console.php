@@ -251,3 +251,4 @@ Artisan::command('trial-week:convert-exam-users-to-trial {--user= : Convert only
 
 Schedule::command('advising-sessions:mark-advisor-absent')->everyFiveMinutes();
 Schedule::command('sms:send-lifecycle-notifications')->hourly()->withoutOverlapping();
+

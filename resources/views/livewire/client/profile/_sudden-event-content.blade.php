@@ -67,6 +67,18 @@
             </div>
         @endif
 
+        {{-- بنرِ خطا/هشدارِ همین مرحله — همیشه داخل خودِ مودال نمایش داده می‌شود، هیچ‌وقت مودال را نمی‌بندد --}}
+        @if(!empty($stepError))
+            <div class="rounded-xl bg-red-500/10 ring-1 ring-red-500/30 px-3 py-2.5 mb-4 flex items-start gap-2">
+                <svg class="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 8v4M12 16h.01"/>
+                </svg>
+                <span class="text-[12.5px] text-red-200 flex-1 leading-relaxed">{{ $stepError }}</span>
+                <button type="button" wire:click="clearStepError" class="text-red-300 hover:text-white shrink-0">✕</button>
+            </div>
+        @endif
+
         {{-- ░░░ مرحله ۰: هشدار ░░░ --}}
         @if($step === 0)
             <div class="rounded-2xl bg-red-500/10 ring-1 ring-red-500/30 p-4 mb-5">
@@ -139,12 +151,12 @@
             </div>
         @endif
 
-        {{-- ░░░ مرحله ۳: کتاب و فصل ░░░ --}}
+        {{-- ░░░ مرحله ۳: انتخاب دروس و فصل‌ها (چندتایی) ░░░ --}}
         @if($step === 3)
-            <p class="text-[13px] text-neutral-300 mb-2 font-semibold">کتاب (درس)</p>
+            <p class="text-[13px] text-neutral-300 mb-2 font-semibold">درس (کتاب) را انتخاب کن</p>
             <x-ui.select
-                wire:model.live="ccSubjectId"
-                wire:key="se-subject"
+                wire:model.live="pendingSubjectId"
+                wire:key="se-pending-subject"
                 :options="$availableSubjects"
                 value-key="id" label-key="name"
                 placeholder="انتخاب کتاب..."
@@ -152,130 +164,130 @@
                 :drop-up="true"
             />
 
-            <p class="text-[13px] text-neutral-300 mb-2 mt-4 font-semibold">فصل</p>
-            <x-ui.select
-                wire:model.live="ccChapterId"
-                wire:key="se-chapter-{{ $ccSubjectId }}"
-                :options="$availableChapters"
-                value-key="id" label-key="name"
-                placeholder="ابتدا کتاب را انتخاب کن..."
-                :searchable="true" search-placeholder="جستجوی فصل..."
-                :disabled="empty($availableChapters)"
-                :drop-up="true"
-            />
+            <p class="text-[13px] text-neutral-300 mb-2 mt-4 font-semibold">فصل(های) این درس را انتخاب کن (چند‌انتخابی)</p>
+            @if(empty($availableChapters))
+                <div class="rounded-xl bg-white/5 ring-1 ring-white/10 px-3 py-3 text-center text-[12px] text-neutral-500">
+                    ابتدا درس را از بالا انتخاب کن.
+                </div>
+            @else
+                <div class="flex flex-wrap gap-2">
+                    @foreach($availableChapters as $c)
+                        @php $chosen = in_array((int) $c['id'], $pendingChapterIds, true); @endphp
+                        <button type="button" wire:click="toggleChapterSelection({{ $c['id'] }})"
+                                wire:key="pending-chapter-{{ $c['id'] }}"
+                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12.5px] font-semibold transition
+                                {{ $chosen ? 'bg-sky-500 text-white ring-1 ring-sky-300' : 'bg-white/5 text-neutral-300 ring-1 ring-white/10 hover:bg-white/10' }}">
+                            <span class="w-4 h-4 rounded border flex items-center justify-center shrink-0 {{ $chosen ? 'bg-white/20 border-white/40' : 'border-white/25' }}">
+                                @if($chosen)
+                                    <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                                @endif
+                            </span>
+                            {{ $c['name'] }}
+                        </button>
+                    @endforeach
+                </div>
+            @endif
+
+            <button type="button" wire:click="addLessonSelection"
+                    class="w-full mt-3 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 ring-1 ring-white/15 text-white text-[13px] font-bold transition flex items-center justify-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                </svg>
+                افزودن این درس، و انتخاب درسِ دیگر
+            </button>
+
+            {{-- فهرست دروس/فصل‌های اضافه‌شده تا این لحظه --}}
+            <div class="mt-4">
+                @if(!empty($selections))
+                    <p class="text-[11px] text-neutral-500 mb-2">دروس انتخاب‌شده:</p>
+                    <div class="space-y-2.5 max-h-52 overflow-auto">
+                        @foreach($selections as $si => $sel)
+                            <div class="rounded-xl bg-white/5 ring-1 ring-white/10 p-3">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[13px] font-bold text-white">{{ $sel['subject_name'] }}</span>
+                                    <button type="button" wire:click="removeLessonSelection({{ $si }})"
+                                            class="text-red-400 hover:text-red-300 text-[11px] font-semibold">حذف درس</button>
+                                </div>
+                                <div class="flex flex-wrap gap-1.5">
+                                    @foreach($sel['chapters'] as $ci => $ch)
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-500/15 ring-1 ring-sky-400/30 text-[11px] text-sky-200">
+                                            {{ $ch['chapter_name'] }}
+                                            <button type="button" wire:click="removeChapterSelection({{ $si }}, {{ $ci }})" class="text-sky-300 hover:text-white leading-none">✕</button>
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-[11px] text-neutral-500 text-center py-2">هنوز درسی اضافه نکرده‌ای؛ حداقل یک فصل باید انتخاب شود.</p>
+                @endif
+            </div>
 
             <div class="flex items-center gap-2 mt-5">
                 <button type="button" wire:click="goToStep(2)"
                         class="px-4 py-2.5 rounded-xl bg-white/5 ring-1 ring-white/10 text-neutral-300 text-sm font-semibold hover:bg-white/10 transition">بازگشت</button>
-                <button type="button" wire:click="nextFromSubject"
+                <button type="button" wire:click="nextFromLessons"
                         class="flex-1 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-sm transition">ادامه</button>
             </div>
         @endif
 
-        {{-- ░░░ مرحله ۴: تعداد پارت و ساعت/دقیقه ░░░ --}}
+        {{-- ░░░ مرحله ۴: تعداد پارت و مدت هر فصل ░░░ --}}
         @if($step === 4)
-            <p class="text-[13px] text-neutral-300 mb-3 font-semibold">چند پارت و با چه مدتی؟</p>
+            <p class="text-[13px] text-neutral-300 mb-1 font-semibold">برای هر فصل، تعداد پارت و مدتش را مشخص کن</p>
+            <p class="text-[11px] text-neutral-500 mb-3">مدت هر پارت را با چرخاندنِ ستون‌های ساعت/دقیقه (مثل تایمر گوشی) تنظیم کن؛ حداقل {{ $minPartMinutes }} دقیقه.</p>
 
-            <div x-data="{
-                partCount: @entangle('partCount').live,
-                hours: @entangle('hours').live,
-                minutes: @entangle('minutes').live,
-                get totalMinutes() { return (parseInt(this.hours) || 0) * 60 + (parseInt(this.minutes) || 0); },
-                get totalMinutesAll() { return this.totalMinutes * (parseInt(this.partCount) || 0); },
-                get isValid() { return this.totalMinutes >= {{ $minPartMinutes }}; },
-                fmt(mins) {
-                    mins = Math.max(0, parseInt(mins) || 0);
-                    if (mins === 0) return '۰ دقیقه';
-                    const h = Math.floor(mins / 60);
-                    const m = mins % 60;
-                    if (h > 0 && m > 0) return h + ' ساعت و ' + m + ' دقیقه';
-                    if (h > 0) return h + ' ساعت';
-                    return m + ' دقیقه';
-                },
-                incHours()  { this.hours = Math.min(12, (parseInt(this.hours)||0) + 1); },
-                decHours()  { this.hours = Math.max(0,  (parseInt(this.hours)||0) - 1); },
-                incMinutes(){ this.minutes = Math.min(55, (parseInt(this.minutes)||0) + 5); },
-                decMinutes(){ this.minutes = Math.max(0,  (parseInt(this.minutes)||0) - 5); },
-                incCount()  { this.partCount = Math.min(20, (parseInt(this.partCount)||1) + 1); },
-                decCount()  { this.partCount = Math.max(1,  (parseInt(this.partCount)||1) - 1); },
-            }">
+            <div class="space-y-3 max-h-[380px] overflow-auto -mx-1 px-1">
+                @foreach($selections as $si => $sel)
+                    <div class="rounded-2xl bg-white/5 ring-1 ring-white/10 p-3">
+                        <p class="text-[12.5px] font-bold text-white mb-2.5">{{ $sel['subject_name'] }}</p>
 
-                <div class="space-y-3">
-                    {{-- تعداد پارت --}}
-                    <div class="bg-white/5 ring-1 ring-white/10 rounded-xl px-3 py-3">
-                        <div class="flex items-center justify-between gap-3">
-                            <span class="text-[13px] text-neutral-300 font-semibold">تعداد پارت</span>
-                            <div class="flex items-center gap-2">
-                                <button type="button" @click="decCount()"
-                                        class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-base flex items-center justify-center transition">−</button>
-                                <input type="number" min="1" max="20" x-model.number="partCount"
-                                       class="w-16 bg-white/10 border border-white/15 rounded-lg px-2 py-1.5 text-center text-white text-sm font-bold focus:border-sky-400 focus:outline-none"
-                                       style="direction:ltr;">
-                                <button type="button" @click="incCount()"
-                                        class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-base flex items-center justify-center transition">+</button>
-                            </div>
+                        <div class="space-y-3">
+                            @foreach($sel['chapters'] as $ci => $ch)
+                                @php
+                                    $chapterTotal = ((int) $ch['hours']) * 60 + (int) $ch['minutes'];
+                                    $chapterValid = $chapterTotal >= $minPartMinutes;
+                                @endphp
+                                <div
+                                    wire:key="se-chapter-timing-{{ $si }}-{{ $ci }}"
+                                    class="rounded-xl bg-black/20 ring-1 ring-white/10 p-3"
+                                    x-data="{
+                                        partCount: @entangle('selections.' . $si . '.chapters.' . $ci . '.part_count').live,
+                                        incCount(){ this.partCount = Math.min(20, (parseInt(this.partCount)||1) + 1); },
+                                        decCount(){ this.partCount = Math.max(1,  (parseInt(this.partCount)||1) - 1); },
+                                    }"
+                                >
+                                    <div class="flex items-center justify-between gap-3 mb-3">
+                                        <span class="text-[12px] text-neutral-300 font-semibold truncate">{{ $ch['chapter_name'] }}</span>
+                                        <div class="flex items-center gap-1.5 shrink-0">
+                                            <span class="text-[10px] text-neutral-500 ml-1">تعداد پارت</span>
+                                            <button type="button" @click="decCount()"
+                                                    class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center transition">−</button>
+                                            <span class="w-6 text-center text-white text-sm font-bold" x-text="partCount"></span>
+                                            <button type="button" @click="incCount()"
+                                                    class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center transition">+</button>
+                                        </div>
+                                    </div>
+
+                                    <x-ui.duration-wheel-picker
+                                        :hours-model="'selections.' . $si . '.chapters.' . $ci . '.hours'"
+                                        :minutes-model="'selections.' . $si . '.chapters.' . $ci . '.minutes'"
+                                    />
+
+                                    @unless($chapterValid)
+                                        <div class="flex items-center justify-center gap-1.5 mt-2">
+                                            <svg class="w-3 h-3 text-red-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="10"/>
+                                                <path d="M12 8v4M12 16h.01"/>
+                                            </svg>
+                                            <span class="text-[10px] font-semibold text-red-300">حداقل {{ $minPartMinutes }} دقیقه</span>
+                                        </div>
+                                    @endunless
+                                </div>
+                            @endforeach
                         </div>
                     </div>
-
-                    {{-- ساعت --}}
-                    <div class="bg-white/5 ring-1 ring-white/10 rounded-xl px-3 py-3">
-                        <div class="flex items-center justify-between gap-3">
-                            <span class="text-[13px] text-neutral-300 font-semibold">ساعت (هر پارت)</span>
-                            <div class="flex items-center gap-2">
-                                <button type="button" @click="decHours()"
-                                        class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-base flex items-center justify-center transition">−</button>
-                                <input type="number" min="0" max="12" x-model.number="hours"
-                                       class="w-16 bg-white/10 border border-white/15 rounded-lg px-2 py-1.5 text-center text-white text-sm font-bold focus:border-sky-400 focus:outline-none"
-                                       style="direction:ltr;">
-                                <button type="button" @click="incHours()"
-                                        class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-base flex items-center justify-center transition">+</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- دقیقه --}}
-                    <div class="bg-white/5 ring-1 ring-white/10 rounded-xl px-3 py-3">
-                        <div class="flex items-center justify-between gap-3">
-                            <span class="text-[13px] text-neutral-300 font-semibold">دقیقه (هر پارت)</span>
-                            <div class="flex items-center gap-2">
-                                <button type="button" @click="decMinutes()"
-                                        class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-base flex items-center justify-center transition">−</button>
-                                <input type="number" min="0" max="59" step="5" x-model.number="minutes"
-                                       class="w-16 bg-white/10 border border-white/15 rounded-lg px-2 py-1.5 text-center text-white text-sm font-bold focus:border-sky-400 focus:outline-none"
-                                       style="direction:ltr;">
-                                <button type="button" @click="incMinutes()"
-                                        class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-base flex items-center justify-center transition">+</button>
-                            </div>
-                        </div>
-                        <p class="text-[10px] text-neutral-500 mt-2">برای افزایش/کاهش، گام ۵ دقیقه‌ای استفاده می‌شود.</p>
-                    </div>
-
-                    {{-- نمایش زنده مجموع --}}
-                    <div class="rounded-xl p-3 ring-1 transition-all"
-                         :class="isValid ? 'bg-emerald-500/10 ring-emerald-500/30' : 'bg-red-500/10 ring-red-500/30'">
-                        <div class="flex items-center justify-between mb-1.5">
-                        <span class="text-[12px] font-semibold"
-                              :class="isValid ? 'text-emerald-200' : 'text-red-200'">مدت هر پارت</span>
-                            <span class="text-[14px] font-black"
-                                  :class="isValid ? 'text-emerald-300' : 'text-red-300'"
-                                  x-text="fmt(totalMinutes)"></span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-[11px] text-neutral-400">مجموع کل (× <span x-text="partCount"></span> پارت)</span>
-                            <span class="text-[12px] font-bold text-white" x-text="fmt(totalMinutesAll)"></span>
-                        </div>
-
-                        <template x-if="!isValid">
-                            <div class="flex items-center gap-1.5 mt-2 pt-2 border-t border-red-500/20">
-                                <svg class="w-3.5 h-3.5 text-red-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <path d="M12 8v4M12 16h.01"/>
-                                </svg>
-                                <span class="text-[11px] font-semibold text-red-300">هر پارت باید حداقل {{ $minPartMinutes }} دقیقه باشد.</span>
-                            </div>
-                        </template>
-                    </div>
-                </div>
+                @endforeach
             </div>
 
             <div class="flex items-center gap-2 mt-5">
@@ -299,7 +311,7 @@
                     <span class="text-emerald-400 font-bold">{{ $fmtDuration($targetLoad['student_minutes']) }}</span>
                 </div>
                 <div class="flex items-center justify-between bg-amber-500/10 ring-1 ring-amber-500/25 rounded-xl px-3 py-2.5 text-[13px]">
-                    <span class="text-amber-200">اتفاق جدید ({{ $partCount }} پارت)</span>
+                    <span class="text-amber-200">اتفاق جدید ({{ $newPartsCount }} پارت)</span>
                     <span class="text-amber-300 font-bold">{{ $fmtDuration($targetLoad['new_minutes']) }}</span>
                 </div>
                 <div class="flex items-center justify-between bg-sky-500/10 ring-1 ring-sky-500/25 rounded-xl px-3 py-3 text-[13px]">

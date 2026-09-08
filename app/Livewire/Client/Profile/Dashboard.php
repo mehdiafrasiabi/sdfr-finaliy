@@ -875,7 +875,7 @@ class Dashboard extends Component
     {
         $activeProgram = $this->getActiveWeeklyProgram();
 
-        if (!$activeProgram) {
+        if (!$activeProgram || !$this->student) {
             return [
                 'total_hours' => '0 دقیقه',
                 'completed_hours' => '0 دقیقه',
@@ -883,25 +883,21 @@ class Dashboard extends Component
             ];
         }
 
-        $totalMinutes = (int) $activeProgram->parts()->where('is_student_added', false)->sum('duration_minutes');
+        // فقط پارت‌های رسمیِ خودِ برنامه (نه پارت‌های دستیِ دانش‌آموز/جبرانی)
+        // هم در مخرج (کل ساعت) و هم در صورت (ساعت مطالعه‌شده) باید یکسان لحاظ شوند
+        $officialParts = $activeProgram->parts()->where('is_student_added', false)->get(['id', 'duration_minutes']);
+        $totalMinutes = (int) $officialParts->sum('duration_minutes');
         $totalHours = $totalMinutes / 60;
 
         $startDate = Carbon::parse($activeProgram->start_date)->startOfDay();
         $endDate = Carbon::parse($activeProgram->end_date)->endOfDay();
 
-        $completedMinutes = (int) StudyPartSession::where('student_id', $this->student->id)
-            ->where('weekly_program_id', $activeProgram->id)
-            ->whereBetween('started_at', [$startDate, $endDate])
-            ->whereNotNull('ended_at')
-            ->get()
-            ->sum(function ($session) {
-                if ($session->started_at && $session->ended_at) {
-                    return $session->started_at->diffInMinutes($session->ended_at);
-                }
-                return 0;
-            });
-
-        $completedHours = $completedMinutes / 60;
+        // از همان منطق دقیقِ محاسبه‌ی ثانیه‌های مطالعه‌ی واقعی (duration_seconds، بدون احتساب زمان اضافه/جبرانی)
+        // استفاده می‌کنیم که در بقیه‌ی گزارش‌ها (کارنامه هوشمند، تحلیل هفتگی) هم به کار می‌رود
+        $partIds = $officialParts->pluck('id')->all();
+        $map = $this->studySecondsMap($partIds, $startDate, $endDate);
+        $completedSeconds = array_sum($map['seconds']);
+        $completedHours = $completedSeconds / 3600;
 
         $percentage = $totalHours > 0 ? min(($completedHours / $totalHours) * 100, 100) : 0;
         $completedCapped = min($completedHours, $totalHours);

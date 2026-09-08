@@ -407,6 +407,7 @@ class TrialWeekOnboarding extends Component
         $this->otpInput = '';
         $this->otpError = '';
         $this->sendOtp();
+        $this->dispatch('otp-cleared');
     }
 
     public function countdownFinished(): void
@@ -430,6 +431,7 @@ class TrialWeekOnboarding extends Component
         if (strlen($this->otpInput) !== 6) {
             $this->otpError  = 'کد تایید باید ۶ رقم باشد.';
             $this->isLoading = false;
+            $this->dispatch('otp-error');
             return;
         }
 
@@ -441,6 +443,7 @@ class TrialWeekOnboarding extends Component
             $this->currentStep = $this->getErrorBag()->has('codeMell') ? 2 : 4;
             $this->otpError = 'اطلاعات وارد شده قبلاً ثبت شده یا نیاز به اصلاح دارد.';
             $this->isLoading = false;
+            $this->dispatch('otp-error');
             $this->dispatch('step-validation-failed');
             $this->dispatch('step-changed', step: $this->currentStep);
             return;
@@ -455,6 +458,7 @@ class TrialWeekOnboarding extends Component
         if (!$otp) {
             $this->otpError  = 'کد وارد شده صحیح نیست.';
             $this->isLoading = false;
+            $this->dispatch('otp-error');
             return;
         }
 
@@ -462,6 +466,7 @@ class TrialWeekOnboarding extends Component
             $this->countdown = 0;
             $this->otpError  = 'زمان این کد تمام شده است. دوباره کد جدید بگیرید.';
             $this->isLoading = false;
+            $this->dispatch('otp-error');
             return;
         }
 
@@ -473,8 +478,11 @@ class TrialWeekOnboarding extends Component
         if (! $markedAsUsed) {
             $this->otpError  = 'این کد قبلاً استفاده شده است. دوباره کد جدید بگیرید.';
             $this->isLoading = false;
+            $this->dispatch('otp-error');
             return;
         }
+
+        $this->dispatch('otp-success');
 
         try {
             $this->createAccount();
@@ -483,6 +491,7 @@ class TrialWeekOnboarding extends Component
             $this->otpError = 'این شماره موبایل یا کد ملی قبلاً ثبت شده است.';
             $this->isLoading = false;
             $this->currentStep = 4;
+            $this->dispatch('otp-error');
             $this->dispatch('step-validation-failed');
             $this->dispatch('step-changed', step: $this->currentStep);
             return;

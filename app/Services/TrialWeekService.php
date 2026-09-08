@@ -741,66 +741,88 @@ class TrialWeekService
         return $desired;
     }
 
+    /**
+     * (HOTFIX) این متد قبلاً کل سرفصلِ درس‌های پایه/رشتهٔ دانش‌آموز را — صرف‌نظر از
+     * اینکه طبقه‌بندی شده یا نه — به‌عنوان یک سطلِ کم‌سهم (fallback) وارد برنامه می‌کرد.
+     * همین باعث می‌شد درسی مثل «حسابان ۱» که اصلاً طبقه‌بندی نشده، بدون هیچ دلیلی
+     * برایش پارت ساخته شود.
+     *
+     * رفتار درست: اگر دانش‌آموز درسی را طبقه‌بندی نکرده، آن درس فقط زمانی وارد برنامه
+     * می‌شود که مشاور در «پیش‌جلسه» به‌صورت صریح برای آن «پارت درخواستی» ثبت کرده باشد
+     * (AdvisingPreSessionRequestedPart). در غیر این صورت آن درس اصلاً در fallback ظاهر
+     * نمی‌شود.
+     */
     private function fallbackCurriculumTopics(TrialWeek $trialWeek): array
     {
-        $gradeNumber = match (true) {
-            (int) $trialWeek->grade >= 10 && (int) $trialWeek->grade <= 12 => (int) $trialWeek->grade,
-            (int) $trialWeek->grade === TrialWeek::GRADE_GRADUATE => 12,
-            default => 10,
-        };
+        $requestedParts = $trialWeek->advisingSession?->preSession?->requestedParts;
 
-        $fieldId = $trialWeek->field
-            ? \App\Models\CcField::where('slug', $trialWeek->field)->value('id')
-            : null;
-
-        $ccGrade = \App\Models\CcGrade::where('grade_number', $gradeNumber)
-            ->where('is_active', true)
-            ->when($fieldId, fn ($q) => $q->where('cc_field_id', $fieldId))
-            ->first()
-            ?? \App\Models\CcGrade::where('grade_number', $gradeNumber)->where('is_active', true)->first();
-
-        if (!$ccGrade) {
+        if (!$requestedParts || $requestedParts->isEmpty()) {
             return [];
         }
 
-        $subjects = \App\Models\CcSubject::where('cc_grade_id', $ccGrade->id)
-            ->where(function ($q) use ($fieldId) {
-                $q->whereNull('cc_field_id');
-                if ($fieldId) {
-                    $q->orWhere('cc_field_id', $fieldId);
-                }
-            })
-            ->with(['chapters' => fn ($q) => $q->active()->ordered()])
-            ->ordered()
-            ->get();
-
         $topics = [];
-        foreach ($subjects as $subject) {
-            if ($subject->chapters->isEmpty()) {
-                $topics[] = [
-                    'name'          => $subject->name,
-                    'chapter'       => null,
-                    'cc_subject_id' => $subject->id,
-                    'cc_chapter_id' => null,
-                    'subject_order' => (int) ($subject->order ?? 0),
-                    'chapter_order' => 0,
-                ];
-                continue;
-            }
+        foreach ($requestedParts as $rp) {
+            $subject = $rp->cc_subject_id ? \App\Models\CcSubject::find($rp->cc_subject_id) : null;
+            $chapter = $rp->cc_chapter_id ? \App\Models\CcChapter::find($rp->cc_chapter_id) : null;
 
-            foreach ($subject->chapters as $chapter) {
-                $topics[] = [
-                    'name'          => $subject->name,
+            // پارت درخواستی روی یک فصلِ مشخص → فقط همان فصل.
+            if ($chapter) {
+                $key = 'chapter:' . $chapter->id;
+                $topics[$key] = [
+                    'name'          => $subject->name ?? $rp->subject,
                     'chapter'       => $chapter->name,
-                    'cc_subject_id' => $subject->id,
+                    'cc_subject_id' => $rp->cc_subject_id,
                     'cc_chapter_id' => $chapter->id,
                     'subject_order' => (int) ($subject->order ?? 0),
                     'chapter_order' => (int) ($chapter->order ?? 0),
                 ];
+                continue;
             }
+
+            // پارت درخواستی فقط روی درس (بدون فصل مشخص) → همهٔ فصل‌های فعالِ همان درس.
+            if ($subject) {
+                $chapters = $subject->chapters()->active()->ordered()->get();
+
+                if ($chapters->isEmpty()) {
+                    $key = 'subject:' . $subject->id;
+                    $topics[$key] = [
+                        'name'          => $subject->name,
+                        'chapter'       => null,
+                        'cc_subject_id' => $subject->id,
+                        'cc_chapter_id' => null,
+                        'subject_order' => (int) ($subject->order ?? 0),
+                        'chapter_order' => 0,
+                    ];
+                    continue;
+                }
+
+                foreach ($chapters as $ch) {
+                    $key = 'chapter:' . $ch->id;
+                    $topics[$key] = [
+                        'name'          => $subject->name,
+                        'chapter'       => $ch->name,
+                        'cc_subject_id' => $subject->id,
+                        'cc_chapter_id' => $ch->id,
+                        'subject_order' => (int) ($subject->order ?? 0),
+                        'chapter_order' => (int) ($ch->order ?? 0),
+                    ];
+                }
+                continue;
+            }
+
+            // پارت درخواستی بدون هیچ ارتباطِ ساختاری (فقط نام آزادِ درس).
+            $key = 'free:' . $rp->id;
+            $topics[$key] = [
+                'name'          => $rp->subject,
+                'chapter'       => null,
+                'cc_subject_id' => null,
+                'cc_chapter_id' => null,
+                'subject_order' => 0,
+                'chapter_order' => 0,
+            ];
         }
 
-        return $this->buildTopicDesired($topics, 'CD');
+        return $this->buildTopicDesired(array_values($topics), 'CD');
     }
 
     private function minPartMinutesForDailyHours(int $dailyHours): int

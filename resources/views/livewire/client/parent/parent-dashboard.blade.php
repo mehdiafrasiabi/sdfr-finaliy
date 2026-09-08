@@ -25,11 +25,27 @@
                         </p>
                     </div>
                 </div>
-                <button wire:click="logout"
-                        class="h-10 px-4 rounded-xl text-xs font-bold text-red-300 transition hover:scale-[1.03]"
-                        style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);">
-                    خروج از پنل
-                </button>
+                <div class="flex items-center gap-3">
+                    @if(count($children) > 1)
+                        <div class="relative">
+                            <select wire:change="switchChild($event.target.value)"
+                                    class="h-10 rounded-xl pr-3 pl-8 text-xs font-bold text-white/80 outline-none appearance-none cursor-pointer"
+                                    style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);">
+                                @foreach($children as $child)
+                                    <option value="{{ $child['id'] }}" style="background:#0a0a0f;" @selected((int) $child['id'] === (int) $student->id)>
+                                        {{ $child['name'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <svg class="w-3.5 h-3.5 text-white/40 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                        </div>
+                    @endif
+                    <button wire:click="logout"
+                            class="h-10 px-4 rounded-xl text-xs font-bold text-red-300 transition hover:scale-[1.03]"
+                            style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);">
+                        خروج از پنل
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -57,6 +73,68 @@
                 <p class="text-sm text-amber-300">هنوز جلسه مشاوره‌ای برای فرزند شما برگزار نشده است.</p>
             </div>
         @endif
+
+        {{-- آزمون‌های اختصاصی (تستی/تشریحی واقعی — مستقل از برنامه هفتگی) --}}
+        <div class="rounded-2xl overflow-hidden" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">
+            <div class="p-5 flex items-center gap-3" style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:rgba(139,92,246,0.15);">
+                    <svg class="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-sm font-black">آزمون‌های اختصاصی</h2>
+                    <p class="text-[11px] text-white/35 mt-0.5">آزمون‌های تستی و تشریحیِ اختصاص‌داده‌شده به فرزند شما، با تاریخ برگزاری و نتیجه</p>
+                </div>
+            </div>
+            @if(count($data['real_exams']) === 0)
+                <p class="p-6 text-center text-xs text-white/35">هنوز آزمونی برای فرزند شما اختصاص داده نشده است.</p>
+            @else
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs">
+                        <thead>
+                        <tr class="text-white/40" style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                            <th class="py-3 px-4 font-bold text-right">عنوان آزمون</th>
+                            <th class="py-3 px-4 font-bold text-right">نوع</th>
+                            <th class="py-3 px-4 font-bold text-right">بازه برگزاری</th>
+                            <th class="py-3 px-4 font-bold text-right">وضعیت</th>
+                            <th class="py-3 px-4 font-bold text-right">نتیجه</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($data['real_exams'] as $exam)
+                            <tr class="text-white/70" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                                <td class="py-3 px-4 font-semibold">{{ $exam['title'] }}</td>
+                                <td class="py-3 px-4">{{ $exam['type'] === 'typed' ? 'تستی' : 'تشریحی' }}</td>
+                                <td class="py-3 px-4">
+                                    @if($exam['start_date'])
+                                        {{ $exam['start_date'] }} {{ $exam['start_time'] }} تا {{ $exam['end_date'] }} {{ $exam['end_time'] }}
+                                    @else
+                                        —
+                                    @endif
+                                </td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-1 rounded-md text-[10px] font-bold
+                                        @if($exam['status'] === 'completed') text-emerald-300
+                                        @elseif($exam['status'] === 'expired') text-red-300
+                                        @elseif($exam['status'] === 'available') text-amber-300
+                                        @else text-white/50 @endif"
+                                          style="background:rgba(255,255,255,0.06);">
+                                        {{ $this->examStatusLabel($exam['status']) }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    @if($exam['score'] !== null)
+                                        <span class="font-bold text-violet-300">{{ $exam['score'] }}٪</span>
+                                    @else
+                                        —
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
 
         @if(!$data['has_program'])
             <div class="rounded-2xl p-10 text-center" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">
@@ -192,7 +270,7 @@
             {{-- امتحانات / پرسش و پاسخ / تکالیف --}}
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 @foreach([
-                    ['title' => 'امتحانات این هفته', 'items' => $data['exams'], 'color' => 'amber', 'rgb' => '245,158,11', 'empty' => 'امتحانی برای این هفته ثبت نشده است.'],
+                    ['title' => 'امتحانات برنامه این هفته', 'items' => $data['exams'], 'color' => 'amber', 'rgb' => '245,158,11', 'empty' => 'امتحانی در برنامه این هفته ثبت نشده است.'],
                     ['title' => 'پرسش و پاسخ این هفته', 'items' => $data['qa'], 'color' => 'cyan', 'rgb' => '6,182,212', 'empty' => 'پرسش و پاسخی برای این هفته ثبت نشده است.'],
                     ['title' => 'تکالیف این هفته', 'items' => $data['homework'], 'color' => 'red', 'rgb' => '239,68,68', 'empty' => 'تکلیفی برای این هفته ثبت نشده است.'],
                 ] as $section)

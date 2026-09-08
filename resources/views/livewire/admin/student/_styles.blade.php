@@ -138,9 +138,20 @@
                                 child.classList?.contains('widget-header') ||
                                 child.classList?.contains('modern-card-header')
                             );
-                            if (!header || card.classList.contains('su-collapsible-card')) return;
+                            if (!header) return;
 
+                            // کلاسِ su-collapsible-card ممکن است طیِ رندر مجددِ لایوایر (morph) از بین
+                            // رفته باشد؛ چون فقط سمت کلاینت اضافه شده و در HTML سمت سرور وجود ندارد.
+                            // به همین دلیل همیشه دوباره اعمالش می‌کنیم تا رفتار/ظاهرِ باز-بسته‌شوندگی از
+                            // بین نرود.
                             card.classList.add('su-collapsible-card');
+
+                            // برای تشخیصِ «قبلاً دکمه اضافه شده یا نه» به‌جای اتکا به همان کلاس (که ممکن
+                            // است توسط مورف پاک شده باشد و باعث اضافه‌شدنِ یک دکمه‌ی تکراری در هر رندر
+                            // مجدد و درنهایت شلوغ/خراب شدنِ هدر شود)، مستقیماً وجودِ خودِ دکمه را در DOM
+                            // چک می‌کنیم؛ این‌طوری هرگز دکمه‌ی تکراری اضافه نمی‌شود.
+                            if (header.querySelector(':scope > .su-card-toggle')) return;
+
                             const button = document.createElement('button');
                             button.type = 'button';
                             button.className = 'su-card-toggle';

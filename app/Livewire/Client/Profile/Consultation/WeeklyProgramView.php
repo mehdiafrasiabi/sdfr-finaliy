@@ -32,6 +32,11 @@ class WeeklyProgramView extends Component
     public $programParts = [];
     public bool $isActiveProgram = false;
 
+    // ✅ فوکوس خودکار روی یک پارت خاص — وقتی از دکمه «شروع و ثبت ساعت مطالعه»
+    // در مودال گزارش جبرانی وارد این صفحه می‌شویم، همان پارت باز/اسکرول/هایلایت می‌شود.
+    public ?int $focusPartId = null;
+    public ?string $focusDay = null;
+
     public string $selectedAlarm = 'Alarmclock';
 
     // تایمر فعال برای پارت‌های عادی
@@ -136,7 +141,30 @@ class WeeklyProgramView extends Component
         $this->selectedAlarm = session('selected_alarm', 'Alarmclock');
         $this->syncTimers();
         $this->checkPendingFeedback();
+        $this->resolveFocusPartFromRequest();
         $this->seoConfig();
+    }
+
+    /**
+     * ✅ اگر از طریق دکمه «شروع و ثبت ساعت مطالعه» (در مودال گزارش جبرانی) با
+     * پارامتر focus_part وارد شده باشیم، همان پارت را برای باز شدن/اسکرول/هایلایت
+     * خودکار در فرانت مشخص می‌کنیم. تاریخ پارت مستقیماً از خود پارت خوانده می‌شود
+     * (نه از ورودی کاربر) تا مطمئن شویم روزِ درست باز می‌شود.
+     */
+    protected function resolveFocusPartFromRequest(): void
+    {
+        $partId = request()->integer('focus_part');
+        if (!$partId) {
+            return;
+        }
+
+        $part = collect($this->programParts)->firstWhere('id', $partId);
+        if (!$part) {
+            return; // پارت متعلق به این برنامه نیست
+        }
+
+        $this->focusPartId = (int) $part->id;
+        $this->focusDay = $part->part_date ? Carbon::parse($part->part_date)->toDateString() : null;
     }
 
     public function seoConfig()

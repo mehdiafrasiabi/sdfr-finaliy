@@ -80,6 +80,12 @@
                                         ارتباط با ما
                                     </a>
                                 </li>
+                                <li>
+                                    <a href="{{route('client.parent.portal.login')}}"
+                                       class="inline-flex font-semibold text-sm text-muted hover:text-primary">
+                                        پنل والدین
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                         <div class="sm:col-span-3 space-y-5">

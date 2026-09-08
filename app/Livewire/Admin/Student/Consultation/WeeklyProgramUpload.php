@@ -17,6 +17,8 @@ use App\Models\EssayExamAssignmentTime;
 use App\Models\TypedExam;
 use App\Models\TypedExamAssignment;
 use App\Models\TypedExamAssignmentTime;
+use App\Models\TypedExamAttempt;
+use App\Models\EssayExamAttempt;
 use App\Services\AssessmentInterpretationService;
 use App\Services\NotificationService;
 use Carbon\Carbon;
@@ -35,6 +37,7 @@ use App\Models\ClassificationProject;
 use App\Models\StudentClassification;
 use App\Models\DailyReport;
 use App\Models\StudyPartSession;
+use App\Models\MakeupSession;
 
 class WeeklyProgramUpload extends Component
 {
@@ -53,6 +56,10 @@ class WeeklyProgramUpload extends Component
     public $start_date;
     public $parts = [];
     public $selectedDay = 0;
+
+    // ==================== یادداشت جلسه (خصوصی مشاور) ====================
+    // یادداشت اختیاری وضعیت دانش‌آموز برای همین جلسه؛ در جلسه‌ی بعدی به مشاور نمایش داده می‌شود.
+    public string $currentSessionNote = '';
 
     // ==================== Part Modal ====================
     public bool $showPartModal = false;
@@ -126,6 +133,13 @@ class WeeklyProgramUpload extends Component
         'result_visibility'   => 'after_exam_end',
         'answer_key_visibility' => 'after_exam_end',
     ];
+
+    // ==================== Exam History (آزمون‌های قبلاً شرکت‌شده) ====================
+    // این بخش دیگر برای اختصاص آزمون استفاده نمی‌شود؛ فقط نمایش آزمون‌هایی که دانش‌آموز قبلاً شرکت کرده است.
+    public bool $showExamHistoryModal = false;
+    public string $examHistoryType = 'typed'; // typed | essay
+    // newest | oldest | score_desc | score_asc | title_asc
+    public string $examHistorySort = 'newest';
 
     // ==================== Class Schedule ====================
     public bool $showClassScheduleModal = false;
@@ -271,6 +285,7 @@ class WeeklyProgramUpload extends Component
 
         $this->studentId = $student->id;
         $this->sessionId = $session?->id;
+        $this->currentSessionNote = $session?->advisor_note ?? '';
 
         if ($session && in_array($session->result_status, [
             AdvisingSession::RESULT_STUDENT_ABSENT,
@@ -304,6 +319,68 @@ class WeeklyProgramUpload extends Component
 
         $this->buildPrevWeekPreview();
         $this->resetExamAssignmentForm();
+    }
+
+    // ==================== یادداشت جلسه (خصوصی مشاور) ====================
+    public function saveSessionNote(): void
+    {
+        if (!$this->sessionId) {
+            $this->dispatch('warning', 'جلسه‌ای برای ثبت یادداشت یافت نشد.');
+            return;
+        }
+
+        AdvisingSession::whereKey($this->sessionId)->update([
+            'advisor_note' => trim($this->currentSessionNote) !== '' ? trim($this->currentSessionNote) : null,
+        ]);
+
+        $this->dispatch('success', 'یادداشت جلسه ذخیره شد.');
+    }
+
+    /**
+     * یادداشت آخرین جلسه‌ی قبلیِ برگزارشده (برای نمایش به مشاور در جلسه‌ی فعلی).
+     */
+    protected function getPreviousSessionNote(): ?array
+    {
+        if (!$this->studentId) return null;
+
+        $prevSession = AdvisingSession::where('student_id', $this->studentId)
+            ->when($this->sessionId, fn($q) => $q->where('id', '!=', $this->sessionId))
+            ->whereNotNull('advisor_note')
+            ->where('advisor_note', '!=', '')
+            ->orderByDesc('activation_date')
+            ->orderByDesc('id')
+            ->first();
+
+        if (!$prevSession) return null;
+
+        return [
+            'note' => $prevSession->advisor_note,
+            'date' => $prevSession->activation_date ? jdate($prevSession->activation_date)->format('Y/m/d') : null,
+            'advisor_name' => $prevSession->advisor?->name,
+        ];
+    }
+
+    /**
+     * تاریخچه‌ی کامل یادداشت‌های جلسات قبلی (به‌جز جلسه‌ی فعلی)، جدیدترین اول.
+     */
+    protected function getSessionNotesHistory(): array
+    {
+        if (!$this->studentId) return [];
+
+        return AdvisingSession::where('student_id', $this->studentId)
+            ->when($this->sessionId, fn($q) => $q->where('id', '!=', $this->sessionId))
+            ->whereNotNull('advisor_note')
+            ->where('advisor_note', '!=', '')
+            ->orderByDesc('activation_date')
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn(AdvisingSession $s) => [
+                'id'           => $s->id,
+                'note'         => $s->advisor_note,
+                'date'         => $s->activation_date ? jdate($s->activation_date)->format('Y/m/d') : null,
+                'advisor_name' => $s->advisor?->name,
+            ])
+            ->toArray();
     }
 
     protected function resetExamAssignmentForm(): void
@@ -2315,6 +2392,26 @@ class WeeklyProgramUpload extends Component
         $this->resetValidation();
     }
 
+    // ==================== Exam History (مشاهده‌ی آزمون‌های قبلاً شرکت‌شده) ====================
+    public function openExamHistoryModal(string $type): void
+    {
+        if (!in_array($type, ['typed', 'essay'], true)) {
+            return;
+        }
+
+        $this->showExamHistoryModal = true;
+        $this->examHistoryType      = $type;
+        $this->examHistorySort      = 'newest';
+        $this->dispatch('modal-opened');
+    }
+
+    public function closeExamHistoryModal(): void
+    {
+        $this->showExamHistoryModal = false;
+        $this->examHistoryType      = 'typed';
+        $this->examHistorySort      = 'newest';
+    }
+
     public function selectExamAssignmentExam(int $examId): void
     {
         if ($this->examAssignmentType === 'typed') {
@@ -3019,7 +3116,23 @@ class WeeklyProgramUpload extends Component
         $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
         $weeklyProgram = WeeklyProgram::find($this->weeklyProgramId);
         $lastReadingDurations = $this->getLastReadingDurations($student->id);
+        // ساختار جدید: یک ردیف به‌ازای هر درس، با دو مقدار جداگانه برای «روزخوانی» و «پیش‌خوانی»
         $uniqueSubjects = [];
+
+        $ensureSubject = function (int $subjectId, string $subjectName) use (&$uniqueSubjects, $lastReadingDurations) {
+            if (!isset($uniqueSubjects[$subjectId])) {
+                $uniqueSubjects[$subjectId] = [
+                    'subject'           => $subjectName,
+                    'cc_subject_id'     => $subjectId,
+                    'daily_minutes'     => $lastReadingDurations['daily'][$subjectId] ?? 0,
+                    'daily_day_indices' => [],
+                    'daily_day_names'   => [],
+                    'pre_minutes'       => $lastReadingDurations['pre'][$subjectId] ?? 0,
+                    'pre_day_indices'   => [],
+                    'pre_day_names'     => [],
+                ];
+            }
+        };
 
         // ===== اضافه شده: تاریخ‌های امتحان کلاسی از پیش‌جلسه =====
         $examDates = collect();
@@ -3048,20 +3161,10 @@ class WeeklyProgramUpload extends Component
 
             foreach ($schedule->parts->where('day_of_week', $dayOfWeek)->sortBy('part_order') as $classPart) {
                 $subjectId = $classPart->cc_subject_id;
-                $key       = 'daily:' . $subjectId;
-                if (!isset($uniqueSubjects[$key])) {
-                    $uniqueSubjects[$key] = [
-                        'type'             => 'daily',
-                        'subject'          => $classPart->lesson_name,
-                        'cc_subject_id'    => $subjectId,
-                        'duration_minutes' => $lastReadingDurations['daily'][$subjectId] ?? 0,
-                        'day_indices'      => [],
-                        'day_names'        => [],
-                    ];
-                }
-                if (!in_array($i, $uniqueSubjects[$key]['day_indices'])) {
-                    $uniqueSubjects[$key]['day_indices'][] = $i;
-                    $uniqueSubjects[$key]['day_names'][]   = $jalaliDayNames[$dayOfWeek];
+                $ensureSubject($subjectId, $classPart->lesson_name);
+                if (!in_array($i, $uniqueSubjects[$subjectId]['daily_day_indices'])) {
+                    $uniqueSubjects[$subjectId]['daily_day_indices'][] = $i;
+                    $uniqueSubjects[$subjectId]['daily_day_names'][]   = $jalaliDayNames[$dayOfWeek];
                 }
             }
 
@@ -3069,20 +3172,10 @@ class WeeklyProgramUpload extends Component
             if (!$tomorrowHasExam) {
                 foreach ($schedule->parts->where('day_of_week', $tomorrowDow)->sortBy('part_order') as $classPart) {
                     $subjectId = $classPart->cc_subject_id;
-                    $key       = 'pre:' . $subjectId;
-                    if (!isset($uniqueSubjects[$key])) {
-                        $uniqueSubjects[$key] = [
-                            'type'             => 'pre',
-                            'subject'          => $classPart->lesson_name,
-                            'cc_subject_id'    => $subjectId,
-                            'duration_minutes' => $lastReadingDurations['pre'][$subjectId] ?? 0,
-                            'day_indices'      => [],
-                            'day_names'        => [],
-                        ];
-                    }
-                    if (!in_array($i, $uniqueSubjects[$key]['day_indices'])) {
-                        $uniqueSubjects[$key]['day_indices'][] = $i;
-                        $uniqueSubjects[$key]['day_names'][]   = $jalaliDayNames[$dayOfWeek];
+                    $ensureSubject($subjectId, $classPart->lesson_name);
+                    if (!in_array($i, $uniqueSubjects[$subjectId]['pre_day_indices'])) {
+                        $uniqueSubjects[$subjectId]['pre_day_indices'][] = $i;
+                        $uniqueSubjects[$subjectId]['pre_day_names'][]   = $jalaliDayNames[$dayOfWeek];
                     }
                 }
             }
@@ -3129,35 +3222,45 @@ class WeeklyProgramUpload extends Component
 
         $startDate = Carbon::parse($this->start_date);
 
+        // هر درس دو مقدار جداگانه دارد (روزخوانی/پیش‌خوانی)؛ هرکدام که صفر باشد اضافه نمی‌شود
+        // و اگر هر دو صفر باشند، اصلاً هیچ‌چیزی برای آن درس ثبت نمی‌شود.
+        $readingConfigs = [
+            ['minutes_key' => 'daily_minutes', 'days_key' => 'daily_day_indices', 'source' => ProgramPart::SOURCE_DAILY_READING, 'label' => 'روزخوانی'],
+            ['minutes_key' => 'pre_minutes',   'days_key' => 'pre_day_indices',   'source' => ProgramPart::SOURCE_PRE_READING,   'label' => 'پیش‌خوانی'],
+        ];
+
         foreach ($this->weeklyReadingsPreview as $item) {
-            if ((int)$item['duration_minutes'] === 0) continue;
+            $subject = CcSubject::with('grade.educationLevel')->find($item['cc_subject_id']);
 
-            $subject    = CcSubject::with('grade.educationLevel')->find($item['cc_subject_id']);
-            $sourceType = $item['type'] === 'daily' ? ProgramPart::SOURCE_DAILY_READING : ProgramPart::SOURCE_PRE_READING;
-            $description = ($item['type'] === 'daily' ? 'روزخوانی' : 'پیش‌خوانی') . ' - ' . $item['subject'];
+            foreach ($readingConfigs as $config) {
+                $minutes = (int) ($item[$config['minutes_key']] ?? 0);
+                if ($minutes === 0) continue;
 
-            foreach ($item['day_indices'] as $dayIndex) {
-                $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)->where('day_of_week', $dayIndex)->count();
-                if ($existingCount >= 20) continue;
+                $description = $config['label'] . ' - ' . $item['subject'];
 
-                ProgramPart::create([
-                    'weekly_program_id'  => $this->weeklyProgramId,
-                    'lesson_name'        => $item['subject'],
-                    'part_date'          => $startDate->copy()->addDays($dayIndex),
-                    'day_of_week'        => $dayIndex,
-                    'part_order'         => $existingCount + 1,
-                    'description'        => $description,
-                    'duration_minutes'   => $item['duration_minutes'],
-                    'test_count'         => null,
-                    'part_type'          => 'descriptive',
-                    'source_type'        => $sourceType,
-                    'lesson_type'        => $subject?->type ?? 'specialized',
-                    'cc_subject_id'      => $item['cc_subject_id'],
-                    'cc_grade_id'        => $subject?->grade?->id,
-                    'cc_field_id'        => $subject?->cc_field_id,
-                    'grade'              => $subject?->grade?->grade_number,
-                    'education_level_id' => $subject?->grade?->educationLevel?->id,
-                ]);
+                foreach (($item[$config['days_key']] ?? []) as $dayIndex) {
+                    $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)->where('day_of_week', $dayIndex)->count();
+                    if ($existingCount >= 20) continue;
+
+                    ProgramPart::create([
+                        'weekly_program_id'  => $this->weeklyProgramId,
+                        'lesson_name'        => $item['subject'],
+                        'part_date'          => $startDate->copy()->addDays($dayIndex),
+                        'day_of_week'        => $dayIndex,
+                        'part_order'         => $existingCount + 1,
+                        'description'        => $description,
+                        'duration_minutes'   => $minutes,
+                        'test_count'         => null,
+                        'part_type'          => 'descriptive',
+                        'source_type'        => $config['source'],
+                        'lesson_type'        => $subject?->type ?? 'specialized',
+                        'cc_subject_id'      => $item['cc_subject_id'],
+                        'cc_grade_id'        => $subject?->grade?->id,
+                        'cc_field_id'        => $subject?->cc_field_id,
+                        'grade'              => $subject?->grade?->grade_number,
+                        'education_level_id' => $subject?->grade?->educationLevel?->id,
+                    ]);
+                }
             }
         }
 
@@ -3195,15 +3298,18 @@ class WeeklyProgramUpload extends Component
         $startDate   = Carbon::parse($this->start_date);
         $sourceType  = $type === 'daily' ? ProgramPart::SOURCE_DAILY_READING : ProgramPart::SOURCE_PRE_READING;
         $label       = $type === 'daily' ? 'روزخوانی' : 'پیش‌خوانی';
+        $minutesKey  = $type === 'daily' ? 'daily_minutes' : 'pre_minutes';
+        $daysKey     = $type === 'daily' ? 'daily_day_indices' : 'pre_day_indices';
         $added       = 0;
 
         foreach ($this->weeklyReadingsPreview as $item) {
-            if ($item['type'] !== $type || (int)$item['duration_minutes'] === 0) continue;
+            $minutes = (int) ($item[$minutesKey] ?? 0);
+            if ($minutes === 0) continue;
 
             $subject     = CcSubject::with('grade.educationLevel')->find($item['cc_subject_id']);
             $description = $label . ' - ' . $item['subject'];
 
-            foreach ($item['day_indices'] as $dayIndex) {
+            foreach (($item[$daysKey] ?? []) as $dayIndex) {
                 $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)->where('day_of_week', $dayIndex)->count();
                 if ($existingCount >= 20) continue;
 
@@ -3214,7 +3320,7 @@ class WeeklyProgramUpload extends Component
                     'day_of_week'        => $dayIndex,
                     'part_order'         => $existingCount + 1,
                     'description'        => $description,
-                    'duration_minutes'   => $item['duration_minutes'],
+                    'duration_minutes'   => $minutes,
                     'test_count'         => null,
                     'part_type'          => 'descriptive',
                     'source_type'        => $sourceType,
@@ -4232,12 +4338,167 @@ class WeeklyProgramUpload extends Component
         return app(AssessmentInterpretationService::class)->summaryForUser($user);
     }
 
+    // ==================== آمار کلی دانش‌آموز (برای بخش دسترسی سریع) ====================
+    /**
+     * تعداد روزهایی که طبق برنامه‌های هفتگیِ ثبت‌شده برای این دانش‌آموز (از ابتدا تاکنون)،
+     * گزارش روزانه برای آن‌ها الزامی بوده است: روزهایی که تعطیل/امتحان نبوده‌اند و تاریخ‌شان گذشته است.
+     */
+    protected function countRequiredReports(int $studentId): int
+    {
+        $required = 0;
+        $today    = Carbon::today();
+
+        WeeklyProgram::where('student_id', $studentId)->get(['id', 'start_date'])->each(function ($program) use (&$required, $today) {
+            $startDate = Carbon::parse($program->start_date);
+            for ($i = 0; $i < 8; $i++) {
+                $dayDate = $startDate->copy()->addDays($i);
+                if ($dayDate->gt($today)) continue;
+                if ($program->isRestDay($i) || $program->isExamDay($i)) continue;
+                $required++;
+            }
+        });
+
+        return $required;
+    }
+
+    /**
+     * محاسبه‌ی آمار کلی دانش‌آموز برای نمایش در بخش «دسترسی سریع».
+     */
+    protected function computeStudentStats(): array
+    {
+        $studentId = $this->studentId;
+
+        // مجموع کل ساعت/دقیقه‌ای که مشاور تا به حال (در همه‌ی جلسات مشاوره از ابتدا) برای دانش‌آموز برنامه تنظیم کرده
+        $totalProgramMinutes = (int) ProgramPart::whereHas('weeklyProgram', fn($q) => $q->where('student_id', $studentId))
+            ->sum('duration_minutes');
+
+        // مجموع ساعات مطالعه‌ی واقعی انجام‌شده از برنامه (به‌جز مطالعه‌ی جبرانی)
+        $totalStudiedSeconds = (int) StudyPartSession::where('student_id', $studentId)
+            ->where('is_completed', true)
+            ->sum('duration_seconds');
+
+        // مجموع ساعات مطالعه‌ی جبرانیِ خودانگیخته‌ی دانش‌آموز
+        $totalMakeupSeconds = (int) MakeupSession::where('student_id', $studentId)->sum('duration_seconds');
+
+        // گزارش‌های الزامی: مورد نیاز / ارسال‌شده / ارسال‌نشده (جبرانی از این شمارش مستثنی است)
+        $submittedReportsCount = DailyReport::where('student_id', $studentId)->where('is_compensatory', false)->count();
+        $requiredReportsCount  = $this->countRequiredReports($studentId);
+        $missingReportsCount   = max($requiredReportsCount - $submittedReportsCount, 0);
+
+        // گزارش‌های جبرانی ارسال‌شده توسط دانش‌آموز
+        $compensatoryReportsCount = DailyReport::where('student_id', $studentId)->where('is_compensatory', true)->count();
+
+        // آزمون‌های تستی: اختصاص‌یافته توسط مشاور / شرکت‌شده توسط دانش‌آموز
+        $assignedTestsCount = TypedExamAssignment::where('student_id', $studentId)->count();
+        $takenTestsCount     = TypedExamAttempt::where('student_id', $studentId)->where('is_finished', true)->count();
+        $untakenTestsCount   = max($assignedTestsCount - $takenTestsCount, 0);
+        $extraTestsCount     = max($takenTestsCount - $assignedTestsCount, 0);
+
+        return [
+            'totalProgramMinutes'      => $totalProgramMinutes,
+            'totalProgramFormatted'    => $this->formatMinutesToHms($totalProgramMinutes),
+            'totalStudiedSeconds'      => $totalStudiedSeconds,
+            'totalStudiedFormatted'    => $this->formatSecondsToHms($totalStudiedSeconds),
+            'totalMakeupSeconds'       => $totalMakeupSeconds,
+            'totalMakeupFormatted'     => $this->formatSecondsToHms($totalMakeupSeconds),
+            'requiredReportsCount'     => $requiredReportsCount,
+            'submittedReportsCount'    => $submittedReportsCount,
+            'missingReportsCount'      => $missingReportsCount,
+            'compensatoryReportsCount' => $compensatoryReportsCount,
+            'assignedTestsCount'       => $assignedTestsCount,
+            'takenTestsCount'          => $takenTestsCount,
+            'untakenTestsCount'        => $untakenTestsCount,
+            'extraTestsCount'          => $extraTestsCount,
+        ];
+    }
+
+    /**
+     * فرمت کردن دقیقه به «ساعت:دقیقه:ثانیه» (ثانیه همیشه صفر است، چون دقت داده‌ی برنامه در حد دقیقه است).
+     */
+    protected function formatMinutesToHms(int $minutes): string
+    {
+        return $this->formatSecondsToHms($minutes * 60);
+    }
+
+    /**
+     * فرمت کردن ثانیه به «ساعت:دقیقه:ثانیه».
+     */
+    protected function formatSecondsToHms(int $seconds): string
+    {
+        $seconds = max($seconds, 0);
+        $h = intdiv($seconds, 3600);
+        $m = intdiv($seconds % 3600, 60);
+        $s = $seconds % 60;
+
+        return sprintf('%d:%02d:%02d', $h, $m, $s);
+    }
+
+    /**
+     * تولید یک تحلیل متنی خودکار از وضعیت کلی دانش‌آموز بر اساس آمار محاسبه‌شده.
+     */
+    protected function generateStudentStatusAnalysis(array $stats): string
+    {
+        $sentences = [];
+
+        $programHours = round($stats['totalProgramMinutes'] / 60, 1);
+        $studiedHours = round($stats['totalStudiedSeconds'] / 3600, 1);
+        $makeupHours  = round($stats['totalMakeupSeconds'] / 3600, 1);
+
+        if ($stats['totalProgramMinutes'] > 0) {
+            $studyRate = round(($stats['totalStudiedSeconds'] / ($stats['totalProgramMinutes'] * 60)) * 100);
+            if ($studyRate >= 85) {
+                $sentences[] = "دانش‌آموز حدود {$studyRate}٪ از برنامه‌ی تعیین‌شده (معادل {$studiedHours} ساعت از {$programHours} ساعت) را مطالعه کرده که وضعیت بسیار مطلوبی است.";
+            } elseif ($studyRate >= 60) {
+                $sentences[] = "دانش‌آموز حدود {$studyRate}٪ از برنامه‌ی تعیین‌شده (معادل {$studiedHours} ساعت از {$programHours} ساعت) را مطالعه کرده که وضعیت قابل‌قبولی است، اما جای پیشرفت دارد.";
+            } else {
+                $sentences[] = "دانش‌آموز تنها حدود {$studyRate}٪ از برنامه‌ی تعیین‌شده (معادل {$studiedHours} ساعت از {$programHours} ساعت) را مطالعه کرده که نشان‌دهنده‌ی افت جدی در انجام برنامه است.";
+            }
+        } else {
+            $sentences[] = 'تاکنون برنامه‌ی مطالعاتی برای این دانش‌آموز ثبت نشده است.';
+        }
+
+        if ($makeupHours > 0) {
+            $sentences[] = "علاوه بر این، دانش‌آموز به‌صورت خودانگیخته {$makeupHours} ساعت مطالعه‌ی جبرانی نیز ثبت کرده است.";
+        }
+
+        if ($stats['requiredReportsCount'] > 0) {
+            $reportRate = round(($stats['submittedReportsCount'] / $stats['requiredReportsCount']) * 100);
+            if ($stats['missingReportsCount'] === 0) {
+                $sentences[] = "تمامی {$stats['requiredReportsCount']} گزارش الزامی توسط دانش‌آموز ارسال شده است.";
+            } else {
+                $sentences[] = "از {$stats['requiredReportsCount']} گزارش الزامی، {$stats['submittedReportsCount']} گزارش ({$reportRate}٪) ارسال شده و {$stats['missingReportsCount']} گزارش ارسال نشده است.";
+            }
+        }
+
+        if ($stats['compensatoryReportsCount'] > 0) {
+            $sentences[] = "دانش‌آموز همچنین {$stats['compensatoryReportsCount']} گزارش جبرانی ثبت کرده است.";
+        }
+
+        if ($stats['assignedTestsCount'] > 0) {
+            if ($stats['extraTestsCount'] > 0) {
+                $sentences[] = "دانش‌آموز از {$stats['assignedTestsCount']} آزمون تستی اختصاص‌یافته، {$stats['takenTestsCount']} آزمون را شرکت کرده که {$stats['extraTestsCount']} مورد آن بیش از تعداد اختصاص‌یافته و با ابتکار خودِ دانش‌آموز بوده است.";
+            } elseif ($stats['untakenTestsCount'] === 0) {
+                $sentences[] = "دانش‌آموز تمامی {$stats['assignedTestsCount']} آزمون تستی اختصاص‌یافته را شرکت کرده است.";
+            } else {
+                $sentences[] = "از {$stats['assignedTestsCount']} آزمون تستی اختصاص‌یافته، {$stats['takenTestsCount']} آزمون شرکت شده و {$stats['untakenTestsCount']} آزمون هنوز شرکت نشده است.";
+            }
+        } else {
+            $sentences[] = 'تاکنون آزمون تستی‌ای برای این دانش‌آموز اختصاص داده نشده است.';
+        }
+
+        return implode(' ', $sentences);
+    }
+
     // ==================== Render ====================
     public function render()
     {
         $student = Student::with(['user.personalInformation', 'advisor'])->find($this->studentId);
         $weeklyProgram = $this->weeklyProgramId ? WeeklyProgram::with('parts')->find($this->weeklyProgramId) : null;
         $assessmentSummary = $this->getAssessmentSummary($student);
+        $studentStats = $this->computeStudentStats();
+        $studentStatusAnalysis = $this->generateStudentStatusAnalysis($studentStats);
+        $previousSessionNote = $this->getPreviousSessionNote();
+        $sessionNotesHistory = $this->getSessionNotesHistory();
 
         $educationLevels = EducationLevel::active()->ordered()->get();
 
@@ -4393,6 +4654,103 @@ class WeeklyProgramUpload extends Component
                 : EssayExam::find($this->selectedEssayExamId);
         }
 
+        // ==================== Exam History (آزمون‌های قبلاً شرکت‌شده) ====================
+        $examHistoryItems = collect();
+        $examHistorySortOptions = [
+            'newest'     => 'جدیدترین',
+            'oldest'     => 'قدیمی‌ترین',
+            'score_desc' => 'بیشترین نمره',
+            'score_asc'  => 'کمترین نمره',
+            'title_asc'  => 'عنوان (الف تا ی)',
+        ];
+
+        if ($this->showExamHistoryModal) {
+            if ($this->examHistoryType === 'typed') {
+                $examHistoryItems = TypedExamAttempt::query()
+                    ->where('student_id', $this->studentId)
+                    ->where('is_finished', true)
+                    ->with([
+                        'assignment.typedExam.topic.chapter.subject.grade',
+                        'assignment.typedExam.topic.chapter.subject.field',
+                        // این دو رابطه فقط همین‌جا (یک‌بار برای همه‌ی تلاش‌ها، بدون N+1) eager
+                        // لود می‌شوند تا computeResultStats() بتواند بدون کوئری‌ی اضافه محاسبه کند.
+                        'studentOrders',
+                        'answers',
+                    ])
+                    ->get()
+                    ->map(function (TypedExamAttempt $attempt) {
+                        $exam = $attempt->assignment?->typedExam;
+                        $topic = $exam?->topic;
+                        $subject = $topic?->chapter?->subject;
+
+                        // منبعِ واحدِ محاسبه‌ی نتیجه: همان متدی که صفحه‌ی «کارنامه»ی خودِ دانش‌آموز
+                        // استفاده می‌کند؛ این‌طوری این تاریخچه (سمت مشاور) هرگز عددی متفاوت یا
+                        // نادرست (مثلاً منفی، یا با تعداد کل سوالات اشتباه) نشان نمی‌دهد.
+                        $resultStats = $attempt->computeResultStats();
+
+                        return (object) [
+                            'id'                     => $attempt->id,
+                            'title'                  => $exam?->title ?? 'آزمون حذف‌شده',
+                            'subject_name'           => $subject?->name,
+                            'grade_name'             => $subject?->grade?->name,
+                            'field_name'             => $subject?->field?->name,
+                            'chapter_name'           => $topic?->chapter?->name,
+                            'topic_name'             => $topic?->name,
+                            'total'                  => $resultStats['total'],
+                            'score'                  => $resultStats['score'],
+                            'correct_count'          => $resultStats['correct'],
+                            'wrong_count'            => $resultStats['wrong'],
+                            'unanswered_count'       => $resultStats['unanswered'],
+                            'negative_penalty_count' => $resultStats['negative_penalty_count'],
+                            'negative_correct'       => $resultStats['negative_correct'],
+                            'negative_score'         => $resultStats['negative_score'],
+                            'submitted_at'           => $attempt->submitted_at,
+                        ];
+                    });
+            } else {
+                $examHistoryItems = EssayExamAttempt::query()
+                    ->whereHas('assignment', fn($q) => $q->where('student_id', $this->studentId))
+                    ->whereIn('status', [EssayExamAttempt::STATUS_SUBMITTED, EssayExamAttempt::STATUS_GRADED])
+                    ->with([
+                        'assignment.essayExam.topic.chapter.subject.grade',
+                        'assignment.essayExam.topic.chapter.subject.field',
+                    ])
+                    ->get()
+                    ->map(function (EssayExamAttempt $attempt) {
+                        $exam = $attempt->assignment?->essayExam;
+                        $topic = $exam?->topic;
+                        $subject = $topic?->chapter?->subject;
+                        $maxScore = (float) ($exam?->total_score ?? 0);
+                        $achievedScore = (float) ($attempt->total_score ?? 0);
+                        $percent = $maxScore > 0 ? round(($achievedScore / $maxScore) * 100, 1) : null;
+
+                        return (object) [
+                            'id'           => $attempt->id,
+                            'title'        => $exam?->title ?? 'آزمون حذف‌شده',
+                            'subject_name' => $subject?->name,
+                            'grade_name'   => $subject?->grade?->name,
+                            'field_name'   => $subject?->field?->name,
+                            'chapter_name' => $topic?->chapter?->name,
+                            'topic_name'   => $topic?->name,
+                            'score'        => $achievedScore,
+                            'max_score'    => $maxScore,
+                            'percent'      => $percent,
+                            'status'       => $attempt->status,
+                            'submitted_at' => $attempt->submitted_at,
+                        ];
+                    });
+            }
+
+            $sortKey = $this->examHistoryType === 'typed' ? 'score' : 'percent';
+            $examHistoryItems = match ($this->examHistorySort) {
+                'oldest'     => $examHistoryItems->sortBy('submitted_at')->values(),
+                'score_desc' => $examHistoryItems->sortByDesc($sortKey)->values(),
+                'score_asc'  => $examHistoryItems->sortBy($sortKey)->values(),
+                'title_asc'  => $examHistoryItems->sortBy('title')->values(),
+                default      => $examHistoryItems->sortByDesc('submitted_at')->values(), // newest
+            };
+        }
+
         return view('livewire.admin.student.consultation.weekly-program-upload', [
             'student'           => $student,
             'educationLevels'   => $educationLevels,
@@ -4414,6 +4772,12 @@ class WeeklyProgramUpload extends Component
             'examAssignmentSortOptions' => $examAssignmentSortOptions,
             'selectedExamForAssignment' => $selectedExamForAssignment,
             'visibilityOptions' => $visibilityOptions,
+            'examHistoryItems' => $examHistoryItems,
+            'examHistorySortOptions' => $examHistorySortOptions,
+            'studentStats' => $studentStats,
+            'studentStatusAnalysis' => $studentStatusAnalysis,
+            'previousSessionNote' => $previousSessionNote,
+            'sessionNotesHistory' => $sessionNotesHistory,
         ])->layout('layouts.admin.app');
     }
 }

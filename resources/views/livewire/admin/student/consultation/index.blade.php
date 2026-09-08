@@ -101,11 +101,6 @@
                 box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
             }
 
-            .time-input-group {
-                direction: ltr;
-                width: 120px;
-            }
-
             /* جداول */
             .table-modern {
                 color: var(--dash-text);
@@ -132,10 +127,114 @@
             [data-theme="dark"] .bg-warning-subtle, [data-bs-theme="dark"] .bg-warning-subtle { background-color: rgba(255, 193, 7, 0.15) !important; }
             [data-theme="dark"] .bg-danger-subtle,  [data-bs-theme="dark"] .bg-danger-subtle  { background-color: rgba(220, 53, 69, 0.15) !important; }
 
-            /* اصلاح پس‌زمینه کارت فرم تماس ذخیره شده */
+            /* اصلاح پس‌زمینه کارت فرم ذخیره شده */
             .saved-form-box {
                 background-color: var(--dash-bg-card);
                 border: 1px solid var(--dash-border);
+            }
+
+            /* کارتِ روزِ هفته در بخشِ زمان‌بندی */
+            .day-student-row {
+                background-color: var(--dash-bg-card);
+                border: 1px solid var(--dash-border) !important;
+            }
+
+            /* بازخوردِ فوریِ فشردنِ دکمه‌ها */
+            .btn:active {
+                transform: scale(0.97);
+            }
+            .btn {
+                transition: transform 0.1s ease-out, filter 0.15s ease, box-shadow 0.15s ease;
+            }
+
+            /* جعبه‌ی ساعت/دقیقه‌ی جلسه — فلکسِ سادهِ مستقل از input-group بوتسترپ */
+            .time-input-group {
+                direction: ltr;
+                display: flex;
+                align-items: center;
+                flex-wrap: nowrap;
+                gap: 0.5rem;
+                max-width: 220px;
+            }
+            .time-input-group .form-control {
+                flex: 0 0 80px;
+                width: 80px;
+            }
+            .time-input-group .time-sep {
+                font-weight: 700;
+                font-size: 1.1rem;
+                color: var(--dash-text-muted);
+                flex: 0 0 auto;
+            }
+
+            /* ورودیِ تاریخِ شمسی */
+            .jdp-date-input {
+                cursor: pointer;
+                background-color: var(--dash-input-bg) !important;
+                color: var(--dash-text) !important;
+                border-color: var(--dash-input-border) !important;
+            }
+            /* پاپ‌آپِ تقویمِ شمسی از یک لایه‌ی مستقل (خارج از مودال) رندر می‌شود؛
+               باید بالاترِ بک‌دراپ و بدنه‌ی مودالِ بوتسترپ باشد وگرنه پشتِ آن پنهان می‌شود. */
+            jdp-container {
+                z-index: 99999 !important;
+            }
+
+            /* هماهنگ‌سازیِ select2 با تم — با important چون CSS خودِ select2 بعد از این استایل بارگذاری می‌شود */
+            .select2-container--default .select2-selection--single {
+                background-color: var(--dash-input-bg) !important;
+                border: 1px solid var(--dash-input-border) !important;
+                height: calc(1.5em + 0.75rem + 2px) !important;
+                display: flex !important;
+                align-items: center !important;
+                border-radius: 0.375rem !important;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                color: var(--dash-text) !important;
+                line-height: normal !important;
+                padding-inline-start: 0.75rem !important;
+                padding-inline-end: 1.5rem !important;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 100% !important;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__arrow b {
+                border-color: var(--dash-text-muted) transparent transparent transparent !important;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__placeholder {
+                color: var(--dash-text-muted) !important;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__clear {
+                color: var(--dash-text-muted) !important;
+            }
+            .select2-dropdown {
+                background-color: var(--dash-input-bg) !important;
+                border-color: var(--dash-input-border) !important;
+                z-index: 99999 !important;
+            }
+            .select2-container--default .select2-results__option {
+                background-color: var(--dash-input-bg) !important;
+                color: var(--dash-text) !important;
+            }
+            .select2-container--default .select2-results__option--highlighted[aria-selected] {
+                background-color: #0d6efd !important;
+                color: #fff !important;
+            }
+            .select2-container--default .select2-results__option[aria-selected="true"] {
+                background-color: var(--dash-hover) !important;
+                color: var(--dash-text) !important;
+            }
+            .select2-search--dropdown {
+                background-color: var(--dash-input-bg) !important;
+            }
+            .select2-search--dropdown .select2-search__field {
+                background-color: var(--dash-input-bg) !important;
+                color: var(--dash-text) !important;
+                border: 1px solid var(--dash-input-border) !important;
+                border-radius: 0.375rem !important;
+            }
+            .select2-container--default .select2-results > .select2-results__options {
+                max-height: 260px;
             }
         </style>
     @endpush
@@ -226,12 +325,12 @@
             <div>
                 <h4 class="mb-1 fw-bold">مدیریت جلسات</h4>
                 <p class="small dash-text-muted mb-0">
-                    فقط برای <strong>فردا</strong> می‌توانید تماس بگیرید و ساعت جلسه را تعیین کنید...
+                    جلسه‌ی مشاوره‌ی هر دانش‌آموز را به‌صورتِ دستی، برایِ روزِ برنامه‌ی هفتگی‌اش یا هر تاریخِ دیگری تعریف یا ویرایش کنید.
                 </p>
             </div>
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <button wire:click="$set('quickStudentId', null)" data-bs-toggle="modal" data-bs-target="#quickSessionModal" class="btn btn-success shadow-sm">
-                    <i class="ri-flashlight-line ms-1"></i> تعریفِ سریعِ جلسه
+                <button wire:click="openQuickSession" data-bs-toggle="modal" data-bs-target="#quickSessionModal" class="btn btn-success shadow-sm">
+                    <i class="ri-flashlight-line ms-1"></i> تعریفِ جلسه
                 </button>
                 <div class="input-group shadow-sm" style="max-width:300px">
                     <span class="input-group-text border-end-0 dash-text-muted"><i class="ri-search-line"></i></span>
@@ -239,107 +338,6 @@
                 </div>
             </div>
         </div>
-
-        @if ($pendingOnboardings->isNotEmpty())
-            <div class="modern-card mb-4" style="border-color:#6f42c1 !important;">
-                <div class="modern-card-header d-flex justify-content-between align-items-center flex-wrap gap-2" style="background:rgba(111,66,193,.08);">
-                    <div>
-                        <h5 class="mb-1 fw-bold" style="color:#6f42c1;"><i class="ri-shield-user-line ms-1"></i> جریان اتمام حجت</h5>
-                        <p class="small dash-text-muted mb-0">تا قبل از تماس موفق، ثبت لینک گروه بله و تایید مدیر آموزشی، برای این دانش‌آموزان هیچ تماس یا جلسهٔ عادی فعال نمی‌شود.</p>
-                    </div>
-                    <span class="badge rounded-pill" style="background:#6f42c1;">{{ $pendingOnboardings->count() }} دانش‌آموز</span>
-                </div>
-                <div class="card-body p-0">
-                    @foreach ($pendingOnboardings as $onboarding)
-                        @php
-                            $student = $onboarding->student;
-                            $profile = $student?->user?->profile;
-                            $studentName = $renderStudentName($student);
-                            $todayNoAnswerCount = (int) ($onboardingNoAnswerCounts[$onboarding->student_id] ?? 0);
-                        @endphp
-                        <div class="student-item p-3">
-                            <div class="row g-3 align-items-center">
-                                <div class="col-lg-4 d-flex align-items-center gap-3">
-                                    @if ($profile && $profile->picture)
-                                        <img src="{{ asset('user/img/' . $student->user->id . '/' . $profile->picture) }}" class="rounded-circle shadow-sm" width="50" height="50" style="object-fit:cover" alt="">
-                                    @else
-                                        <div class="rounded-circle bg-secondary-subtle text-secondary fw-bold d-flex align-items-center justify-content-center shadow-sm" style="width:50px;height:50px;font-size:1.2rem;">
-                                            {{ mb_substr($studentName, 0, 1) }}
-                                        </div>
-                                    @endif
-                                    <div>
-                                        <h6 class="mb-1 fw-bold">{{ $studentName }}</h6>
-                                        <div class="small dash-text-muted" dir="ltr" style="text-align:right;"><i class="ri-phone-line ms-1"></i>{{ $student?->user?->mobile ?? 'بدون شماره' }}</div>
-                                        <div class="small mt-1">
-                                            <span class="badge {{ $onboarding->status === \App\Models\AdvisorOnboarding::STATUS_APPROVED ? 'bg-success' : ($onboarding->status === \App\Models\AdvisorOnboarding::STATUS_REJECTED ? 'bg-danger' : 'bg-warning text-dark') }}">
-                                                {{ $onboarding->status_label }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-8">
-                                    @if ($onboarding->status === \App\Models\AdvisorOnboarding::STATUS_PENDING_CALL)
-                                        <div class="d-flex align-items-center justify-content-lg-end flex-wrap gap-2">
-                                            <span class="small dash-text-muted me-2">
-                                                <i class="ri-information-line ms-1"></i>
-                                                تا وقتی تماس اتمام حجت پاسخ داده نشود، این دانش‌آموز در لیست جلسات نمی‌آید. تماس ناموفق امروز: {{ $todayNoAnswerCount }}
-                                            </span>
-                                            <button wire:click="openCall({{ $onboarding->student_id }}, {{ $onboarding->id }})" class="btn btn-outline-primary btn-sm rounded-pill px-3">
-                                                <i class="ri-phone-fill ms-1"></i> تماس اتمام حجت
-                                            </button>
-                                        </div>
-                                    @elseif (in_array($onboarding->status, [\App\Models\AdvisorOnboarding::STATUS_PENDING_LINK, \App\Models\AdvisorOnboarding::STATUS_REJECTED], true))
-                                        <div class="p-3 saved-form-box rounded-3 shadow-sm">
-                                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                                                <span class="badge bg-success-subtle text-success py-2 px-3 rounded-pill">
-                                                    <i class="ri-phone-line ms-1"></i> تماس اتمام حجت ثبت شد
-                                                </span>
-                                                @if ($onboarding->reject_reason)
-                                                    <span class="small text-danger fw-bold"><i class="ri-close-circle-line ms-1"></i>{{ $onboarding->reject_reason }}</span>
-                                                @endif
-                                            </div>
-                                            <div class="row g-3 align-items-end">
-                                                <div class="col-12 col-md">
-                                                    <label class="form-label small dash-text-muted mb-1">لینک گروه بله</label>
-                                                    <input type="url"
-                                                           class="form-control form-control-sm"
-                                                           dir="ltr"
-                                                           wire:model="groupLinks.{{ $onboarding->id }}"
-                                                           placeholder="https://ble.ir/join/...">
-                                                </div>
-                                                <div class="col-12 col-md-auto text-end">
-                                                    <button wire:click="submitGroupLink({{ $onboarding->id }})" class="btn btn-primary btn-sm px-4 shadow-sm w-100 w-md-auto">
-                                                        <i class="ri-send-plane-line ms-1"></i>
-                                                        {{ $onboarding->status === \App\Models\AdvisorOnboarding::STATUS_REJECTED ? 'ویرایش و ارسال مجدد' : 'ارسال برای تایید' }}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div class="mt-2">
-                                                @error("groupLinks.{$onboarding->id}") <span class="text-danger small d-block"><i class="ri-error-warning-line ms-1"></i>{{ $message }}</span> @enderror
-                                            </div>
-                                        </div>
-                                    @elseif ($onboarding->status === \App\Models\AdvisorOnboarding::STATUS_PENDING_REVIEW)
-                                        <div class="p-3 saved-form-box rounded-3 shadow-sm">
-                                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                                                <span class="badge bg-warning-subtle text-warning py-2 px-3 rounded-pill">
-                                                    <i class="ri-time-line ms-1"></i> در انتظار تایید مدیر آموزشی
-                                                </span>
-                                                @if ($onboarding->submitted_at)
-                                                    <span class="small dash-text-muted">ارسال شده در {{ $onboarding->submitted_at->format('H:i') }}</span>
-                                                @endif
-                                            </div>
-                                            <div class="small dash-text-muted mb-1">لینک ثبت‌شده</div>
-                                            <a href="{{ $onboarding->group_link }}" target="_blank" dir="ltr" class="text-decoration-none">{{ $onboarding->group_link }}</a>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        @endif
 
         {{-- ───────────── جلسات امروز من ───────────── --}}
         <div class="modern-card mb-4">
@@ -369,7 +367,10 @@
                                 <span class="badge bg-secondary-subtle dash-text-muted dash-border p-2" style="border: 1px solid">
                                     {{ $todaySession->result_status ? $todaySession->result_label : $todaySession->status_label }}
                                 </span>
-                                <a href="{{ route('admin.student.advising-sessions.create', $todaySession->student?->user_id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">جزئیات</a>
+                                <button wire:click="openQuickSession({{ $todaySession->student_id }}, '{{ \Illuminate\Support\Carbon::parse($todaySession->activation_date)->toDateString() }}')" data-bs-toggle="modal" data-bs-target="#quickSessionModal" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="ri-edit-line ms-1"></i> ویرایش
+                                </button>
+                                <a href="{{ route('admin.student.advising-sessions.create', $todaySession->student?->user_id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">جزئیات</a>
                             </div>
                         </div>
                     </div>
@@ -377,144 +378,6 @@
                     <div class="text-center dash-text-muted py-4">
                         <i class="ri-calendar-check-line opacity-50 fs-1 d-block mb-2"></i>
                         امروز جلسه‌ای ثبت نشده است.
-                    </div>
-                @endforelse
-            </div>
-        </div>
-
-        {{-- ───────────── باکسِ فردا (قابلِ عملیات) ───────────── --}}
-        <div class="modern-card border-primary mb-5" style="border-color: #0d6efd !important;">
-            <div class="modern-card-header bg-primary-subtle d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <h5 class="mb-0 text-primary fw-bold d-flex align-items-center">
-                    <i class="ri-calendar-event-line fs-4 ms-2"></i>
-                    فردا — {{ $days[$tomorrowDow] ?? '' }} ({{ $tomorrowTitle }})
-                    <span class="badge bg-primary ms-3 rounded-pill">{{ $tomorrowStudents->count() }} دانش‌آموز</span>
-                </h5>
-                @if ($canFinalize)
-                    <button wire:click="finalizeAll" wire:confirm="جلساتِ فردا ثبتِ نهایی شود؟ پس از آن به دانش‌آموزان اطلاع داده می‌شود." class="btn btn-success btn-sm shadow-sm">
-                        <i class="ri-check-double-line ms-1"></i> ثبت نهاییِ جلساتِ فردا
-                    </button>
-                @endif
-            </div>
-            <div class="card-body p-0">
-                @forelse ($tomorrowStudents as $st)
-                    @php
-                        $profile = $st->user?->profile;
-                        $called  = $calledIds->has($st->id);
-                        $session = $tomorrowSessions->get($st->id);
-                        $isFinal = $session && $session->finalized;
-                        $noAnswerCount = (int) ($noAnswerCounts[$st->id] ?? 0);
-                    @endphp
-                    <div class="student-item p-3">
-                        <div class="row align-items-center py-1">
-                            <!-- اطلاعات دانش آموز -->
-                            <div class="col-lg-4 col-md-12 d-flex align-items-center gap-3 mb-3 mb-lg-0">
-                                @if ($profile && $profile->picture)
-                                    <img src="{{ asset('user/img/' . $st->user->id . '/' . $profile->picture) }}" class="rounded-circle shadow-sm" width="50" height="50" style="object-fit:cover" alt="">
-                                @else
-                                    <div class="rounded-circle bg-secondary-subtle text-secondary fw-bold d-flex align-items-center justify-content-center shadow-sm" style="width:50px;height:50px;font-size:1.2rem;">
-                                        {{ mb_substr($renderStudentName($st), 0, 1) }}
-                                    </div>
-                                @endif
-                                <div>
-                                    <h6 class="mb-1 fw-bold d-flex align-items-center gap-2">
-                                        {{ $renderStudentName($st) }}
-                                        @if ($session && $session->is_makeup)
-                                            <span class="badge bg-warning text-dark rounded-pill" style="font-size:0.7rem">جبرانی</span>
-                                        @endif
-                                    </h6>
-                                    <div class="small dash-text-muted mb-1" dir="ltr" style="text-align: right;"><i class="ri-phone-line ms-1"></i>{{ $st->user?->mobile ?? 'بدون شماره' }}</div>
-                                    <a href="{{ route('admin.student.advising-sessions.create', $st->user_id) }}" class="small text-decoration-none text-primary"><i class="ri-history-line ms-1"></i>جزئیات و تاریخچه</a>
-                                </div>
-                            </div>
-
-                            <!-- عملیات و فرم -->
-                            <div class="col-lg-8 col-md-12">
-                                @if ($isFinal)
-                                    <div class="d-flex justify-content-lg-end">
-                                    <span class="badge bg-success py-2 px-3 fs-6 rounded-pill">
-                                        <i class="ri-check-double-line ms-1"></i> ثبتِ نهایی — ساعت {{ $session->session_time?->format('H:i') }}
-                                    </span>
-                                    </div>
-                                @elseif (! $called)
-                                    <div class="d-flex align-items-center justify-content-lg-end flex-wrap gap-2">
-                                        <span class="small dash-text-muted me-2"><i class="ri-information-line ms-1"></i>برای تعیین ساعت، ابتدا تماس بگیرید. تماس ناموفق امروز: {{ $noAnswerCount }}/3</span>
-                                        <button wire:click="openCall({{ $st->id }})" class="btn btn-outline-primary btn-sm rounded-pill px-3">
-                                            <i class="ri-phone-fill ms-1"></i> ثبت تماس و هماهنگی
-                                        </button>
-                                        @if($noAnswerCount >= 3)
-                                            <button wire:click="markAbsentAfterNoAnswers({{ $st->id }})"
-                                                    wire:confirm="برای این دانش‌آموز غیبت ثبت شود و جلسه جبرانی در انتظار تعیین روز ساخته شود؟"
-                                                    class="btn btn-outline-danger btn-sm rounded-pill px-3">
-                                                <i class="ri-user-unfollow-line ms-1"></i> غیبت جلسه
-                                            </button>
-                                        @endif
-                                    </div>
-                                @else
-                                    <div class="p-3 saved-form-box rounded-3 shadow-sm">
-                                        <div class="d-flex flex-wrap align-items-center justify-content-between mb-2">
-                                            <span class="badge bg-success-subtle text-success py-2 px-3 rounded-pill mb-2 mb-md-0"><i class="ri-phone-line ms-1"></i> تماس انجام شد</span>
-                                            @if ($session)
-                                                <span class="small text-success fw-bold"><i class="ri-checkbox-circle-fill ms-1"></i> ذخیره شده (در انتظار ثبت نهایی)</span>
-                                            @endif
-                                        </div>
-
-                                        <div class="row g-3 align-items-end">
-                                            <!-- ساعت و دقیقه -->
-                                            <div class="col-12 col-md-auto">
-                                                <label class="form-label small dash-text-muted mb-1">زمان جلسه</label>
-                                                <div class="input-group input-group-sm time-input-group m-auto ms-md-0">
-                                                    <input type="number" min="0" max="23" class="form-control text-center" wire:model="schedule.{{ $st->id }}.hour" placeholder="ساعت">
-                                                    <span class="input-group-text dash-text-muted">:</span>
-                                                    <input type="number" min="0" max="59" class="form-control text-center" wire:model="schedule.{{ $st->id }}.minute" placeholder="دقیقه">
-                                                </div>
-                                            </div>
-                                            <div class="col-12 col-md">
-                                                <label class="form-label small dash-text-muted mb-1">لینک جلسه آنلاین (اختیاری)</label>
-                                                <input type="url" class="form-control form-control-sm" dir="ltr" wire:model="schedule.{{ $st->id }}.link" placeholder="https://...">
-                                            </div>
-                                            <div class="col-12 col-md-auto text-end">
-                                                <button wire:click="saveSchedule({{ $st->id }})" class="btn btn-primary btn-sm px-4 shadow-sm w-100 w-md-auto">
-                                                    <i class="ri-save-line ms-1"></i> ذخیره
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <!-- ارورها -->
-                                        <div class="mt-2">
-                                            @error("schedule.{$st->id}.hour") <span class="text-danger small d-block"><i class="ri-error-warning-line ms-1"></i>{{ $message }}</span> @enderror
-                                            @error("schedule.{$st->id}.minute") <span class="text-danger small d-block"><i class="ri-error-warning-line ms-1"></i>{{ $message }}</span> @enderror
-                                            @error("schedule.{$st->id}.link") <span class="text-danger small d-block"><i class="ri-error-warning-line ms-1"></i>{{ $message }}</span> @enderror
-                                        </div>
-
-                                        <div class="border-top mt-3 pt-3">
-                                            <div class="row g-2 align-items-end">
-                                                <div class="col-12 col-md">
-                                                    <label class="form-label small dash-text-muted mb-1">در صورت نیاز به جبرانی، تاریخ را انتخاب کنید</label>
-                                                    <select wire:model="rescheduleMakeupDate.{{ $st->id }}" class="form-select form-select-sm">
-                                                        <option value="">انتخاب تاریخ جبرانی...</option>
-                                                        @foreach($allowedMakeupDates as $dateValue => $dateLabel)
-                                                            <option value="{{ $dateValue }}">{{ $dateLabel }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="col-12 col-md-auto">
-                                                    <button wire:click="rescheduleTomorrowSessionToMakeup({{ $st->id }})"
-                                                            wire:confirm="جلسه فردا غیبت ثبت شود و برای تاریخ انتخاب‌شده جلسه جبرانی ساخته شود؟"
-                                                            class="btn btn-outline-warning btn-sm w-100 text-nowrap">
-                                                        <i class="ri-calendar-todo-line ms-1"></i> جلسه جبرانی
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <div class="text-center dash-text-muted py-5">
-                        <i class="ri-calendar-event-line opacity-50" style="font-size: 4rem;"></i>
-                        <p class="mt-3 mb-0 fs-5">برای فردا دانش‌آموزی در لیست ندارید.</p>
                     </div>
                 @endforelse
             </div>
@@ -567,7 +430,7 @@
             <div class="modern-card mb-4" style="border-color: #ffc107 !important;">
                 <div class="modern-card-header bg-warning-subtle">
                     <h5 class="mb-0 text-warning fw-bold" style="filter: brightness(0.8);"><i class="ri-calendar-todo-fill ms-1"></i> جلسات جبرانی در انتظار ({{ $pendingMakeups->count() }})</h5>
-                    <p class="small dash-text-muted mb-0 mt-1">برای هر دانش‌آموز روزِ جلسه‌ی جبرانی را مشخص کنید؛ ساعت آن یک روز قبل با تماس هماهنگ می‌شود.</p>
+                    <p class="small dash-text-muted mb-0 mt-1">برای هر دانش‌آموز روزِ جلسه‌ی جبرانی را مشخص کنید؛ سپس ساعتِ آن را از طریقِ «تعریفِ جلسه» ثبت کنید.</p>
                 </div>
                 <div class="card-body p-3">
                     @if($pendingMakeups->contains(fn($mk) => $mk->created_at && $mk->created_at->lt(now()->subDays(7))))
@@ -607,39 +470,88 @@
             </div>
         @endif
 
-        {{-- ───────────── باکس‌های سایرِ روزها (فقط نمایش) ───────────── --}}
-        <h5 class="fw-bold mb-3"><i class="ri-calendar-2-line ms-1 dash-text-muted"></i> زمان‌بندی سایر روزهای هفته</h5>
+        {{-- ───────────── زمان‌بندیِ هفتگیِ جلسات (بر اساسِ جلسه‌ی تعریف‌شده در همان روز) ───────────── --}}
+        <h5 class="fw-bold mb-3"><i class="ri-calendar-2-line ms-1 dash-text-muted"></i> زمان‌بندی هفتگی جلسات</h5>
         <div class="row g-4 mb-4">
             @foreach ($days as $d => $dayName)
-                @if ($d === $tomorrowDow)
-                    @continue
-                @endif
-                @php $dayStudents = collect($grouped->get($d, collect())); @endphp
+                @php
+                    $dayStudents = collect($grouped->get($d, collect()));
+                    $dayDate = $dayDates[$d];
+                    $dayDateLabel = \Morilog\Jalali\Jalalian::fromCarbon($dayDate)->format('Y/m/d');
+                    $isToday = $d === $todayDow;
+                @endphp
                 <div class="col-12 col-md-6 col-xl-4">
-                    <div class="modern-card h-100 border-0">
-                        <div class="modern-card-header d-flex justify-content-between align-items-center py-2">
-                            <h6 class="mb-0 fw-bold">{{ $dayName }}</h6>
+                    <div class="modern-card h-100 {{ $isToday ? '' : 'border-0' }}" @if($isToday) style="border-color:#0d6efd !important;" @endif>
+                        <div class="modern-card-header d-flex justify-content-between align-items-center py-2 {{ $isToday ? 'bg-primary-subtle' : '' }}">
+                            <div>
+                                <h6 class="mb-0 fw-bold {{ $isToday ? 'text-primary' : '' }}">
+                                    {{ $dayName }}
+                                    @if($isToday)
+                                        <span class="badge bg-primary rounded-pill ms-1">امروز</span>
+                                    @endif
+                                </h6>
+                                <span class="small dash-text-muted" style="font-size:.75rem;">{{ $dayDateLabel }}</span>
+                            </div>
                             <span class="badge bg-secondary rounded-pill px-2">{{ $dayStudents->count() }} نفر</span>
                         </div>
                         <div class="card-body p-2">
                             @forelse ($dayStudents as $st)
-                                @php $activeMakeup = $activeMakeupsByStudent->get($st->id); @endphp
-                                <div class="d-flex align-items-center justify-content-between p-2 dash-border dash-hover-item rounded" style="border-bottom: 1px solid">
-                                    <div>
-                                        <div class="small fw-bold d-flex align-items-center gap-2" style="color: var(--dash-text);">
-                                            <i class="ri-user-line dash-text-muted ms-1"></i> {{ $renderStudentName($st) }}
-                                            @if($activeMakeup)
-                                                <span class="badge bg-warning text-dark rounded-pill">جبرانی</span>
-                                            @endif
-                                        </div>
-                                        <div class="small dash-text-muted" dir="ltr">{{ $st->user?->mobile ?? '' }}</div>
-                                        @if($activeMakeup?->activation_date)
-                                            <div class="small text-warning mt-1">
-                                                {{ \Morilog\Jalali\Jalalian::fromCarbon(\Carbon\Carbon::parse($activeMakeup->activation_date))->format('Y/m/d') }}
+                                @php
+                                    $activeMakeup = $activeMakeupsByStudent->get($st->id);
+                                    $session = $weekSessions->get($st->id);
+                                    $isAbsent = $session && $session->result_status === \App\Models\AdvisingSession::RESULT_STUDENT_ABSENT;
+                                    $hasTime = $session && $session->session_time && ! $isAbsent;
+                                @endphp
+                                <div class="p-2 day-student-row dash-hover-item rounded mb-2">
+                                    <div class="d-flex align-items-center justify-content-between mb-2 gap-2">
+                                        <div>
+                                            <div class="small fw-bold d-flex align-items-center gap-2" style="color: var(--dash-text);">
+                                                <i class="ri-user-line dash-text-muted ms-1"></i> {{ $renderStudentName($st) }}
+                                                @if($activeMakeup)
+                                                    <span class="badge bg-warning text-dark rounded-pill">جبرانی</span>
+                                                @endif
                                             </div>
-                                        @endif
+                                            <div class="small dash-text-muted" dir="ltr">{{ $st->user?->mobile ?? '' }}</div>
+                                        </div>
+                                        <a href="{{ route('admin.student.advising-sessions.create', $st->user_id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-2" title="جزئیات و تاریخچه"><i class="ri-history-line"></i></a>
                                     </div>
-                                    <a href="{{ route('admin.student.advising-sessions.create', $st->user_id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">جزئیات</a>
+
+                                    @if ($hasTime)
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                            <span class="badge {{ $session->finalized ? 'bg-success' : 'bg-secondary' }} rounded-pill" dir="ltr">
+                                                <i class="ri-time-line ms-1"></i>{{ $session->session_time->format('H:i') }}
+                                            </span>
+                                            <button wire:click="openQuickSession({{ $st->id }}, '{{ $dayDate->toDateString() }}')" data-bs-toggle="modal" data-bs-target="#quickSessionModal" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                                <i class="ri-edit-line ms-1"></i> ویرایش
+                                            </button>
+                                        </div>
+                                    @elseif ($isAbsent)
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                            <span class="badge bg-danger-subtle text-danger rounded-pill"><i class="ri-user-unfollow-line ms-1"></i> غیبت ثبت شد</span>
+                                            <button wire:click="openQuickSession({{ $st->id }}, '{{ $dayDate->toDateString() }}')" data-bs-toggle="modal" data-bs-target="#quickSessionModal" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                                <i class="ri-edit-line ms-1"></i> تعریف مجدد
+                                            </button>
+                                        </div>
+                                    @else
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                            <button wire:click="openQuickSession({{ $st->id }}, '{{ $dayDate->toDateString() }}')" data-bs-toggle="modal" data-bs-target="#quickSessionModal" class="btn btn-primary btn-sm rounded-pill px-3">
+                                                <i class="ri-add-line ms-1"></i> تعریف جلسه
+                                            </button>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <select wire:model="rescheduleMakeupDate.{{ $st->id }}" class="form-select form-select-sm" style="max-width:130px;font-size:.75rem;" title="در صورتِ غیبت، تاریخ جبرانی">
+                                                    <option value="">جبرانی...</option>
+                                                    @foreach($allowedMakeupDates as $dateValue => $dateLabel)
+                                                        <option value="{{ $dateValue }}">{{ $dateLabel }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <button wire:click="markSessionAbsent({{ $st->id }}, '{{ $dayDate->toDateString() }}')"
+                                                        wire:confirm="غیبتِ این جلسه ثبت شود؟"
+                                                        class="btn btn-outline-danger btn-sm" title="ثبتِ غیبت">
+                                                    <i class="ri-user-unfollow-line"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             @empty
                                 <div class="text-center dash-text-muted small py-4 opacity-50">
@@ -674,39 +586,66 @@
                 </div>
             </div>
         @endif
-        {{-- ───────────── مودالِ تعریفِ سریعِ جلسه ───────────── --}}
+
+        {{-- ───────────── مودالِ تعریف/ویرایشِ جلسه ───────────── --}}
         <div class="modal fade" id="quickSessionModal" tabindex="-1" wire:ignore.self>
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title fw-bold"><i class="ri-flashlight-line ms-1 text-success"></i> تعریفِ سریعِ جلسه</h5>
+                        <h5 class="modal-title fw-bold"><i class="ri-flashlight-line ms-1 text-success"></i> تعریف/ویرایشِ جلسه</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <p class="small dash-text-muted">این جلسه بدون تماس و بدون محدودیتِ روز، مستقیماً ثبتِ نهایی می‌شود و پیش‌جلسه ساخته می‌شود.</p>
+                        <p class="small dash-text-muted">جلسه به‌صورتِ دستی تعریف می‌شود؛ پس از ذخیره بلافاصله ثبتِ نهایی شده، پیش‌جلسه ساخته می‌شود و به دانش‌آموز اطلاع داده می‌شود.</p>
 
                         <div class="mb-3">
-                            <label class="form-label small">دانش‌آموز</label>
-                            <select wire:model="quickStudentId" class="form-select">
-                                <option value="">انتخاب کنید...</option>
-                                @foreach ($allStudents as $st)
-                                    <option value="{{ $st->id }}">{{ $renderStudentName($st) }}</option>
-                                @endforeach
-                            </select>
+                            <label class="form-label small"><i class="ri-user-search-line ms-1 dash-text-muted"></i>دانش‌آموز</label>
+                            <div wire:ignore
+                                 x-data="{}"
+                                 x-init="
+                                    const el = $refs.quickStudentSelect;
+                                    $(el).select2({
+                                        width: '100%',
+                                        dir: 'rtl',
+                                        placeholder: 'جستجو و انتخابِ دانش‌آموز...',
+                                        allowClear: true,
+                                        dropdownParent: $(el).closest('.modal-content'),
+                                    }).on('change', function () {
+                                        $wire.set('quickStudentId', this.value ? parseInt(this.value) : null);
+                                    });
+                                    $wire.on('open-quick-session-modal', (e) => {
+                                        $(el).val(e.studentId ?? '').trigger('change');
+                                    });
+                                 ">
+                                <select x-ref="quickStudentSelect" class="form-select">
+                                    <option value="">انتخاب کنید...</option>
+                                    @foreach ($modalStudents as $st)
+                                        <option value="{{ $st->id }}">{{ $renderStudentName($st) }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             @error('quickStudentId') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label small">تاریخ</label>
-                            <input type="date" wire:model="quickDate" class="form-control">
+                            <label class="form-label small"><i class="ri-calendar-line ms-1 dash-text-muted"></i>تاریخ جلسه (شمسی)</label>
+                            <input type="text"
+                                   class="form-control jdp-date-input"
+                                   data-jdp
+                                   data-jdp-gregorian-format="Y-m-d"
+                                   autocomplete="off"
+                                   readonly
+                                   placeholder="انتخابِ تاریخ..."
+                                   value="{{ $quickDate ? \Morilog\Jalali\Jalalian::fromCarbon(\Carbon\Carbon::parse($quickDate))->format('Y/m/d') : '' }}"
+                                   x-on:jdp:change="$wire.set('quickDate', $event.target.value)">
                             @error('quickDate') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label small">زمان جلسه</label>
-                            <div class="input-group time-input-group">
+                            <label class="form-label small"><i class="ri-time-line ms-1 dash-text-muted"></i>زمان جلسه</label>
+                            <div class="time-input-group">
                                 <input type="number" min="0" max="23" class="form-control text-center" wire:model="quickTime.hour" placeholder="ساعت">
-                                <span class="input-group-text">:</span>
+                                <span class="time-sep">:</span>
                                 <input type="number" min="0" max="59" class="form-control text-center" wire:model="quickTime.minute" placeholder="دقیقه">
                             </div>
                             @error('quickTime.hour') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
@@ -714,7 +653,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label small">لینک جلسه آنلاین</label>
+                            <label class="form-label small"><i class="ri-link ms-1 dash-text-muted"></i>لینک جلسه آنلاین</label>
                             <input type="url" dir="ltr" wire:model="quickLink" class="form-control" placeholder="https://...">
                             @error('quickLink') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
                         </div>
@@ -728,7 +667,5 @@
                 </div>
             </div>
         </div>
-        {{-- ───────────── مودالِ تماس ───────────── --}}
-        @include('livewire.admin.student.consultation.partials.call-modal')
     </div>
 </div>

@@ -229,6 +229,7 @@ class Login extends Component
     {
         $this->otpCode = '';
         $this->sendOtp();
+        $this->dispatch('otp-cleared');
     }
 
     public function verifyOtp()
@@ -252,6 +253,7 @@ class Login extends Component
         if ($validator->fails()) {
             $this->isLoading = false;
             $this->setErrorBag($validator->errors());
+            $this->dispatch('otp-error');
             return;
         }
 
@@ -277,6 +279,7 @@ class Login extends Component
             $this->isLoading = false;
             $this->errorMessage = 'کد وارد شده صحیح نیست.';
             $this->dispatch('error', $this->errorMessage);
+            $this->dispatch('otp-error');
             return;
         }
 
@@ -285,6 +288,7 @@ class Login extends Component
             $this->countdown = 0;
             $this->errorMessage = 'زمان این کد تمام شده است. دوباره کد بگیرید.';
             $this->dispatch('error', $this->errorMessage);
+            $this->dispatch('otp-error');
             return;
         }
 
@@ -297,6 +301,7 @@ class Login extends Component
             $this->isLoading = false;
             $this->errorMessage = 'این کد قبلاً استفاده شده است. دوباره کد جدید بگیرید.';
             $this->dispatch('error', $this->errorMessage);
+            $this->dispatch('otp-error');
             return;
         }
 
@@ -308,6 +313,7 @@ class Login extends Component
         session()->forget('login_otp_mobile');
 
         $this->isLoading = false;
+        $this->dispatch('otp-success');
         $this->dispatch('success', 'خوش آمدید!');
 
         return redirect()->route('client.profile.dashboard');

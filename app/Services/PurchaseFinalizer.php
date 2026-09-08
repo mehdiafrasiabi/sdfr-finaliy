@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\ClassificationProject;
 use App\Models\GradePrice;
 use App\Models\Installment;
 use App\Models\InstallmentPlan;
 use App\Models\Payment;
 use App\Models\PersonalInformation;
 use App\Models\Student;
+use App\Models\StudentClassification;
 use App\Models\TrialWeek;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -51,6 +53,8 @@ class PurchaseFinalizer
                 'payment_id'     => $payment->id,
                 'access_ends_at' => $this->resolveAccessEnd($payment),
             ]);
+
+            $this->applyTrialClassificationToActiveProject($payment->user_id);
         });
 
         app(TrialLifecycleSmsService::class)->trySendPurchaseCompleted($payment);
@@ -90,6 +94,8 @@ class PurchaseFinalizer
                     'access_ends_at'     => $accessEnd,
                 ]);
             }
+
+            $this->applyTrialClassificationToActiveProject($payment->user_id);
         });
 
         app(TrialLifecycleSmsService::class)->trySendPurchaseCompleted($payment);
@@ -141,6 +147,54 @@ class PurchaseFinalizer
 
         // After the transaction, refresh the plan's completion status once.
         $plan?->refreshCompletion();
+    }
+
+    /**
+     * پس از خریدِ دانش‌آموز، طبقه‌بندیِ او در پروژهٔ آزمایشیِ همیشه‌فعال (is_trial=true) را
+     * روی «آخرین پروژهٔ طبقه‌بندیِ فعالِ» غیرآزمایشی اعمال (overwrite) می‌کند تا مجبور به
+     * پر کردن دوبارهٔ طبقه‌بندی نشود (چون فاصلهٔ زمانی—معمولاً حدود یک هفته—تأثیر زیادی
+     * روی صحتِ رتبه‌ها ندارد). idempotent است: اجرای دوباره فقط همان مقادیر را بازنویسی می‌کند.
+     */
+    protected function applyTrialClassificationToActiveProject(int $userId): void
+    {
+        $trialProject = ClassificationProject::where('is_trial', true)
+            ->where('is_active', true)
+            ->first();
+
+        if (! $trialProject) {
+            return;
+        }
+
+        $trialRatings = StudentClassification::where('user_id', $userId)
+            ->where('classification_project_id', $trialProject->id)
+            ->get(['ratable_type', 'ratable_id', 'rating']);
+
+        if ($trialRatings->isEmpty()) {
+            return;
+        }
+
+        $targetProject = ClassificationProject::where('is_trial', false)
+            ->where('is_active', true)
+            ->where('start_at', '<=', now())
+            ->where('end_at', '>=', now())
+            ->latest()
+            ->first();
+
+        if (! $targetProject || $targetProject->id === $trialProject->id) {
+            return;
+        }
+
+        foreach ($trialRatings as $ratingRow) {
+            StudentClassification::updateOrCreate(
+                [
+                    'user_id'                   => $userId,
+                    'classification_project_id' => $targetProject->id,
+                    'ratable_type'               => $ratingRow->ratable_type,
+                    'ratable_id'                 => $ratingRow->ratable_id,
+                ],
+                ['rating' => $ratingRow->rating]
+            );
+        }
     }
 
     /**

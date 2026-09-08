@@ -17,6 +17,24 @@
         }
         .spinner-sm { width: 1rem; height: 1rem; border-width: 2px; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ✅ هایلایت پارت مقصد هنگام ورود از دکمه «شروع و ثبت ساعت مطالعه» */
+        .focus-part-highlight {
+            animation: focusPartPulse 1.4s cubic-bezier(.22,1,.36,1) 2;
+            position: relative;
+        }
+        @keyframes focusPartPulse {
+            0%   { box-shadow: 0 0 0 0 rgba(245,158,11,.55); }
+            40%  { box-shadow: 0 0 0 10px rgba(245,158,11,0); }
+            100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .focus-part-highlight { animation: focusPartFade 1.8s ease-in-out 1; }
+        }
+        @keyframes focusPartFade {
+            0%, 100% { background-color: transparent; }
+            50% { background-color: rgba(245,158,11,.14); }
+        }
     </style>
     @endassets
 
@@ -67,6 +85,8 @@
              totalDayPages: {{ $totalDayPages }},
              showExamDayPager: @js($showExamDayPager),
              openPartId: null,
+             focusPartId: @js($focusPartId),
+             focusDay: @js($focusDay),
              selectedAlarmState: @entangle('selectedAlarm'),
              previewingAlarmId: null,
              permissionModal:   @entangle('showPermissionModal'),
@@ -102,8 +122,34 @@
              isPartOpen(partId) {
                  return this.openPartId === partId
              },
+             focusPendingPart() {
+                 if (!this.focusPartId) return
+                 const targetId = this.focusPartId
+                 if (this.focusDay && this.availableDays.includes(this.focusDay)) {
+                     this.selectedDay = this.focusDay
+                 }
+                 this.ensureSelectedDay()
+                 this.tab = 'study'
+                 this.openPartId = targetId
+                 this.$nextTick(() => {
+                     setTimeout(() => {
+                         const el = document.getElementById('program-part-' + targetId)
+                         if (!el) return
+                         el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                         el.classList.add('focus-part-highlight')
+                         setTimeout(() => el.classList.remove('focus-part-highlight'), 2800)
+                     }, 200)
+                 })
+                 if (window.history?.replaceState) {
+                     const url = new URL(window.location.href)
+                     url.searchParams.delete('focus_part')
+                     url.searchParams.delete('focus_day')
+                     window.history.replaceState({}, '', url)
+                 }
+                 this.focusPartId = null
+             },
          }"
-         x-init="ensureSelectedDay()"
+         x-init="ensureSelectedDay(); focusPendingPart()"
          x-on:alarm-preview-state.window="previewingAlarmId = $event.detail?.id || null">
 
         {{-- ════════════════════════════════════════════════════════════
@@ -569,6 +615,7 @@
                                             @endphp
 
                                             <div wire:key="part-card-{{ $part->id }}"
+                                                 id="program-part-{{ $part->id }}"
                                                  class="glass border rounded-2xl overflow-hidden transition-colors
                                                         {{ $isActive ? 'border-primary' : ($isDone ? 'border-emerald-500/30' : ($isMissed ? 'border-red-500/30' : 'border-border')) }}">
 

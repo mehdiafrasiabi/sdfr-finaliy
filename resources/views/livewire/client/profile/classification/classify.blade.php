@@ -1,6 +1,6 @@
 <div
     x-data="{
-        ratings: @entangle('ratings').live,
+        ratings: @entangle('ratings'),
         activeSubject: 0,
         setRating(key, kind, id, value) {
             this.ratings[key] = value;
@@ -190,6 +190,7 @@
                             @forelse($subject['chapters'] as $ci => $chapter)
                                 @php $key = 'chapter_' . $chapter['id']; @endphp
                                 <div
+                                    wire:key="classify-chapter-row-{{ $chapter['id'] }}"
                                     class="row-enter flex items-center justify-between gap-3 px-4 py-3.5 hover:bg-secondary/40 transition-colors
                                            {{ $ci < count($subject['chapters']) - 1 ? 'border-b border-border' : '' }}"
                                     style="animation-delay: {{ $ci * 0.025 }}s;"
@@ -232,6 +233,7 @@
                     @foreach($subjects as $si => $subject)
                         @php $key = 'subject_' . $subject['id']; @endphp
                         <div
+                            wire:key="classify-subject-row-{{ $subject['id'] }}"
                             class="row-enter flex items-center justify-between gap-3 px-4 py-3.5 hover:bg-secondary/40 transition-colors
                                    {{ $si < count($subjects) - 1 ? 'border-b border-border' : '' }}"
                             style="animation-delay: {{ $si * 0.03 }}s;"

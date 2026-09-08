@@ -658,8 +658,31 @@
             }
 
             .otp-digit-box--error {
+                border-color: rgb(248 113 113) !important;
                 color: rgb(248 113 113);
+                box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.22) !important;
             }
+
+            .otp-digit-box--success {
+                border-color: rgb(52 211 153) !important;
+                background: rgba(16, 185, 129, 0.12);
+                color: rgb(52 211 153);
+                box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.22) !important;
+            }
+
+            @keyframes otp-digit-pop {
+                0% { transform: translateY(0) scale(1); }
+                40% { transform: translateY(-3px) scale(1.12); }
+                100% { transform: translateY(-3px) scale(1); }
+            }
+            .otp-digit-box--pop { animation: otp-digit-pop 0.18s ease-out; }
+
+            @keyframes otp-shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-6px); }
+                75% { transform: translateX(6px); }
+            }
+            .otp-box-grid.otp-shake { animation: otp-shake 0.4s ease; }
 
             .otp-edit-link {
                 color: #f8fafc;
@@ -1253,32 +1276,48 @@
                                                 class="otp-edit-link inline-flex text-sm mb-8 text">ویرایش شماره <span
                                                 dir="ltr" class="mr-1">{{ $mobile }}</span></button>
 
-                                        <form @submit.prevent="submitOtp()" autocomplete="off"
-                                              x-data="otpSingleInput(@entangle('otpInput').live, @entangle('otpError').live)"
-                                              x-init="init()">
-                                            <div class="relative max-w-sm mx-auto mb-5">
-                                                <input
-                                                    x-ref="otpInput"
-                                                    type="tel"
-                                                    inputmode="numeric"
-                                                    autocomplete="one-time-code"
-                                                    maxlength="6"
-                                                    dir="ltr"
-                                                    placeholder="------"
-                                                    class="otp-digit-box otp-digit-box--single w-full text-2xl font-black placeholder:text-white/25"
-                                                    :class="{ 'otp-digit-box--error': errorMessage }"
-                                                    :value="otpValue"
-                                                    @input="handleInput($event)"
-                                                    @paste.prevent="handlePaste($event)"
-                                                    @keydown.enter.prevent="submitOtp()"
-                                                    :aria-invalid="Boolean(errorMessage)"
-                                                    aria-label="کد تایید شش رقمی"
-                                                >
-                                            </div>
+                                        <form wire:submit.prevent="verifyOtp" autocomplete="off" wire:key="onboarding-otp-mobile">
+                                            <div class="relative"
+                                                 x-data="otpInput({ length: 6, hasServerError: @js((bool) $otpError) })"
+                                                 x-init="init()"
+                                                 @otp-cleared.window="reset()"
+                                                 @otp-error.window="triggerError()"
+                                                 @otp-success.window="triggerSuccess()">
 
-                                            @if($otpError)
-                                                <div class="text-rose-500 text-xs mb-3">{{ $otpError }}</div>
-                                            @endif
+                                                <input type="hidden" wire:model="otpInput" x-ref="hidden">
+
+                                                <div class="otp-box-grid max-w-sm mx-auto mb-5"
+                                                     :class="{ 'otp-shake': status === 'error' }">
+                                                    <template x-for="(digit, index) in digits" :key="index">
+                                                        <input
+                                                            type="text"
+                                                            inputmode="numeric"
+                                                            autocomplete="one-time-code"
+                                                            maxlength="1"
+                                                            data-otp-slot
+                                                            :value="digits[index]"
+                                                            :aria-label="'رقم ' + (index + 1) + ' از ' + length"
+                                                            wire:loading.attr="disabled"
+                                                            wire:target="verifyOtp"
+                                                            @input="handleInput($event, index)"
+                                                            @keydown="handleKeydown($event, index)"
+                                                            @paste="handlePaste($event)"
+                                                            @focus="$event.target.select()"
+                                                            class="otp-digit-box"
+                                                            :class="{
+                                                                'otp-digit-box--filled': digit !== '' && status === 'idle',
+                                                                'otp-digit-box--error': status === 'error',
+                                                                'otp-digit-box--success': status === 'success',
+                                                                'otp-digit-box--pop': poppedIndex === index
+                                                            }"
+                                                        >
+                                                    </template>
+                                                </div>
+
+                                                @if($otpError)
+                                                    <div class="text-rose-500 text-xs mb-3 text-center">{{ $otpError }}</div>
+                                                @endif
+                                            </div>
 
                                             <div
                                                 class="otp-note text-xs mb-5 flex items-start justify-center gap-2 text-right">
@@ -1296,14 +1335,14 @@
                                                 @if($countdown > 0)
                                                     <span>ارسال مجدد (<span x-text="$wire.countdown"></span>)</span>
                                                 @else
-                                                    <button type="button" wire:click="resendOtp">ارسال مجدد کد</button>
+                                                    <button type="button" wire:click="resendOtp"
+                                                            wire:loading.attr="disabled" wire:target="resendOtp">ارسال مجدد کد</button>
                                                 @endif
                                             </div>
 
                                             <div class="flex items-center gap-3">
                                                 <button type="submit" @mousedown="pressBtn($el)"
                                                         wire:loading.attr="disabled" wire:target="verifyOtp"
-                                                        :disabled="verifying"
                                                         class="btn-press h-14 flex-1 rounded-2xl text-lg font-black">
                                                     <span wire:loading.remove wire:target="verifyOtp">تأیید کد</span>
                                                     <span wire:loading wire:target="verifyOtp">در حال بررسی…</span>
@@ -1409,32 +1448,48 @@
                                         class="otp-edit-link inline-flex text-base mb-9">ویرایش شماره <span dir="ltr"
                                                                                                             class="mr-1">{{ $mobile }}</span>
                                 </button>
-                                <form @submit.prevent="submitOtp()" autocomplete="off"
-                                      x-data="otpSingleInput(@entangle('otpInput').live, @entangle('otpError').live)"
-                                      x-init="init()">
-                                    <div class="relative max-w-sm mx-auto mb-6">
-                                        <input
-                                            x-ref="otpInput"
-                                            type="tel"
-                                            inputmode="numeric"
-                                            autocomplete="one-time-code"
-                                            maxlength="6"
-                                            dir="ltr"
-                                            placeholder="------"
-                                            class="otp-digit-box otp-digit-box--single w-full text-2xl font-black placeholder:text-white/25"
-                                            :class="{ 'otp-digit-box--error': errorMessage }"
-                                            :value="otpValue"
-                                            @input="handleInput($event)"
-                                            @paste.prevent="handlePaste($event)"
-                                            @keydown.enter.prevent="submitOtp()"
-                                            :aria-invalid="Boolean(errorMessage)"
-                                            aria-label="کد تایید شش رقمی"
-                                        >
-                                    </div>
+                                <form wire:submit.prevent="verifyOtp" autocomplete="off" wire:key="onboarding-otp-desktop">
+                                    <div class="relative"
+                                         x-data="otpInput({ length: 6, hasServerError: @js((bool) $otpError) })"
+                                         x-init="init()"
+                                         @otp-cleared.window="reset()"
+                                         @otp-error.window="triggerError()"
+                                         @otp-success.window="triggerSuccess()">
 
-                                    @if($otpError)
-                                        <div class="text-rose-500 text-sm mb-4">{{ $otpError }}</div>
-                                    @endif
+                                        <input type="hidden" wire:model="otpInput" x-ref="hidden">
+
+                                        <div class="otp-box-grid max-w-sm mx-auto mb-6"
+                                             :class="{ 'otp-shake': status === 'error' }">
+                                            <template x-for="(digit, index) in digits" :key="index">
+                                                <input
+                                                    type="text"
+                                                    inputmode="numeric"
+                                                    autocomplete="one-time-code"
+                                                    maxlength="1"
+                                                    data-otp-slot
+                                                    :value="digits[index]"
+                                                    :aria-label="'رقم ' + (index + 1) + ' از ' + length"
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="verifyOtp"
+                                                    @input="handleInput($event, index)"
+                                                    @keydown="handleKeydown($event, index)"
+                                                    @paste="handlePaste($event)"
+                                                    @focus="$event.target.select()"
+                                                    class="otp-digit-box"
+                                                    :class="{
+                                                        'otp-digit-box--filled': digit !== '' && status === 'idle',
+                                                        'otp-digit-box--error': status === 'error',
+                                                        'otp-digit-box--success': status === 'success',
+                                                        'otp-digit-box--pop': poppedIndex === index
+                                                    }"
+                                                >
+                                            </template>
+                                        </div>
+
+                                        @if($otpError)
+                                            <div class="text-rose-500 text-sm mb-4 text-center">{{ $otpError }}</div>
+                                        @endif
+                                    </div>
 
                                     <div
                                         class="otp-note text-sm mb-7 flex items-start justify-center gap-2 text-right max-w-md mx-auto">
@@ -1452,13 +1507,14 @@
                                         @if($countdown > 0)
                                             <span>ارسال مجدد (<span x-text="$wire.countdown"></span>)</span>
                                         @else
-                                            <button type="button" wire:click="resendOtp">ارسال مجدد کد</button>
+                                            <button type="button" wire:click="resendOtp"
+                                                    wire:loading.attr="disabled" wire:target="resendOtp">ارسال مجدد کد</button>
                                         @endif
                                     </div>
 
                                     <div class="flex items-center gap-4">
                                         <button type="submit" @mousedown="pressBtn($el)" wire:loading.attr="disabled"
-                                                wire:target="verifyOtp" :disabled="verifying"
+                                                wire:target="verifyOtp"
                                                 class="btn-press h-14 flex-1 rounded-2xl text-lg font-black">
                                             <span wire:loading.remove wire:target="verifyOtp">تأیید کد</span>
                                             <span wire:loading wire:target="verifyOtp">در حال بررسی…</span>
@@ -1792,89 +1848,151 @@
     </div>
     @push('script')
         <script>
-            window.otpSingleInput = function (model, errorModel) {
+            function otpInput(config) {
                 return {
-                    otpValue: model,
-                    errorMessage: errorModel,
-                    verifying: false,
+                    length: config.length || 6,
+                    digits: Array(config.length || 6).fill(''),
+                    status: 'idle', // idle | error | success
+                    hasServerError: config.hasServerError || false,
+                    poppedIndex: -1,
+
+                    get code() {
+                        return this.digits.join('');
+                    },
 
                     init() {
-                        this.$watch('otpValue', value => {
-                            const normalized = this.normalize(value);
-                            if (normalized !== value) {
-                                this.otpValue = normalized;
-                                return;
-                            }
-                        });
+                        if (this.hasServerError) {
+                            this.triggerError();
+                        }
+                        this.$nextTick(() => this.focusSlot(0));
+                    },
 
+                    toEnglishDigits(str) {
+                        return str
+                            .replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+                            .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+                    },
+
+                    sync() {
+                        this.$refs.hidden.value = this.code;
+                        this.$refs.hidden.dispatchEvent(new Event('input'));
+                    },
+
+                    pop(index) {
+                        this.poppedIndex = index;
+                        setTimeout(() => {
+                            if (this.poppedIndex === index) this.poppedIndex = -1;
+                        }, 180);
+                    },
+
+                    maybeSubmit() {
+                        if (this.status !== 'idle') return;
+                        if (this.digits.every((d) => d !== '')) {
+                            this.$nextTick(() => this.$wire.call('verifyOtp'));
+                        }
+                    },
+
+                    applySequence(seq, startIndex) {
+                        const chars = seq.split('');
+                        for (let i = 0; i < chars.length && (startIndex + i) < this.length; i++) {
+                            this.digits[startIndex + i] = chars[i];
+                        }
+                        this.sync();
+                        this.pop(Math.min(startIndex + chars.length - 1, this.length - 1));
+                        const nextIndex = Math.min(startIndex + chars.length, this.length - 1);
+                        this.focusSlot(nextIndex);
+                        this.maybeSubmit();
+                    },
+
+                    handleInput(e, index) {
+                        if (this.status === 'error') this.status = 'idle';
+
+                        let val = this.toEnglishDigits(e.target.value).replace(/[^0-9]/g, '');
+
+                        if (val.length > 1) {
+                            e.target.value = this.digits[index] || '';
+                            this.applySequence(val, index);
+                            return;
+                        }
+
+                        this.digits[index] = val;
+                        e.target.value = val;
+                        this.sync();
+
+                        if (val) {
+                            this.pop(index);
+                            if (index < this.length - 1) this.focusSlot(index + 1);
+                        }
+
+                        this.maybeSubmit();
+                    },
+
+                    handleKeydown(e, index) {
+                        if (e.key === 'Backspace') {
+                            e.preventDefault();
+                            if (this.status === 'error') this.status = 'idle';
+                            if (this.digits[index]) {
+                                this.digits[index] = '';
+                                this.sync();
+                            } else if (index > 0) {
+                                this.digits[index - 1] = '';
+                                this.sync();
+                                this.focusSlot(index - 1);
+                            }
+                        } else if (e.key === 'ArrowLeft') {
+                            e.preventDefault();
+                            if (index > 0) this.focusSlot(index - 1);
+                        } else if (e.key === 'ArrowRight') {
+                            e.preventDefault();
+                            if (index < this.length - 1) this.focusSlot(index + 1);
+                        } else if (e.key === 'Home') {
+                            e.preventDefault();
+                            this.focusSlot(0);
+                        } else if (e.key === 'End') {
+                            e.preventDefault();
+                            this.focusSlot(this.length - 1);
+                        }
+                    },
+
+                    handlePaste(e) {
+                        e.preventDefault();
+                        const pasted = (e.clipboardData || window.clipboardData).getData('text');
+                        const cleaned = this.toEnglishDigits(pasted).replace(/[^0-9]/g, '').slice(0, this.length);
+                        if (!cleaned) return;
+                        if (this.status === 'error') this.status = 'idle';
+                        this.digits = Array(this.length).fill('');
+                        this.applySequence(cleaned, 0);
+                    },
+
+                    focusSlot(i) {
                         this.$nextTick(() => {
-                            this.$refs.otpInput?.focus();
+                            const el = this.$root.querySelectorAll('[data-otp-slot]')[i];
+                            if (el) el.focus();
                         });
                     },
 
-                    normalize(value) {
-                        const persian = '۰۱۲۳۴۵۶۷۸۹';
-                        const arabic = '٠١٢٣٤٥٦٧٨٩';
-
-                        return String(value || '')
-                            .replace(/[۰-۹]/g, digit => String(persian.indexOf(digit)))
-                            .replace(/[٠-٩]/g, digit => String(arabic.indexOf(digit)))
-                            .replace(/\D/g, '')
-                            .slice(0, 6);
+                    reset() {
+                        this.digits = Array(this.length).fill('');
+                        this.status = 'idle';
+                        this.sync();
+                        this.focusSlot(0);
                     },
 
-                    clearError() {
-                        if (this.errorMessage) {
-                            this.errorMessage = '';
-                        }
+                    triggerError() {
+                        this.status = 'error';
+                        setTimeout(() => {
+                            this.digits = Array(this.length).fill('');
+                            this.status = 'idle';
+                            this.sync();
+                            this.focusSlot(0);
+                        }, 550);
                     },
 
-                    handleInput(event) {
-                        const normalized = this.normalize(event.target.value);
-                        if (event.target.value !== normalized) {
-                            event.target.value = normalized;
-                        }
-
-                        this.otpValue = normalized;
-                        this.clearError();
-
-                        if (normalized.length === 6) {
-                            this.submitOtp(normalized);
-                        }
-                    },
-
-                    handlePaste(event) {
-                        const normalized = this.normalize(event.clipboardData.getData('text'));
-                        if (!normalized) {
-                            return;
-                        }
-
-                        event.preventDefault();
-                        event.target.value = normalized;
-                        this.otpValue = normalized;
-                        this.clearError();
-                        this.submitOtp(normalized);
-                    },
-
-                    async submitOtp(code = null) {
-                        const normalized = this.normalize(code ?? this.otpValue);
-
-                        if (this.verifying || normalized.length !== 6) {
-                            if (normalized.length !== 6) {
-                                this.errorMessage = 'کد تایید باید ۶ رقم باشد.';
-                            }
-                            return;
-                        }
-
-                        this.verifying = true;
-                        try {
-                            await this.$wire.verifyOtp(normalized);
-                        } finally {
-                            this.verifying = false;
-                        }
-                    },
+                    triggerSuccess() {
+                        this.status = 'success';
+                    }
                 };
-            };
+            }
 
             window.onboardingFlow = function () {
                 return {
