@@ -337,27 +337,23 @@ class WeeklyProgramUpload extends Component
     }
 
     /**
+     * کش داخلیِ getSessionNotesData() در سطح یک request (Livewire هر request را با
+     * یک instance تازه اجرا می‌کند، پس این‌جا نیازی به پاک کردن دستی نیست).
+     */
+    protected ?array $sessionNotesDataCache = null;
+
+    /**
      * یادداشت آخرین جلسه‌ی قبلیِ برگزارشده (برای نمایش به مشاور در جلسه‌ی فعلی).
+     *
+     * توجه: این متد و getSessionNotesHistory() دقیقاً همان کوئری (همان فیلتر و
+     * همان ترتیب) را می‌زدند؛ تنها تفاوتشان first() در برابر get() بود. یعنی
+     * خروجی این متد همیشه برابر با اولین آیتمِ خروجیِ getSessionNotesHistory()
+     * است. برای همین این دو متد را در getSessionNotesData() یکی کرده‌ایم تا
+     * هر رندر یک کوئری کمتر به دیتابیس بزند؛ خروجیِ هرکدام دقیقاً مثل قبل است.
      */
     protected function getPreviousSessionNote(): ?array
     {
-        if (!$this->studentId) return null;
-
-        $prevSession = AdvisingSession::where('student_id', $this->studentId)
-            ->when($this->sessionId, fn($q) => $q->where('id', '!=', $this->sessionId))
-            ->whereNotNull('advisor_note')
-            ->where('advisor_note', '!=', '')
-            ->orderByDesc('activation_date')
-            ->orderByDesc('id')
-            ->first();
-
-        if (!$prevSession) return null;
-
-        return [
-            'note' => $prevSession->advisor_note,
-            'date' => $prevSession->activation_date ? jdate($prevSession->activation_date)->format('Y/m/d') : null,
-            'advisor_name' => $prevSession->advisor?->name,
-        ];
+        return $this->getSessionNotesData()['previous'];
     }
 
     /**
@@ -365,15 +361,36 @@ class WeeklyProgramUpload extends Component
      */
     protected function getSessionNotesHistory(): array
     {
-        if (!$this->studentId) return [];
+        return $this->getSessionNotesData()['history'];
+    }
 
-        return AdvisingSession::where('student_id', $this->studentId)
+    /**
+     * کوئری مشترکِ getPreviousSessionNote() و getSessionNotesHistory() را یک‌بار
+     * اجرا می‌کند (به‌جای دو بار در هر رندر) و رابطه‌ی advisor را هم eager load
+     * می‌کند تا $s->advisor?->name داخل map() به ازای هر جلسه یک کوئری جدا نزند.
+     * نتیجه در همان request/render کش می‌شود تا فراخوانیِ پشت‌سرهمِ
+     * getPreviousSessionNote() و getSessionNotesHistory() هم دوباره کوئری نزند.
+     */
+    protected function getSessionNotesData(): array
+    {
+        if ($this->sessionNotesDataCache !== null) {
+            return $this->sessionNotesDataCache;
+        }
+
+        if (!$this->studentId) {
+            return $this->sessionNotesDataCache = ['previous' => null, 'history' => []];
+        }
+
+        $sessions = AdvisingSession::where('student_id', $this->studentId)
             ->when($this->sessionId, fn($q) => $q->where('id', '!=', $this->sessionId))
             ->whereNotNull('advisor_note')
             ->where('advisor_note', '!=', '')
+            ->with('advisor')
             ->orderByDesc('activation_date')
             ->orderByDesc('id')
-            ->get()
+            ->get();
+
+        $history = $sessions
             ->map(fn(AdvisingSession $s) => [
                 'id'           => $s->id,
                 'note'         => $s->advisor_note,
@@ -381,6 +398,18 @@ class WeeklyProgramUpload extends Component
                 'advisor_name' => $s->advisor?->name,
             ])
             ->toArray();
+
+        $previous = null;
+        if (!empty($history)) {
+            $first = $history[0];
+            $previous = [
+                'note'         => $first['note'],
+                'date'         => $first['date'],
+                'advisor_name' => $first['advisor_name'],
+            ];
+        }
+
+        return $this->sessionNotesDataCache = ['previous' => $previous, 'history' => $history];
     }
 
     protected function resetExamAssignmentForm(): void
@@ -1693,7 +1722,10 @@ class WeeklyProgramUpload extends Component
             return [];
         }
 
-        $program = WeeklyProgram::find($this->weeklyProgramId);
+        // restDays/examDays را همراه با خودِ برنامه eager load می‌کنیم تا
+        // isRestDay()/isExamDay() داخل حلقه‌ی زیر (که قبلاً به ازای هر روز یک
+        // کوئری جدا می‌زدند) از کالکشن در حافظه استفاده کنند.
+        $program = WeeklyProgram::with(['restDays', 'examDays'])->find($this->weeklyProgramId);
         if (!$program) {
             return [];
         }
@@ -1701,10 +1733,16 @@ class WeeklyProgramUpload extends Component
         $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'روز هشتم'];
         $emptyDays = [];
 
+        // به‌جای ۸ کوئری exists() جدا (یکی برای هر روز)، همه‌ی روزهایی که حداقل
+        // یک پارت دارند را با یک کوئری واحد می‌گیریم؛ نتیجه‌ی $hasParts برای هر
+        // روز دقیقاً همان چیزی است که قبلاً exists() برمی‌گرداند.
+        $daysWithParts = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->distinct()
+            ->pluck('day_of_week')
+            ->all();
+
         for ($dayIndex = 0; $dayIndex < 8; $dayIndex++) {
-            $hasParts = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-                ->where('day_of_week', $dayIndex)
-                ->exists();
+            $hasParts = in_array($dayIndex, $daysWithParts, true);
 
             if ($hasParts || $program->isRestDay($dayIndex) || $program->isExamDay($dayIndex)) {
                 continue;
@@ -2133,9 +2171,11 @@ class WeeklyProgramUpload extends Component
         $this->dispatch('success', 'نوتیفیکیشن با موفقیت ارسال شد.');
     }
 
-    protected function getClassScheduleData(): array
+    protected function getClassScheduleData(?Student $student = null): array
     {
-        $student = Student::find($this->studentId);
+        // $student اگر از render() (که خودش قبلاً یک‌بار دانش‌آموز را واکشی کرده)
+        // پاس داده نشود، مثل قبل خودمان واکشی می‌کنیم؛ خروجی یکسان می‌ماند.
+        $student = $student ?? Student::find($this->studentId);
         if (!$student) return ['schedule' => null, 'days' => [], 'todayParts' => [], 'tomorrowParts' => []];
 
         $schedule = ClassSchedule::where('student_id', $student->id)->where('is_finalized', true)->with('parts')->latest()->first();
@@ -2994,12 +3034,31 @@ class WeeklyProgramUpload extends Component
     }
 
     // ==================== Pre-session Revert ====================
+    /**
+     * کش داخلیِ «آخرین پیش‌جلسه» به‌همراه یکی از روابط exams/qas/assignments، در سطح
+     * یک request. isExamRegistered/isQaRegistered/isAssignmentRegistered این کوئری را
+     * از داخل ویو، یک‌بار به ازای هر ردیفِ جدول (هر امتحان/پرسش‌وپاسخ/تکلیف) صدا
+     * می‌زدند و هر بار دوباره «آخرین پیش‌جلسه» را از دیتابیس واکشی می‌کردند؛ چون
+     * نتیجه‌ی این کوئری برای همه‌ی ردیف‌های یک نوع (مثلاً همه‌ی امتحان‌ها) یکسان
+     * است، همین‌جا یک‌بار در حافظه نگه‌داری می‌شود.
+     */
+    protected array $latestPreSessionCache = [];
+
+    protected function getLatestPreSessionWith(string $relation): ?AdvisingPreSession
+    {
+        if (!array_key_exists($relation, $this->latestPreSessionCache)) {
+            $this->latestPreSessionCache[$relation] = AdvisingPreSession::where('student_id', $this->studentId)
+                ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
+                ->with($relation)->latest()->first();
+        }
+
+        return $this->latestPreSessionCache[$relation];
+    }
+
     public function isExamRegistered(int $examIndex): bool
     {
         if (!$this->weeklyProgramId) return false;
-        $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
-            ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
-            ->with('exams')->latest()->first();
+        $preSessions = $this->getLatestPreSessionWith('exams');
         if (!$preSessions || !isset($preSessions->exams[$examIndex])) return false;
         $exam = $preSessions->exams[$examIndex];
         return ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
@@ -3011,9 +3070,7 @@ class WeeklyProgramUpload extends Component
     public function isQaRegistered(int $qaIndex): bool
     {
         if (!$this->weeklyProgramId) return false;
-        $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
-            ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
-            ->with('qas')->latest()->first();
+        $preSessions = $this->getLatestPreSessionWith('qas');
         if (!$preSessions || !isset($preSessions->qas[$qaIndex])) return false;
         $qa = $preSessions->qas[$qaIndex];
         return ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
@@ -3025,9 +3082,7 @@ class WeeklyProgramUpload extends Component
     public function isAssignmentRegistered(int $assignmentIndex): bool
     {
         if (!$this->weeklyProgramId) return false;
-        $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
-            ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
-            ->with('assignments')->latest()->first();
+        $preSessions = $this->getLatestPreSessionWith('assignments');
         if (!$preSessions || !isset($preSessions->assignments[$assignmentIndex])) return false;
         $assignment = $preSessions->assignments[$assignmentIndex];
         return ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
@@ -4348,15 +4403,22 @@ class WeeklyProgramUpload extends Component
         $required = 0;
         $today    = Carbon::today();
 
-        WeeklyProgram::where('student_id', $studentId)->get(['id', 'start_date'])->each(function ($program) use (&$required, $today) {
-            $startDate = Carbon::parse($program->start_date);
-            for ($i = 0; $i < 8; $i++) {
-                $dayDate = $startDate->copy()->addDays($i);
-                if ($dayDate->gt($today)) continue;
-                if ($program->isRestDay($i) || $program->isExamDay($i)) continue;
-                $required++;
-            }
-        });
+        // restDays/examDays را برای همه‌ی برنامه‌های این دانش‌آموز یک‌جا eager load می‌کنیم
+        // تا isRestDay()/isExamDay() داخل حلقه به‌جای زدن یک کوئری جدید برای هر روزِ هر
+        // برنامه (که قبلاً باعث می‌شد این متد به ازای هر برنامه تا ۱۶ کوئری اضافه بزند)،
+        // از همان کالکشنِ در حافظه استفاده کنند. نتیجه‌ی نهایی دقیقاً یکسان است.
+        WeeklyProgram::where('student_id', $studentId)
+            ->with(['restDays', 'examDays'])
+            ->get(['id', 'start_date'])
+            ->each(function ($program) use (&$required, $today) {
+                $startDate = Carbon::parse($program->start_date);
+                for ($i = 0; $i < 8; $i++) {
+                    $dayDate = $startDate->copy()->addDays($i);
+                    if ($dayDate->gt($today)) continue;
+                    if ($program->isRestDay($i) || $program->isExamDay($i)) continue;
+                    $required++;
+                }
+            });
 
         return $required;
     }
@@ -4493,7 +4555,17 @@ class WeeklyProgramUpload extends Component
     public function render()
     {
         $student = Student::with(['user.personalInformation', 'advisor'])->find($this->studentId);
-        $weeklyProgram = $this->weeklyProgramId ? WeeklyProgram::with('parts')->find($this->weeklyProgramId) : null;
+        // parts/restDays/examDays را همین‌جا (با ترتیب صحیح part_order و ccChapter) یک‌جا
+        // eager load می‌کنیم؛ همین یک کوئری جای ۸ کوئریِ جداگانه‌ی پارت‌ها و ۱۶ کوئریِ
+        // جداگانه‌ی isRestDay/isExamDay را که قبلاً در حلقه‌ی روزهای زیر اجرا می‌شد، می‌گیرد.
+        // چون ordering و eager-loadِ ccChapter همان قبلی حفظ شده، خروجیِ نهایی تغییری نمی‌کند.
+        $weeklyProgram = $this->weeklyProgramId
+            ? WeeklyProgram::with([
+                'parts' => fn($q) => $q->with('ccChapter')->orderBy('part_order'),
+                'restDays',
+                'examDays',
+            ])->find($this->weeklyProgramId)
+            : null;
         $assessmentSummary = $this->getAssessmentSummary($student);
         $studentStats = $this->computeStudentStats();
         $studentStatusAnalysis = $this->generateStudentStatusAnalysis($studentStats);
@@ -4506,14 +4578,17 @@ class WeeklyProgramUpload extends Component
         $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
         $startDate      = $this->start_date ? Carbon::parse($this->start_date) : Carbon::tomorrow();
 
+        // پارت‌های هر روز را یک‌بار (از رابطه‌ی eager-loadِ بالا) بر اساس day_of_week
+        // گروه‌بندی می‌کنیم؛ چون parts از قبل با orderBy('part_order') لود شده،
+        // ترتیبِ داخلِ هر گروه دقیقاً همان چیزی است که کوئریِ قبلیِ per-day برمی‌گرداند.
+        $partsByDay = $weeklyProgram ? $weeklyProgram->parts->groupBy('day_of_week') : collect();
+
         for ($i = 0; $i < 8; $i++) {
             $date        = $startDate->copy()->addDays($i);
             $jalaliDate  = jdate($date);
             $dayOfWeek   = $jalaliDate->getDayOfWeek();
 
-            $dayParts    = $weeklyProgram
-                ? $weeklyProgram->parts()->with('ccChapter')->where('day_of_week', $i)->orderBy('part_order')->get()
-                : collect();
+            $dayParts    = $partsByDay->get($i, collect());
 
             $isRestDay = $weeklyProgram ? $weeklyProgram->isRestDay($i) : false;
             $isExamDay = $weeklyProgram ? $weeklyProgram->isExamDay($i) : false;
@@ -4550,7 +4625,7 @@ class WeeklyProgramUpload extends Component
             ->with(['advisingSession', 'exams', 'assignments', 'qas', 'miscellaneous', 'requestedParts'])
             ->latest()->get();
 
-        $classScheduleData = $this->getClassScheduleData();
+        $classScheduleData = $this->getClassScheduleData($student);
 
         $typedExamsForAssignment = collect();
         $essayExamsForAssignment = collect();

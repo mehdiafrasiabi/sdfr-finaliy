@@ -90,24 +90,19 @@
                     </div>
 
                     {{-- ═══ Notification-style pill tabs ═══ --}}
-                    <div class="inline-flex items-center gap-1 p-1 bg-secondary/60 border border-border rounded-full">
-                        <button type="button" @click="activeTab = 'account'"
-                                :class="activeTab === 'account' ? 'bg-background text-primary shadow-sm' : 'text-foreground/70 hover:text-foreground'"
-                                class="px-4 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-                            </svg>
-                            اطلاعات حساب
-                        </button>
-                        <button type="button" @click="activeTab = 'password'"
-                                :class="activeTab === 'password' ? 'bg-background text-primary shadow-sm' : 'text-foreground/70 hover:text-foreground'"
-                                class="px-4 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/>
-                            </svg>
-                            رمز عبور
-                        </button>
-                    </div>
+                    <x-ui.segmented-tabs
+                        :items="[
+                            'account'  => 'اطلاعات حساب',
+                            'password' => 'رمز عبور',
+                        ]"
+                        :icons="[
+                            'account'  => 'M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z',
+                            'password' => 'M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z',
+                        ]"
+                        active="account"
+
+                        @segmented-change="activeTab = $event.detail"
+                    />
 
                     {{-- ═══════════════ TAB: Account ═══════════════ --}}
                     <div x-show="activeTab === 'account'">

@@ -129,10 +129,6 @@ class TypedExamResult extends Component
             $this->canViewAnswerKey = true;
         }
     }
-    public function setViewMode(string $mode): void
-    {
-        $this->viewMode = $mode;
-    }
     public function setAnswerFilter(string $filter): void
     {
         $this->answerFilter = $filter;

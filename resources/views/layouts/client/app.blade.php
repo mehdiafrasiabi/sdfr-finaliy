@@ -218,6 +218,32 @@
         </div>
     </div>
 
+    {{--
+        ═══ Loading بین صفحات (wire:navigate) ═══
+        از لحظه‌ای که کاربر روی یک لینک سایدبار/منو (که wire:navigate داره) کلیک می‌کنه تا
+        وقتی صفحه‌ی بعدی کاملاً از سرور آماده و جایگزین بشه، این overlay نمایش داده می‌شه؛
+        یعنی دیتای صفحه‌ی مقصد قبل از دیده‌شدن، پشت این لودینگ آماده می‌شه (رفتار پیش‌فرض
+        wire:navigate همینه - صفحه‌ی بعدی کامل رندر شده میاد و بعد جایگزین DOM فعلی می‌شه).
+    --}}
+    <div
+        x-data="{ show: false }"
+        x-init="
+            window.addEventListener('livewire:navigating', () => { show = true; });
+            window.addEventListener('livewire:navigated', () => { show = false; });
+        "
+        x-show="show"
+        x-cloak
+        x-transition.opacity.duration.200ms
+        class="fixed inset-0 z-[9999] flex items-center justify-center bg-background"
+        style="display:none"
+    >
+        <div class="relative w-8 h-8 mx-auto">
+            <div class="absolute inset-0 rounded-full border-2 border-solid border-primary/50 sdfr-page-splash"></div>
+            <div class="absolute inset-0 rounded-full border-2 border-solid border-primary/50 sdfr-page-splash" style="animation-delay:.4s"></div>
+            <div class="absolute inset-0 rounded-full border-2 border-solid border-primary/50 sdfr-page-splash" style="animation-delay:.8s"></div>
+        </div>
+    </div>
+
     <livewire:client.layout.header/>
 
     <!-- end header -->
@@ -271,6 +297,19 @@
         from { opacity: 0; transform: translateY(30px) scale(0.95); }
         to   { opacity: 1; transform: translateY(0) scale(1); }
     }
+
+    /* ═══ لودینگ بین صفحات (wire:navigate) - سه حلقه که یکی‌یکی باز و محو می‌شن ═══ */
+    @keyframes sdfr-page-splash {
+        0%   { transform: scale(.3); opacity: .9; }
+        100% { transform: scale(1.9); opacity: 0; }
+    }
+    .sdfr-page-splash {
+        animation: sdfr-page-splash 1.2s cubic-bezier(.25,.6,.35,1) infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .sdfr-page-splash { animation: none !important; opacity: .4; }
+    }
+    [x-cloak] { display: none !important; }
 </style>
 <style>
     * { scrollbar-width: none !important; -ms-overflow-style: none !important; }

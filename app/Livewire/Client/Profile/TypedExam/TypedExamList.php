@@ -14,28 +14,32 @@ class TypedExamList extends Component
     public ?int $selectedExamId = null;
     public array $expandedExams = [];
 
-    /** 'typed' | 'essay' */
+    /** 'typed' | 'essay' - فقط برای مقداردهی اولیه‌ی تب فعال در Alpine استفاده می‌شود؛
+     *  سوییچ بین تب‌ها کاملاً سمت کلاینت (Alpine) انجام می‌شود و دیگر رفت‌وبرگشتی به
+     *  سرور نمی‌زند (چون هر دو لیست همین الان هم در هر رندر لود می‌شوند - رجوع کنید
+     *  به render())، پس این پراپرتی دیگر توسط هیچ متدی آپدیت نمی‌شود. */
     public string $activeTab = 'typed';
+
+    // نوع آزمونی که مودال «ورود به آزمون» برایش باز شده - typed یا essay. قبلاً enterExam()
+    // برای تشخیص مسیر ریدایرکت به activeTab (تبِ فعلاً انتخاب‌شده) وابسته بود که چون تب دیگر
+    // یک رفت‌وبرگشت لایوایر نیست، دیگر معتبر نبود؛ حالا این مقدار مستقیماً همون لحظه‌ای که
+    // روی «ورود به آزمون» کلیک می‌شه ثبت می‌شه و به تب فعال هیچ وابستگی نداره.
+    public string $confirmingExamType = 'typed';
 
     public ?int $viewingAnswerSheetFor = null; // essay assignment id for preview
     public int $typedPendingCount = 0;
     public int $essayPendingCount = 0;
 
-    public function setTab(string $tab): void
-    {
-        $this->activeTab = in_array($tab, ['typed', 'essay']) ? $tab : 'typed';
-        $this->confirmingExamId = null;
-        $this->viewingAnswerSheetFor = null;
-    }
-
-    public function confirmEntry(int $assignmentId): void
+    public function confirmEntry(int $assignmentId, string $type = 'typed'): void
     {
         $this->confirmingExamId = $assignmentId;
+        $this->confirmingExamType = $type === 'essay' ? 'essay' : 'typed';
     }
 
     public function closeModal(): void
     {
         $this->confirmingExamId = null;
+        $this->confirmingExamType = 'typed';
         $this->viewingAnswerSheetFor = null;
     }
 
@@ -52,7 +56,7 @@ class TypedExamList extends Component
     {
         if (!$this->confirmingExamId) return;
 
-        if ($this->activeTab === 'essay') {
+        if ($this->confirmingExamType === 'essay') {
             $this->redirectRoute('client.profile.essay-exam.test', [
                 'assignmentId' => $this->confirmingExamId,
             ]);
@@ -70,7 +74,16 @@ class TypedExamList extends Component
 
     protected function loadTypedAssignments(Student $student)
     {
-        return TypedExamAssignment::with(['typedExam.settings', 'typedExam.questions', 'time', 'latestAttempt'])
+        // نکته‌ی مهم درباره‌ی کارایی: قبلاً با with('typedExam.questions') کل سوال‌های هر آزمون
+        // (همه‌ی ستون‌ها، برای هر آزمونی که دانش‌آموز تا حالا داشته) روی هر رندر (حتی فقط سوییچ
+        // تب typed/essay) از دیتابیس لود می‌شد، درحالی‌که توی view فقط تعدادشون لازمه.
+        // با withCount این تبدیل می‌شه به یک subquery سبک COUNT به‌جای لود کامل جدول سوالات.
+        return TypedExamAssignment::with([
+                'typedExam.settings',
+                'typedExam' => fn($q) => $q->withCount(['questions as questions_total']),
+                'time',
+                'latestAttempt',
+            ])
             ->where('student_id', $student->id)
             ->whereHas('typedExam', fn($q) => $q->where('is_published', true))
             ->latest()
@@ -105,7 +118,12 @@ class TypedExamList extends Component
 
     protected function loadEssayAssignments(Student $student)
     {
-        return EssayExamAssignment::with(['essayExam.questions', 'time', 'latestAttempt'])
+        // همون فیکس کارایی: به‌جای لود کامل سوالات تشریحی، فقط تعدادشون.
+        return EssayExamAssignment::with([
+                'essayExam' => fn($q) => $q->withCount(['questions as questions_total']),
+                'time',
+                'latestAttempt',
+            ])
             ->where('student_id', $student->id)
             ->latest()
             ->get()

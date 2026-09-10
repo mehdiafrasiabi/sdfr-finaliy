@@ -1368,11 +1368,23 @@ class WeeklyProgramView extends Component
         $startDate = $this->weeklyProgram->start_date;
         $endDate = $this->weeklyProgram->end_date ?: Carbon::parse($startDate)->addDays(7);
         $totalDays = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate)) + 1;
-        $freshParts = ProgramPart::where('weekly_program_id', $this->weeklyProgram->id)
-            ->with(['ccSubject', 'ccChapter', 'ccTopic'])
-            ->orderBy('part_date')
-            ->orderBy('part_order')
-            ->get();
+
+        // نکته‌ی کارایی: اگر پارت‌ها قبلاً (در render) با روابط لازم لود شده باشند،
+        // به‌جای یک کوئری کاملاً جدید به دیتابیس، همون کالکشن لود‌شده رو مرتب‌سازی
+        // می‌کنیم؛ نتیجه دقیقاً همون چیزیه که کوئری قبلی (orderBy part_date, part_order)
+        // برمی‌گردوند. اگر لود نشده باشه، رفتار قبلی (زدن کوئری) دقیقاً حفظ می‌شه.
+        $freshParts = $this->weeklyProgram->relationLoaded('parts')
+            ? $this->weeklyProgram->parts
+                ->sortBy([
+                    ['part_date', 'asc'],
+                    ['part_order', 'asc'],
+                ])
+                ->values()
+            : ProgramPart::where('weekly_program_id', $this->weeklyProgram->id)
+                ->with(['ccSubject', 'ccChapter', 'ccTopic'])
+                ->orderBy('part_date')
+                ->orderBy('part_order')
+                ->get();
 
         for ($i = 0; $i < $totalDays; $i++) {
             $date = Carbon::parse($startDate)->addDays($i);
@@ -1540,6 +1552,12 @@ class WeeklyProgramView extends Component
             return redirect()->route('client.profile.consultation.sessions')
                 ->with('error', 'برنامه یافت نشد.');
         }
+
+        // نکته‌ی کارایی: $program همین بالا با پارت‌ها و روابطشون کامل لود شده؛
+        // با نگه‌داشتنش روی $this->weeklyProgram، متدهایی مثل getProgramDays() که
+        // بعداً همین‌جا صدا زده می‌شن می‌تونن از همین کالکشنِ لود‌شده استفاده کنن
+        // به‌جای اینکه دوباره از دیتابیس پارت‌ها رو بخونن (خروجی هیچ تغییری نمی‌کنه).
+        $this->weeklyProgram = $program;
 
         // آمار برنامه
         $stats = [

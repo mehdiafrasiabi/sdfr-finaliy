@@ -401,19 +401,36 @@
                                    class="inline-flex items-center justify-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-red-600 transition-all">
                                     <i class="fas fa-arrow-right"></i><span>بازگشت به جلسات</span>
                                 </a>
-                                <div class="inline-flex items-center justify-between rounded-full bg-black/40 p-1 text-[11px] text-white/80 ring-1 ring-white/20 backdrop-blur-sm sm:text-xs">
-                                    @if($isActiveProgram)
-                                        <button type="button" @click="tab = 'study'"
-                                                :class="tab === 'study' ? 'bg-white/95 text-slate-900 shadow-sm' : 'text-white/75'"
-                                                class="rounded-full px-3 py-1.5 transition">ثبت مطالعه</button>
-                                    @endif
-                                    <button type="button" @click="tab = 'grid'"
-                                            :class="tab === 'grid' ? 'bg-white/95 text-slate-900 shadow-sm' : 'text-white/75'"
-                                            class="rounded-full px-3 py-1.5 transition">جدول برنامه</button>
-                                    <button type="button" @click="tab = 'archive'"
-                                            :class="tab === 'archive' ? 'bg-white/95 text-slate-900 shadow-sm' : 'text-white/75'"
-                                            class="rounded-full px-3 py-1.5 transition">آرشیو</button>
-                                </div>
+                                @php
+                                    $programTabItems = [];
+                                    if ($isActiveProgram) {
+                                        $programTabItems['study'] = 'ثبت مطالعه';
+                                    }
+                                    $programTabItems['grid']    = 'جدول برنامه';
+                                    $programTabItems['archive'] = 'آرشیو';
+                                @endphp
+                                {{--
+                                    wire:ignore این‌جا حیاتیه: این صفحه هر ۵ ثانیه (وقتی تایمر در حال اجراست)
+                                    یک syncTimers به سرور می‌زنه و کل کامپوننت رو دوباره render می‌کنه. چون
+                                    موقعیت ایندیکیتور (پیل سفید) توسط Alpine و به‌صورت مستقیم روی style
+                                    عنصر نوشته می‌شه (نه با یک x-bind)، بدون wire:ignore هر re-render لایوایر
+                                    این style رو به مقدار پیش‌فرض (width:0) توی HTML سمت سرور برمی‌گردوند و
+                                    باعث می‌شد ایندیکیتور هر چند ثانیه یک‌بار بپره/گم بشه. چون items و active
+                                    این کامپوننت (بر پایه‌ی isActiveProgram) بعد از mount ثابت می‌مونن و تعویض
+                                    تب کاملاً با Alpine (@segmented-change) انجام می‌شه، نادیده گرفتنش توسط
+                                    لایوایر هیچ داده‌ای رو از دست نمی‌ده.
+                                --}}
+                                <x-ui.segmented-tabs
+                                    wire:ignore
+                                    :items="$programTabItems"
+                                    :active="$isActiveProgram ? 'study' : 'grid'"
+                                    container-class="bg-black/40 ring-1 ring-white/20 backdrop-blur-sm"
+                                    indicator-class="bg-white/95 shadow-sm"
+                                    active-text-class="text-slate-900"
+                                    inactive-text-class="text-white/75"
+                                    item-class="px-3 py-1.5 text-[11px] sm:text-xs font-medium"
+                                    @segmented-change="tab = $event.detail"
+                                />
                             </div>
                         </div>
                     </div>
@@ -489,8 +506,13 @@
 
                         <div class="glass border border-border rounded-2xl p-3">
                             <div class="flex items-center gap-2 mb-3 px-1">
-                                <span class="text-[18px] font-bold text-primary" x-text="currentPageDateRange()"></span>
-                                <span class="text-muted text-xs">|</span>
+                                {{-- بازه‌ی تاریخ (مثلاً «۱۴ شهریور تا ۲۰ شهریور») فقط برای برنامه‌های امتحانیِ بیشتر از
+                                     یک هفته (۸ روز به بالا - جایی که $showExamDayPager فعاله) نمایش داده می‌شود؛
+                                     برای هفته‌ی عادی لازم نیست. --}}
+                                @if($showExamDayPager)
+                                    <span class="text-[18px] font-bold text-primary" x-text="currentPageDateRange()"></span>
+                                    <span class="text-muted text-xs">|</span>
+                                @endif
                                 <span class="text-xs text-muted">برنامه مطالعاتی</span>
                             </div>
                             @if($showExamDayPager)
@@ -533,6 +555,14 @@
                                         <span class="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-full font-bold text-[13px] md:text-sm lg:text-base border-2 transition-all"
                                               :class="selectedDay === '{{ $day['date'] }}' ? 'bg-primary text-primary-foreground border-primary' : '{{ $dayCls }}'">
                                             {{ $jalDay }}
+                                        </span>
+                                        {{-- نام روز زیر تاریخ: در صفحه‌های بزرگ (تبلت/لپ‌تاپ به بالا، از md) کامل نمایش
+                                             داده می‌شود (مثلاً «شنبه»)، در حالت کوچیک‌تر (موبایل) فقط حرف اول اسم روز
+                                             (مثلاً «ش») تا جا کمتری بگیره. --}}
+                                        <span class="text-[10px] md:text-[11px] font-medium leading-none transition-colors"
+                                              :class="selectedDay === '{{ $day['date'] }}' ? 'text-primary' : 'text-muted'">
+                                            <span class="hidden md:inline">{{ $day['name'] }}</span>
+                                            <span class="md:hidden">{{ mb_substr($day['name'], 0, 1) }}</span>
                                         </span>
                                         <span class="h-1 w-5 rounded-full transition-all"
                                               :class="selectedDay === '{{ $day['date'] }}' ? 'bg-primary' : 'bg-transparent'"></span>

@@ -1,4 +1,4 @@
-<div>
+<div x-data="{ activeTab: @js($activeTab) }">
     <div class="max-w-7xl space-y-14 px-4 mx-auto">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
             <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
@@ -18,34 +18,29 @@
                         </div>
 
                         <!-- Tabs: pill style -->
-                        <div class="flex justify-start" dir="rtl">
-                            <div class="inline-flex items-center gap-1 p-1 bg-secondary/60 rounded-full border border-border">
-                                <button type="button" wire:click="setTab('typed')"
-                                        class="relative inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all
-                                        {{ $activeTab === 'typed' ? 'bg-secondary text-primary shadow-sm' : 'text-foreground/70 hover:text-foreground' }}">
-                                    آزمون تستی
-                                    @if($this->typedPendingCount > 0)
-                                        <span class="inline-flex items-center justify-center min-w-[18px] h-4 px-1 text-[10px] font-bold rounded-full bg-red-500 text-white">
-                                            {{ $this->typedPendingCount }}
-                                        </span>
-                                    @endif
-                                </button>
-                                <button type="button" wire:click="setTab('essay')"
-                                        class="relative inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all
-                                        {{ $activeTab === 'essay' ? 'bg-secondary text-primary shadow-sm' : 'text-foreground/70 hover:text-foreground' }}">
-                                    آزمون تشریحی
-                                    @if($this->essayPendingCount > 0)
-                                        <span class="inline-flex items-center  justify-center min-w-[18px] h-4 px-1 text-[10px] font-bold rounded-full bg-red-500 text-white">
-                                            {{ $this->essayPendingCount }}
-                                        </span>
-                                    @endif
-                                </button>
-                            </div>
-                        </div>
+                        <x-ui.segmented-tabs
+                            :items="[
+                                'typed' => 'آزمون تستی',
+                                'essay' => 'آزمون تشریحی',
+                            ]"
+                            :badges="[
+                                'typed' => $this->typedPendingCount,
+                                'essay' => $this->essayPendingCount,
+                            ]"
+                            :active="$activeTab"
+                            @segmented-change="activeTab = $event.detail"
+                        />
 
-                        @if($activeTab === 'essay')
+                        {{-- ✅ سوییچ تب‌ها دیگه رفت‌وبرگشت به سرور نداره: هر دو لیست (تستی/تشریحی) همین الان
+                             هم توی هر رندر لود می‌شن (چون بج تعداد هر دو تب همیشه لازمه)، پس دیتا از قبل
+                             آماده‌ست و فقط با Alpine نمایش/مخفی می‌شه - نه تاخیری، نه لودینگ ساختگی، و نه
+                             ریس‌کاندیشنی که باعث می‌شد با کلیک سریع پشت‌سرهم، ایندیکیتور تب با محتوای
+                             نمایش‌داده‌شده هماهنگ نباشه. --}}
+                        <div x-show="activeTab === 'essay'" x-cloak>
                             @include('livewire.client.profile.typed-exam._essay-list', ['essayAssignments' => $essayAssignments])
-                        @elseif($assignments->isEmpty())
+                        </div>
+                        <div x-show="activeTab === 'typed'" x-cloak>
+                        @if($assignments->isEmpty())
                             <div class="flex flex-col items-center justify-center space-y-12 py-16">
                                 <img src="/client/svg/empty2.svg"
                                      class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
@@ -113,7 +108,7 @@
 
                                             <div class="px-4 pb-4 space-y-2" dir="rtl">
                                                 @if($assignment->can_start)
-                                                    <button wire:click="confirmEntry({{ $assignment->id }})"
+                                                    <button wire:click="confirmEntry({{ $assignment->id }}, 'typed')"
                                                             class="w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors">
                                                         ورود به آزمون
                                                     </button>
@@ -181,7 +176,7 @@
 
                                                         @if($assignment->computed_status === 'completed' && $assignment->latestAttempt?->score !== null)
                                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">
-                                                                نمره: {{ number_format($assignment->latestAttempt->score, 1) }}%
+                                                              %{{ number_format($assignment->latestAttempt->score, 1) }} درصد
                                                             </span>
                                                         @endif
 
@@ -195,7 +190,7 @@
 
                                                 <div class="flex items-center gap-2 flex-shrink-0" dir="ltr">
                                                     @if($assignment->can_start)
-                                                        <button wire:click="confirmEntry({{ $assignment->id }})"
+                                                        <button wire:click="confirmEntry({{ $assignment->id }}, 'typed')"
                                                                 class="inline-flex items-center justify-center gap-2 px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors">
                                                             ورود به آزمون
                                                         </button>
@@ -263,7 +258,7 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                     </svg>
                                                     <span class="text-xs text-muted">تعداد سوالات</span>
-                                                    <span class="font-bold text-foreground text-sm mt-1">{{ $exam->questions->count() }} سوال</span>
+                                                    <span class="font-bold text-foreground text-sm mt-1">{{ $exam->questions_total }} سوال</span>
                                                 </div>
                                                 <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-2 text-fuchsia-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -278,6 +273,7 @@
                                 @endforeach
                             </div>
                         @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -287,8 +283,17 @@
     <!-- Start Exam Modal -->
     @if($confirmingExamId)
         @php
-            $selectedAssignment = $assignments->firstWhere('id', $confirmingExamId);
-            $selectedExam = $selectedAssignment?->typedExam;
+            // ✅ قبلاً این مودال فقط توی $assignments (لیست تستی) دنبال آزمون می‌گشت؛ برای تایید
+            // ورود به آزمون تشریحی، آیدی‌اش رو پیدا نمی‌کرد (یا چون آیدی دو جدول متفاوت می‌تونه
+            // یکی باشه، احتمالاً آزمون اشتباه) و فقط عنوان عمومی «آزمون» نشون داده می‌شد. حالا بر
+            // اساس confirmingExamType (که موقع کلیک روی «ورود به آزمون» صریحاً ثبت می‌شه) از لیست
+            // درست خونده می‌شه.
+            $selectedAssignment = $confirmingExamType === 'essay'
+                ? $essayAssignments->firstWhere('id', $confirmingExamId)
+                : $assignments->firstWhere('id', $confirmingExamId);
+            $selectedExam = $confirmingExamType === 'essay'
+                ? $selectedAssignment?->essayExam
+                : $selectedAssignment?->typedExam;
         @endphp
         <div class="fixed inset-0 z-[80] flex flex-col justify-end sm:items-center sm:justify-center" wire:keydown.escape.window="closeModal">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer" wire:click="closeModal"></div>

@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-background">
+<div class="min-h-screen bg-background" x-data="{ viewMode: @js($viewMode) }">
     <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
         <!-- Header -->
         <div class="bg-secondary border border-border rounded-2xl p-4 mb-5">
@@ -27,19 +27,22 @@
             </div>
         </div>
         <!-- View Mode Toggle -->
-        <div
-            class="flex items-center justify-center gap-2 bg-secondary border border-border rounded-xl p-1 max-w-md mx-auto mb-5">
-            <button wire:click="setViewMode('report')"
-                    class="flex-1 px-6 py-2.5 rounded-lg text-sm font-semibold transition-colors {{ $viewMode === 'report' ? 'bg-primary text-primary-foreground' : 'text-muted hover:text-foreground' }}">
-                کارنامه
-            </button>
-            @if($canViewAnswerKey)
-                <button wire:click="setViewMode('answersheet')"
-                        class="flex-1 px-6 py-2.5 rounded-lg text-sm font-semibold transition-colors {{ $viewMode === 'answersheet' ? 'bg-primary text-primary-foreground' : 'text-muted hover:text-foreground' }}">
-                    پاسخنامه
-                </button>
-            @endif
-        </div>
+        @php
+            $viewModeItems = ['report' => 'کارنامه'];
+            if ($canViewAnswerKey) {
+                $viewModeItems['answersheet'] = 'پاسخنامه';
+            }
+        @endphp
+        {{-- ✅ سوییچ کارنامه/پاسخنامه دیگه رفت‌وبرگشت به سرور نداره: render() همین الان هم
+             $questionsWithAnswers و $stats رو صرف‌نظر از viewMode می‌سازه، پس هر دو حالت از
+             قبل آماده‌ست و فقط با Alpine نمایش/مخفی می‌شه - نه لودینگ لازمه، نه امکان ریس‌کاندیشنی
+             که با کلیک سریع باعث ناهماهنگی ایندیکیتور تب با محتوای نمایش‌داده‌شده بشه. --}}
+        <x-ui.segmented-tabs
+            :items="$viewModeItems"
+            :active="$viewMode"
+            @segmented-change="viewMode = $event.detail"
+            class="mb-5"
+        />
         @if($attempt->canUploadAnalysis())
             <div class="mb-5 rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-4">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -54,7 +57,7 @@
                 </div>
             </div>
         @endif
-        @if($viewMode === 'report')
+        <div x-show="viewMode === 'report'" x-cloak>
             <!-- Report Card View -->
             @if($canViewResult)
                 <!-- Exam Info -->
@@ -429,7 +432,8 @@
                     <p class="text-muted">کارنامه پس از پایان زمان آزمون قابل مشاهده خواهد بود.</p>
                 </div>
             @endif
-        @else
+        </div>
+        <div x-show="viewMode === 'answersheet'" x-cloak>
             <!-- Answer Sheet View -->
             @if($canViewAnswerKey && $questionsWithAnswers)
                 <!-- Filter -->
@@ -683,17 +687,12 @@
                     <p class="text-muted">پاسخنامه پس از پایان زمان آزمون قابل مشاهده خواهد بود.</p>
                 </div>
             @endif
-        @endif
+        </div>
     </div>
 
 
     @script
     <script>
-        // نکته: Chart.js همین الان توسط layouts.client.link به‌صورت سراسری (و همگام) لود شده
-        // (همون که در سایدبار/سایر بخش‌ها هم استفاده می‌شود)، پس نباید دوباره از CDN لودش کنیم؛
-        // لود مجدد یک نسخه‌ی دیگر از این کتابخانه، window.Chart را با نسخه‌ی متفاوتی جایگزین
-        // می‌کند و می‌تواند نمودارهای دیگر صفحه (مثلاً در سایدبار) را خراب کند.
-        // با این‌حال چون این بلوک ممکن است زودتر از اجرای اسکریپت لایه اجرا شود، کوتاه صبر می‌کنیم.
         (function initTypedExamResultDonutChart() {
             if (typeof Chart === 'undefined') {
                 setTimeout(initTypedExamResultDonutChart, 100);

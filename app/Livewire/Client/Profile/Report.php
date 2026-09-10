@@ -9,6 +9,7 @@ use App\Models\DailyReportDetail;
 use App\Models\DailyReportFeedback;
 use App\Models\SessionFeedback;
 use App\Models\MakeupSession;
+use App\Models\ProgramPart;
 use App\Models\TrialWeek;
 use App\Models\WeeklyProgram;
 use App\Models\WeeklyProgramRestDay;
@@ -249,20 +250,34 @@ class Report extends Component
         $end = Carbon::parse($this->currentProgram->end_date);
         $totalDays = $start->diffInDays($end) + 1;
 
+        // نکته‌ی کارایی: قبلاً به‌ازای هر روزِ برنامه (معمولاً ۷-۸ روز)، هم پارت‌های همون روز
+        // (با ۳ رابطه‌ی ccSubject/ccChapter/ccTopic) و هم گزارشِ ثبت‌شده‌ی همون روز، جداگانه از
+        // دیتابیس خونده می‌شد - یعنی برای ساخت همین جدول هفتگی حدود ۳۰-۴۰ کوئری. این متد از
+        // mount و همچنین بعد از هر ثبت گزارش/گزارش جبرانی صدا زده می‌شه، پس این تکرار روی هر
+        // ارسال گزارش هم اتفاق می‌افتاد. این‌جا هر دو، یک‌بار برای کل برنامه خونده می‌شن و توی
+        // حلقه فقط در حافظه فیلتر می‌شن؛ خروجی برای هر روز دقیقاً همونیه که قبلاً بود.
+        $allParts = ProgramPart::where('weekly_program_id', $this->currentProgram->id)
+            ->with(['ccSubject', 'ccChapter', 'ccTopic'])
+            ->orderBy('part_order')
+            ->get();
+
+        $existingReportsByDate = DailyReport::where('student_id', $student->id)
+            ->where('weekly_program_id', $this->currentProgram->id)
+            ->where('is_compensatory', false)
+            ->get()
+            ->groupBy(fn($report) => Carbon::parse($report->report_date)->toDateString())
+            ->map(fn($group) => $group->first());
+
         for ($i = 0; $i < $totalDays; $i++) {
             $date = $start->copy()->addDays($i);
             $jalaliDate = jdate($date);
             $actualDayOfWeek = $jalaliDate->getDayOfWeek();
 
-            $parts = $this->currentProgram->parts()->where('day_of_week', $i)->with(['ccSubject', 'ccChapter', 'ccTopic'])->orderBy('part_order')->get();
+            $parts = $allParts->where('day_of_week', $i)->values();
             $isRestDay = in_array($i, $this->restDays);
 
             // بررسی گزارش موجود
-            $existingReport = DailyReport::where('student_id', $student->id)
-                ->where('weekly_program_id', $this->currentProgram->id)
-                ->whereDate('report_date', $date)
-                ->where('is_compensatory', false)
-                ->first();
+            $existingReport = $existingReportsByDate->get($date->toDateString());
 
             // ✅ منطق جدید: فقط یک روز می‌تونه باز باشه
             $canSubmit = false;
@@ -314,6 +329,28 @@ class Report extends Component
         $this->missedParts = [];
         $student = Auth::user()->student;
 
+        // نکته‌ی کارایی: قبلاً برای هر روزِ «ثبت‌شده» (تا ۷-۸ روز) یک کوئری جدا برای خوندن
+        // پارت‌های خونده‌نشده‌ی همون گزارش زده می‌شد. اینجا با یک کوئری واحد (whereIn) همون
+        // پارت‌های خونده‌نشده‌ی همه‌ی گزارش‌های ثبت‌شده رو می‌خونیم و بر اساس گزارش گروه‌بندی
+        // می‌کنیم؛ نتیجه‌ی نهایی برای هر روز دقیقاً همونیه که قبلاً بود.
+        $submittedReportIds = collect($this->weekDays)
+            ->filter(fn($day) => !$day['is_rest_day']
+                && $this->isCompensatoryWindowOpen($day['date'])
+                && $day['is_submitted']
+                && $day['report'])
+            ->map(fn($day) => $day['report']->id)
+            ->unique()
+            ->values();
+
+        $unreadPartIdsByReport = $submittedReportIds->isEmpty()
+            ? collect()
+            : DailyReportPart::whereIn('daily_report_id', $submittedReportIds)
+                ->where('is_read', false)
+                ->where('is_compensatory', false)
+                ->get(['daily_report_id', 'program_part_id'])
+                ->groupBy('daily_report_id')
+                ->map(fn($rows) => $rows->pluck('program_part_id')->toArray());
+
         foreach ($this->weekDays as $dayIndex => $day) {
             if ($day['is_rest_day']) continue;
             if (!$this->isCompensatoryWindowOpen($day['date'])) continue;
@@ -331,11 +368,7 @@ class Report extends Component
                     ];
                 }
             } elseif ($day['is_submitted'] && $day['report']) {
-                $unreadPartIds = DailyReportPart::where('daily_report_id', $day['report']->id)
-                    ->where('is_read', false)
-                    ->where('is_compensatory', false)
-                    ->pluck('program_part_id')
-                    ->toArray();
+                $unreadPartIds = $unreadPartIdsByReport->get($day['report']->id, []);
 
                 foreach ($day['parts'] as $part) {
                     if (in_array($part->id, $unreadPartIds) && !in_array($part->id, $this->alreadyCompensatedPartIds)) {

@@ -27,7 +27,12 @@ class AdvisorChat extends Component
 
     public function mount(): void
     {
-        $this->student = Student::where('user_id', Auth::id())->first();
+        // نکته‌ی کارایی: به‌جای یک کوئری مستقیم و جدا، از رابطه‌ی User::student()
+        // (که دقیقاً همان hasOne بر اساس user_id است) استفاده می‌کنیم. چون Auth::user()
+        // در طول همین request کش می‌شود، این رابطه هم روی همان کالکشن در حافظه لود/کش
+        // می‌شود؛ اگر بعداً همان کاربر (مثلاً در لایوت client.app که auth()->user()?->student
+        // را هم می‌خواند) دوباره به این رابطه نیاز داشته باشد، کوئری تکراری زده نمی‌شود.
+        $this->student = Auth::user()?->student;
         abort_if(! $this->student, 403);
 
         // قفلِ دوره‌ی هفته‌ی آزمایشی: تا قبل از دسترسی کامل، این بخش بسته است.

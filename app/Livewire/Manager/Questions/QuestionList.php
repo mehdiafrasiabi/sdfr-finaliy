@@ -9,7 +9,10 @@ use App\Models\CcSubject;
 use App\Models\CcTopic;
 use App\Models\EducationLevel;
 use App\Models\Question;
+use App\Models\QuestionContent;
+use App\Traits\ResolvesLegacySubject;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -17,7 +20,7 @@ use Livewire\WithPagination;
 class QuestionList extends Component
 {
 
-    use WithPagination;
+    use WithPagination, ResolvesLegacySubject;
     // Main Filters
     public string $filterCode = '';
     public string $filterDifficulty = '';
@@ -54,6 +57,22 @@ class QuestionList extends Component
     public $pdfSubjects = [];
     public $pdfChapters = [];
     public $pdfTopics = [];
+    // اصلاحات سوالات: لینک‌کردن سوالات تک‌مقصدی موجود به یک مقصد دوم مشترک،
+    // با استفاده از همان عکس‌های فعلی (بدون آپلود/کپی دوباره)
+    public bool $correctionMode = false;
+    public array $selectedQuestionIds = [];
+    public string $correctionEducationLevelId = '';
+    public string $correctionGradeId = '';
+    public string $correctionFieldId = '';
+    public string $correctionSubjectId = '';
+    public string $correctionChapterId = '';
+    public string $correctionTopicId = '';
+    public bool $correctionIsComprehensive = false;
+    public $correctionGrades = [];
+    public $correctionFields = [];
+    public $correctionSubjects = [];
+    public $correctionChapters = [];
+    public $correctionTopics = [];
     protected $queryString = [
         'filterEducationLevel' => ['except' => ''],
         'filterGrade' => ['except' => ''],
@@ -231,6 +250,243 @@ class QuestionList extends Component
                 ->get();
         }
     }
+    // ==================== اصلاحات سوالات (مقصد دوم) ====================
+    public function toggleCorrectionMode(): void
+    {
+        $this->correctionMode = !$this->correctionMode;
+        $this->selectedQuestionIds = [];
+        $this->resetCorrectionTarget();
+    }
+
+    public function updatedCorrectionEducationLevelId($value): void
+    {
+        $this->reset(['correctionGradeId', 'correctionFieldId', 'correctionSubjectId', 'correctionChapterId', 'correctionTopicId', 'correctionIsComprehensive']);
+        $this->correctionGrades = [];
+        $this->correctionFields = [];
+        $this->correctionSubjects = [];
+        $this->correctionChapters = [];
+        $this->correctionTopics = [];
+
+        if ($value) {
+            $needsField = CcGrade::where('education_level_id', $value)
+                ->where('is_active', true)
+                ->where('grade_number', '>=', 10)
+                ->exists();
+            if ($needsField) {
+                $this->correctionFields = CcField::where('is_active', true)->orderBy('order')->get();
+            } else {
+                $this->correctionGrades = CcGrade::where('education_level_id', $value)
+                    ->where('is_active', true)
+                    ->where(function ($query) {
+                        $query->whereNull('cc_field_id')->orWhere('grade_number', '<', 10);
+                    })
+                    ->orderBy('order')
+                    ->get();
+            }
+        }
+    }
+
+    public function updatedCorrectionFieldId($value): void
+    {
+        $this->reset(['correctionGradeId', 'correctionSubjectId', 'correctionChapterId', 'correctionTopicId', 'correctionIsComprehensive']);
+        $this->correctionGrades = [];
+        $this->correctionSubjects = [];
+        $this->correctionChapters = [];
+        $this->correctionTopics = [];
+
+        if ($value && $this->correctionEducationLevelId) {
+            $this->correctionGrades = CcGrade::where('education_level_id', $this->correctionEducationLevelId)
+                ->where('cc_field_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+        }
+    }
+
+    public function updatedCorrectionGradeId($value): void
+    {
+        $this->reset(['correctionSubjectId', 'correctionChapterId', 'correctionTopicId', 'correctionIsComprehensive']);
+        $this->correctionSubjects = [];
+        $this->correctionChapters = [];
+        $this->correctionTopics = [];
+
+        if ($value) {
+            $grade = CcGrade::find($value);
+            if ($grade) {
+                $this->correctionSubjects = CcSubject::where('cc_grade_id', $value)
+                    ->when($grade->cc_field_id, function ($query) use ($grade) {
+                        $query->where(function ($q) use ($grade) {
+                            $q->where('cc_field_id', $grade->cc_field_id)->orWhereNull('cc_field_id');
+                        });
+                    })
+                    ->orderBy('order')
+                    ->get();
+            }
+        }
+    }
+
+    public function updatedCorrectionSubjectId($value): void
+    {
+        $this->reset(['correctionChapterId', 'correctionTopicId', 'correctionIsComprehensive']);
+        $this->correctionChapters = [];
+        $this->correctionTopics = [];
+
+        if ($value) {
+            $this->correctionChapters = CcChapter::where('cc_subject_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+        }
+    }
+
+    public function updatedCorrectionChapterId($value): void
+    {
+        $this->reset(['correctionTopicId']);
+        $this->correctionTopics = [];
+
+        if ($value) {
+            $this->correctionTopics = CcTopic::where('cc_chapter_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+        }
+    }
+
+    public function updatedCorrectionTopicId($value): void
+    {
+        if ($value) {
+            $this->correctionIsComprehensive = false;
+        }
+    }
+
+    public function setCorrectionComprehensiveMode(): void
+    {
+        $this->correctionIsComprehensive = true;
+        $this->correctionTopicId = '';
+    }
+
+    public function setCorrectionTopicMode(): void
+    {
+        $this->correctionIsComprehensive = false;
+    }
+
+    protected function resetCorrectionTarget(): void
+    {
+        $this->correctionEducationLevelId = '';
+        $this->correctionGradeId = '';
+        $this->correctionFieldId = '';
+        $this->correctionSubjectId = '';
+        $this->correctionChapterId = '';
+        $this->correctionTopicId = '';
+        $this->correctionIsComprehensive = false;
+        $this->correctionGrades = [];
+        $this->correctionFields = [];
+        $this->correctionSubjects = [];
+        $this->correctionChapters = [];
+        $this->correctionTopics = [];
+    }
+
+    /**
+     * لینک‌کردن سوالات انتخاب‌شده به یک مقصد دوم مشترک، با استفاده از همان
+     * عکس‌های موجود (بدون آپلود/کپی دوباره). برای سوالاتی که قبلا (اشتباها)
+     * فقط برای یک رشته/مبحث ثبت شده‌اند ولی محتوایشان با رشته دیگر مشترک است.
+     */
+    public function applyQuestionCorrection(): void
+    {
+        if (empty($this->selectedQuestionIds)) {
+            $this->dispatch('error', 'حداقل یک سوال را انتخاب کنید.');
+            return;
+        }
+        if (!$this->correctionSubjectId || !$this->correctionChapterId) {
+            $this->dispatch('error', 'انتخاب درس و فصل مقصد الزامی است.');
+            return;
+        }
+        if (!$this->correctionIsComprehensive && !$this->correctionTopicId) {
+            $this->dispatch('error', 'انتخاب مبحث مقصد الزامی است (یا حالت سوالات جامع را انتخاب کنید).');
+            return;
+        }
+
+        $targetChapterId = (int) $this->correctionChapterId;
+        $targetTopicId = $this->correctionIsComprehensive ? null : (int) $this->correctionTopicId;
+        $targetSubjectId = $this->resolveLegacySubjectId((int) $this->correctionSubjectId);
+
+        $created = 0;
+        $skipped = 0;
+
+        DB::transaction(function () use (&$created, &$skipped, $targetChapterId, $targetTopicId, $targetSubjectId) {
+            $questions = Question::with('content')->whereIn('id', $this->selectedQuestionIds)->get();
+
+            foreach ($questions as $question) {
+                $content = $question->content;
+                if (!$content || !$content->question_image || !$content->folder_hash) {
+                    $skipped++;
+                    continue;
+                }
+
+                // همین حالا هم به همین مقصد اشاره می‌کند
+                if ((int) $question->cc_chapter_id === $targetChapterId
+                    && (int) ($question->cc_topic_id ?? 0) === (int) ($targetTopicId ?? 0)) {
+                    $skipped++;
+                    continue;
+                }
+
+                // قبلا (توسط همین ابزار یا آپلود دو درسه) به این مقصد لینک شده
+                $alreadyLinked = Question::where('cc_chapter_id', $targetChapterId)
+                    ->where('cc_topic_id', $targetTopicId)
+                    ->whereHas('content', function ($q) use ($content) {
+                        $q->where('folder_hash', $content->folder_hash);
+                    })
+                    ->exists();
+                if ($alreadyLinked) {
+                    $skipped++;
+                    continue;
+                }
+
+                $newQuestion = Question::create([
+                    'code' => Question::generateUniqueCode(),
+                    'subject_id' => $targetSubjectId,
+                    'cc_chapter_id' => $targetChapterId,
+                    'cc_topic_id' => $targetTopicId,
+                    'difficulty' => $question->difficulty,
+                    'correct_option' => $question->correct_option,
+                ]);
+                $this->synchronizeOptionKeys($newQuestion, (int) $question->correct_option_number);
+
+                QuestionContent::create([
+                    'question_id' => $newQuestion->id,
+                    'question_image' => $content->question_image,
+                    'folder_hash' => $content->folder_hash,
+                    'explanation_image' => $content->explanation_image,
+                    'body' => '',
+                    'explanation' => '',
+                ]);
+
+                $created++;
+            }
+        });
+
+        if ($created > 0) {
+            $message = "{$created} سوال با موفقیت به مقصد دوم لینک شد.";
+            if ($skipped > 0) {
+                $message .= " ({$skipped} مورد رد شد چون عکس نداشت یا از قبل لینک شده بود.)";
+            }
+            $this->dispatch('success', $message);
+        } else {
+            $this->dispatch('error', 'هیچ سوالی لینک نشد؛ همه موارد انتخاب‌شده یا از قبل لینک شده بودند یا عکس نداشتند.');
+        }
+
+        $this->selectedQuestionIds = [];
+        $this->resetCorrectionTarget();
+    }
+
+    protected function synchronizeOptionKeys(Question $question, int $correctOption): void
+    {
+        $question->options()->update(['is_correct' => false]);
+        $question->options()
+            ->where('option_number', $correctOption)
+            ->update(['is_correct' => true]);
+    }
+
     public function toggleExpand(int $questionId): void
     {
         if (in_array($questionId, $this->expandedQuestions)) {
@@ -403,6 +659,7 @@ class QuestionList extends Component
             'medium' => 'متوسط',
             'hard' => 'سخت',
             'special' => 'ویژه',
+            'combined' => 'ترکیبی',
         ];
         // Check if field select should be shown
         $showFieldFilter = false;
@@ -415,8 +672,25 @@ class QuestionList extends Component
             $grade = CcGrade::find($this->pdfGrade);
             $showPdfFieldFilter = $grade && $grade->grade_number >= 10;
         }
+        $showCorrectionFieldFilter = false;
+        if ($this->correctionEducationLevelId) {
+            $showCorrectionFieldFilter = CcGrade::where('education_level_id', $this->correctionEducationLevelId)
+                ->where('is_active', true)
+                ->where('grade_number', '>=', 10)
+                ->exists();
+        }
+        // برای نشان‌دادن اینکه یک سوال از قبل با سوال دیگری عکس مشترک دارد (لینک شده)
+        $linkedFolderHashes = [];
+        foreach ($questions as $question) {
+            $hash = $question->content->folder_hash ?? null;
+            if ($hash && Question::whereHas('content', fn ($q) => $q->where('folder_hash', $hash))->count() > 1) {
+                $linkedFolderHashes[] = $hash;
+            }
+        }
+
         return view('livewire.manager.questions.question-list', compact(
-            'questions', 'difficulties', 'showFieldFilter', 'showPdfFieldFilter'
+            'questions', 'difficulties', 'showFieldFilter', 'showPdfFieldFilter',
+            'showCorrectionFieldFilter', 'linkedFolderHashes'
         ))->layout('layouts.manager.app');
     }
 }

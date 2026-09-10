@@ -203,7 +203,7 @@
                         </svg>
                     </span>
                     <span wire:loading wire:target="goToExamPlanning" class="inline-flex items-center gap-2">
-                        <span class="inline-block w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+                        <x-ui.spinner size="sm" class="text-white" />
                         در حال انتقال...
                     </span>
                 </button>
@@ -751,10 +751,7 @@
                         <button type="button" wire:click="lockClassification"
                                 wire:loading.attr="disabled" wire:target="lockClassification"
                                 class="press btn-success flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm">
-                            <svg wire:loading wire:target="lockClassification" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.4 0 0 5.4 0 12h4z"/>
-                            </svg>
+                            <x-ui.spinner size="sm" wire:loading wire:target="lockClassification" />
                             <span wire:loading.remove wire:target="lockClassification">بله، قفل کن</span>
                             <span wire:loading wire:target="lockClassification">در حال قفل…</span>
                         </button>
@@ -799,10 +796,7 @@
                         <button type="button" wire:click="buildProgram"
                                 wire:loading.attr="disabled" wire:target="buildProgram"
                                 class="press btn-primary flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm">
-                            <svg wire:loading wire:target="buildProgram" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.4 0 0 5.4 0 12h4z"/>
-                            </svg>
+                            <x-ui.spinner size="sm" wire:loading wire:target="buildProgram" />
                             <span wire:loading.remove wire:target="buildProgram">تأیید و ساخت برنامه</span>
                             <span wire:loading wire:target="buildProgram">در حال ایجاد…</span>
                         </button>

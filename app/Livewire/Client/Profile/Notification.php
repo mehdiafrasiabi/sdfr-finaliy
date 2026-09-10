@@ -47,18 +47,19 @@ class Notification extends Component
      * اگر فقط یک دسته‌بندی پیام خوانده‌نشده دارد → آن دسته
      * اگر چند دسته دارند → دسته‌ای که بیشترین تعداد دارد
      * اگر هیچ پیام خوانده‌نشده‌ای نیست → 'all'
+     *
+     * نکته‌ی کارایی: این متد همیشه بعد از loadUnreadCounts() در mount() صدا زده می‌شود؛
+     * تعداد خوانده‌نشده‌ی هر دسته را از $this->unreadCounts (که همان‌جا محاسبه شده)
+     * می‌خوانیم به‌جای این‌که دقیقاً همان کوئری‌های شمارشِ هر دسته را دوباره بزنیم.
+     * نتیجه‌ی نهایی (این‌که کدام دسته پیش‌فرض انتخاب شود) دقیقاً یکسان می‌ماند.
      */
     protected function setDefaultActiveCategory(): void
     {
-        $userId     = $this->user->id;
         $categories = array_keys($this->getAvailableCategories());
 
         $counts = [];
         foreach ($categories as $cat) {
-            $count = NotificationRecipient::where('user_id', $userId)
-                ->where('is_read', false)
-                ->whereHas('notification', fn($q) => $q->where('category', $cat))
-                ->count();
+            $count = $this->unreadCounts[$cat] ?? 0;
             if ($count > 0) {
                 $counts[$cat] = $count;
             }

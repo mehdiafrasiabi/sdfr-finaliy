@@ -462,55 +462,78 @@
                                 </h5>
                             </div>
                             <div class="card-body">
-                                <div class="row align-items-center g-3">
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-bold">چند سوال می‌خواهید آپلود کنید؟</label>
-                                        <div class="input-group" style="max-width: 220px;">
-                                            <button type="button" class="btn btn-outline-secondary"
-                                                    wire:click="decrementQuestionCount"
-                                                    @disabled((int) $questionCount <= 1)>
-                                                <span class="ti ti-minus" aria-hidden="true"></span>
-                                                <span class="visually-hidden">کم کردن</span>
-                                                <span aria-hidden="true">-</span>
-                                            </button>
+                                @if(!$questionsGenerated)
+                                    {{-- فاز اول: انتخاب تعداد اولیه و ساخت یک‌جای باکس‌ها --}}
+                                    <div class="row align-items-end g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold">چند سوال می‌خواهید آپلود کنید؟</label>
                                             <input type="number"
-                                                   wire:model.blur="questionCount"
+                                                   wire:model="questionCount"
                                                    wire:blur="normalizeQuestionCount"
                                                    min="1" max="20"
                                                    class="form-control text-center fw-bold fs-5"
-                                                   style="max-width: 80px;">
-                                            <button type="button" class="btn btn-outline-secondary"
-                                                    wire:click="incrementQuestionCount"
-                                                    @disabled((int) $questionCount >= 20)>
-                                                <span class="ti ti-plus" aria-hidden="true"></span>
-                                                <span class="visually-hidden">زیاد کردن</span>
-                                                <span aria-hidden="true">+</span>
+                                                   style="max-width: 140px;">
+                                            <small class="text-muted">حداکثر ۲۰ سوال در یک بار</small>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button type="button" class="btn btn-primary" wire:click="generateQuestions">
+                                                <i class="ti ti-list-check me-1"></i>
+                                                ساخت باکس‌های سوال
                                             </button>
                                         </div>
-                                        <small class="text-muted">حداکثر ۲۰ سوال در یک بار</small>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <div class="alert alert-info mb-0 py-2">
-                                            <i class="ti ti-info-circle me-1"></i>
-                                            تمام سوالات زیر در همان دسته‌بندی انتخاب‌شده بالا ذخیره می‌شوند.
-                                            هر سوال می‌تواند سختی و گزینه صحیح جداگانه داشته باشد.
-                                            @if($duplicateForSecondCourse)
-                                                با مقصد دوم، مجموعا {{ $createdQuestionCount }} سوال ساخته می‌شود.
-                                            @endif
-                                        </div>
-                                        <div class="alert alert-light border mt-2 mb-0 py-2 small text-muted">
-                                            اگر تبدیل تصویر خطا داد، پیام جدید نام سوال و نوع عکس را نشان می‌دهد.
-                                            معمولا با ذخیره دوباره فایل به صورت JPG یا PNG و صبر برای تکمیل آپلود حل می‌شود.
+                                        <div class="col-md-4">
+                                            <div class="alert alert-light border mb-0 py-2 small text-muted">
+                                                بعد از ساخته‌شدن، دیگر نمی‌توانید تعداد را کم کنید؛ فقط می‌توانید
+                                                سوال اضافه کنید یا هر سوال را جداگانه با دکمه حذف بردارید.
+                                            </div>
                                         </div>
                                     </div>
+                                @else
+                                    {{-- فاز دوم: فقط افزودن سوال جدید --}}
+                                    <div class="row align-items-end g-3">
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold">افزودن چند سوال دیگر؟</label>
+                                            <input type="number"
+                                                   wire:model="addQuestionCount"
+                                                   min="1" max="20"
+                                                   class="form-control text-center fw-bold"
+                                                   style="max-width: 120px;">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="button" class="btn btn-outline-primary"
+                                                    wire:click="addMoreQuestions"
+                                                    @disabled((int) $questionCount >= 20)>
+                                                <i class="ti ti-plus me-1"></i>
+                                                افزودن
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="alert alert-info mb-0 py-2">
+                                                <i class="ti ti-info-circle me-1"></i>
+                                                در حال حاضر {{ $questionCount }} سوال آماده است. سوالات جدید به
+                                                انتهای لیست اضافه می‌شوند و عکس‌های سوالات قبلی دست‌نخورده می‌مانند.
+                                                برای کم‌کردن، همان سوال را با دکمه «حذف این سوال» بردارید.
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                                <div class="alert alert-light border mt-3 mb-0 py-2 small text-muted">
+                                    تمام سوالات زیر در همان دسته‌بندی انتخاب‌شده بالا ذخیره می‌شوند.
+                                    هر سوال می‌تواند سختی و گزینه صحیح جداگانه داشته باشد.
+                                    @if($duplicateForSecondCourse)
+                                        با مقصد دوم، مجموعا {{ $createdQuestionCount }} سوال ساخته می‌شود.
+                                    @endif
+                                    اگر تبدیل تصویر خطا داد، پیام جدید نام سوال و نوع عکس را نشان می‌دهد.
+                                    معمولا با ذخیره دوباره فایل به صورت JPG یا PNG و صبر برای تکمیل آپلود حل می‌شود.
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 {{-- حلقه سوالات --}}
+                @if($questionsGenerated)
                 @for ($i = 0; $i < $questionCount; $i++)
-                    <div class="row mb-2">
+                    <div class="row mb-2" wire:key="question-box-row-{{ $i }}">
                         <div class="col-12">
                             <div class="card border-secondary">
                                 <div class="card-header d-flex align-items-center justify-content-between"
@@ -519,11 +542,20 @@
                                         <span class="badge bg-primary me-2">سوال {{ $i + 1 }}</span>
                                         از {{ $questionCount }}
                                     </h5>
-                                    @if(isset($questionImages[$i]))
-                                        <span class="badge bg-success">
-                                            <i class="ti ti-check me-1"></i> عکس آپلود شده
-                                        </span>
-                                    @endif
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if(isset($questionImages[$i]))
+                                            <span class="badge bg-success">
+                                                <i class="ti ti-check me-1"></i> عکس آپلود شده
+                                            </span>
+                                        @endif
+                                        <button type="button"
+                                                wire:click="removeQuestionAt({{ $i }})"
+                                                wire:confirm="این سوال به‌طور کامل حذف می‌شود. ادامه می‌دهید؟"
+                                                class="btn btn-sm btn-outline-danger">
+                                            <i class="ti ti-trash me-1"></i>
+                                            حذف این سوال
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="card-body">
                                     <div class="row g-3 mb-4">
@@ -686,6 +718,7 @@
                         </div>
                     </div>
                 @endfor
+                @endif
             @endif
             <!-- Submit Button -->
             <div class="row">

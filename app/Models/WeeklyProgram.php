@@ -92,21 +92,30 @@ class WeeklyProgram extends Model
 
     /**
      * Check if a specific day is a comprehensive exam day
+     * نکته‌ی کارایی: اگر رابطه‌ی examDays قبلاً (مثلاً با with('examDays')) لود شده
+     * باشد، به‌جای زدن یک کوئری جدید برای هر روز، همون کالکشن لود‌شده در حافظه چک
+     * می‌شود؛ خروجی دقیقاً همانی است که کوئری قبلی برمی‌گرداند. اگر رابطه لود نشده
+     * باشد، رفتار قبلی (زدن کوئری) دقیقاً حفظ می‌شود.
      */
     public function isExamDay(int $dayIndex): bool
     {
-        return $this->examDays()->where('day_index', $dayIndex)->exists();
+        return $this->relationLoaded('examDays')
+            ? $this->examDays->contains('day_index', $dayIndex)
+            : $this->examDays()->where('day_index', $dayIndex)->exists();
     }
 
     /**
      * Check if a specific day is a rest day
+     * همان بهینه‌سازیِ isExamDay: استفاده از رابطه‌ی از‌قبل‌بارگذاری‌شده در صورت وجود.
      */
 
     public function isRestDay(int $dayIndex): bool
 
     {
 
-        return $this->restDays()->where('day_index', $dayIndex)->exists();
+        return $this->relationLoaded('restDays')
+            ? $this->restDays->contains('day_index', $dayIndex)
+            : $this->restDays()->where('day_index', $dayIndex)->exists();
 
     }
 
@@ -132,142 +141,116 @@ class WeeklyProgram extends Model
 
 
     // محاسبه کل ساعت مطالعه هفته
-
+    // نکته‌ی کارایی: اگر رابطه‌ی parts قبلاً (مثلاً با with('parts')) لود شده باشد،
+    // به‌جای زدن یک کوئری جدید SUM/COUNT به دیتابیس، همون کالکشن لود‌شده در حافظه
+    // محاسبه می‌شود؛ خروجی دقیقاً همانی است که کوئری قبلی برمی‌گرداند. اگر رابطه لود
+    // نشده باشد، رفتار قبلی (زدن کوئری) دقیقاً حفظ می‌شود.
     public function getTotalHoursAttribute(): float
-
     {
-
-        $totalMinutes = $this->parts()->sum('duration_minutes');
+        $totalMinutes = $this->relationLoaded('parts')
+            ? $this->parts->sum('duration_minutes')
+            : $this->parts()->sum('duration_minutes');
 
         return round($totalMinutes / 60, 1);
-
     }
-
 
     // محاسبه کل تعداد تست هفته
-
     public function getTotalTestsAttribute(): int
-
     {
-
-        return $this->parts()->sum('test_count') ?? 0;
-
+        return $this->relationLoaded('parts')
+            ? (int) $this->parts->sum('test_count')
+            : ($this->parts()->sum('test_count') ?? 0);
     }
-
 
     // محاسبه تعداد پارت‌ها
-
     public function getTotalPartsAttribute(): int
-
     {
-
-        return $this->parts()->count();
-
+        return $this->relationLoaded('parts')
+            ? $this->parts->count()
+            : $this->parts()->count();
     }
-
 
     // محاسبه تعداد پلان‌های درسی
-
     public function getTotalPlansAttribute(): int
-
     {
-
-        return $this->parts()->count();
-
+        return $this->relationLoaded('parts')
+            ? $this->parts->count()
+            : $this->parts()->count();
     }
-
 
     // تعداد پارت‌های تستی
-
     public function getTestPartsCountAttribute(): int
-
     {
-
-        return $this->parts()->where('part_type', 'test')->count();
-
+        return $this->relationLoaded('parts')
+            ? $this->parts->where('part_type', 'test')->count()
+            : $this->parts()->where('part_type', 'test')->count();
     }
-
 
     // تعداد پارت‌های تشریحی
-
     public function getDescriptivePartsCountAttribute(): int
-
     {
-
-        return $this->parts()->where('part_type', 'descriptive')->count();
-
+        return $this->relationLoaded('parts')
+            ? $this->parts->where('part_type', 'descriptive')->count()
+            : $this->parts()->where('part_type', 'descriptive')->count();
     }
-
 
     // تعداد پارت‌های ویدئویی
-
     public function getVideoPartsCountAttribute(): int
-
     {
-
-        return $this->parts()->where('part_type', 'video')->count();
-
+        return $this->relationLoaded('parts')
+            ? $this->parts->where('part_type', 'video')->count()
+            : $this->parts()->where('part_type', 'video')->count();
     }
-
 
     // تعداد پارت‌های عمومی
-
     public function getGeneralPartsCountAttribute(): int
-
     {
-
-        return $this->parts()->where('lesson_type', 'general')->count();
-
+        return $this->relationLoaded('parts')
+            ? $this->parts->where('lesson_type', 'general')->count()
+            : $this->parts()->where('lesson_type', 'general')->count();
     }
-
 
     // تعداد پارت‌های تخصصی
-
     public function getSpecializedPartsCountAttribute(): int
-
     {
-
-        return $this->parts()->where('lesson_type', 'specialized')->count();
-
+        return $this->relationLoaded('parts')
+            ? $this->parts->where('lesson_type', 'specialized')->count()
+            : $this->parts()->where('lesson_type', 'specialized')->count();
     }
-
 
     // تعداد پارت‌های هر پایه
-
     public function getGrade10PartsCountAttribute(): int
-
     {
-
-        return $this->parts()->where('grade', '10')->count();
-
+        return $this->relationLoaded('parts')
+            ? $this->parts->where('grade', '10')->count()
+            : $this->parts()->where('grade', '10')->count();
     }
-
 
     public function getGrade11PartsCountAttribute(): int
-
     {
-
-        return $this->parts()->where('grade', '11')->count();
-
+        return $this->relationLoaded('parts')
+            ? $this->parts->where('grade', '11')->count()
+            : $this->parts()->where('grade', '11')->count();
     }
 
-
     public function getGrade12PartsCountAttribute(): int
-
     {
-
-        return $this->parts()->where('grade', '12')->count();
-
+        return $this->relationLoaded('parts')
+            ? $this->parts->where('grade', '12')->count()
+            : $this->parts()->where('grade', '12')->count();
     }
 
 
     // ساعت مطالعه روزانه
+    // همان بهینه‌سازیِ accessor های بالا: استفاده از رابطه‌ی از‌قبل‌بارگذاری‌شده در صورت وجود.
 
     public function getDailyHours($dayOfWeek): float
 
     {
 
-        $totalMinutes = $this->parts()->where('day_of_week', $dayOfWeek)->sum('duration_minutes');
+        $totalMinutes = $this->relationLoaded('parts')
+            ? $this->parts->where('day_of_week', $dayOfWeek)->sum('duration_minutes')
+            : $this->parts()->where('day_of_week', $dayOfWeek)->sum('duration_minutes');
 
         return round($totalMinutes / 60, 1);
 
@@ -280,7 +263,11 @@ class WeeklyProgram extends Model
 
     {
 
-        return $this->parts()->where('day_of_week', $dayOfWeek)->sum('test_count') ?? 0;
+        $total = $this->relationLoaded('parts')
+            ? $this->parts->where('day_of_week', $dayOfWeek)->sum('test_count')
+            : $this->parts()->where('day_of_week', $dayOfWeek)->sum('test_count');
+
+        return $total ?? 0;
 
     }
 
@@ -298,6 +285,8 @@ class WeeklyProgram extends Model
         $start = Carbon::parse($this->start_date);
         $end = Carbon::parse($this->end_date);
         $totalDays = $start->diffInDays($end) + 1;
+
+        $partsLoaded = $this->relationLoaded('parts');
 
         for ($i = 0; $i < $totalDays; $i++) {
 
@@ -322,7 +311,9 @@ class WeeklyProgram extends Model
 
                 'jalali_short' => $jalaliDate->format('d F'),
 
-                'parts' => $this->parts()->where('day_of_week', $i)->orderBy('part_order')->get(),
+                'parts' => $partsLoaded
+                    ? $this->parts->where('day_of_week', $i)->sortBy('part_order')->values()
+                    : $this->parts()->where('day_of_week', $i)->orderBy('part_order')->get(),
 
                 'total_hours' => $this->getDailyHours($i),
 

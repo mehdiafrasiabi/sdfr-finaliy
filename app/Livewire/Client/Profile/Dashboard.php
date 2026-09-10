@@ -37,6 +37,27 @@ class Dashboard extends Component
     protected $activeProgramCache = null;
     protected array $examProgramFlags = [];
 
+    /**
+     * کش «آخرین TrialWeek این کاربر» در سطح یک request. قبلاً هم getActiveWeeklyProgram()
+     * (برای دانش‌آموز آزمایشی) و هم isGraduateStudent() دقیقاً همین کوئری
+     * (TrialWeek::where('user_id', ...)->latest()->first()) را جدا از هم می‌زدند؛
+     * چون هر رندر هر دو صدا زده می‌شوند، نتیجه یک‌بار محاسبه و به اشتراک گذاشته می‌شود.
+     */
+    protected bool $latestTrialWeekResolved = false;
+    protected ?TrialWeek $latestTrialWeekCache = null;
+
+    private function getLatestTrialWeek(): ?TrialWeek
+    {
+        if (!$this->latestTrialWeekResolved) {
+            $this->latestTrialWeekResolved = true;
+            $this->latestTrialWeekCache = $this->user
+                ? TrialWeek::where('user_id', $this->user->id)->latest()->first()
+                : null;
+        }
+
+        return $this->latestTrialWeekCache;
+    }
+
     /** نام روزهای هفته (0=شنبه تا 6=جمعه) */
     protected array $weekDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
 
@@ -218,7 +239,7 @@ class Dashboard extends Component
 
         // برای دانش‌آموز آزمایشی: برنامه‌ای که در trial ساخته شده
         if ($this->student->is_trial) {
-            $trial = TrialWeek::where('user_id', $this->user->id)->latest()->first();
+            $trial = $this->getLatestTrialWeek();
             if ($trial && $trial->advising_session_id) {
                 $prog = WeeklyProgram::where('advising_session_id', $trial->advising_session_id)
                     ->latest()->first();
@@ -621,7 +642,7 @@ class Dashboard extends Component
     {
         // دانش‌آموز آزمایشی: از روی TrialWeek تشخیص بده
         if ($this->student && $this->student->is_trial) {
-            $trial = TrialWeek::where('user_id', $this->user->id)->latest()->first();
+            $trial = $this->getLatestTrialWeek();
             if ($trial) {
                 return $trial->isGraduate();
             }
@@ -981,7 +1002,11 @@ class Dashboard extends Component
             ->all();
 
         // Count non-rest days for percentage calculation
-        $restDayIndices = $activeProgram->restDays()
+        // نکته‌ی کارایی: از رابطه (property) به‌جای متد استفاده می‌کنیم؛ اگر جای دیگری از
+        // همین رندر (مثل getWeeklyInsights) قبلاً $activeProgram->restDays را لود کرده
+        // باشد، همان کالکشن در حافظه استفاده می‌شود و کوئری تکراری زده نمی‌شود. نتیجه‌ی
+        // pluck/map/filter زیر دقیقاً همان چیزی است که قبلاً از کوئری مستقیم به دست می‌آمد.
+        $restDayIndices = $activeProgram->restDays
             ->pluck('day_index')
             ->map(fn($value) => (int) $value)
             ->filter(fn($value) => $value >= 0 && $value < $totalDays)

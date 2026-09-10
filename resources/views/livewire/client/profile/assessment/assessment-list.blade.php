@@ -215,11 +215,11 @@
 
                             {{-- ───── تست‌های اختصاصی: تحلیل دقیق هر شاخص (فقط با «نمایش جزییات») ───── --}}
                             <div x-show="showDetails" x-cloak class="contents">
-                                @foreach($summary['custom'] as $testName => $facets)
+                                @foreach($summary['custom'] as $testName => $entry)
                                     <div class="rounded-xl p-4 bg-background border border-border">
                                         <div class="text-sm font-bold mb-3">{{ $testName }}</div>
                                         <div class="space-y-3">
-                                            @foreach($facets as $f)
+                                            @foreach($entry['facets'] as $f)
                                                 @php
                                                     $lvl = $f['level'] ?? 'medium';
                                                     $lvlColor = $lvl === 'high' ? '#22c55e' : ($lvl === 'low' ? '#f59e0b' : '#3b82f6');

@@ -93,6 +93,7 @@ class SessionAnalysis extends Component
             return null;
         }
         return AdvisingPreSession::where('advising_session_id', $this->trialWeek->advising_session_id)
+            ->withCount(['exams', 'qas', 'assignments', 'requestedParts'])
             ->first();
     }
 
@@ -107,10 +108,10 @@ class SessionAnalysis extends Component
         }
 
         return [
-            'exams'       => $ps->exams()->count(),
-            'qas'         => $ps->qas()->count(),
-            'assignments' => $ps->assignments()->count(),
-            'requested'   => $ps->requestedParts()->count(),
+            'exams'       => (int) $ps->exams_count,
+            'qas'         => (int) $ps->qas_count,
+            'assignments' => (int) $ps->assignments_count,
+            'requested'   => (int) $ps->requested_parts_count,
             'misc'        => (bool) $ps->miscellaneous,
         ];
     }

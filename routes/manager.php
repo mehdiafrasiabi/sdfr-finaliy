@@ -13,6 +13,7 @@ use App\Livewire\Manager\Payment\Index as PaymentIndex;
 use App\Livewire\Manager\Questions\CkUpload as QuestionCkUpload;
 use App\Livewire\Manager\Questions\QuestionForm;
 use App\Livewire\Manager\Questions\QuestionList;
+use App\Livewire\Manager\Questions\QuestionStats;
 use App\Livewire\Manager\ReceivedDocuments\ContactDocuments;
 use App\Livewire\Manager\ReceivedDocuments\ReportStudentStudy;
 use App\Livewire\Manager\Setting\ContactUs\Index as SettingContactUs;
@@ -120,6 +121,7 @@ Route::name('manager.')->group(function () {
         Route::get('/newsletter', NewsletterIndex::class)->name('newsletter');
         // Question Bank Routes (بانک سوالات)
         Route::get('/questions', QuestionList::class)->name('questions.index');
+        Route::get('/questions/stats', QuestionStats::class)->name('questions.stats');
         Route::get('/questions/form/{code?}', QuestionForm::class)->name('questions.form');
         Route::post('/questions/ck-upload/{questionId?}', [QuestionCkUpload::class, 'upload'])->name('questions.ck-upload');
         // Typed Exam Routes (آزمون‌های تایپی)

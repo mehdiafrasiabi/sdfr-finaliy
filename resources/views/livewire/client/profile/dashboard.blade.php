@@ -643,7 +643,7 @@
                                     class="mt-5 flex h-12 w-full items-center justify-center rounded-2xl bg-primary px-4 text-sm font-black text-white shadow-lg shadow-primary/20 transition hover:brightness-110 disabled:cursor-wait disabled:opacity-70">
                                 <span wire:loading.remove wire:target="submitExamDayFeedback">ثبت و ادامه</span>
                                 <span wire:loading wire:target="submitExamDayFeedback" class="inline-flex items-center gap-2">
-                                    <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+                                    <x-ui.spinner size="sm" class="text-white" />
                                     در حال ثبت...
                                 </span>
                             </button>

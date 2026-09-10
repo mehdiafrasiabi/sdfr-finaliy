@@ -11,7 +11,7 @@ use App\Models\CcTopic;
 use App\Models\EducationLevel;
 use App\Models\Question;
 use App\Models\QuestionContent;
-use App\Models\Subject;
+use App\Traits\ResolvesLegacySubject;
 use App\Traits\UploadFile;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +25,7 @@ use Throwable;
 
 class QuestionForm extends Component
 {
-    use WithFileUploads, UploadFile;
+    use WithFileUploads, UploadFile, ResolvesLegacySubject;
 
     protected const QUESTION_IMAGE_WIDTH = 1080;
 
@@ -70,6 +70,10 @@ class QuestionForm extends Component
     public ?string $existingExplanationImage = null;
     // Create mode - multi-question
     public $questionCount = 1;
+    // وقتی true بشه یعنی دسته اولیه سوالات ساخته شده و از این به بعد فقط می‌توان اضافه کرد
+    public bool $questionsGenerated = false;
+    // تعداد سوالی که با دکمه «افزودن» به انتهای لیست اضافه می‌شود
+    public $addQuestionCount = 1;
     public array $questionImages = [];
     public array $explanationImages = [];
     public array $questionCorrectOptions = [];
@@ -101,7 +105,7 @@ class QuestionForm extends Component
             }
         }
         if ($this->isEditMode) {
-            $rules['difficulty'] = 'required|in:easy,medium,hard,special';
+            $rules['difficulty'] = 'required|in:easy,medium,hard,special,combined';
             $rules['correctOption'] = 'required|integer|min:1|max:4';
             if (!$this->existingQuestionImage) {
                 $rules['questionImage'] = 'required|image|max:10240';
@@ -114,7 +118,7 @@ class QuestionForm extends Component
                 $rules["questionImages.$i"] = 'required|image|max:10240';
                 $rules["explanationImages.$i"] = 'nullable|image|max:10240';
                 $rules["questionCorrectOptions.$i"] = 'required|integer|min:1|max:4';
-                $rules["questionDifficulties.$i"] = 'required|in:easy,medium,hard,special';
+                $rules["questionDifficulties.$i"] = 'required|in:easy,medium,hard,special,combined';
             }
         }
         return $rules;
@@ -161,6 +165,54 @@ class QuestionForm extends Component
         $this->questionDifficulties = ['medium'];
         if ($code) {
             $this->loadQuestion($code);
+            return;
+        }
+        $this->prefillFromQueryString();
+    }
+
+    /**
+     * وقتی از صفحه «آمار سوالات» روی یک فصل/مبحث خاص کلیک می‌شود
+     * (مثلاً ?chapter_id=..&topic_id=..)، دسته‌بندی به‌صورت خودکار
+     * پر می‌شود تا مدیر مستقیم برود عکس آپلود کند.
+     */
+    protected function prefillFromQueryString(): void
+    {
+        $chapterId = request()->query('chapter_id');
+        if (!$chapterId) {
+            return;
+        }
+
+        $chapter = CcChapter::with('subject.grade.educationLevel', 'subject.field')->find($chapterId);
+        $subject = $chapter?->subject;
+        $grade = $subject?->grade;
+        $educationLevel = $grade?->educationLevel;
+
+        if (!$chapter || !$subject || !$grade || !$educationLevel) {
+            return;
+        }
+
+        $this->educationLevelId = (string) $educationLevel->id;
+        $this->updatedEducationLevelId($this->educationLevelId);
+
+        $fieldId = $grade->cc_field_id ?: $subject->cc_field_id;
+        if ($fieldId) {
+            $this->fieldId = (string) $fieldId;
+            $this->updatedFieldId($this->fieldId);
+        }
+
+        $this->gradeId = (string) $grade->id;
+        $this->updatedGradeId($this->gradeId);
+        $this->subjectId = (string) $subject->id;
+        $this->updatedSubjectId($this->subjectId);
+        $this->chapterId = (string) $chapter->id;
+        $this->updatedChapterId($this->chapterId);
+
+        $topicId = request()->query('topic_id');
+        if ($topicId) {
+            $this->topicId = (string) $topicId;
+            $this->isComprehensive = false;
+        } else {
+            $this->isComprehensive = true;
         }
     }
 
@@ -385,28 +437,63 @@ class QuestionForm extends Component
         }
     }
 
-    public function updatedQuestionCount($value): void
-    {
-        if ($value === '' || $value === null) {
-            return;
-        }
-
-        $this->syncQuestionCount($value);
-    }
-
+    /**
+     * نرمال‌سازی تعداد فعلی (بین ۱ تا ۲۰) بدون تغییر فاز فرم؛ قبل از ذخیره
+     * و برای نرمال‌سازی مقدار تایپ‌شده در فاز اول استفاده می‌شود.
+     */
     public function normalizeQuestionCount(): void
     {
         $this->syncQuestionCount($this->questionCount);
     }
 
-    public function incrementQuestionCount(): void
+    /**
+     * فاز اول: تعداد اولیه سوالات مشخص و باکس‌های آن ساخته می‌شود.
+     * بعد از این مرحله دیگر نمی‌توان تعداد را کم کرد؛ فقط می‌توان اضافه کرد
+     * یا با دکمه حذف هر باکس، همان یک سوال را برداشت.
+     */
+    public function generateQuestions(): void
     {
-        $this->syncQuestionCount((int)$this->questionCount + 1);
+        $this->syncQuestionCount($this->questionCount);
+        $this->questionsGenerated = true;
     }
 
-    public function decrementQuestionCount(): void
+    /**
+     * فاز دوم: افزودن چند سوال دیگر به انتهای لیست، بدون دست‌زدن به
+     * عکس‌های سوالاتی که از قبل آپلود شده‌اند.
+     */
+    public function addMoreQuestions(): void
     {
-        $this->syncQuestionCount((int)$this->questionCount - 1);
+        $add = max(1, min(20, (int)$this->addQuestionCount));
+        $this->syncQuestionCount((int)$this->questionCount + $add);
+        $this->addQuestionCount = 1;
+    }
+
+    /**
+     * حذف کامل یک باکس سوال (نه فقط عکسش). سوالات بعدی یک رتبه جابه‌جا می‌شوند.
+     */
+    public function removeQuestionAt(int $index): void
+    {
+        unset($this->questionImages[$index]);
+        unset($this->explanationImages[$index]);
+        unset($this->questionCorrectOptions[$index]);
+        unset($this->questionDifficulties[$index]);
+
+        $this->questionImages = array_values($this->questionImages);
+        $this->explanationImages = array_values($this->explanationImages);
+        $this->questionCorrectOptions = array_values($this->questionCorrectOptions);
+        $this->questionDifficulties = array_values($this->questionDifficulties);
+
+        $this->questionCount = max(0, (int)$this->questionCount - 1);
+
+        if ($this->questionCount < 1) {
+            // برگشت به فاز اول انتخاب تعداد
+            $this->questionsGenerated = false;
+            $this->questionCount = 1;
+            $this->questionImages = [];
+            $this->explanationImages = [];
+            $this->questionCorrectOptions = [1];
+            $this->questionDifficulties = ['medium'];
+        }
     }
 
     public function setComprehensiveMode(): void
@@ -532,17 +619,15 @@ class QuestionForm extends Component
                 $i + 1
             );
 
-            foreach ($targets as $targetIndex => $target) {
-                $folderHash = $sourceFolderHash;
-
-                if ($targetIndex > 0) {
-                    $folderHash = sha1(Question::generateUniqueCode() . now()->timestamp . uniqid());
-                    $this->copyQuestionAssets($sourceFolderHash, $folderHash, $questionImageName, $explanationImageName);
-                }
-
+            foreach ($targets as $target) {
+                // مقصد اول و دوم (در «آپلود دو درسه») از همان عکس‌های آپلودشده
+                // با یک folder_hash مشترک استفاده می‌کنند؛ عکسی کپی نمی‌شود.
+                // اگر بعدا عکس یکی از این دو سوال ویرایش شود، چون هر دو به یک
+                // فولدر اشاره می‌کنند (به‌علاوه‌ی همگام‌سازی در updateQuestion)،
+                // تغییر روی هر دو اعمال می‌شود.
                 $this->createQuestionRecord(
                     $target,
-                    $folderHash,
+                    $sourceFolderHash,
                     $questionImageName,
                     $explanationImageName,
                     $this->questionCorrectOptions[$i],
@@ -592,27 +677,6 @@ class QuestionForm extends Component
         ]);
     }
 
-    protected function copyQuestionAssets(string $sourceFolderHash, string $targetFolderHash, string $questionImageName, ?string $explanationImageName): void
-    {
-        $sourcePath = public_path("questions/{$sourceFolderHash}");
-        $targetPath = public_path("questions/{$targetFolderHash}");
-
-        if (!File::exists($targetPath)) {
-            File::makeDirectory($targetPath, 0755, true);
-        }
-
-        foreach (array_filter([$questionImageName, $explanationImageName]) as $filename) {
-            $sourceFile = "{$sourcePath}/{$filename}";
-            $targetFile = "{$targetPath}/{$filename}";
-
-            if (!File::exists($sourceFile) || !File::copy($sourceFile, $targetFile)) {
-                throw new \UnexpectedValueException('Question image copy failed.');
-            }
-
-            $this->savedImagePaths[] = $targetFile;
-        }
-    }
-
     protected function updateQuestion(): void
     {
         $question = Question::findOrFail($this->questionId);
@@ -628,9 +692,19 @@ class QuestionForm extends Component
         $content = $question->content;
         $folderHash = $content->folder_hash ?? sha1($question->code . now()->timestamp . uniqid());
         $data = ['folder_hash' => $folderHash];
+
+        // اگر این سوال از طریق «آپلود دو درسه» (یا ابزار اصلاحات سوالات) با یک
+        // سوال دیگر عکس مشترک دارد، آن سوال(های) خواهر را هم پیدا می‌کنیم تا
+        // بعد از ذخیره، عکس جدید روی همه‌ی آن‌ها هم اعمال شود.
+        $siblingContents = $content
+            ? QuestionContent::where('folder_hash', $folderHash)
+                ->where('question_id', '!=', $question->id)
+                ->get()
+            : collect();
+
         if ($this->questionImage) {
             if ($content && $content->question_image) {
-                $oldPath = public_path("questions/{$content->folder_hash}/{$content->question_image}");
+                $oldPath = public_path("questions/{$folderHash}/{$content->question_image}");
                 if (File::exists($oldPath)) {
                     File::delete($oldPath);
                 }
@@ -639,7 +713,7 @@ class QuestionForm extends Component
         }
         if ($this->explanationImage) {
             if ($content && $content->explanation_image) {
-                $oldPath = public_path("questions/{$content->folder_hash}/{$content->explanation_image}");
+                $oldPath = public_path("questions/{$folderHash}/{$content->explanation_image}");
                 if (File::exists($oldPath)) {
                     File::delete($oldPath);
                 }
@@ -653,6 +727,13 @@ class QuestionForm extends Component
             $data['body'] = '';
             $data['explanation'] = '';
             QuestionContent::create($data);
+        }
+
+        if ($siblingContents->isNotEmpty() && (isset($data['question_image']) || isset($data['explanation_image']))) {
+            $syncData = array_intersect_key($data, array_flip(['question_image', 'explanation_image', 'folder_hash']));
+            foreach ($siblingContents as $sibling) {
+                $sibling->update($syncData);
+            }
         }
     }
 
@@ -751,6 +832,8 @@ class QuestionForm extends Component
         $this->difficulty = 'medium';
         $this->correctOption = 1;
         $this->questionCount = 1;
+        $this->questionsGenerated = false;
+        $this->addQuestionCount = 1;
         $this->questionCorrectOptions = [1];
         $this->questionDifficulties = ['medium'];
         $this->grades = [];
@@ -773,6 +856,7 @@ class QuestionForm extends Component
             'medium' => 'متوسط',
             'hard' => 'سخت',
             'special' => 'ویژه',
+            'combined' => 'ترکیبی',
         ];
         $showFieldSelect = $this->shouldShowFieldSelect();
         $secondShowFieldSelect = $this->secondShouldShowFieldSelect();
@@ -868,68 +952,6 @@ class QuestionForm extends Component
             'cc_chapter_id' => $chapterId,
             'cc_topic_id' => $isComprehensive ? null : $topicId,
         ];
-    }
-
-    protected function resolveLegacySubjectId(int $ccSubjectId): int
-    {
-        $ccSubject = CcSubject::find($ccSubjectId);
-
-        if (!$ccSubject) {
-            throw new \RuntimeException('درس انتخاب‌شده پیدا نشد.');
-        }
-
-        $legacyName = $this->resolveLegacySubjectName($ccSubject->name);
-
-        return (int) Subject::firstOrCreate(
-            ['name' => $legacyName],
-            ['is_active' => true]
-        )->id;
-    }
-
-    protected function resolveLegacySubjectName(string $ccSubjectName): string
-    {
-        $name = str_replace(["\u{200C}", "\u{200D}"], '', $ccSubjectName);
-        $name = trim(preg_replace('/\d+$/u', '', $name));
-        $name = preg_replace('/\s+/u', ' ', $name) ?: $ccSubjectName;
-
-        $map = [
-            'دین و زندگی' => 'دین و زندگی',
-            'دینی' => 'دین و زندگی',
-            'زیست' => 'زیست‌شناسی',
-            'فارسی' => 'ادبیات فارسی',
-            'زبان انگلیسی' => 'زبان انگلیسی',
-            'زبان' => 'زبان انگلیسی',
-            'حسابان' => 'حسابان',
-            'هندسه' => 'هندسه',
-            'گسسته' => 'گسسته',
-            'فیزیک' => 'فیزیک',
-            'شیمی' => 'شیمی',
-            'ریاضی و آمار' => 'آمار و احتمال',
-            'آمار' => 'آمار و احتمال',
-            'ریاضی' => 'ریاضی',
-            'فلسفه' => 'فلسفه و منطق',
-            'منطق' => 'فلسفه و منطق',
-            'جامعه' => 'جامعه‌شناسی',
-            'روانشناسی' => 'روانشناسی',
-            'تاریخ' => 'تاریخ',
-            'جغرافیا' => 'جغرافیا',
-            'اقتصاد' => 'اقتصاد',
-            'سلامت' => 'سلامت و بهداشت',
-            'کارگاه کارآفرینی' => 'اقتصاد',
-            'تفکر و سواد رسانه' => 'علوم اجتماعی',
-            'مدیریت خانواده' => 'علوم اجتماعی',
-            'آمادگی دفاعی' => 'علوم اجتماعی',
-            'انسان و محیط زیست' => 'علوم اجتماعی',
-            'علوم و فنون ادبی' => 'ادبیات فارسی',
-        ];
-
-        foreach ($map as $needle => $legacyName) {
-            if (str_contains($name, $needle)) {
-                return $legacyName;
-            }
-        }
-
-        return $name;
     }
 
     protected function secondCourseMatchesPrimary(): bool

@@ -13,10 +13,7 @@
                       d="M13 10V3L4 14h7v7l9-11h-7z"/>
             </svg>
         </span>
-        <svg wire:loading wire:target="openConfirm" class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-        </svg>
+        <x-ui.spinner wire:loading wire:target="openConfirm" />
 
         <span>شروع یک هفته آزمایشی رایگان</span>
 
@@ -179,10 +176,7 @@
                 <button wire:click="submit"
                         wire:loading.attr="disabled"
                         class="w-full py-4 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-white rounded-xl font-black text-base transition-all duration-200 flex items-center justify-center gap-2">
-                    <svg wire:loading wire:target="submit" class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                    </svg>
+                    <x-ui.spinner wire:loading wire:target="submit" />
                     <span wire:loading.remove wire:target="submit">ثبت و شروع هفته آزمایشی</span>
                     <span wire:loading wire:target="submit">در حال پردازش...</span>
                 </button>

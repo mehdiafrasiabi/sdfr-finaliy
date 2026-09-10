@@ -6,19 +6,11 @@
      }">
 
 
+    {{-- اسپینرهای این صفحه حالا از کامپوننت مشترک <x-ui.spinner> میان (رجوع کنید به
+         resources/views/components/ui/spinner.blade.php) به‌جای یک <style> تکراری اینجا. --}}
     @assets
     <style>
         [x-cloak] { display: none !important; }
-        .spinner-circle {
-            width: 1.25rem; height: 1.25rem;
-            border: 2.5px solid currentColor;
-            border-right-color: transparent;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            display: inline-block;
-        }
-        .spinner-sm { width: 1rem; height: 1rem; border-width: 2px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     @endassets
     <div class="max-w-7xl space-y-6 px-4 mx-auto">
@@ -43,32 +35,18 @@
                     {{-- Tabs --}}
                     <div class="space-y-5">
 
-                        <div class="relative overflow-x-auto">
-                            <ul class="inline-flex gap-2 bg-secondary border border-border rounded-full p-1">
-                                <li>
-                                    <button type="button"
-                                            class="flex items-center gap-x-2 rounded-full py-2 px-4 transition-colors"
-                                            :class="activeTab === 'submit' ? 'text-foreground bg-background' : 'text-muted'"
-                                            @click="activeTab = 'submit'">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-                                        </svg>
-                                        <span class="font-semibold text-sm">ارسال گزارش</span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button"
-                                            class="flex items-center gap-x-2 rounded-full py-2 px-4 transition-colors"
-                                            :class="activeTab === 'history' ? 'text-foreground bg-background' : 'text-muted'"
-                                            @click="activeTab = 'history'">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
-                                        </svg>
-                                        <span class="font-semibold text-sm">گزارش های ارسال شده</span>
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
+                        <x-ui.segmented-tabs
+                            :items="[
+                                'submit'  => 'ارسال گزارش',
+                                'history' => 'گزارش های ارسال شده',
+                            ]"
+                            :icons="[
+                                'submit'  => 'M12 4.5v15m7.5-7.5h-15',
+                                'history' => 'M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z',
+                            ]"
+                            active="submit"
+                            @segmented-change="activeTab = $event.detail"
+                        />
 
                         {{-- Tab: Submit --}}
                         <div x-show="activeTab === 'submit'" class="space-y-6">
@@ -87,7 +65,7 @@
                                         <button type="button" wire:click="openCompensatoryModal" wire:loading.attr="disabled" wire:target="openCompensatoryModal"
                                                 class="bg-amber-500 hover:bg-amber-600 text-white rounded-xl px-4 py-2 font-semibold text-sm transition-all disabled:opacity-60 inline-flex items-center gap-2">
                                             <span wire:loading.remove wire:target="openCompensatoryModal">ثبت پارت جبرانی</span>
-                                            <span wire:loading wire:target="openCompensatoryModal" class="spinner-circle spinner-sm"></span>
+                                            <x-ui.spinner size="sm" wire:loading wire:target="openCompensatoryModal" />
                                         </button>
                                     </div>
                                 </div>
@@ -160,7 +138,7 @@
                                                     <button type="button" @click="showReportModal = true" wire:click="openReportModal({{ $dayIndex }})" wire:loading.attr="disabled" wire:target="openReportModal({{ $dayIndex }})"
                                                             class="w-full bg-primary hover:bg-primary/90 text-white rounded-xl py-2.5 font-semibold text-sm transition-all disabled:opacity-60 inline-flex items-center justify-center gap-2">
                                                         <span wire:loading.remove wire:target="openReportModal({{ $dayIndex }})">ثبت گزارش</span>
-                                                        <span wire:loading wire:target="openReportModal({{ $dayIndex }})" class="spinner-circle spinner-sm"></span>
+                                                        <x-ui.spinner size="sm" wire:loading wire:target="openReportModal({{ $dayIndex }})" />
                                                     </button>
                                                 @elseif($day['is_submitted'])
                                                     <div class="text-center text-green-600 dark:text-green-400 text-sm font-medium py-2">گزارش ثبت شده</div>
@@ -189,6 +167,15 @@
 
                         {{-- Tab: History --}}
                         <div x-show="activeTab === 'history'" x-cloak class="space-y-5">
+
+                            {{-- ورق‌زدن صفحات یک رفت‌وبرگشت لایوایره؛ تا رسیدن صفحه‌ی جدید به‌جای
+                                 خالی/پرش ناگهانی لیست، این لودینگ نشون داده می‌شه --}}
+                            <div wire:loading.flex wire:target="previousPage,nextPage,gotoPage" class="hidden flex-col items-center justify-center gap-3 py-16">
+                                <x-ui.spinner size="lg" class="text-primary" />
+                                <span class="text-sm text-muted">در حال بارگذاری...</span>
+                            </div>
+
+                            <div wire:loading.remove wire:target="previousPage,nextPage,gotoPage">
                             @if($reports->isNotEmpty())
                                 <div class="space-y-4 sm:space-y-5">
                                     @foreach($reports as $report)
@@ -375,7 +362,7 @@
                                                                 </svg>
                                                                 مشاهده نظر کامل
                                                             </span>
-                                                            <span wire:loading wire:target="openReplyModal({{ $report->id }})" class="spinner-circle"></span>
+                                                            <x-ui.spinner wire:loading wire:target="openReplyModal({{ $report->id }})" />
                                                         </button>
                                                     </div>
                                                 @else
@@ -415,6 +402,7 @@
                                     </div>
                                 </div>
                             @endif
+                            </div>
                         </div>
 
                     </div>
@@ -579,7 +567,7 @@
                                                         {{ $part->test_count }} تست
                                                     </span>
                                                 @endif
-                                                <span class="flex items-center gap-1 mr-auto" wire:loading wire:target="togglePart({{ $part->id }})"><span class="spinner-circle spinner-sm"></span></span>
+                                                <span class="flex items-center gap-1 mr-auto" wire:loading wire:target="togglePart({{ $part->id }})"><x-ui.spinner size="sm" /></span>
                                             </div>
                                         </div>
                                     </div>
@@ -710,14 +698,14 @@
                         <button type="button" wire:click="submitReport" wire:loading.attr="disabled" wire:target="submitReport"
                                 class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all disabled:opacity-50 text-sm sm:text-base font-semibold inline-flex items-center justify-center gap-2 min-w-[120px]">
                             <span wire:loading.remove wire:target="submitReport">ثبت گزارش</span>
-                            <span wire:loading wire:target="submitReport" class="spinner-circle"></span>
+                            <x-ui.spinner wire:loading wire:target="submitReport" />
                         </button>
                     </div>
                 </div>
             @else
                 {{-- حالت بارگذاری: تا رسیدن اطلاعات روز از سرور --}}
                 <div class="flex-1 flex flex-col items-center justify-center gap-3 p-12">
-                    <span class="spinner-circle text-primary"></span>
+                    <x-ui.spinner class="text-primary" />
                     <span class="text-sm text-muted">در حال بارگذاری اطلاعات…</span>
                 </div>
             @endif
@@ -821,7 +809,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <span wire:loading wire:target="toggleCompensatoryPart({{ $missed['part']->id }})" class="spinner-circle spinner-sm text-muted"></span>
+                                <x-ui.spinner size="sm" class="text-muted" wire:loading wire:target="toggleCompensatoryPart({{ $missed['part']->id }})" />
                             </div>
                         </div>
                     @endforeach
@@ -881,18 +869,18 @@
                         <button type="button" wire:click="goToCompensatoryStep2" wire:loading.attr="disabled" wire:target="goToCompensatoryStep2"
                                 class="px-5 py-2.5 rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-all disabled:opacity-60 inline-flex items-center gap-2 min-w-[120px] justify-center">
                             <span wire:loading.remove wire:target="goToCompensatoryStep2">مرحله بعد</span>
-                            <span wire:loading wire:target="goToCompensatoryStep2" class="spinner-circle"></span>
+                            <x-ui.spinner wire:loading wire:target="goToCompensatoryStep2" />
                         </button>
                     @else
                         <button type="button" wire:click="goToCompensatoryStep1" wire:loading.attr="disabled" wire:target="goToCompensatoryStep1"
                                 class="px-5 py-2.5 rounded-xl border border-border text-foreground hover:bg-muted/50 transition-all disabled:opacity-60 inline-flex items-center gap-2 min-w-[110px] justify-center">
                             <span wire:loading.remove wire:target="goToCompensatoryStep1">مرحله قبل</span>
-                            <span wire:loading wire:target="goToCompensatoryStep1" class="spinner-circle"></span>
+                            <x-ui.spinner wire:loading wire:target="goToCompensatoryStep1" />
                         </button>
                         <button type="button" wire:click="submitCompensatory" wire:loading.attr="disabled" wire:target="submitCompensatory"
                                 class="px-5 py-2.5 rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-all disabled:opacity-50 inline-flex items-center gap-2 min-w-[150px] justify-center">
                             <span wire:loading.remove wire:target="submitCompensatory">ثبت گزارش جبرانی</span>
-                            <span wire:loading wire:target="submitCompensatory" class="spinner-circle"></span>
+                            <x-ui.spinner wire:loading wire:target="submitCompensatory" />
                         </button>
                     @endif
                 </div>
@@ -959,7 +947,7 @@
                     </div>
                 @else
                     <div class="flex items-center justify-center py-6">
-                        <span class="spinner-circle text-primary"></span>
+                        <x-ui.spinner class="text-primary" />
                     </div>
                 @endif
             </div>
@@ -973,7 +961,7 @@
                     <button type="button" wire:click="saveStudentReply" wire:loading.attr="disabled" wire:target="saveStudentReply"
                             class="px-5 py-2.5 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all disabled:opacity-50 text-sm font-semibold inline-flex items-center gap-2 min-w-[110px] justify-center">
                         <span wire:loading.remove wire:target="saveStudentReply">ثبت پاسخ</span>
-                        <span wire:loading wire:target="saveStudentReply" class="spinner-circle"></span>
+                        <x-ui.spinner wire:loading wire:target="saveStudentReply" />
                     </button>
                 @endif
             </div>

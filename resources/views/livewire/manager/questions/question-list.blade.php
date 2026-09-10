@@ -16,6 +16,23 @@
 
                         <div class="d-flex gap-2">
 
+                            <a href="{{ route('manager.questions.stats') }}" class="btn btn-outline-info">
+
+                                <i class="ti ti-chart-bar me-1"></i>
+
+                                آمار سوالات
+
+                            </a>
+
+                            <button wire:click="toggleCorrectionMode"
+                                    class="btn {{ $correctionMode ? 'btn-warning' : 'btn-outline-warning' }}">
+
+                                <i class="ti ti-tools me-1"></i>
+
+                                اصلاحات سوالات
+
+                            </button>
+
                             <button wire:click="openPdfModal" class="btn btn-outline-danger">
 
                                 <i class="ti ti-file-type-pdf me-1"></i>
@@ -274,6 +291,127 @@
         </div>
 
 
+        <!-- اصلاحات سوالات (لینک به مقصد دوم) -->
+        @if($correctionMode)
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-warning">
+                        <div class="card-header bg-warning bg-opacity-10">
+                            <h5 class="card-title mb-0 text-warning-emphasis">
+                                <i class="ti ti-tools me-1"></i>
+                                اصلاحات سوالات — لینک‌کردن سوالات انتخاب‌شده به یک مقصد دوم
+                            </h5>
+                            <small class="text-muted d-block mt-1">
+                                از لیست پایین، سوالاتی که محتوایشان با رشته/مبحث دیگری هم مشترک است را با تیک
+                                انتخاب کنید، مقصد دوم را زیر مشخص کنید و «اعمال» را بزنید. برای هر سوال یک رکورد
+                                جدید در همان مقصد دوم ساخته می‌شود که از همان عکس‌های فعلی استفاده می‌کند (عکسی
+                                دوباره آپلود یا کپی نمی‌شود).
+                            </small>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4 col-lg-2">
+                                    <label class="form-label">دوره تحصیلی مقصد <span class="text-danger">*</span></label>
+                                    <select wire:model.live="correctionEducationLevelId" class="form-select">
+                                        <option value="">انتخاب کنید...</option>
+                                        @foreach($educationLevels as $level)
+                                            <option value="{{ $level->id }}">{{ $level->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @if($showCorrectionFieldFilter)
+                                    <div class="col-md-4 col-lg-2">
+                                        <label class="form-label">رشته مقصد <span class="text-danger">*</span></label>
+                                        <select wire:model.live="correctionFieldId"
+                                                class="form-select" {{ empty($correctionFields) ? 'disabled' : '' }}>
+                                            <option value="">انتخاب کنید...</option>
+                                            @foreach($correctionFields as $field)
+                                                <option value="{{ $field->id }}">{{ $field->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @endif
+                                <div class="col-md-4 col-lg-2">
+                                    <label class="form-label">پایه مقصد <span class="text-danger">*</span></label>
+                                    <select wire:model.live="correctionGradeId"
+                                            class="form-select" {{ empty($correctionGrades) ? 'disabled' : '' }}>
+                                        <option value="">انتخاب کنید...</option>
+                                        @foreach($correctionGrades as $grade)
+                                            <option value="{{ $grade->id }}">{{ $grade->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4 col-lg-2">
+                                    <label class="form-label">درس مقصد <span class="text-danger">*</span></label>
+                                    <select wire:model.live="correctionSubjectId"
+                                            class="form-select" {{ empty($correctionSubjects) ? 'disabled' : '' }}>
+                                        <option value="">انتخاب کنید...</option>
+                                        @foreach($correctionSubjects as $subject)
+                                            <option value="{{ $subject->id }}">{{ $subject->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4 col-lg-2">
+                                    <label class="form-label">فصل مقصد <span class="text-danger">*</span></label>
+                                    <select wire:model.live="correctionChapterId"
+                                            class="form-select" {{ empty($correctionChapters) ? 'disabled' : '' }}>
+                                        <option value="">انتخاب کنید...</option>
+                                        @foreach($correctionChapters as $chapter)
+                                            <option value="{{ $chapter->id }}">{{ $chapter->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4 col-lg-2">
+                                    <label class="form-label">مبحث مقصد @if(!$correctionIsComprehensive)<span class="text-danger">*</span>@endif</label>
+                                    <select wire:model.live="correctionTopicId"
+                                            class="form-select" {{ empty($correctionTopics) || $correctionIsComprehensive ? 'disabled' : '' }}>
+                                        <option value="">انتخاب کنید...</option>
+                                        @foreach($correctionTopics as $topic)
+                                            <option value="{{ $topic->id }}">{{ $topic->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4 col-lg-2">
+                                    <label class="form-label d-block">نوع مقصد</label>
+                                    <div class="btn-group w-100" role="group">
+                                        <button type="button"
+                                                wire:click="setCorrectionTopicMode"
+                                                class="btn {{ $correctionIsComprehensive ? 'btn-outline-warning' : 'btn-warning' }}">
+                                            مبحثی
+                                        </button>
+                                        <button type="button"
+                                                wire:click="setCorrectionComprehensiveMode"
+                                                @disabled(!$correctionChapterId)
+                                                class="btn {{ $correctionIsComprehensive ? 'btn-warning' : 'btn-outline-warning' }}">
+                                            جامع
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <span class="badge bg-secondary fs-6">
+                                    {{ count($selectedQuestionIds) }} سوال انتخاب شده
+                                </span>
+                                <div class="d-flex gap-2">
+                                    <button wire:click="toggleCorrectionMode" class="btn btn-outline-secondary">
+                                        انصراف
+                                    </button>
+                                    <button wire:click="applyQuestionCorrection"
+                                            wire:confirm="برای {{ count($selectedQuestionIds) }} سوال انتخاب‌شده، یک رکورد جدید در مقصد دوم ساخته می‌شود. ادامه می‌دهید؟"
+                                            class="btn btn-warning"
+                                            @disabled(empty($selectedQuestionIds))>
+                                        <i class="ti ti-link me-1"></i>
+                                        اعمال روی سوالات انتخاب‌شده
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Questions List -->
 
         <div class="row">
@@ -309,7 +447,26 @@
 
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
 
+                                    @if($correctionMode)
+                                        <div class="form-check mb-0">
+                                            <input type="checkbox"
+                                                   class="form-check-input"
+                                                   wire:model="selectedQuestionIds"
+                                                   value="{{ $question->id }}"
+                                                   id="correction_q_{{ $question->id }}"
+                                                   @disabled(!($question->content && $question->content->hasQuestionImage()))>
+                                            <label class="form-check-label" for="correction_q_{{ $question->id }}"></label>
+                                        </div>
+                                    @endif
+
                                     <span class="badge bg-primary">کد: {{ $question->code }}</span>
+
+                                    @if($question->content && $question->content->folder_hash && in_array($question->content->folder_hash, $linkedFolderHashes))
+                                        <span class="badge bg-success" title="این سوال با سوال دیگری عکس مشترک دارد">
+                                            <i class="ti ti-link me-1"></i>
+                                            لینک شده
+                                        </span>
+                                    @endif
 
                                     @if($question->topic)
 

@@ -19,26 +19,23 @@
                 </div>
 
                 <!-- تب‌های دسته‌بندی -->
-                <!-- تب‌های دسته‌بندی -->
-                <div class="flex justify-center md:justify-end" dir="rtl">
-                    <div class="inline-flex items-center gap-1 p-1 bg-background w rounded-full border border-border">
-                        @foreach($categories as $key => $label)
-                            <button
-                                wire:click="setCategory('{{ $key }}')"
-                                class="relative inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all
-                {{ $activeCategory === $key
-                    ? 'bg-secondary text-primary shadow-sm'
-                    : 'text-foreground/70 hover:text-foreground' }}">
-                                {{ $label }}
-                                @if(isset($unreadCounts[$key]) && $unreadCounts[$key] > 0)
-                                    <span class="inline-flex items-center justify-center min-w-[18px] h-4 px-1 text-[10px] font-bold rounded-full bg-red-500 text-white">
-                        {{ $unreadCounts[$key] }}
-                    </span>
-                                @endif
-                            </button>
-                        @endforeach
-                    </div>
+                <x-ui.segmented-tabs
+                    :items="$categories"
+                    :active="$activeCategory"
+                    :badges="$unreadCounts"
+                    method="setCategory"
+                />
+
+                {{-- سوییچ دسته‌بندی یک رفت‌وبرگشت واقعی به سرور می‌زنه (چون لیست صفحه‌بندی‌شده و فیلترشده‌ست،
+                     برخلاف تب‌های تستی/تشریحی که کل دیتاشون همیشه از قبل لود شده)، پس تا جواب نرسه، لیست
+                     قبلی رو نگه نمی‌داریم - یا لودینگ نشون داده می‌شه یا لیستِ به‌روز؛ هیچ‌وقت لیست/دسته‌ی
+                     قدیمی موقتاً دیده نمی‌شه. --}}
+                <div wire:loading.flex wire:target="setCategory" class="hidden flex-col items-center justify-center gap-3 py-16">
+                    <x-ui.spinner size="lg" class="text-primary" />
+                    <span class="text-sm text-muted">در حال بارگذاری...</span>
                 </div>
+
+                <div wire:loading.remove wire:target="setCategory">
 
                 <!-- لیست پیام‌ها -->
                 <div class="space-y-4">
@@ -112,8 +109,9 @@
                                                 </svg>
                                                 <span wire:loading.remove
                                                       wire:target="markAsRead({{ $recipient->id }})">خواندن</span>
-                                                <span wire:loading wire:target="markAsRead({{ $recipient->id }})"
-                                                      class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin"></span>
+                                                <span wire:loading wire:target="markAsRead({{ $recipient->id }})">
+                                                    <x-ui.spinner size="xs" />
+                                                </span>
                                             </button>
                                         @endif
 
@@ -170,8 +168,9 @@
                                             </svg>
                                             <span wire:loading.remove wire:target="markAsRead({{ $recipient->id }})">خواندن</span>
 
-                                            <span wire:loading wire:target="markAsRead({{ $recipient->id }})"
-                                                  class="inline-block w-3.5 h-3.5 rounded-full border-2 border-current border-t-transparent animate-spin"></span>
+                                            <span wire:loading wire:target="markAsRead({{ $recipient->id }})">
+                                                <x-ui.spinner size="xs" />
+                                            </span>
                                         </button>
                                     @endif
                                 </div>
@@ -205,6 +204,8 @@
                         {{ $notifications->links('layouts.client.pagination') }}
                     </div>
                 @endif
+
+                </div>
 
             </div>
         </div>
