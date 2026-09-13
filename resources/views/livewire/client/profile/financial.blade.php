@@ -13,6 +13,18 @@
                     @php
                         $count   = (int) $plan->installment_count;
                         $paidCnt = $plan->paidCount();
+
+                        // نگاشتِ وضعیتِ طرح اقساطی روی وضعیت‌های استانداردِ x-ui.status-badge
+                        $planStatusKey = match ($plan->status) {
+                            \App\Models\InstallmentPlan::STATUS_COMPLETED => 'completed',
+                            \App\Models\InstallmentPlan::STATUS_ACTIVE    => 'active',
+                            default                                       => 'pending',
+                        };
+                        $planStatusLabel = match ($plan->status) {
+                            \App\Models\InstallmentPlan::STATUS_COMPLETED => 'تسویه‌شده',
+                            \App\Models\InstallmentPlan::STATUS_ACTIVE    => null, // برچسب پیش‌فرض «فعال» همین است
+                            default                                       => 'در انتظار پیش‌پرداخت',
+                        };
                     @endphp
                     <div class="space-y-5">
                         <div class="flex items-center gap-3">
@@ -26,16 +38,7 @@
                         <div class="glass border border-border rounded-2xl p-5 space-y-4 shadow-sm">
                             <div class="flex items-center justify-between flex-wrap gap-2">
                                 <h3 class="font-bold text-foreground">طرح اقساطی — {{ $plan->gradePrice?->grade_label ?? ('پایه ' . $plan->grade) }}</h3>
-                                <span class="px-3 py-1 rounded-full text-xs font-bold border
-                                    @if($plan->status === \App\Models\InstallmentPlan::STATUS_COMPLETED) bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-800
-                                    @elseif($plan->status === \App\Models\InstallmentPlan::STATUS_ACTIVE) bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-800
-                                    @else bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800 @endif">
-                                    @switch($plan->status)
-                                        @case(\App\Models\InstallmentPlan::STATUS_COMPLETED) تسویه‌شده @break
-                                        @case(\App\Models\InstallmentPlan::STATUS_ACTIVE) فعال @break
-                                        @default در انتظار پیش‌پرداخت
-                                    @endswitch
-                                </span>
+                                <x-ui.status-badge :status="$planStatusKey" :label="$planStatusLabel"/>
                             </div>
 
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
@@ -55,13 +58,10 @@
                                 </div>
                             </div>
 
-                            <a href="{{ route('client.profile.installment') }}" wire:navigate
-                               class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-bold text-sm transition-colors">
+                            <x-ui.button href="{{ route('client.profile.installment') }}" wire:navigate
+                                         variant="primary" icon="chevron-left" block>
                                 مشاهده اقساط
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                                </svg>
-                            </a>
+                            </x-ui.button>
                         </div>
                     </div>
                 @endif
@@ -76,18 +76,22 @@
                     </div>
                     <div class="space-y-4">
                         @if($payments->isEmpty())
-                            <div class="flex flex-col items-center justify-center py-12 space-y-4">
-                                <img src="/client/svg/empty2.svg"
-                                     class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
-                                     alt="پیامی وجود ندارد"/>
-                                <div class="text-center space-y-2">
-                                    <h2 class="font-bold text-xl text-foreground">تراکنشی وجود ندارد!</h2>
-                                    <p class="text-muted text-sm">تاکنون هیچ پرداختی برای شما ثبت نشده است.</p>
-                                </div>
-                            </div>
+                            <x-ui.empty-state title="تراکنشی وجود ندارد!">
+                                تاکنون هیچ پرداختی برای شما ثبت نشده است.
+                            </x-ui.empty-state>
                         @else
 
                             @foreach($payments as $payment)
+                                @php
+                                    // نگاشتِ وضعیتِ تراکنش روی وضعیت‌های استانداردِ x-ui.status-badge
+                                    // (پرداخت‌شده=paid, در انتظار=pending, لغو شده=voided — هر سه دقیقاً
+                                    // همون برچسبِ پیش‌فرضِ کامپوننت رو دارن، پس نیازی به override نیست)
+                                    $paymentStatusKey = match ($payment->status) {
+                                        'completed' => 'paid',
+                                        'pending'   => 'pending',
+                                        default     => 'voided',
+                                    };
+                                @endphp
                                 <div wire:key="payment-card-{{ $payment->id }}"
                                      x-data="{ expanded: false }"
                                      class="glass border border-border rounded-2xl overflow-hidden flex flex-col">
@@ -98,9 +102,9 @@
                                     <div class="md:hidden">
 
                                         {{-- تصویر بالا (دقیقاً مشابه plan) --}}
-                                        <div class="w-full h-36 flex items-center justify-center bg-gradient-to-b from-blue-100 to-blue-200 dark:from-blue-950 dark:to-blue-900">
+                                        <x-ui.thumbnail class="w-full h-36">
                                             <img src="/client/icons/omormali.webp" class="w-[9rem] h-[9rem] object-contain drop-shadow-md" alt="">
-                                        </div>
+                                        </x-ui.thumbnail>
 
                                         {{-- اطلاعات --}}
                                         <div class="p-4 space-y-3" dir="rtl">
@@ -109,19 +113,7 @@
                                             </h3>
 
                                             <div class="flex flex-wrap items-center gap-2 mt-2">
-                                                @if($payment->status === 'completed')
-                                                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold rounded-full">
-                                                        <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span> پرداخت‌شده
-                                                    </span>
-                                                @elseif($payment->status === 'pending')
-                                                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 text-xs font-bold rounded-full">
-                                                        <span class="h-1.5 w-1.5 rounded-full bg-yellow-500"></span> در انتظار
-                                                    </span>
-                                                @else
-                                                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-bold rounded-full">
-                                                        <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span> لغو شده
-                                                    </span>
-                                                @endif
+                                                <x-ui.status-badge :status="$paymentStatusKey"/>
 
                                                 <span class="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full">
                                                     {{ number_format($payment->amount) }} تومان
@@ -131,15 +123,14 @@
 
                                         {{-- دکمه‌های موبایل --}}
                                         <div class="px-4 pb-4 space-y-2" dir="rtl">
-                                            <button @click="expanded = !expanded"
-                                                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors">
+                                            {{-- دستی (نه x-ui.button) چون آیکونش باید با چرخش ۱۸۰ درجه بین
+                                                 باز/بسته انیمیشن بگیره؛ پراپ icon ثابته و اجازه‌ی همچین
+                                                 بایندینگی رو نمی‌ده --}}
+                                            <button type="button" @click="expanded = !expanded" data-elevated="false"
+                                                    class="btn-press w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors">
                                                 <span>مشاهده جزئیات</span>
-                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                     class="w-4 h-4 transition-transform duration-200"
-                                                     :class="{ 'rotate-180': expanded }"
-                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                                </svg>
+                                                <x-ui.icon name="chevron-down" class="w-4 h-4 transition-transform duration-200"
+                                                           x-bind:class="{ 'rotate-180': expanded }"/>
                                             </button>
                                         </div>
                                     </div>
@@ -149,7 +140,10 @@
                                     ════════════════════════════════════ --}}
                                     <div class="hidden md:flex flex-row min-h-[130px]">
 
-                                        {{-- ستون تصویر (دقیقاً مشابه plan) --}}
+                                        {{-- ستون تصویر (دقیقاً مشابه plan) — دارک‌مودِ دسکتاپ عمداً همون
+                                             هگزِ سفارشیِ #1e3a5f/#1e40af نگه داشته شده، نه x-ui.thumbnail،
+                                             چون با نسخه‌ی موبایل (blue-950/900) کمی فرق دارد و طبق درخواستِ
+                                             قبلی این گرادیان‌های آبی دست‌کاری نشدند. --}}
                                         <div class="flex-shrink-0 w-[120px] flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 dark:from-[#1e3a5f] dark:to-[#1e40af]">
                                             <img src="/client/icons/omormali.webp" class="w-22 h-22 object-contain drop-shadow-md" alt="">
                                         </div>
@@ -163,19 +157,7 @@
                                                     {{ $this->getPaymentDescription($payment) }}
                                                 </h3>
                                                 <div class="flex flex-wrap items-center gap-2">
-                                                    @if($payment->status === 'completed')
-                                                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold rounded-full">
-                                                            <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span> پرداخت‌شده
-                                                        </span>
-                                                    @elseif($payment->status === 'pending')
-                                                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 text-xs font-bold rounded-full">
-                                                            <span class="h-1.5 w-1.5 rounded-full bg-yellow-500"></span> در انتظار
-                                                        </span>
-                                                    @else
-                                                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-bold rounded-full">
-                                                            <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span> لغو شده
-                                                        </span>
-                                                    @endif
+                                                    <x-ui.status-badge :status="$paymentStatusKey"/>
 
                                                     <span class="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full">
                                                         مبلغ: {{ number_format($payment->amount) }} تومان
@@ -185,14 +167,10 @@
 
                                             {{-- چپ: دکمه‌ها --}}
                                             <div class="flex items-center gap-2 flex-shrink-0" dir="ltr">
-                                                <button @click="expanded = !expanded"
-                                                        class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors">
-                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                         class="w-4 h-4 transition-transform duration-200"
-                                                         :class="{ 'rotate-180': expanded }"
-                                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                                    </svg>
+                                                <button type="button" @click="expanded = !expanded" data-elevated="false"
+                                                        class="btn-press inline-flex items-center justify-center gap-2 px-4 py-2 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors">
+                                                    <x-ui.icon name="chevron-down" class="w-4 h-4 transition-transform duration-200"
+                                                               x-bind:class="{ 'rotate-180': expanded }"/>
                                                 </button>
                                             </div>
                                         </div>
@@ -217,25 +195,19 @@
 
                                         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                                             <div class="flex flex-col items-center p-3 bg-secondary rounded-xl text-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                                </svg>
+                                                <x-ui.icon name="calendar" class="w-6 h-6 text-primary mb-2"/>
                                                 <span class="text-xs text-muted">تاریخ تراکنش</span>
                                                 <span class="font-bold text-foreground text-sm mt-1">{{ jalali($payment->created_at)->format('%d %B %Y') }}</span>
                                             </div>
 
                                             <div class="flex flex-col items-center p-3 bg-secondary rounded-xl text-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-2 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                </svg>
+                                                <x-ui.icon name="wallet" class="w-6 h-6 mb-2 text-warning"/>
                                                 <span class="text-xs text-muted">مبلغ تراکنش</span>
                                                 <span class="font-bold text-foreground text-sm mt-1">{{ number_format($payment->amount) }} تومان</span>
                                             </div>
 
                                             <div class="flex flex-col items-center p-3 bg-secondary rounded-xl text-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                                </svg>
+                                                <x-ui.icon name="receipt" class="w-6 h-6 text-success mb-2"/>
                                                 <span class="text-xs text-muted">شماره صورتحساب</span>
                                                 <span class="font-bold text-foreground text-sm mt-1" dir="ltr">{{ $payment->refNumber ?? '—' }}</span>
                                             </div>
@@ -245,10 +217,8 @@
                             @endforeach
 
                             @if($payments->hasPages())
-                                <div class="mt-6 flex justify-center">
-                                    <div class="inline-flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/50">
-                                        {{ $payments->links('layouts.client.pagination') }}
-                                    </div>
+                                <div class="mt-6">
+                                    {{ $payments->links('components.ui.pagination') }}
                                 </div>
                             @endif
 

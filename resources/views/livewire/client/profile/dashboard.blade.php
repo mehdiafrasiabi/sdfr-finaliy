@@ -205,134 +205,6 @@
             inherits: false;
         }
 
-        /* ───── پس‌زمینه کیهانی ───── */
-        .cosmic-bg {
-            position: fixed;
-            inset: 0;
-            /* z-0 تا پشتِ پس‌زمینهٔ تیرهٔ لِی‌اوت (bg-background) پنهان نشود.
-               محتوای داشبورد z-10 و هدر/نویگیشن z-50 هستند، پس روی این بک‌گراند می‌مانند. */
-            z-index: 0;
-            overflow: hidden;
-            pointer-events: none;
-            background: radial-gradient(1200px 600px at 80% -10%, rgba(56, 189, 248, .10), transparent 60%),
-            radial-gradient(900px 500px at 8% 110%, rgba(16, 185, 129, .10), transparent 60%),
-            linear-gradient(180deg, #070a12 0%, #0a0f1a 45%, #070a12 100%);
-        }
-
-        .cosmic-bg .twinkle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            border-radius: 50%;
-            background: #cbd5e1;
-            opacity: .5;
-            animation: tw 3s ease-in-out infinite;
-        }
-
-        @keyframes tw {
-            0%, 100% {
-                opacity: .15;
-            }
-            50% {
-                opacity: .7;
-            }
-        }
-
-        /* شهاب‌سنگ‌ها */
-        .comet {
-            position: absolute;
-            transform-origin: center;
-        }
-
-        .comet .core {
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            border-radius: 50%;
-            background: #fff;
-            box-shadow: 0 0 8px 2px rgba(125, 211, 252, .9);
-            opacity: 0;
-            animation: comet-fly var(--dur, 8s) ease-in infinite;
-            animation-delay: var(--delay, 0s);
-        }
-
-        .comet .core::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            right: 3px;
-            width: 170px;
-            height: 2px;
-            transform: translateY(-50%);
-            border-radius: 2px;
-            background: linear-gradient(to left, rgba(125, 211, 252, .95), rgba(125, 211, 252, 0));
-        }
-
-        @keyframes comet-fly {
-            0% {
-                transform: translateX(0);
-                opacity: 0;
-            }
-            3% {
-                opacity: 1;
-            }
-            14% {
-                transform: translateX(var(--dist, 1400px));
-                opacity: 0;
-            }
-            100% {
-                transform: translateX(var(--dist, 1400px));
-                opacity: 0;
-            }
-        }
-
-        /* سفینه */
-        .spaceship {
-            position: fixed;
-            left: 16px;
-            bottom: 20px;
-            z-index: 0;
-            width: 78px;
-            pointer-events: none;
-            animation: ship-float 7s ease-in-out infinite;
-            filter: drop-shadow(0 8px 22px rgba(56, 189, 248, .35));
-        }
-
-        @keyframes ship-float {
-            0% {
-                transform: translate(0, 0) rotate(-4deg);
-            }
-            25% {
-                transform: translate(16px, -12px) rotate(2deg);
-            }
-            50% {
-                transform: translate(30px, -4px) rotate(-3deg);
-            }
-            75% {
-                transform: translate(13px, -14px) rotate(3deg);
-            }
-            100% {
-                transform: translate(0, 0) rotate(-4deg);
-            }
-        }
-
-        .spaceship .flame {
-            transform-box: fill-box;
-            transform-origin: 50% 0%;
-            animation: flame .18s ease-in-out infinite alternate;
-        }
-
-        @keyframes flame {
-            from {
-                transform: scaleY(.7) scaleX(1);
-                opacity: .65;
-            }
-            to {
-                transform: scaleY(1.3) scaleX(.85);
-                opacity: 1;
-            }
-        }
-
         /* ───── کارت شیشه‌ای پایه ───── */
         .glass {
             position: relative;
@@ -443,7 +315,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .comet .core, .spaceship, .card-live::before, .twinkle, .spaceship .flame {
+            .card-live::before {
                 animation: none !important;
             }
 
@@ -484,23 +356,23 @@
                                 :auto="$startDashboardTour"
                                 :steps="[
         /* ── موبایل: اشاره به منوی هدر ── */
-        ['el' => '[data-tour=m-menu]',           'title' => 'منوها اینجاست',     'text' => 'با زدن این آیکون در بالای صفحه، به همه‌ی منوها و بخش‌های حساب کاربری‌ات دسترسی داری.',                                                                  'forced' => true],
+        ['el' => '[data-tour=m-menu]',           'title' => 'منوها اینجاست',     'text' => 'با زدن این آیکون در بالای صفحه، به همه‌ی منوها و بخش‌های حساب کاربری‌ات دسترسی داری.',                                                                  ],
         /* ── دسکتاپ: آیتم‌های سایدبار یکی‌یکی ── */
-        ['el' => '[data-tour=sb-dashboard]',     'title' => 'داشبورد',           'text' => 'نمای کلی وضعیت و خلاصه‌ی امروزت اینجاست؛ هر وقت خواستی به اینجا برگرد.',                                                                                 'forced' => true],
-        ['el' => '[data-tour=sb-consultation]',  'title' => 'اتاق مشاوره',       'text' => 'گفتگو و جلسات با مشاورت را از اینجا دنبال کن.',                                                                                                            'forced' => true],
-        ['el' => '[data-tour=sb-plan]',          'title' => 'برنامه‌های مطالعاتی','text' => 'برنامه‌ی درسی اختصاصی‌ات را اینجا می‌بینی و اجرا می‌کنی.',                                                                                                'forced' => true],
-        ['el' => '[data-tour=sb-report]',        'title' => 'گزارش‌های درسی',     'text' => 'گزارش مطالعه‌ی روزانه‌ات را از این بخش ثبت و مرور کن.',                                                                                                     'forced' => true],
-        ['el' => '[data-tour=sb-exam]',          'title' => 'آزمون‌ها',          'text' => 'آزمون‌های تستی و تشریحی‌ات را از اینجا شروع کن.',                                                                                                          'forced' => true],
-        ['el' => '[data-tour=sb-smart-report]',  'title' => 'کارنامه هوشمند',     'text' => 'تحلیل و نمودار پیشرفت تحصیلی‌ات را اینجا می‌بینی.',                                                                                                        'forced' => true],
-        ['el' => '[data-tour=sb-classification]','title' => 'طبقه‌بندی دروس',     'text' => 'سطح تسلطت روی هر درس را اینجا مشخص می‌کنی تا برنامه دقیق‌تر شود.',                                                                                          'forced' => true],
+        ['el' => '[data-tour=sb-dashboard]',     'title' => 'داشبورد',           'text' => 'نمای کلی وضعیت و خلاصه‌ی امروزت اینجاست؛ هر وقت خواستی به اینجا برگرد.',                                                                                 ],
+        ['el' => '[data-tour=sb-consultation]',  'title' => 'اتاق مشاوره',       'text' => 'گفتگو و جلسات با مشاورت را از اینجا دنبال کن.',                                                                                                            ],
+        ['el' => '[data-tour=sb-plan]',          'title' => 'برنامه‌های مطالعاتی','text' => 'برنامه‌ی درسی اختصاصی‌ات را اینجا می‌بینی و اجرا می‌کنی.',                                                                                                ],
+        ['el' => '[data-tour=sb-report]',        'title' => 'گزارش‌های درسی',     'text' => 'گزارش مطالعه‌ی روزانه‌ات را از این بخش ثبت و مرور کن.',                                                                                                     ],
+        ['el' => '[data-tour=sb-exam]',          'title' => 'آزمون‌ها',          'text' => 'آزمون‌های تستی و تشریحی‌ات را از اینجا شروع کن.',                                                                                                          ],
+        ['el' => '[data-tour=sb-smart-report]',  'title' => 'کارنامه هوشمند',     'text' => 'تحلیل و نمودار پیشرفت تحصیلی‌ات را اینجا می‌بینی.',                                                                                                        ],
+        ['el' => '[data-tour=sb-classification]','title' => 'طبقه‌بندی دروس',     'text' => 'سطح تسلطت روی هر درس را اینجا مشخص می‌کنی تا برنامه دقیق‌تر شود.',                                                                                          ],
         /* ── موبایل: ناوبریِ پایین ── */
-        ['el' => '[data-tour=nav-consultation]', 'title' => 'اتاق مشاوره',       'text' => 'از اینجا می‌تونی وارد اتاق مشاوره بشی و با مشاورت ارتباط بگیری.',                                                                                        'forced' => true],
-        ['el' => '[data-tour=nav-plan]',         'title' => 'برنامه درسی',       'text' => 'برنامه مطالعه درسیت رو اینجا می‌بینی و اجرا می‌کنی.',                                                                                                       'forced' => true],
-        ['el' => '[data-tour=nav-logo]',         'title' => 'داشبورد',           'text' => 'با لمس لوگو وسط، هر جا باشی سریع به داشبورد اصلی برمی‌گردی.',                                                                                               'forced' => true],
-        ['el' => '[data-tour=nav-report]',       'title' => 'گزارش روزانه',      'text' => 'گزارش مطالعه امروزت رو از همین‌جا ثبت کن.',                                                                                                                  'forced' => true],
-        ['el' => '[data-tour=nav-exam]',         'title' => 'آزمون',             'text' => 'آزمون‌های تستی و تشریحیت رو از این بخش شروع کن.',                                                                                                           'forced' => true],
-        ['el' => '[data-tour=sudden-event]',     'title' => 'اتفاقات یهویی',    'text' => 'اگه یه اتفاق غیرمنتظره پیش اومد (مثل بیماری یا مسافرت)، از این دکمه ثبت کن تا برنامه‌ات تنظیم بشه.',                                                     'forced' => true],
-        ['el' => '[data-tour=class-schedule]',   'title' => 'برنامه کلاسی مدرسه','text' => 'برنامه هفتگی کلاس‌های مدرسه‌ات رو از اینجا ببین تا با برنامه مطالعه‌ات هماهنگ کنی.',                                                                   'forced' => true],
+        ['el' => '[data-tour=nav-consultation]', 'title' => 'اتاق مشاوره',       'text' => 'از اینجا می‌تونی وارد اتاق مشاوره بشی و با مشاورت ارتباط بگیری.',                                                                                        ],
+        ['el' => '[data-tour=nav-plan]',         'title' => 'برنامه درسی',       'text' => 'برنامه مطالعه درسیت رو اینجا می‌بینی و اجرا می‌کنی.',                                                                                                       ],
+        ['el' => '[data-tour=nav-logo]',         'title' => 'داشبورد',           'text' => 'با لمس لوگو وسط، هر جا باشی سریع به داشبورد اصلی برمی‌گردی.',                                                                                               ],
+        ['el' => '[data-tour=nav-report]',       'title' => 'گزارش روزانه',      'text' => 'گزارش مطالعه امروزت رو از همین‌جا ثبت کن.',                                                                                                                  ],
+        ['el' => '[data-tour=nav-exam]',         'title' => 'آزمون',             'text' => 'آزمون‌های تستی و تشریحیت رو از این بخش شروع کن.',                                                                                                           ],
+        ['el' => '[data-tour=sudden-event]',     'title' => 'اتفاقات یهویی',    'text' => 'اگه یه اتفاق غیرمنتظره پیش اومد (مثل بیماری یا مسافرت)، از این دکمه ثبت کن تا برنامه‌ات تنظیم بشه.',                                                     ],
+        ['el' => '[data-tour=class-schedule]',   'title' => 'برنامه کلاسی مدرسه','text' => 'برنامه هفتگی کلاس‌های مدرسه‌ات رو از اینجا ببین تا با برنامه مطالعه‌ات هماهنگ کنی.',                                                                   ],
     ]"
             />
             <div x-show="showTrialNotice" x-cloak wire:ignore.self
@@ -651,70 +523,6 @@
                     </form>
                 </div>
             @endif
-
-            <div class="cosmic-bg" wire:ignore aria-hidden="true">
-                {{-- ستاره‌های ثابت چشمک‌زن --}}
-                <span class="twinkle" style="top:12%;left:18%;animation-delay:0s"></span>
-                <span class="twinkle" style="top:24%;left:72%;animation-delay:.6s"></span>
-                <span class="twinkle" style="top:40%;left:35%;animation-delay:1.1s"></span>
-                <span class="twinkle" style="top:8%;left:54%;animation-delay:1.7s"></span>
-                <span class="twinkle" style="top:62%;left:82%;animation-delay:.3s"></span>
-                <span class="twinkle" style="top:78%;left:22%;animation-delay:2.1s"></span>
-                <span class="twinkle" style="top:55%;left:60%;animation-delay:1.4s"></span>
-                <span class="twinkle" style="top:30%;left:90%;animation-delay:.9s"></span>
-                <span class="twinkle" style="top:85%;left:48%;animation-delay:2.6s"></span>
-                <span class="twinkle" style="top:48%;left:8%;animation-delay:1.9s"></span>
-
-                {{-- شهاب‌سنگ‌های دنباله‌دار (از هر طرف، هر چند ثانیه یکبار رد می‌شن) --}}
-                <span class="comet" style="top:6%;left:-8%;transform:rotate(20deg)"><span class="core"
-                                                                                          style="--dur:9s;--delay:0s;--dist:1500px"></span></span>
-                <span class="comet" style="top:-5%;left:62%;transform:rotate(150deg)"><span class="core"
-                                                                                            style="--dur:11s;--delay:2.5s;--dist:1500px"></span></span>
-                <span class="comet" style="top:70%;left:-10%;transform:rotate(-12deg)"><span class="core"
-                                                                                             style="--dur:8s;--delay:4s;--dist:1500px"></span></span>
-                <span class="comet" style="top:30%;left:82%;transform:rotate(200deg)"><span class="core"
-                                                                                            style="--dur:12s;--delay:1.2s;--dist:1500px"></span></span>
-                <span class="comet" style="top:85%;left:50%;transform:rotate(220deg)"><span class="core"
-                                                                                            style="--dur:10s;--delay:5.5s;--dist:1500px"></span></span>
-                <span class="comet" style="top:15%;left:30%;transform:rotate(35deg)"><span class="core"
-                                                                                           style="--dur:13s;--delay:3.3s;--dist:1500px"></span></span>
-                <span class="comet" style="top:50%;left:-12%;transform:rotate(8deg)"><span class="core"
-                                                                                           style="--dur:9.5s;--delay:6.8s;--dist:1500px"></span></span>
-
-                {{-- سفینه گوشه‌ی چپ پایین --}}
-                <svg class="spaceship" viewBox="0 0 80 120" fill="none" xmlns="http://www.w3.org/2000/svg"
-                     aria-hidden="true">
-                    <defs>
-                        <linearGradient id="shipBody" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0" stop-color="#e2e8f0"/>
-                            <stop offset=".5" stop-color="#94a3b8"/>
-                            <stop offset="1" stop-color="#475569"/>
-                        </linearGradient>
-                        <linearGradient id="shipFlame" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0" stop-color="#a5f3fc"/>
-                            <stop offset=".45" stop-color="#38bdf8"/>
-                            <stop offset="1" stop-color="rgba(56,189,248,0)"/>
-                        </linearGradient>
-                        <radialGradient id="shipWin" cx=".5" cy=".4" r=".7">
-                            <stop offset="0" stop-color="#a7f3d0"/>
-                            <stop offset="1" stop-color="#10b981"/>
-                        </radialGradient>
-                    </defs>
-                    {{-- شعله موتور --}}
-                    <g class="flame">
-                        <path d="M31 84 Q40 120 49 84 Q40 96 31 84 Z" fill="url(#shipFlame)"/>
-                    </g>
-                    {{-- بدنه --}}
-                    <path d="M40 6 C54 20 58 44 54 70 L52 84 H28 L26 70 C22 44 26 20 40 6 Z" fill="url(#shipBody)"
-                          stroke="#cbd5e1" stroke-width="1"/>
-                    {{-- بال‌ها --}}
-                    <path d="M26 64 L12 86 L28 80 Z" fill="#0ea5e9"/>
-                    <path d="M54 64 L68 86 L52 80 Z" fill="#0ea5e9"/>
-                    {{-- پنجره --}}
-                    <circle cx="40" cy="38" r="9" fill="url(#shipWin)" stroke="#e2e8f0" stroke-width="1.5"/>
-                    <circle cx="40" cy="34" r="2.5" fill="rgba(255,255,255,.55)"/>
-                </svg>
-            </div>
 
             <div class="max-w-7xl mx-auto px-4 relative z-10">
                 <div class="flex gap-6 items-start">

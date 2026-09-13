@@ -12,17 +12,6 @@
         }
         .remove-image-btn:hover { background: #dc2626; transform: scale(1.1); }
 
-        .spinner-circle {
-            width: 1.125rem; height: 1.125rem;
-            border: 2.25px solid currentColor;
-            border-right-color: transparent;
-            border-radius: 50%;
-            animation: jdp-spin 0.7s linear infinite;
-            display: inline-block;
-        }
-        .spinner-sm { width: 1rem; height: 1rem; border-width: 2px; }
-        @keyframes jdp-spin { to { transform: rotate(360deg); } }
-
         /* ═══ OTP segmented input ═══ */
         .otp-slot {
             width: 2.75rem;
@@ -79,7 +68,8 @@
                      x-data="{
                          activeTab: 'account',
                          photoError: false,
-                     }">
+                     }"
+                     @keep-password-tab.window="activeTab = 'password'">
 
                     <div class="flex items-center gap-3">
                         <div class="flex items-center gap-1">
@@ -89,8 +79,8 @@
                         <div class="font-black text-foreground">ویرایش پروفایل</div>
                     </div>
 
-                    {{-- ═══ Notification-style pill tabs ═══ --}}
                     <x-ui.segmented-tabs
+                        wire:ignore
                         :items="[
                             'account'  => 'اطلاعات حساب',
                             'password' => 'رمز عبور',
@@ -145,14 +135,17 @@
                                 @if(count($avList))
                                     <div class="grid grid-cols-3 gap-4 max-w-sm mx-auto sm:mx-0">
                                         @foreach($avList as $a)
-                                            <button type="button" wire:click="selectAvatar('{{ $a }}')" wire:loading.attr="disabled" wire:target="selectAvatar"
-                                                    class="relative aspect-square rounded-2xl overflow-hidden border-2 bg-secondary transition-all {{ $photo === $a ? 'border-primary ring-2 ring-primary/40' : 'border-border hover:border-primary/50' }}">
+                                            <button type="button" wire:click="selectAvatar('{{ $a }}')" wire:loading.attr="disabled" wire:target="selectAvatar('{{ $a }}')"
+                                                    class="relative aspect-square rounded-2xl overflow-hidden border-2 bg-secondary transition-all disabled:opacity-60 {{ $photo === $a ? 'border-primary ring-2 ring-primary/40' : 'border-border hover:border-primary/50' }}">
                                                 <img src="{{ $a }}" class="w-full h-full object-cover object-top" alt="آواتار" loading="lazy">
                                                 @if($photo === $a)
                                                     <span class="absolute top-1.5 left-1.5 w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center shadow">
                                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                                                     </span>
                                                 @endif
+                                                <span wire:loading wire:target="selectAvatar('{{ $a }}')" class="absolute inset-0 flex items-center justify-center bg-black/40">
+                                                    <x-ui.spinner size="sm" class="text-white"/>
+                                                </span>
                                             </button>
                                         @endforeach
                                     </div>
@@ -183,7 +176,7 @@
 
                             {{-- ═══ Fields card (glass) ═══ --}}
                             <div class="glass border border-border rounded-2xl p-6 space-y-5">
-                                <div class="flex items-center gap-2 pb-3 border-b border-border">
+                                <div class="flex items-center gap-2 pb-3 border-border">
                                     <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
                                     </svg>
@@ -374,7 +367,7 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-center gap-2 pt-3 border-t border-border">
+                                <div class="flex items-center gap-2 pt-3 border-border">
                                     <svg class="w-4 h-4 text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
                                     <p class="text-[11px] text-muted">این اطلاعات فقط قابل مشاهده است. برای تغییر آن‌ها از طریق تیکت پشتیبانی اقدام کنید.</p>
                                 </div>
@@ -396,9 +389,7 @@
                                     <div class="font-bold text-sm text-amber-600 dark:text-amber-300 mb-2">الزامات رمز عبور</div>
                                     <ul class="space-y-1 text-xs text-amber-600/90 dark:text-amber-400">
                                         <li>• حداقل ۸ کاراکتر</li>
-                                        <li>• حداقل یک حرف کوچک</li>
-                                        <li>• حداقل یک حرف بزرگ</li>
-                                        <li>• حداقل یک عدد</li>
+                                        <li>• استفاده از حروف انگلیسی</li>
                                     </ul>
                                     <button type="button" @click="open = false" class="mt-3 text-xs text-amber-600 dark:text-amber-400 hover:underline font-semibold">فهمیدم</button>
                                 </div>
@@ -409,35 +400,27 @@
                         <div x-show="!$wire.showForgotPassword" class="glass border border-border rounded-2xl p-6">
                             <form wire:submit.prevent="changePassword" class="space-y-5">
                                 <div class="grid sm:grid-cols-2 gap-5">
-                                    <div class="space-y-2">
-                                        <label class="font-semibold text-xs text-foreground">رمز فعلی</label>
-                                        <input type="password" dir="ltr" wire:model="current_password" placeholder="********"
-                                               class="w-full h-12 !ring-0 bg-secondary border border-border focus:border-primary rounded-xl text-sm text-foreground px-4 transition-all outline-none">
-                                        @error('current_password')<div class="font-medium text-xs text-red-500">{{ $message }}</div>@enderror
-                                    </div>
-                                    <div class="space-y-2">
-                                        <label class="font-semibold text-xs text-foreground">رمز جدید</label>
-                                        <input type="password" dir="ltr" wire:model="new_password" placeholder="********"
-                                               class="w-full h-12 !ring-0 bg-secondary border border-border focus:border-primary rounded-xl text-sm text-foreground px-4 transition-all outline-none">
-                                        @error('new_password')<div class="font-medium text-xs text-red-500">{{ $message }}</div>@enderror
-                                    </div>
-                                    <div class="space-y-2 sm:col-span-2">
-                                        <label class="font-semibold text-xs text-foreground">تکرار رمز جدید</label>
-                                        <input type="password" dir="ltr" wire:model="new_password_confirmation" placeholder="********"
-                                               class="w-full h-12 !ring-0 bg-secondary border border-border focus:border-primary rounded-xl text-sm text-foreground px-4 transition-all outline-none">
-                                        @error('new_password_confirmation')<div class="font-medium text-xs text-red-500">{{ $message }}</div>@enderror
+                                    <x-ui.password-input model="current_password" label="رمز فعلی"/>
+                                    <x-ui.password-input model="new_password" label="رمز جدید"/>
+                                    <div class="sm:col-span-2">
+                                        <x-ui.password-input model="new_password_confirmation" label="تکرار رمز جدید"/>
                                     </div>
                                 </div>
 
-                                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3 border-t border-border">
-                                    <button type="button" wire:click="toggleForgotPassword"
-                                            class="text-primary text-sm font-medium hover:underline order-2 sm:order-1">
-                                        رمز عبور را فراموش کرده‌ام
+                                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3 border-border">
+                                    <button type="button" wire:click="toggleForgotPassword" wire:loading.attr="disabled" wire:target="toggleForgotPassword"
+                                            class="inline-flex items-center gap-2 text-primary text-sm font-medium hover:underline order-2 sm:order-1 disabled:opacity-60">
+                                        <span>رمز عبور را فراموش کرده‌ام</span>
+                                        <x-ui.spinner size="sm" wire:loading wire:target="toggleForgotPassword"/>
                                     </button>
                                     <button type="submit" wire:loading.attr="disabled" wire:target="changePassword"
                                             class="w-full sm:w-auto h-11 inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 rounded-full text-white px-8 transition-all order-1 sm:order-2 disabled:opacity-60 min-w-[130px]">
                                         <span wire:loading.remove wire:target="changePassword" class="font-semibold text-sm">تغییر رمز</span>
-                                        <span wire:loading wire:target="changePassword" class="spinner-circle text-white"></span>
+                                        <svg wire:loading.remove wire:target="changePassword" xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M16.5 10V6.5C16.5 4.01472 14.4853 2 12 2C9.51472 2 7.5 4.01472 7.5 6.5M4 13V19C4 20.6569 5.34315 22 7 22H17C18.6569 22 20 20.6569 20 19V13C20 11.3431 18.6569 10 17 10H7C5.34315 10 4 11.3431 4 13Z"/>
+                                            <path d="M13.5 16C13.5 16.8284 12.8284 17.5 12 17.5C11.1716 17.5 10.5 16.8284 10.5 16C10.5 15.1716 11.1716 14.5 12 14.5C12.8284 14.5 13.5 15.1716 13.5 16Z" fill="currentColor" stroke="none"/>
+                                        </svg>
+                                        <x-ui.spinner size="sm" class="text-white" wire:loading wire:target="changePassword"/>
                                     </button>
                                 </div>
                             </form>
@@ -449,28 +432,52 @@
                                 <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clip-rule="evenodd"/>
                                 </svg>
-                                <span class="text-sm text-blue-600 dark:text-blue-300">کد تایید به شماره موبایل شما ارسال خواهد شد</span>
+                                <span class="text-sm text-blue-600 dark:text-blue-300">کد تایید به‌صورت خودکار به شماره موبایل شما ارسال شد</span>
+                            </div>
+
+                            <div class="flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                                <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-8.25 3h.008v.008h-.008V15Z"/>
+                                </svg>
+                                <span class="text-xs text-amber-600 dark:text-amber-400 leading-6">اگر پیامک کد تایید را دریافت نکردید، پوشه‌ی هرزنامه/اسپم پیامک‌های گوشی خود را هم بررسی کنید؛ ممکن است کد به آن‌جا رفته باشد.</span>
                             </div>
 
                             <div class="space-y-3">
                                 <div class="flex items-center justify-between gap-3 flex-wrap">
                                     <label class="font-semibold text-xs text-foreground">کد تایید</label>
+                                    {{--
+                                        همین که این فرم باز بشه، کد به‌صورت خودکار پیامک می‌شه (توی
+                                        toggleForgotPassword). این دکمه از این به بعد فقط نقش «ارسال
+                                        دوباره» رو داره و طبق همون شرط قبلی (countdown === 0) فقط بعد
+                                        از تمام‌شدنِ تایمر ۹۰ ثانیه‌ای نمایش داده می‌شه.
+                                    --}}
                                     <button type="button" wire:click="sendOtp" wire:loading.attr="disabled" wire:target="sendOtp" x-show="!$wire.otp_verified && countdown === 0"
                                             class="h-10 px-5 bg-primary hover:bg-primary/90 text-white rounded-xl text-sm font-semibold transition-all whitespace-nowrap disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[110px]">
-                                        <span wire:loading.remove wire:target="sendOtp">ارسال کد</span>
-                                        <span wire:loading wire:target="sendOtp" class="spinner-circle text-white"></span>
+                                        <span wire:loading.remove wire:target="sendOtp">ارسال دوباره کد</span>
+                                        <x-ui.spinner size="sm" class="text-white" wire:loading wire:target="sendOtp"/>
                                     </button>
                                 </div>
 
                                 {{-- ═══ Segmented OTP input ═══ --}}
                                 <div class="relative"
-                                     x-data="otpInput({ length: 6, hasServerError: @js($errors->has('otp_code')), autoSubmit: false })"
+                                     {{--
+                                         autoSubmit روی true تنظیم شده و روی input مخفی هم wire:model
+                                         ساده (نه .live) گذاشته شده: با .live، هر رقمی که تایپ می‌شد
+                                         بلافاصله یک درخواست جدا به سرور می‌فرستاد (چون sync() بعد از
+                                         هر رقم رویداد input رو شلیک می‌کنه)، و همین باعث می‌شد پیام
+                                         «در حال بررسی کد...» بعد از تک‌تک ارقام (نه فقط رقم آخر) چشمک
+                                         بزنه - انگار باید یکی‌یکی وارد می‌شد و هر بار چک می‌شد. حالا
+                                         مقدار فقط توی حافظه‌ی کلاینت جمع می‌شه و فقط وقتی هر ۶ رقم پر
+                                         شد (maybeSubmit)، یک‌بار $wire.call('verifyOtp') صدا زده
+                                         می‌شه که همان لحظه مقدار نهایی را هم با خودش سینک می‌کند.
+                                     --}}
+                                     x-data="otpInput({ length: 6, hasServerError: @js($errors->has('otp_code')), autoSubmit: true })"
                                      x-init="init()"
                                      @otp-cleared.window="reset()"
                                      @otp-error.window="triggerError()"
                                      @otp-success.window="triggerSuccess()">
 
-                                    <input type="hidden" wire:model.live="otp_code" x-ref="hidden">
+                                    <input type="hidden" wire:model="otp_code" x-ref="hidden">
 
                                     <div class="flex items-center justify-center gap-2 sm:gap-2.5" dir="ltr"
                                          :class="{ 'shake': status === 'error' }">
@@ -490,7 +497,7 @@
                                                 @keydown="handleKeydown($event, index)"
                                                 @paste="handlePaste($event)"
                                                 @focus="$event.target.select()"
-                                                class="otp-slot glass-input rounded-xl text-xl sm:text-2xl font-bold font-mono disabled:opacity-50"
+                                                class="otp-slot bg-secondary border border-border text-foreground rounded-xl text-xl sm:text-2xl font-bold font-mono outline-none focus:border-primary transition-colors disabled:opacity-50"
                                                 :class="{
                                                     'is-filled': digit !== '' && status === 'idle',
                                                     'is-error': status === 'error',
@@ -508,7 +515,7 @@
 
                                 {{-- کد به محض کامل شدن ۶ رقم خودکار بررسی می‌شود --}}
                                 <div wire:loading wire:target="otp_code, verifyOtp" x-show="!$wire.otp_verified" class="inline-flex items-center gap-2 text-xs text-muted mt-1 justify-center w-full">
-                                    <span class="spinner-circle spinner-sm text-primary"></span>
+                                    <x-ui.spinner size="xs" class="text-primary"/>
                                     <span>در حال بررسی کد...</span>
                                 </div>
 
@@ -524,33 +531,24 @@
 
                             <div class="grid sm:grid-cols-2 gap-5">
                                 <template x-if="$wire.otp_verified">
-                                    <div class="space-y-2">
-                                        <label class="font-semibold text-xs text-foreground">رمز جدید</label>
-                                        <input type="password" dir="ltr" wire:model="forgot_new_password" placeholder="********"
-                                               class="w-full h-12 !ring-0 bg-secondary border border-border focus:border-primary rounded-xl text-sm text-foreground px-4 transition-all outline-none">
-                                        @error('forgot_new_password')<div class="font-medium text-xs text-red-500">{{ $message }}</div>@enderror
-                                    </div>
+                                    <x-ui.password-input model="forgot_new_password" label="رمز جدید"/>
                                 </template>
 
                                 <template x-if="$wire.otp_verified">
-                                    <div class="space-y-2">
-                                        <label class="font-semibold text-xs text-foreground">تکرار رمز جدید</label>
-                                        <input type="password" dir="ltr" wire:model="forgot_new_password_confirmation" placeholder="********"
-                                               class="w-full h-12 !ring-0 bg-secondary border border-border focus:border-primary rounded-xl text-sm text-foreground px-4 transition-all outline-none">
-                                        @error('forgot_new_password_confirmation')<div class="font-medium text-xs text-red-500">{{ $message }}</div>@enderror
-                                    </div>
+                                    <x-ui.password-input model="forgot_new_password_confirmation" label="تکرار رمز جدید"/>
                                 </template>
                             </div>
 
-                            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3 border-t border-border">
-                                <button type="button" wire:click="toggleForgotPassword"
-                                        class="text-muted text-sm font-medium hover:underline hover:text-foreground transition-colors order-2 sm:order-1">
-                                    بازگشت
+                            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3 border-border">
+                                <button type="button" wire:click="toggleForgotPassword" wire:loading.attr="disabled" wire:target="toggleForgotPassword"
+                                        class="inline-flex items-center gap-2 text-muted text-sm font-medium hover:underline hover:text-foreground transition-colors order-2 sm:order-1 disabled:opacity-60">
+                                    <span wire:loading.remove wire:target="toggleForgotPassword">بازگشت</span>
+                                    <x-ui.spinner size="sm" wire:loading wire:target="toggleForgotPassword"/>
                                 </button>
                                 <button type="button" wire:click="changePasswordWithOtp" wire:loading.attr="disabled" wire:target="changePasswordWithOtp" x-show="$wire.otp_verified"
                                         class="w-full sm:w-auto h-11 inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 rounded-full text-white px-8 transition-all order-1 sm:order-2 disabled:opacity-60 min-w-[130px]">
                                     <span wire:loading.remove wire:target="changePasswordWithOtp" class="font-semibold text-sm">تغییر رمز</span>
-                                    <span wire:loading wire:target="changePasswordWithOtp" class="spinner-circle text-white"></span>
+                                    <x-ui.spinner size="sm" class="text-white" wire:loading wire:target="changePasswordWithOtp"/>
                                 </button>
                             </div>
                         </div>

@@ -7,16 +7,7 @@
         .ss-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .timer-ring { transform: rotate(-90deg); transform-origin: center; transition: stroke-dashoffset .4s linear; }
         .drop-ring { transition: stroke-dashoffset .6s ease; }
-        .spinner-circle {
-            width: 1.125rem; height: 1.125rem;
-            border: 2.25px solid currentColor;
-            border-right-color: transparent;
-            border-radius: 50%;
-            animation: spin .7s linear infinite;
-            display: inline-block;
-        }
-        .spinner-sm { width: 1rem; height: 1rem; border-width: 2px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        {{-- .spinner-circle/.spinner-sm حذف شد؛ همه‌ی نشانگرهای بارگذاری این فایل به x-ui.spinner یکپارچه شدند. --}}
 
         /* ✅ هایلایت پارت مقصد هنگام ورود از دکمه «شروع و ثبت ساعت مطالعه» */
         .focus-part-highlight {
@@ -59,9 +50,9 @@
         $initialDayPage = $showExamDayPager ? intdiv($initialDayIndex, $dayPagerSize) : 0;
         $totalDayPages = max(1, (int) ceil(max($availableDayDates->count(), 1) / $dayPagerSize));
         $jalaliDayLabels = collect($weekDays ?? [])->map(fn($day) => jdate(\Carbon\Carbon::parse($day['date']))->format('d F'));
-        @endphp
+    @endphp
 
-        <div class="max-w-7xl mx-auto px-3 sm:px-4 "
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 "
          x-data="{
              jalaliDayLabels: @js($jalaliDayLabels->all()),
              currentPageDateRange() {
@@ -98,6 +89,15 @@
              earlyModal:        @entangle('showEarlyFinishConfirmModal'),
              studyMoreModal:    @entangle('showStudyMoreModal'),
              alarmModal:        @entangle('showAlarmModal'),
+
+             get anyModalOpen() {
+                 return this.permissionModal || this.finishModal || this.makeupFinishModal
+                     || this.makeupModal || this.feedbackModal || this.cancelModal
+                     || this.earlyModal || this.studyMoreModal || this.alarmModal;
+             },
+             destroy() {
+                 document.body.style.overflow = '';
+             },
              ensureSelectedDay() {
                  if (!this.availableDays.includes(this.selectedDay)) {
                      this.selectedDay = this.availableDays[0] ?? this.selectedDay
@@ -150,6 +150,7 @@
              },
          }"
          x-init="ensureSelectedDay(); focusPendingPart()"
+         x-effect="document.body.style.overflow = anyModalOpen ? 'hidden' : ''"
          x-on:alarm-preview-state.window="previewingAlarmId = $event.detail?.id || null">
 
         {{-- ════════════════════════════════════════════════════════════
@@ -196,7 +197,7 @@
                             <div class="mt-2 font-bold text-white">{{ $activePart?->lesson_name ?? '—' }}</div>
                         @else
                             @if($activePart?->ccSubject)
-                                <div class="text-xs mb-1 text-gray-500">{{ $activePart->ccSubject->name }}</div>
+                                <div class="text-xs mb-1 text-muted">{{ $activePart->ccSubject->name }}</div>
                             @endif
                             <div class="font-black text-white text-lg">{{ $activePart?->lesson_name ?? '—' }}</div>
                             @php $apm = $activePart?->part_mode ?? 'normal'; @endphp
@@ -271,8 +272,8 @@
                                     @endif
                                 </div>
                             @endif
-                            <button type="button" @click="toggleWake()"
-                                    class="mt-4 px-4 py-1.5 rounded-full text-xs flex items-center gap-1.5 border"
+                            <button type="button" @click="toggleWake()" data-elevated="false"
+                                    class="btn-press mt-4 px-4 py-1.5 rounded-full text-xs flex items-center gap-1.5 border"
                                     :class="wantOn ? 'bg-blue-500/20 text-blue-400 border-blue-500/40' : 'bg-white/5 text-gray-400 border-white/10'">
                                 <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
@@ -292,24 +293,24 @@
                     @if(!$isMakeupMode && $this->canShowEarlyOrMore)
                         <div class="grid grid-cols-2 gap-2 mt-6 w-full max-w-sm">
                             <button wire:click="openEarlyFinishConfirm" wire:loading.attr="disabled" wire:target="openEarlyFinishConfirm"
-                                    class="h-11 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 disabled:opacity-50 inline-flex items-center justify-center gap-2">
-                                <span wire:loading.remove wire:target="openEarlyFinishConfirm">⚡ زودتر تمام کردم</span>
-                                <span wire:loading wire:target="openEarlyFinishConfirm" class="spinner-circle spinner-sm"></span>
+                                    class="btn-press h-11 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 disabled:opacity-50 inline-flex items-center justify-center gap-2" data-elevated="false">
+                                <span wire:loading.remove wire:target="openEarlyFinishConfirm" class="inline-flex items-center gap-1.5">زودتر تمام کردم<x-ui.icon name="check" class="w-3.5 h-3.5"/></span>
+                                <x-ui.spinner size="xs" wire:loading wire:target="openEarlyFinishConfirm"/>
                             </button>
                             <button wire:click="openStudyMoreModal" wire:loading.attr="disabled" wire:target="openStudyMoreModal"
-                                    class="h-11 rounded-full text-xs font-bold bg-blue-500/15 text-blue-400 border border-blue-500/40 disabled:opacity-50 inline-flex items-center justify-center gap-2">
-                                <span wire:loading.remove wire:target="openStudyMoreModal">➕ مطالعه بیشتر</span>
-                                <span wire:loading wire:target="openStudyMoreModal" class="spinner-circle spinner-sm"></span>
+                                    class="btn-press h-11 rounded-full text-xs font-bold bg-blue-500/15 text-blue-400 border border-blue-500/40 disabled:opacity-50 inline-flex items-center justify-center gap-2" data-elevated="false">
+                                <span wire:loading.remove wire:target="openStudyMoreModal" class="inline-flex items-center gap-1.5">مطالعه بیشتر<x-ui.icon name="plus" class="w-3.5 h-3.5"/></span>
+                                <x-ui.spinner size="xs" wire:loading wire:target="openStudyMoreModal"/>
                             </button>
                         </div>
                     @endif
                     <div class="flex items-center justify-center gap-14 mt-10">
                         <!-- دکمه لغو کامل -->
-                        <button type="button"
+                        <button type="button" data-elevated="false"
                                 wire:click.prevent="openCancelConfirm"
                                 wire:loading.attr="disabled"
                                 wire:target="openCancelConfirm"
-                                class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50"
+                                class="btn-press w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50"
                                 title="لغو">
                             <span class="block w-5 h-5 rounded" style="background:{{ $ovColor }};"></span>
                         </button>
@@ -318,56 +319,56 @@
                             <!-- ================= حالت تایمر جبرانی ================= -->
                             @if($makeupTimerRunning)
                                 <!-- دکمه توقف جبرانی (سریع) -->
-                                <button wire:click.prevent="pauseMakeup"
+                                <button wire:click.prevent="pauseMakeup" data-elevated="false"
                                         wire:loading.attr="disabled"
                                         wire:target="pauseMakeup"
-                                        class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="توقف">
+                                        class="btn-press w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="توقف">
                 <span wire:loading.remove wire:target="pauseMakeup" class="flex gap-1.5">
                     <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
                     <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
                 </span>
-                                    <span wire:loading wire:target="pauseMakeup" class="spinner-circle" style="color:{{ $ovColor }};"></span>
+                                    <span wire:loading wire:target="pauseMakeup" style="color:{{ $ovColor }};"><x-ui.spinner size="sm"/></span>
                                 </button>
                             @else
 
                                 <!-- دکمه ادامه جبرانی -->
-                                <button type="button"
+                                <button type="button" data-elevated="false"
                                         wire:click.prevent="resumeMakeup"
                                         wire:loading.attr="disabled"
                                         wire:target="resumeMakeup"
-                                        class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="ادامه">
+                                        class="btn-press w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="ادامه">
                                     <svg wire:loading.remove wire:target="resumeMakeup" viewBox="0 0 24 24" fill="{{ $ovColor }}" class="w-6 h-6" style="margin-right:-2px;">
                                         <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/>
                                     </svg>
-                                    <span wire:loading wire:target="resumeMakeup" class="spinner-circle" style="color:{{ $ovColor }};"></span>
+                                    <span wire:loading wire:target="resumeMakeup" style="color:{{ $ovColor }};"><x-ui.spinner size="sm"/></span>
                                 </button>
                             @endif
                         @else
                             <!-- ================= حالت تایمر برنامه‌ای (عادی) ================= -->
                             @if($isRunning)
                                 <!-- دکمه توقف عادی (سریع) -->
-                                <button type="button"
+                                <button type="button" data-elevated="false"
                                         wire:click.prevent="pausePart"
                                         wire:loading.attr="disabled"
                                         wire:target="pausePart"
-                                        class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="توقف">
+                                        class="btn-press w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="توقف">
                 <span wire:loading.remove wire:target="pausePart" class="flex gap-1.5">
                     <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
                     <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
                 </span>
-                                    <span wire:loading wire:target="pausePart" class="spinner-circle" style="color:{{ $ovColor }};"></span>
+                                    <span wire:loading wire:target="pausePart" style="color:{{ $ovColor }};"><x-ui.spinner size="sm"/></span>
                                 </button>
                             @elseif($pausedAtTs)
                                 <!-- دکمه ادامه عادی -->
-                                <button type="button"
+                                <button type="button" data-elevated="false"
                                         wire:click.prevent="resumePart"
                                         wire:loading.attr="disabled"
                                         wire:target="resumePart"
-                                        class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="ادامه">
+                                        class="btn-press w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="ادامه">
                                     <svg wire:loading.remove wire:target="resumePart" viewBox="0 0 24 24" fill="{{ $ovColor }}" class="w-6 h-6" style="margin-right:-2px;">
                                         <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/>
                                     </svg>
-                                    <span wire:loading wire:target="resumePart" class="spinner-circle" style="color:{{ $ovColor }};"></span>
+                                    <span wire:loading wire:target="resumePart" style="color:{{ $ovColor }};"><x-ui.spinner size="sm"/></span>
                                 </button>
                             @endif
                         @endif
@@ -385,22 +386,27 @@
             <div class="lg:col-span-9 md:col-span-8 space-y-6">
 
                 <section class="overflow-hidden rounded-2xl border border-border glass">
-                    <div class="bg-gradient-to-r from-blue-900 via-blue-600 to-blue-400 px-4 py-5 sm:px-6 sm:py-6">
+                    <div class="bg-gradient-to-r from-info via-info to-info/70 px-4 py-5 sm:px-6 sm:py-6">
                         <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                            <div class="flex items-start gap-4">
-                                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 ring-2 ring-white/40 shadow-md backdrop-blur-sm">
+                            <div class="flex items-center gap-4">
+                                {{-- حالت موبایل: فقط تصویر هدر، بدون آیکون و بدون متن --}}
+                                <div class="flex w-full items-center justify-center rounded-xl bg-white/20 py-2 ring-2 ring-white/40 shadow-md backdrop-blur-sm md:hidden">
+                                    <img src="/client/assets/images/theme/intro/header.png"
+                                         alt="برنامه مطالعاتی"
+                                         class="h-14 w-auto object-contain">
+                                </div>
+
+                                {{-- حالت دسکتاپ: آیکون + عنوان، هم‌تراز و هم‌سطح با دکمه «بازگشت به جلسات» و تب‌ها --}}
+                                <div class="hidden h-14 w-14 items-center justify-center rounded-2xl bg-white/20 ring-2 ring-white/40 shadow-md backdrop-blur-sm md:flex">
                                     <img src="/client/assets/images/favicon.svg" class="w-10 h-10" alt="لوگو">
                                 </div>
-                                <div>
-                                    <h1 class=" text-lg sm:text-xl font-bold text-white">برنامه مطالعاتی</h1>
+                                <div class="hidden md:block">
+                                    <h1 class="text-lg sm:text-xl font-bold text-white">برنامه مطالعاتی</h1>
                                 </div>
                             </div>
 
                             <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-                                <a wire:navigate href="{{ route('client.profile.plan') }}"
-                                   class="inline-flex items-center justify-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-red-600 transition-all">
-                                    <i class="fas fa-arrow-right"></i><span>بازگشت به جلسات</span>
-                                </a>
+
                                 @php
                                     $programTabItems = [];
                                     if ($isActiveProgram) {
@@ -409,38 +415,30 @@
                                     $programTabItems['grid']    = 'جدول برنامه';
                                     $programTabItems['archive'] = 'آرشیو';
                                 @endphp
-                                {{--
-                                    wire:ignore این‌جا حیاتیه: این صفحه هر ۵ ثانیه (وقتی تایمر در حال اجراست)
-                                    یک syncTimers به سرور می‌زنه و کل کامپوننت رو دوباره render می‌کنه. چون
-                                    موقعیت ایندیکیتور (پیل سفید) توسط Alpine و به‌صورت مستقیم روی style
-                                    عنصر نوشته می‌شه (نه با یک x-bind)، بدون wire:ignore هر re-render لایوایر
-                                    این style رو به مقدار پیش‌فرض (width:0) توی HTML سمت سرور برمی‌گردوند و
-                                    باعث می‌شد ایندیکیتور هر چند ثانیه یک‌بار بپره/گم بشه. چون items و active
-                                    این کامپوننت (بر پایه‌ی isActiveProgram) بعد از mount ثابت می‌مونن و تعویض
-                                    تب کاملاً با Alpine (@segmented-change) انجام می‌شه، نادیده گرفتنش توسط
-                                    لایوایر هیچ داده‌ای رو از دست نمی‌ده.
-                                --}}
-                                <x-ui.segmented-tabs
-                                    wire:ignore
-                                    :items="$programTabItems"
-                                    :active="$isActiveProgram ? 'study' : 'grid'"
-                                    container-class="bg-black/40 ring-1 ring-white/20 backdrop-blur-sm"
-                                    indicator-class="bg-white/95 shadow-sm"
-                                    active-text-class="text-slate-900"
-                                    inactive-text-class="text-white/75"
-                                    item-class="px-3 py-1.5 text-[11px] sm:text-xs font-medium"
-                                    @segmented-change="tab = $event.detail"
-                                />
+                                <a wire:navigate href="{{ route('client.profile.plan') }}"
+                                   class="inline-flex h-10 items-center  justify-center gap-2 rounded-xl bg-error px-4 py-2 text-xs font-medium text-error-foreground shadow-sm hover:bg-error/90 transition-all sm:h-auto">
+                                    <i class="fas fa-arrow-right"></i><span>بازگشت به جلسات</span>
+                                </a>
+
+
                             </div>
                         </div>
                     </div>
                 </section>
-
+                <x-ui.segmented-tabs
+                    wire:ignore
+                    class="w-full sm:w-auto"
+                    :items="$programTabItems"
+                    :active="$isActiveProgram ? 'study' : 'grid'"
+                    indicator-class="bg-white/95 shadow-sm"
+                    item-class="flex-1 justify-center px-9 py-1.5 text-[12px] sm:flex-none sm:text-xs font-medium"
+                    @segmented-change="tab = $event.detail"
+                />
                 <section x-show="tab !== 'study'" x-cloak class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
-                    <div class="rounded-2xl bg-gradient-to-br from-sky-500 to-sky-600 p-4 text-white shadow-md">
+                    <div class="rounded-2xl bg-gradient-to-br from-info to-info/70 p-4 text-info-foreground shadow-md">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-[11px] text-sky-100/90">ساعات مطالعه</p>
+                                <p class="text-[11px] text-info-foreground/80">ساعات مطالعه</p>
                                 <p class="mt-1 text-2xl font-extrabold sm:text-3xl">{{ $stats['totalHours'] }}</p>
                             </div>
                             <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20">
@@ -451,10 +449,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 text-white shadow-md">
+                    <div class="rounded-2xl bg-gradient-to-br from-success to-success/70 p-4 text-success-foreground shadow-md">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-[11px] text-emerald-100/90">تعداد تست</p>
+                                <p class="text-[11px] text-success-foreground/80">تعداد تست</p>
                                 <p class="mt-1 text-2xl font-extrabold sm:text-3xl">{{ $stats['totalTests'] }}</p>
                             </div>
                             <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20">
@@ -464,10 +462,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-4 text-white shadow-md col-span-2 md:col-span-1">
+                    <div class="rounded-2xl bg-gradient-to-br from-info to-info/70 p-4 text-info-foreground shadow-md col-span-2 md:col-span-1">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-[11px] text-blue-100/90">تعداد پارت‌ها</p>
+                                <p class="text-[11px] text-info-foreground/80">تعداد پارت‌ها</p>
                                 <p class="mt-1 text-2xl font-extrabold sm:text-3xl">{{ $stats['totalParts'] }}</p>
                             </div>
                             <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20">
@@ -485,57 +483,58 @@
 
                         @if(!$timerActive)
                             <button wire:click="openMakeupModal" wire:loading.attr="disabled" wire:target="openMakeupModal"
-                                    class="w-full h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 bg-gradient-to-l from-blue-600 to-sky-500 text-white shadow-md shadow-blue-500/20 disabled:opacity-60">
+                                    class="btn-press w-full h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 bg-gradient-to-l from-info/70 to-info text-info-foreground shadow-md shadow-info/20 disabled:opacity-60" data-elevated="true">
                                 <span wire:loading.remove wire:target="openMakeupModal" class="flex items-center gap-2">
                                     <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
                                     </svg>
                                ثبت مطالعه مازاد بر برنامه مشاور
                                 </span>
-                                <span wire:loading wire:target="openMakeupModal" class="spinner-circle"></span>
+                                <x-ui.spinner size="sm" wire:loading wire:target="openMakeupModal"/>
                             </button>
 
-                            <button type="button" @click="alarmModal = true"
-                                    class="w-full h-11 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 bg-secondary border border-border text-foreground">
-                                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4 text-blue-500">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-2.12-1.767l1.32-.377V9.5l-7.5 2.25v5.57a2.25 2.25 0 01-1.632 2.163l-1.32.378a1.803 1.803 0 11-2.12-1.768l1.32-.377V7.5L19.5 4.5"/>
-                                </svg>
+                            <button type="button" @click="alarmModal = true" data-elevated="false"
+                                    class="btn-press w-full h-11 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 bg-secondary border border-border text-foreground">
+                                <x-ui.icon name="bell" class="w-4 h-4 text-info"/>
                                 <span>انتخاب صدای آلارم قبل از شروع مطالعه</span>
                             </button>
                         @endif
 
                         <div class="glass border border-border rounded-2xl p-3">
                             <div class="flex items-center gap-2 mb-3 px-1">
-                                {{-- بازه‌ی تاریخ (مثلاً «۱۴ شهریور تا ۲۰ شهریور») فقط برای برنامه‌های امتحانیِ بیشتر از
-                                     یک هفته (۸ روز به بالا - جایی که $showExamDayPager فعاله) نمایش داده می‌شود؛
-                                     برای هفته‌ی عادی لازم نیست. --}}
                                 @if($showExamDayPager)
                                     <span class="text-[18px] font-bold text-primary" x-text="currentPageDateRange()"></span>
                                     <span class="text-muted text-xs">|</span>
                                 @endif
-                                <span class="text-xs text-muted">برنامه مطالعاتی</span>
+
                             </div>
                             @if($showExamDayPager)
                                 <div class="mb-3 flex items-center justify-between gap-2 rounded-xl bg-secondary/70 px-2.5 py-2">
                                     <button type="button"
                                             @click="goDayPage(-1)"
-                                            :disabled="dayPage === 0"
-                                            class="flex items-center justify-center w-9 h-9 rounded-xl border border-border glass text-foreground transition-all shrink-0 disabled:opacity-35 disabled:cursor-not-allowed">
-                                        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
-                                        </svg>
+                                            :disabled="dayPage === 0" data-elevated="false"
+                                            class="btn-press flex items-center justify-center w-9 h-9 rounded-xl border border-border glass text-foreground transition-all shrink-0 disabled:opacity-35 disabled:cursor-not-allowed">
+                                        <x-ui.icon name="chevron-right" class="w-4 h-4"/>
                                     </button>
                                     <button type="button"
                                             @click="goDayPage(1)"
-                                            :disabled="dayPage >= totalDayPages - 1"
-                                            class="flex items-center justify-center w-9 h-9 rounded-xl border border-border glass text-foreground transition-all shrink-0 disabled:opacity-35 disabled:cursor-not-allowed">
-                                        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
-                                        </svg>
+                                            :disabled="dayPage >= totalDayPages - 1" data-elevated="false"
+                                            class="btn-press flex items-center justify-center w-9 h-9 rounded-xl border border-border glass text-foreground transition-all shrink-0 disabled:opacity-35 disabled:cursor-not-allowed">
+                                        <x-ui.icon name="chevron-left" class="w-4 h-4"/>
                                     </button>
                                 </div>
                             @endif
-                            <div class="flex items-center md:justify-center gap-2 ss-scroll overflow-x-auto pb-1">
+                            {{--
+                                justify-center روی یک ردیف اسکرول‌شونده‌ی سرریز خطرناکه: وقتی محتوا از عرض کادر
+                                بیشتر بشه، مرورگر با justify-content: center سرریز رو مساوی دو طرف پخش می‌کنه و
+                                نصف چپش قابل‌اسکرول می‌مونه ولی نصف راستش (روز اول، چون rtl هستیم) از محدوده‌ی
+                                قابل‌اسکرول بیرون می‌افته و همیشه نصفه دیده می‌شه - دقیقاً همون باگی که این‌جا بود.
+                                justify-content: safe center دقیقاً برای همین ساخته شده: تا وقتی محتوا جا می‌شه
+                                وسط‌چینش می‌کنه (مثل center)، ولی همین که سرریز بشه خودش به‌صورت خودکار می‌ره روی
+                                حالت start (بدون بریدگی، کاملاً قابل‌اسکرول) - این‌طوری هم حالت کم‌تعداد روزها وسط
+                                می‌مونه هم حالت پرتعداد روزها همه‌شون کامل و قابل‌اسکرول دیده می‌شن.
+                            --}}
+                            <div class="flex items-center gap-2 ss-scroll overflow-x-auto pb-1 [justify-content:safe_center]">
                                 @foreach($weekDays as $dayIndex => $day)
                                     @php
                                         $isToday = $day['date'] === \Carbon\Carbon::today()->toDateString();
@@ -544,21 +543,18 @@
                                         $hasMiss = !$day['is_rest_day'] && $isPast && $day['parts']->filter(fn($p) => !in_array($p->id, $completedParts))->count() > 0;
                                         $jalDay  = jdate(\Carbon\Carbon::parse($day['date']))->format('d');
 
-                                        if ($allDone)      $dayCls = 'bg-emerald-500/15 text-emerald-500 border-emerald-500/40';
-                                        elseif ($hasMiss)  $dayCls = 'bg-red-500/15 text-red-500 border-red-500/40';
-                                        elseif ($isToday)  $dayCls = 'bg-blue-500/15 text-blue-500 border-blue-500/40';
+                                        if ($allDone)      $dayCls = 'bg-success/15 text-success border-success/40';
+                                        elseif ($hasMiss)  $dayCls = 'bg-error/15 text-error border-error/40';
+                                        elseif ($isToday)  $dayCls = 'bg-info/15 text-info border-info/40';
                                         else               $dayCls = 'bg-background text-muted border-border';
                                     @endphp
-                                    <button type="button" @click="selectedDay = '{{ $day['date'] }}'"
+                                    <button type="button" @click="selectedDay = '{{ $day['date'] }}'" data-elevated="false"
                                             @if($showExamDayPager) x-show="dayIsVisible({{ $dayIndex }})" @endif
-                                            class="flex-shrink-0 flex flex-col items-center gap-1">
-                                        <span class="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-full font-bold text-[13px] md:text-sm lg:text-base border-2 transition-all"
+                                            class="btn-press flex-shrink-0 flex flex-col items-center gap-1">
+                                        <span class="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-full font-bold text-[15px] md:text-sm lg:text-base border-2 transition-all"
                                               :class="selectedDay === '{{ $day['date'] }}' ? 'bg-primary text-primary-foreground border-primary' : '{{ $dayCls }}'">
                                             {{ $jalDay }}
                                         </span>
-                                        {{-- نام روز زیر تاریخ: در صفحه‌های بزرگ (تبلت/لپ‌تاپ به بالا، از md) کامل نمایش
-                                             داده می‌شود (مثلاً «شنبه»)، در حالت کوچیک‌تر (موبایل) فقط حرف اول اسم روز
-                                             (مثلاً «ش») تا جا کمتری بگیره. --}}
                                         <span class="text-[10px] md:text-[11px] font-medium leading-none transition-colors"
                                               :class="selectedDay === '{{ $day['date'] }}' ? 'text-primary' : 'text-muted'">
                                             <span class="hidden md:inline">{{ $day['name'] }}</span>
@@ -575,9 +571,9 @@
                             <div x-show="selectedDay === '{{ $day['date'] }}'" x-cloak class="space-y-4">
 
                                 @if($day['is_rest_day'])
-                                    <div class="glass border border-emerald-500/20 rounded-2xl p-8 text-center">
+                                    <div class="glass border border-success/20 rounded-2xl p-8 text-center">
                                         <div class="text-3xl mb-2">🌿</div>
-                                        <div class="font-bold text-emerald-500 mb-1">روز استراحت</div>
+                                        <div class="font-bold text-success mb-1">روز استراحت</div>
                                         <div class="text-sm text-muted">امروز نیازی به مطالعه نیست</div>
                                     </div>
 
@@ -615,7 +611,7 @@
                                                 </div>
                                                 <div class="grid grid-cols-2 gap-2">
                                                     <div class="rounded-xl bg-background border border-border px-3 py-2 text-center">
-                                                        <div class="font-bold text-emerald-500 text-sm">{{ $this->formatDuration($doneMin * 60) }}</div>
+                                                        <div class="font-bold text-success text-sm">{{ $this->formatDuration($doneMin * 60) }}</div>
                                                         <div class="text-[10px] text-muted">مطالعه‌شده</div>
                                                     </div>
                                                     <div class="rounded-xl bg-background border border-border px-3 py-2 text-center">
@@ -628,14 +624,14 @@
                                     </div>
 
                                     {{-- ✅ FIX: items-start جلوگیری از stretch شدن کارت بغلی --}}
-                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
+                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 items-center">
                                         @foreach($day['parts']->sortBy('part_order') as $part)
                                             @php
                                                 $isDone   = in_array($part->id, $completedParts);
                                                 $isActive = $currentPartId == $part->id;
                                                 $isMissed = !$isDone && $day['date'] < \Carbon\Carbon::today()->toDateString();
-                                                $typeStyle = $part->part_type === 'test' ? 'bg-sky-500/10 text-sky-500'
-                                                    : ($part->part_type === 'descriptive' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500');
+                                                $typeStyle = $part->part_type === 'test' ? 'bg-info/10 text-info'
+                                                    : ($part->part_type === 'descriptive' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning');
                                                 $sampleQuestion = (
                                                     ($part->part_mode ?? 'normal') === \App\Models\ProgramPart::PART_MODE_WHOLE_BOOK
                                                     && $part->part_type === \App\Models\ProgramPart::PART_TYPE_DESCRIPTIVE
@@ -647,7 +643,7 @@
                                             <div wire:key="part-card-{{ $part->id }}"
                                                  id="program-part-{{ $part->id }}"
                                                  class="glass border rounded-2xl overflow-hidden transition-colors
-                                                        {{ $isActive ? 'border-primary' : ($isDone ? 'border-emerald-500/30' : ($isMissed ? 'border-red-500/30' : 'border-border')) }}">
+                                                        {{ $isActive ? 'border-primary' : ($isDone ? 'border-success/30' : ($isMissed ? 'border-error/30' : 'border-border')) }}">
 
                                                 <div class="flex items-center justify-between gap-3 p-4 cursor-pointer" @click="togglePart({{ $part->id }})">
                                                     <div class="min-w-0 flex-1">
@@ -661,14 +657,14 @@
                                                             @if($rcs->count())
                                                                 <div class="flex flex-wrap gap-1 mt-1">
                                                                     @foreach($rcs as $rc)
-                                                                        <span class="inline-block rounded-md bg-amber-500/10 text-amber-600 px-1.5 py-0.5 text-[10px] font-semibold">{{ $rc['name'] }}</span>
+                                                                        <span class="inline-block rounded-md bg-warning/10 text-warning px-1.5 py-0.5 text-[10px] font-semibold">{{ $rc['name'] }}</span>
                                                                     @endforeach
                                                                 </div>
                                                             @else
                                                                 <p class="text-[11px] text-muted mt-0.5">بدون فصل</p>
                                                             @endif
                                                         @elseif($pm === 'whole_book')
-                                                            <p class="text-[11px] text-emerald-600 mt-0.5">کل کتاب</p>
+                                                            <p class="text-[11px] text-success mt-0.5">کل کتاب</p>
                                                         @elseif($part->ccChapter)
                                                             <p class="text-[11px] text-muted truncate mt-0.5">{{ $part->ccChapter->name }}</p>
                                                         @else
@@ -688,14 +684,14 @@
                                                         </div>
                                                         <div class="flex items-center justify-center w-8 h-8 flex-shrink-0">
                                                             @if($isDone)
-                                                                <span class="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500/15">
-                                                                    <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                                <span class="flex items-center justify-center w-7 h-7 rounded-full bg-success/15">
+                                                                    <svg class="w-4 h-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
                                                                     </svg>
                                                                 </span>
                                                             @elseif($isMissed)
-                                                                <span class="flex items-center justify-center w-7 h-7 rounded-full bg-red-500/15">
-                                                                    <svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                                <span class="flex items-center justify-center w-7 h-7 rounded-full bg-error/15">
+                                                                    <svg class="w-4 h-4 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                                                     </svg>
                                                                 </span>
@@ -721,13 +717,13 @@
                                                                 @if($rcs->count())
                                                                     <span class="text-muted">«</span>
                                                                     @foreach($rcs as $rc)
-                                                                        <span class="rounded-md bg-amber-500/10 text-amber-600 px-1.5 py-0.5 text-[11px] font-semibold">{{ $rc['name'] }}</span>
+                                                                        <span class="rounded-md bg-warning/10 text-warning px-1.5 py-0.5 text-[11px] font-semibold">{{ $rc['name'] }}</span>
                                                                     @endforeach
                                                                 @else
                                                                     <span class="text-muted">« بدون فصل</span>
                                                                 @endif
                                                             @elseif($pmd === 'whole_book')
-                                                                <span class="text-muted">«</span><span class="text-emerald-600">کل کتاب</span>
+                                                                <span class="text-muted">«</span><span class="text-success">کل کتاب</span>
                                                             @elseif($part->ccChapter)
                                                                 @if($part->ccSubject)<span class="text-muted">«</span>@endif
                                                                 <span>{{ $part->ccChapter->name }}</span>
@@ -738,7 +734,7 @@
                                                         <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                                             <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold {{ $typeStyle }}">{{ $part->part_type_label }}</span>
                                                             @if($part->grade)
-                                                                <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-blue-500/10 text-blue-500">
+                                                                <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-info/10 text-info">
                                                                     @if($part->grade == 10) دهم @elseif($part->grade == 11) یازدهم @elseif($part->grade == 12) دوازدهم @endif
                                                                 </span>
                                                             @endif
@@ -748,11 +744,11 @@
                                                             <p class="text-xs text-muted leading-relaxed text-center">{{ $part->description }}</p>
                                                         @endif
                                                         @if($sampleQuestion)
-                                                            <div class="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-600 text-center">
+                                                            <div class="rounded-xl border border-success/20 bg-success/10 px-3 py-2 text-xs text-success text-center">
                                                                 <span class="font-bold">نمونه سؤال اصلی:</span>
                                                                 <span>{{ $sampleQuestion['title'] }}</span>
                                                                 @if($sampleQuestion['duration_minutes'] > 0)
-                                                                    <span class="mx-1 text-emerald-500/60">|</span>
+                                                                    <span class="mx-1 text-success/60">|</span>
                                                                     <span>{{ $sampleQuestion['duration_minutes'] }} دقیقه</span>
                                                                 @endif
                                                             </div>
@@ -760,7 +756,7 @@
 
                                                         @if($isDone)
                                                             @php $meta = $completedPartsMeta[$part->id] ?? null; @endphp
-                                                            <div class="text-xs font-bold py-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 text-center">
+                                                            <div class="text-xs font-bold py-2.5 rounded-xl bg-success/10 text-success text-center">
                                                                 ✓ تکمیل شده
                                                                 @if($meta && ($meta['is_early_finish'] ?? false)) (زودتر تمام شد) @endif
                                                                 @if($meta && ($meta['extra_seconds'] ?? 0) > 0) + {{ $this->formatDuration($meta['extra_seconds']) }} اضافه @endif
@@ -771,36 +767,36 @@
                                                             @if($sampleQuestion)
                                                                 <button type="button"
                                                                         @click="window.startSampleQuestionPart && window.startSampleQuestionPart({{ $part->id }}, @js($sampleQuestion['download_url']), @js($sampleQuestion['title']))"
-                                                                        class="w-full h-11 rounded-xl font-bold text-sm bg-amber-500 hover:bg-amber-600 text-white transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                                                                        class="btn-press w-full h-11 rounded-xl font-bold text-sm bg-warning hover:bg-warning/90 text-warning-foreground transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2" data-elevated="true">
                                                                     دانلود و ثبت جبرانی بعد از ۳۰ ثانیه
                                                                 </button>
                                                             @else
                                                                 <button wire:click="startPart({{ $part->id }})"
                                                                         wire:loading.attr="disabled" wire:target="startPart({{ $part->id }})"
-                                                                        class="w-full h-11 rounded-xl font-bold text-sm bg-amber-500 hover:bg-amber-600 text-white transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                                                                        class="btn-press w-full h-11 rounded-xl font-bold text-sm bg-warning hover:bg-warning/90 text-warning-foreground transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2" data-elevated="true">
         <span wire:loading.remove wire:target="startPart({{ $part->id }})" class="flex items-center gap-1.5">
             <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.667 0l3.181-3.183m-4.991-2.696v-.001h4.992m-4.992 0L21 4.356"/>
             </svg>
             ثبت جبرانی
         </span>
-                                                                    <span wire:loading wire:target="startPart({{ $part->id }})" class="spinner-circle"></span>
+                                                                    <x-ui.spinner size="sm" wire:loading wire:target="startPart({{ $part->id }})"/>
                                                                 </button>
                                                             @endif
-                                                            <p class="text-[10px] text-amber-500/80 text-center mt-1">این پارت در روزهای گذشته بوده — می‌توانی الان جبرانش کنی</p>
+                                                            <p class="text-[10px] text-warning/80 text-center mt-1">این پارت در روزهای گذشته بوده — می‌توانی الان جبرانش کنی</p>
                                                         @elseif(!$timerActive)
                                                             @if($sampleQuestion)
-                                                                <button type="button"
+                                                                <button type="button" data-elevated="true"
                                                                         @click="window.startSampleQuestionPart && window.startSampleQuestionPart({{ $part->id }}, @js($sampleQuestion['download_url']), @js($sampleQuestion['title']))"
-                                                                        class="w-full h-11 rounded-xl font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                                                                        class="btn-press w-full h-11 rounded-xl font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
                                                                     دانلود و شروع بعد از ۳۰ ثانیه
                                                                 </button>
                                                             @else
-                                                                <button wire:click="startPart({{ $part->id }})"
+                                                                <button wire:click="startPart({{ $part->id }})" data-elevated="true"
                                                                         wire:loading.attr="disabled" wire:target="startPart({{ $part->id }})"
-                                                                        class="w-full h-11 rounded-xl font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
-                                                                    <span wire:loading.remove wire:target="startPart({{ $part->id }})">شروع مطالعه</span>
-                                                                    <span wire:loading wire:target="startPart({{ $part->id }})" class="spinner-circle"></span>
+                                                                        class="btn-press w-full h-11 rounded-xl font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                                                                    <span wire:loading.remove wire:target="startPart({{ $part->id }})" class="inline-flex items-center gap-1.5">شروع مطالعه<x-ui.icon name="arrow-left" class="w-4 h-4"/></span>
+                                                                    <x-ui.spinner size="sm" wire:loading wire:target="startPart({{ $part->id }})"/>
                                                                 </button>
                                                             @endif
                                                         @endif
@@ -834,24 +830,19 @@
 
                     {{-- ناوبری موبایل با dropdown هم‌سبک x-ui.select --}}
                     <div class="flex md:hidden items-center gap-2 px-3 py-3 border-b border-border">
-                        <button type="button" @click="goPrev()" :disabled="currentDayIndex === 0"
+                        <button type="button" @click="goPrev()" :disabled="currentDayIndex === 0" data-elevated="false"
                                 :class="currentDayIndex === 0 ? 'opacity-40' : 'hover:bg-primary/10 active:scale-95'"
-                                class="flex items-center justify-center w-9 h-9 rounded-xl border border-border glass text-foreground transition-all shrink-0">
-                            <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
-                            </svg>
+                                class="btn-press flex items-center justify-center w-9 h-9 rounded-xl border border-border glass text-foreground transition-all shrink-0">
+                            <x-ui.icon name="chevron-right" class="w-4 h-4"/>
                         </button>
 
                         {{-- ✅ FIX: drop‌down هم‌سبک x-ui.select بجای select native --}}
                         <div class="flex-1 relative" @click.outside="dayDropOpen = false" @keydown.escape="dayDropOpen = false">
-                            <button type="button" @click.stop="dayDropOpen = !dayDropOpen"
-                                    :class="dayDropOpen ? 'border-blue-500 ring-2 ring-blue-500/20' : ''"
-                                    class="w-full flex items-center justify-between gap-2 rounded-xl border border-border bg-secondary px-3 py-2 text-[12px] text-foreground transition-all">
+                            <button type="button" @click.stop="dayDropOpen = !dayDropOpen" data-elevated="false"
+                                    :class="dayDropOpen ? 'border-info ring-2 ring-info/20' : ''"
+                                    class="btn-press w-full flex items-center justify-between gap-2 rounded-xl border border-border bg-secondary px-3 py-2 text-[12px] text-foreground transition-all">
                                 <span class="flex-1 truncate text-right" x-text="dayLabels[currentDayIndex] || 'انتخاب روز'"></span>
-                                <svg class="w-3.5 h-3.5 text-muted transition-transform" :class="{ 'rotate-180': dayDropOpen }"
-                                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                                </svg>
+                                <x-ui.icon name="chevron-down" class="w-3.5 h-3.5 text-muted transition-transform" x-bind:class="{ 'rotate-180': dayDropOpen }"/>
                             </button>
 
                             <div x-show="dayDropOpen" x-cloak
@@ -860,33 +851,29 @@
                                  x-transition:enter-end="opacity-100 translate-y-0"
                                  class="absolute z-50 mt-1 w-full rounded-xl overflow-hidden border border-border bg-secondary shadow-xl shadow-black/10 max-h-56 overflow-y-auto">
                                 @foreach($weekDays as $i => $day)
-                                    <button type="button"
+                                    <button type="button" data-elevated="false"
                                             @click="currentDayIndex = {{ $i }}; dayDropOpen = false"
-                                            :class="currentDayIndex === {{ $i }} ? 'bg-blue-600 text-white' : 'text-foreground hover:bg-background'"
-                                            class="w-full text-right px-3 py-2.5 text-sm flex items-center justify-between gap-2 transition-colors">
-                                        <span class="truncate">{{ $day['name'] }} — {{ $day['jalali_date'] }} @if($day['is_rest_day'])<span class="text-emerald-500 text-[10px]">(استراحت)</span>@endif</span>
-                                        <svg x-show="currentDayIndex === {{ $i }}" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                                        </svg>
+                                            :class="currentDayIndex === {{ $i }} ? 'bg-info text-info-foreground' : 'text-foreground hover:bg-background'"
+                                            class="btn-press w-full text-right px-3 py-2.5 text-sm flex items-center justify-between gap-2 transition-colors">
+                                        <span class="truncate">{{ $day['name'] }} — {{ $day['jalali_date'] }} @if($day['is_rest_day'])<span class="text-success text-[10px]">(استراحت)</span>@endif</span>
+                                        <x-ui.icon name="check" x-show="currentDayIndex === {{ $i }}" class="w-4 h-4 shrink-0"/>
                                     </button>
                                 @endforeach
                             </div>
                         </div>
 
-                        <button type="button" @click="goNext()" :disabled="currentDayIndex === totalDays - 1"
+                        <button type="button" @click="goNext()" :disabled="currentDayIndex === totalDays - 1" data-elevated="false"
                                 :class="currentDayIndex === totalDays - 1 ? 'opacity-40' : 'hover:bg-primary/10 active:scale-95'"
-                                class="flex items-center justify-center w-9 h-9 rounded-xl border border-border glass text-foreground transition-all shrink-0">
-                            <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
-                            </svg>
+                                class="btn-press flex items-center justify-center w-9 h-9 rounded-xl border border-border glass text-foreground transition-all shrink-0">
+                            <x-ui.icon name="chevron-left" class="w-4 h-4"/>
                         </button>
                     </div>
 
                     <div class="flex md:hidden items-center justify-start gap-1.5 px-3 py-2 border-b border-border/50 overflow-x-auto ss-scroll">
                         @foreach($weekDays as $i => $day)
-                            <button type="button" @click="currentDayIndex = {{ $i }}"
-                                    :class="currentDayIndex === {{ $i }} ? '{{ $day['is_rest_day'] ? 'bg-emerald-500 w-4' : 'bg-blue-500 w-4' }}' : 'bg-border w-1.5'"
-                                    class="h-1.5 rounded-full transition-all duration-300"></button>
+                            <button type="button" @click="currentDayIndex = {{ $i }}" data-elevated="false"
+                                    :class="currentDayIndex === {{ $i }} ? '{{ $day['is_rest_day'] ? 'bg-success w-4' : 'bg-info w-4' }}' : 'bg-border w-1.5'"
+                                    class="btn-press h-1.5 rounded-full transition-all duration-300"></button>
                         @endforeach
                     </div>
 
@@ -895,11 +882,11 @@
                             <thead>
                             <tr class="text-[11px] text-muted bg-secondary">
                                 @foreach($weekDays as $day)
-                                    <th class="border-l border-border px-3 py-3 last:border-l-0 {{ $day['is_rest_day'] ? 'bg-emerald-500/5' : '' }}">
-                                        <div class="font-semibold {{ $day['is_rest_day'] ? 'text-emerald-500' : 'text-foreground' }}">
+                                    <th class="border-l border-border px-3 py-3 last:border-l-0 {{ $day['is_rest_day'] ? 'bg-success/5' : '' }}">
+                                        <div class="font-semibold {{ $day['is_rest_day'] ? 'text-success' : 'text-foreground' }}">
                                             {{ $day['name'] }}
                                             @if($day['is_rest_day'])
-                                                <span class="block text-[9px] mt-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 inline-block">استراحت</span>
+                                                <span class="block text-[9px] mt-1 px-2 py-0.5 rounded-full bg-success/15 text-success inline-block">استراحت</span>
                                             @endif
                                         </div>
                                         <div class="mt-1 text-[11px] text-muted">{{ $day['jalali_date'] }}</div>
@@ -910,7 +897,7 @@
                             <tbody>
                             <tr>
                                 @foreach($weekDays as $day)
-                                    <td class="min-w-[300px] border-l border-border px-2 py-3 align-top last:border-l-0 {{ $day['is_rest_day'] ? 'bg-emerald-500/5' : '' }}">
+                                    <td class="min-w-[300px] border-l border-border px-2 py-3 align-top last:border-l-0 {{ $day['is_rest_day'] ? 'bg-success/5' : '' }}">
                                         @include('livewire.client.profile.consultation.partials.day-parts-content', ['day' => $day])
                                     </td>
                                 @endforeach
@@ -928,13 +915,13 @@
                                  class="px-3 py-3">
                                 <div class="mb-3 flex items-center justify-between">
                                     <div class="flex items-center gap-2">
-                                        <div class="w-1 h-6 rounded-full {{ $day['is_rest_day'] ? 'bg-emerald-500' : 'bg-blue-500' }}"></div>
+                                        <div class="w-1 h-6 rounded-full {{ $day['is_rest_day'] ? 'bg-success' : 'bg-info' }}"></div>
                                         <div>
                                             <span class="text-sm font-bold text-foreground">{{ $day['name'] }}</span>
                                             <span class="text-[11px] text-muted mr-2">{{ $day['jalali_date'] }}</span>
                                         </div>
                                         @if($day['is_rest_day'])
-                                            <span class="rounded-full text-[10px] px-2 py-0.5 bg-emerald-500/15 text-emerald-500">استراحت</span>
+                                            <span class="rounded-full text-[10px] px-2 py-0.5 bg-success/15 text-success">استراحت</span>
                                         @endif
                                     </div>
                                     @if(!$day['is_rest_day'] && $day['parts']->count() > 0)
@@ -957,20 +944,20 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
-                        <div class="rounded-xl border border-border bg-emerald-500/5 p-4 text-center">
-                            <div class="text-2xl font-extrabold text-emerald-500">{{ $archiveSummary['done'] }}</div>
+                        <div class="rounded-xl border border-border bg-success/5 p-4 text-center">
+                            <div class="text-2xl font-extrabold text-success">{{ $archiveSummary['done'] }}</div>
                             <div class="text-[11px] text-muted mt-1">پارت ثبت‌شده از {{ $archiveSummary['total'] }}</div>
                         </div>
-                        <div class="rounded-xl border border-border bg-red-500/5 p-4 text-center">
-                            <div class="text-2xl font-extrabold text-red-500">{{ $archiveSummary['missed'] }}</div>
+                        <div class="rounded-xl border border-border bg-error/5 p-4 text-center">
+                            <div class="text-2xl font-extrabold text-error">{{ $archiveSummary['missed'] }}</div>
                             <div class="text-[11px] text-muted mt-1">پارت ثبت‌نشده (گذشته)</div>
                         </div>
-                        <div class="rounded-xl border border-border bg-sky-500/5 p-4 text-center">
-                            <div class="text-lg font-extrabold text-sky-500">{{ $this->formatDuration($archiveSummary['studied_seconds']) }}</div>
+                        <div class="rounded-xl border border-border bg-info/5 p-4 text-center">
+                            <div class="text-lg font-extrabold text-info">{{ $this->formatDuration($archiveSummary['studied_seconds']) }}</div>
                             <div class="text-[11px] text-muted mt-1">مجموع مطالعه ثبت‌شده</div>
                         </div>
-                        <div class="rounded-xl border border-border bg-blue-500/5 p-4 text-center">
-                            <div class="text-2xl font-extrabold text-blue-500">{{ $archiveSummary['makeup_count'] }}</div>
+                        <div class="rounded-xl border border-border bg-info/5 p-4 text-center">
+                            <div class="text-2xl font-extrabold text-info">{{ $archiveSummary['makeup_count'] }}</div>
                             <div class="text-[11px] text-muted mt-1">مطالعه جبرانی ({{ $this->formatDuration($archiveSummary['makeup_seconds']) }})</div>
                         </div>
                     </div>
@@ -985,27 +972,28 @@
         <div x-cloak x-show="permissionModal" class="fixed inset-0 z-[150] flex flex-col justify-end sm:items-center sm:justify-center">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
             <div class="relative z-10 w-full sm:max-w-md glass border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
-                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
+                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-8">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
                 <div class="flex items-center justify-between px-6 py-4 border-b border-border">
                     <h3 class="font-bold text-foreground">درخواست دسترسی</h3>
-                    <button @click="permissionModal=false" class="text-muted hover:text-foreground">
+                    <button @click="permissionModal=false" class="btn-press text-muted hover:text-foreground" data-elevated="false">
                         <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
                 <div class="px-6 py-5">
-                    <div class="rounded-xl p-4 text-sm space-y-2 bg-blue-500/5 border border-blue-500/20 text-blue-400">
-                        <div class="font-semibold mb-2 text-blue-500">چرا این دسترسی‌ها نیاز است؟</div>
+                    <div class="rounded-xl p-4 text-sm space-y-2 bg-info/5 border border-info/20 text-info">
+                        <div class="font-semibold mb-2 text-info">چرا این دسترسی‌ها نیاز است؟</div>
                         <div>• دسترسی به صدا برای پخش آلارم هنگام پایان تایمر</div>
                         <div>• دسترسی به نوتیفیکیشن برای یادآوری‌های مطالعه</div>
                     </div>
                 </div>
                 <div class="flex justify-end px-6 py-4 border-t border-border">
-                    <button wire:click="permissionUnderstood" x-on:click="window.unlockStudyPermissions && window.unlockStudyPermissions()"
+                    <button wire:click="permissionUnderstood" x-on:click="window.unlockStudyPermissions && window.unlockStudyPermissions()" data-elevated="true"
                             wire:loading.attr="disabled" wire:target="permissionUnderstood"
-                            class="px-6 h-11 rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]">
+                            class="btn-press px-6 h-11 rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]">
                         <span wire:loading.remove wire:target="permissionUnderstood">متوجه شدم</span>
-                        <span wire:loading wire:target="permissionUnderstood" class="spinner-circle"></span>
+                        <x-ui.spinner size="sm" wire:loading wire:target="permissionUnderstood"/>
                     </button>
                 </div>
             </div>
@@ -1014,29 +1002,30 @@
         {{-- مودال پایان پارت --}}
         <div x-cloak x-show="finishModal" class="fixed inset-0 z-[130] flex flex-col justify-end sm:items-center sm:justify-center">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-            <div class="relative z-10 w-full sm:max-w-md glass border-t-2 sm:border-2 rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0 {{ $isInExtraPhase ? 'border-blue-500' : 'border-emerald-500' }}"
-                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
+            <div class="relative z-10 w-full sm:max-w-md glass border-t-2 sm:border-2 rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0 {{ $isInExtraPhase ? 'border-info' : 'border-success' }}"
+                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-8">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
                 <div class="px-6 py-8 text-center space-y-4">
-                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto animate-bounce {{ $isInExtraPhase ? 'bg-blue-500' : 'bg-emerald-500' }}">
-                        <svg fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="white" class="w-9 h-9"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto animate-bounce {{ $isInExtraPhase ? 'bg-info' : 'bg-success' }}">
+                        <x-ui.icon name="check" class="w-9 h-9 text-white"/>
                     </div>
-                    <h3 class="text-2xl font-black {{ $isInExtraPhase ? 'text-blue-500' : 'text-emerald-500' }}">
+                    <h3 class="text-2xl font-black {{ $isInExtraPhase ? 'text-info' : 'text-success' }}">
                         @if($isInExtraPhase) اضافه بر مشاور تمام شد @elseif($pendingIsEarlyFinish) پایان زودهنگام @else آفرین! 🎉 @endif
                     </h3>
                     <p class="font-bold text-foreground">
                         @if($isInExtraPhase) تایم مطالعه اضافه بر مشاور به پایان رسید @else تایم مطالعه به پایان رسید @endif
                     </p>
                     <div class="flex gap-3 justify-center pt-2">
-                        <button wire:click="closeFinishModal" wire:loading.attr="disabled" wire:target="closeFinishModal"
-                                class="px-6 h-11 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[80px]">
+                        <button wire:click="closeFinishModal" wire:loading.attr="disabled" wire:target="closeFinishModal" data-elevated="false"
+                                class="btn-press px-6 h-11 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[80px]">
                             <span wire:loading.remove wire:target="closeFinishModal">بستن</span>
-                            <span wire:loading wire:target="closeFinishModal" class="spinner-circle"></span>
+                            <x-ui.spinner size="sm" wire:loading wire:target="closeFinishModal"/>
                         </button>
-                        <button wire:click="savePart" wire:loading.attr="disabled" wire:target="savePart"
-                                class="px-8 h-11 rounded-xl font-semibold text-sm text-white disabled:opacity-60 {{ $isInExtraPhase ? 'bg-blue-600' : 'bg-emerald-600' }} inline-flex items-center justify-center gap-2 min-w-[110px]">
+                        <button wire:click="savePart" wire:loading.attr="disabled" wire:target="savePart" data-elevated="true"
+                                class="btn-press px-8 h-11 rounded-xl font-semibold text-sm {{ $isInExtraPhase ? 'bg-info text-info-foreground' : 'bg-success text-success-foreground' }} disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[110px]">
                             <span wire:loading.remove wire:target="savePart">ثبت پارت</span>
-                            <span wire:loading wire:target="savePart" class="spinner-circle"></span>
+                            <x-ui.spinner size="sm" wire:loading wire:target="savePart"/>
                         </button>
                     </div>
                 </div>
@@ -1046,31 +1035,32 @@
         {{-- مودال تایید لغو --}}
         <div x-cloak x-show="cancelModal" class="fixed inset-0 z-[135] flex flex-col justify-end sm:items-center sm:justify-center">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-            <div class="relative z-10 w-full sm:max-w-md glass border-t-2 sm:border-2 border-red-500 rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
-                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
+            <div class="relative z-10 w-full sm:max-w-md glass border-t-2 sm:border-2 border-error rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-8">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
                 <div class="px-6 py-8 text-center space-y-4">
                     <h3 class="text-xl font-black text-foreground">لغو تایمر؟</h3>
                     <p class="text-sm text-muted">با لغو تایمر، زمان مطالعه فعلی ثبت نمی‌شود. مطمئنی؟</p>
                     <div class="flex gap-3 justify-center pt-2">
-                        <button @click="cancelModal=false" class="px-6 h-11 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border">ادامه مطالعه</button>
+                        <button @click="cancelModal=false" class="btn-press px-6 h-11 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border" data-elevated="false">ادامه مطالعه</button>
                         @if($isMakeupMode)
-                            <button type="button"
+                            <button type="button" data-elevated="true"
                                     wire:click.prevent="cancelMakeup"
                                     wire:loading.attr="disabled"
                                     wire:target="cancelMakeup"
-                                    class="px-8 h-11 rounded-xl font-semibold text-sm bg-red-500 text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]">
+                                    class="btn-press px-8 h-11 rounded-xl font-semibold text-sm bg-error text-error-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]">
                                 <span wire:loading.remove wire:target="cancelMakeup">بله، لغو کن</span>
-                                <span wire:loading wire:target="cancelMakeup" class="spinner-circle"></span>
+                                <x-ui.spinner size="sm" wire:loading wire:target="cancelMakeup"/>
                             </button>
                         @else
-                            <button type="button"
+                            <button type="button" data-elevated="true"
                                     wire:click.prevent="cancelPart"
                                     wire:loading.attr="disabled"
                                     wire:target="cancelPart"
-                                    class="px-8 h-11 rounded-xl font-semibold text-sm bg-red-500 text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]">
+                                    class="btn-press px-8 h-11 rounded-xl font-semibold text-sm bg-error text-error-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]">
                                 <span wire:loading.remove wire:target="cancelPart">بله، لغو کن</span>
-                                <span wire:loading wire:target="cancelPart" class="spinner-circle"></span>
+                                <x-ui.spinner size="sm" wire:loading wire:target="cancelPart"/>
                             </button>
                         @endif
                     </div>
@@ -1081,22 +1071,23 @@
         {{-- مودال زودتر تمام کردم --}}
         <div x-cloak x-show="earlyModal" class="fixed inset-0 z-[135] flex flex-col justify-end sm:items-center sm:justify-center">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-            <div class="relative z-10 w-full sm:max-w-md glass border-t-2 sm:border-2 border-emerald-500 rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
-                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
+            <div class="relative z-10 w-full sm:max-w-md glass border-t-2 sm:border-2 border-success rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-8">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
                 <div class="px-6 py-8 text-center space-y-4">
-                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto bg-emerald-500/15">
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto bg-success/15">
                         <svg viewBox="0 0 24 24" fill="#10b981" class="w-9 h-9"><path d="M11.983 1.907a.75.75 0 00-1.292-.657l-8.5 9.5A.75.75 0 002.75 12H6v6.5a.75.75 0 001.292.657l8.5-9.5A.75.75 0 0015.25 8H12V1.907z"/></svg>
                     </div>
                     <h3 class="text-xl font-black text-foreground">مطمئنی؟</h3>
                     <p class="text-sm text-muted">با تأیید، این پارت با مدت فعلی به‌عنوان «زودتر تمام شد» ثبت می‌شود.</p>
                     <p class="text-xs text-muted">مدت ثبت‌شده: <span class="text-foreground font-bold">{{ $this->formatClock($liveSeconds) }}</span> از {{ $this->formatClock($targetSeconds) }}</p>
                     <div class="flex gap-3 justify-center pt-2">
-                        <button @click="earlyModal=false" class="px-6 h-11 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border">انصراف</button>
+                        <button @click="earlyModal=false" class="btn-press px-6 h-11 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border" data-elevated="false">انصراف</button>
                         <button wire:click="confirmEarlyFinish" wire:loading.attr="disabled" wire:target="confirmEarlyFinish"
-                                class="px-8 h-11 rounded-xl font-semibold text-sm bg-emerald-600 text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[110px]">
+                                class="btn-press px-8 h-11 rounded-xl font-semibold text-sm bg-success text-success-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[110px]" data-elevated="true">
                             <span wire:loading.remove wire:target="confirmEarlyFinish">بله، ثبت کن</span>
-                            <span wire:loading wire:target="confirmEarlyFinish" class="spinner-circle"></span>
+                            <x-ui.spinner size="sm" wire:loading wire:target="confirmEarlyFinish"/>
                         </button>
                     </div>
                 </div>
@@ -1106,53 +1097,44 @@
         {{-- مودال مطالعه بیشتر --}}
         <div x-cloak x-show="studyMoreModal" class="fixed inset-0 z-[135] flex flex-col justify-end sm:items-center sm:justify-center">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-            <div class="relative z-10 w-full sm:max-w-md glass border-t-2 sm:border-2 border-blue-500 rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
-                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
+            <div class="relative z-10 w-full sm:max-w-md glass border-t-2 sm:border-2 border-info rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-8">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
                 <div class="flex items-center justify-between px-6 py-4 border-b border-border">
                     <h3 class="font-bold text-foreground">مطالعه بیشتر (اضافه بر مشاور)</h3>
-                    <button @click="studyMoreModal=false" class="text-muted hover:text-foreground">
+                    <button @click="studyMoreModal=false" class="btn-press text-muted hover:text-foreground" data-elevated="false">
                         <svg class="w-5 h-5" stroke="currentColor" fill="none" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
                 <div class="px-6 py-5 space-y-5">
                     <p class="text-sm text-muted">پس از پایان تایمر فعلی، یک تایمر اضافی به مدت زیر آغاز می‌شود. حداکثر ۳ ساعت.</p>
-                    <div x-data="{ h: @entangle('studyMoreHours'), m: @entangle('studyMoreMinutes'), total() { return (parseInt(this.h)||0)*60 + (parseInt(this.m)||0); } }" class="space-y-3" dir="ltr">
-                        <div class="flex items-center justify-center gap-3">
-                            <div class="flex flex-col items-center gap-1">
-                                <button type="button" @click="if((parseInt(h)||0)<3){ h=(parseInt(h)||0)+1 }" class="w-9 h-9 rounded-xl flex items-center justify-center bg-secondary border border-border">
-                                    <svg class="w-4 h-4 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
-                                </button>
-                                <input type="number" x-model.number="h" min="0" max="3" class="w-16 h-12 rounded-xl text-center font-bold text-lg bg-secondary border border-border text-foreground">
-                                <button type="button" @click="if((parseInt(h)||0)>0){ h=(parseInt(h)||0)-1 }" class="w-9 h-9 rounded-xl flex items-center justify-center bg-secondary border border-border">
-                                    <svg class="w-4 h-4 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                </button>
-                                <span class="text-xs text-muted">ساعت</span>
-                            </div>
-                            <div class="text-2xl font-black pb-6 text-muted">:</div>
-                            <div class="flex flex-col items-center gap-1">
-                                <button type="button" @click="m=Math.min((parseInt(m)||0)+5,59)" class="w-9 h-9 rounded-xl flex items-center justify-center bg-secondary border border-border">
-                                    <svg class="w-4 h-4 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
-                                </button>
-                                <input type="number" x-model.number="m" min="0" max="59" class="w-16 h-12 rounded-xl text-center font-bold text-lg bg-secondary border border-border text-foreground">
-                                <button type="button" @click="m=Math.max((parseInt(m)||0)-5,0)" class="w-9 h-9 rounded-xl flex items-center justify-center bg-secondary border border-border">
-                                    <svg class="w-4 h-4 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                </button>
-                                <span class="text-xs text-muted">دقیقه</span>
-                            </div>
-                        </div>
+                    {{--
+                        قبلاً استپرِ +/- با اینپوتِ عددی بود (ظاهرش کمی زشت بود)؛
+                        حالا از همان چرخِ ساعت/دقیقهٔ آیفونی‌ای که در
+                        _sudden-event-content.blade.php ساخته شده استفاده می‌شود.
+                        x-data بیرونی فقط برای پیامِ اعتبارسنجیِ زیرِ چرخ نگه داشته
+                        شده (چون duration-wheel-picker خودش یک @entangle مستقل و
+                        هم‌زمان با همین مقادیر دارد).
+                    --}}
+                    <div x-data="{ h: @entangle('studyMoreHours'), m: @entangle('studyMoreMinutes'), total() { return (parseInt(this.h)||0)*60 + (parseInt(this.m)||0); } }" class="space-y-3">
+                        <x-ui.duration-wheel-picker
+                            hours-model="studyMoreHours"
+                            minutes-model="studyMoreMinutes"
+                            :max-hours="3"
+                            :minute-step="5"/>
                         <div class="text-center text-xs">
-                            <template x-if="total() > 180"><span class="text-red-400">حداکثر ۳ ساعت — به ۳ ساعت محدود می‌شود.</span></template>
-                            <template x-if="total() < 1"><span class="text-red-400">حداقل ۱ دقیقه را انتخاب کنید.</span></template>
+                            <template x-if="total() > 180"><span class="text-error">حداکثر ۳ ساعت — به ۳ ساعت محدود می‌شود.</span></template>
+                            <template x-if="total() < 1"><span class="text-error">حداقل ۱ دقیقه را انتخاب کنید.</span></template>
                         </div>
                     </div>
                 </div>
                 <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
-                    <button @click="studyMoreModal=false" class="px-5 h-10 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border">انصراف</button>
+                    <button @click="studyMoreModal=false" class="btn-press px-5 h-10 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border" data-elevated="false">انصراف</button>
                     <button wire:click="confirmStudyMore" wire:loading.attr="disabled" wire:target="confirmStudyMore"
-                            class="px-6 h-10 rounded-xl font-semibold text-sm bg-blue-600 text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[150px]">
+                            class="btn-press px-6 h-10 rounded-xl font-semibold text-sm bg-info text-info-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[150px]" data-elevated="true">
                         <span wire:loading.remove wire:target="confirmStudyMore">شروع پس از پایان</span>
-                        <span wire:loading wire:target="confirmStudyMore" class="spinner-circle"></span>
+                        <x-ui.spinner size="sm" wire:loading wire:target="confirmStudyMore"/>
                     </button>
                 </div>
             </div>
@@ -1161,21 +1143,22 @@
         {{-- مودال پایان جبرانی --}}
         <div x-cloak x-show="makeupFinishModal" class="fixed inset-0 z-[130] flex flex-col justify-end sm:items-center sm:justify-center">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-            <div class="relative z-10 w-full sm:max-w-md glass border-t-2 sm:border-2 border-blue-500 rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
-                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
+            <div class="relative z-10 w-full sm:max-w-md glass border-t-2 sm:border-2 border-info rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-8">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
                 <div class="px-6 py-8 text-center space-y-4">
-                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto animate-bounce bg-blue-500">
-                        <svg fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="white" class="w-9 h-9"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto animate-bounce bg-info">
+                        <x-ui.icon name="check" class="w-9 h-9 text-white"/>
                     </div>
-                    <h3 class="text-2xl font-black text-blue-500">عالی! 🎉</h3>
+                    <h3 class="text-2xl font-black text-info">عالی! 🎉</h3>
                     <p class="font-bold text-foreground">تایمر جبرانی به پایان رسید</p>
                     <div class="flex gap-3 justify-center pt-2">
-                        <button wire:click="closeMakeupFinishModal" class="px-6 h-11 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border">بستن</button>
+                        <button wire:click="closeMakeupFinishModal" class="btn-press px-6 h-11 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border" data-elevated="false">بستن</button>
                         <button wire:click="saveMakeupSession" wire:loading.attr="disabled" wire:target="saveMakeupSession"
-                                class="px-8 h-11 rounded-xl font-semibold text-sm bg-blue-600 text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]">
+                                class="btn-press px-8 h-11 rounded-xl font-semibold text-sm bg-info text-info-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]" data-elevated="true">
                             <span wire:loading.remove wire:target="saveMakeupSession">ثبت مطالعه</span>
-                            <span wire:loading wire:target="saveMakeupSession" class="spinner-circle"></span>
+                            <x-ui.spinner size="sm" wire:loading wire:target="saveMakeupSession"/>
                         </button>
                     </div>
                 </div>
@@ -1186,15 +1169,16 @@
         <div x-cloak x-show="feedbackModal" class="fixed inset-0 z-[140] flex flex-col justify-end sm:items-center sm:justify-center">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
             <div class="relative z-10 w-full sm:max-w-md glass border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
-                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
+                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-8">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
                 <div class="flex items-center justify-between px-6 py-4 border-b border-border">
                     <h3 class="font-bold text-foreground">بازخورد مطالعه</h3>
                 </div>
                 <div class="px-6 py-5 space-y-5">
                     @if($pendingFeedbackPartName)
-                        <div class="rounded-xl p-3 text-sm bg-blue-500/5 border border-blue-500/20">
-                            <span class="text-xs font-bold px-2 py-0.5 rounded-full {{ $pendingFeedbackType==='part' ? 'bg-amber-500/15 text-amber-500' : 'bg-blue-500/15 text-blue-500' }}">
+                        <div class="rounded-xl p-3 text-sm bg-info/5 border border-info/20">
+                            <span class="text-xs font-bold px-2 py-0.5 rounded-full {{ $pendingFeedbackType==='part' ? 'bg-warning/15 text-warning' : 'bg-info/15 text-info' }}">
                                 {{ $pendingFeedbackType==='part' ? 'پارت برنامه' : 'اضافه بر سازمان' }}
                             </span>
                             <div class="font-bold text-foreground mt-2">{{ $pendingFeedbackPartName }}</div>
@@ -1204,13 +1188,13 @@
                         <p class="text-sm mb-3 text-muted">کیفیت مطالعه را امتیاز دهید</p>
                         <div class="flex items-center justify-center gap-1" dir="ltr">
                             @for($i=1; $i<=10; $i++)
-                                <button type="button" wire:click="setFeedbackRating({{ $i }})" class="transition-transform hover:scale-125 {{ $feedbackRating>=$i ? 'text-amber-500' : 'text-border' }}">
+                                <button type="button" wire:click="setFeedbackRating({{ $i }})" data-elevated="false" class="btn-press transition-transform hover:scale-125 {{ $feedbackRating>=$i ? 'text-warning' : 'text-border' }}">
                                     <svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7"><path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd"/></svg>
                                 </button>
                             @endfor
                         </div>
                         @if($feedbackRating > 0)
-                            <div class="text-xs font-bold mt-2 {{ $feedbackRating>=9 ? 'text-emerald-500' : ($feedbackRating>=7 ? 'text-blue-500' : ($feedbackRating>=5 ? 'text-amber-500' : 'text-red-500')) }}">
+                            <div class="text-xs font-bold mt-2 {{ $feedbackRating>=9 ? 'text-success' : ($feedbackRating>=7 ? 'text-info' : ($feedbackRating>=5 ? 'text-warning' : 'text-error')) }}">
                                 @if($feedbackRating>=9) عالی @elseif($feedbackRating>=7) خوب @elseif($feedbackRating>=5) متوسط @else ضعیف @endif ({{ $feedbackRating }}/10)
                             </div>
                         @endif
@@ -1218,11 +1202,11 @@
                     <textarea wire:model="feedbackComment" rows="2" class="w-full rounded-xl px-4 py-3 text-sm focus:outline-none resize-none bg-secondary border border-border text-foreground" placeholder="نظر یا پیشنهاد..."></textarea>
                 </div>
                 <div class="flex justify-end px-6 py-4 border-t border-border">
-                    <button wire:click="submitFeedback" wire:loading.attr="disabled" wire:target="submitFeedback"
-                            class="px-6 h-11 rounded-xl font-semibold text-sm text-primary-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px] {{ $feedbackRating<1 ? 'bg-secondary text-muted cursor-not-allowed' : 'bg-primary hover:bg-primary/90' }}"
+                    <button wire:click="submitFeedback" wire:loading.attr="disabled" wire:target="submitFeedback" data-elevated="true"
+                            class="btn-press px-6 h-11 rounded-xl font-semibold text-sm text-primary-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px] {{ $feedbackRating<1 ? 'bg-secondary text-muted cursor-not-allowed' : 'bg-primary hover:bg-primary/90' }}"
                         {{ $feedbackRating<1 ? 'disabled' : '' }}>
                         <span wire:loading.remove wire:target="submitFeedback">ثبت بازخورد</span>
-                        <span wire:loading wire:target="submitFeedback" class="spinner-circle"></span>
+                        <x-ui.spinner size="sm" wire:loading wire:target="submitFeedback"/>
                     </button>
                 </div>
             </div>
@@ -1232,18 +1216,19 @@
         <div x-cloak x-show="makeupModal" class="fixed inset-0 z-[145] flex flex-col justify-end sm:items-center sm:justify-center">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
             <div class="relative z-10 w-full sm:max-w-lg glass border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
-                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
+                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-8">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
                 <div class="flex items-center justify-between px-6 py-4 sticky top-0 glass border-b border-border z-[1]">
                     <h3 class="font-bold text-foreground text-sm">ثبت مطالعه مازاد بر برنامه مشاور</h3>
-                    <button wire:click="closeMakeupModal" class="text-muted hover:text-foreground">
+                    <button wire:click="closeMakeupModal" class="btn-press text-muted hover:text-foreground" data-elevated="false">
                         <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
                 {{-- نشانگر بارگذاری هنگام واکشی اطلاعات آبشاری --}}
                 <div wire:loading.flex wire:target="makeupSearch,makeupGradeId,makeupSubjectId,makeupChapterId,selectSearchResult"
-                     class="items-center justify-center gap-2 py-2 bg-blue-500/5 border-b border-border text-xs font-semibold text-blue-500">
-                    <span class="spinner-circle spinner-sm"></span>
+                     class="items-center justify-center gap-2 py-2 bg-info/5 border-b border-border text-xs font-semibold text-info">
+                    <x-ui.spinner size="xs"/>
                     در حال بارگذاری اطلاعات...
                 </div>
                 <div class="px-6 py-5 space-y-5">
@@ -1254,9 +1239,9 @@
                         @if(mb_strlen($makeupSearch) >= 2 && $this->searchResults->isNotEmpty())
                             <div class="mt-1 rounded-xl border border-border bg-secondary max-h-52 overflow-y-auto">
                                 @foreach($this->searchResults as $r)
-                                    <button type="button" wire:click="selectSearchResult('{{ $r['type'] }}', {{ $r['id'] }})"
-                                            class="w-full text-right px-4 py-3 text-sm flex items-start gap-2 hover:bg-background transition border-b border-border last:border-0">
-                                        <span class="text-xs font-bold px-1.5 py-0.5 rounded-md mt-0.5 flex-shrink-0 bg-blue-500/10 text-blue-500">
+                                    <button type="button" wire:click="selectSearchResult('{{ $r['type'] }}', {{ $r['id'] }})" data-elevated="false"
+                                            class="btn-press w-full text-right px-4 py-3 text-sm flex items-start gap-2 hover:bg-background transition border-b border-border last:border-0">
+                                        <span class="text-xs font-bold px-1.5 py-0.5 rounded-md mt-0.5 flex-shrink-0 bg-info/10 text-info">
                                             فصل
                                         </span>
                                         <div class="min-w-0">
@@ -1297,9 +1282,23 @@
                     <div class="border-t border-border pt-4">
                         <label class="block text-xs font-semibold text-foreground mb-2">نوع مطالعه</label>
                         <div class="grid grid-cols-3 gap-2">
-                            @foreach([['test','تستی','sky'],['descriptive','تشریحی','emerald'],['video','ویدیویی','amber']] as [$val,$lbl,$clr])
-                                <button type="button" wire:click="$set('makeupPartType','{{ $val }}')"
-                                        class="py-3 rounded-xl font-semibold text-sm transition border-2 {{ $makeupPartType===$val ? "bg-$clr-500/15 text-$clr-500 border-$clr-500/50" : 'bg-secondary text-muted border-border' }}">
+                            {{--
+                                ✅ FIX: قبلاً کلاس‌های Tailwind با interpolate کردن نام رنگ توی PHP
+                                ساخته می‌شدن ("bg-$clr-500/15")؛ چون Tailwind فقط رشته‌های کامل و
+                                ایستا رو موقع build اسکن می‌کنه، این کلاس‌ها هیچ‌وقت واقعاً تولید
+                                نمی‌شدن و این دکمه‌ها در حالت انتخاب‌شده بی‌رنگ می‌موندن. حالا هر
+                                حالت کلاس کامل و ایستای خودش رو داره.
+                            --}}
+                            @php
+                                $makeupTypeTokens = [
+                                    'test'        => 'bg-info/15 text-info border-info/50',
+                                    'descriptive' => 'bg-success/15 text-success border-success/50',
+                                    'video'       => 'bg-warning/15 text-warning border-warning/50',
+                                ];
+                            @endphp
+                            @foreach([['test','تستی'],['descriptive','تشریحی'],['video','ویدیویی']] as [$val,$lbl])
+                                <button type="button" wire:click="$set('makeupPartType','{{ $val }}')" data-elevated="false"
+                                        class="btn-press py-3 rounded-xl font-semibold text-sm transition border-2 {{ $makeupPartType===$val ? $makeupTypeTokens[$val] : 'bg-secondary text-muted border-border' }}">
                                     {{ $lbl }}
                                 </button>
                             @endforeach
@@ -1307,39 +1306,22 @@
                     </div>
                     <div class="border-t border-border pt-4">
                         <label class="block text-xs font-semibold text-foreground mb-2">مدت زمان</label>
-                        <div x-data="{ h:@entangle('makeupDurationHours'), m:@entangle('makeupDurationMinutes') }" class="flex items-center gap-3" dir="ltr">
-                            <div class="flex flex-col items-center gap-1">
-                                <button type="button" @click="h=Math.min(h+1,24)" class="w-9 h-9 rounded-xl flex items-center justify-center bg-secondary border border-border">
-                                    <svg class="w-4 h-4 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
-                                </button>
-                                <input type="number" x-model.number="h" class="w-14 h-12 rounded-xl text-center font-bold text-lg bg-secondary border border-border text-foreground">
-                                <button type="button" @click="h=Math.max(h-1,0)" class="w-9 h-9 rounded-xl flex items-center justify-center bg-secondary border border-border">
-                                    <svg class="w-4 h-4 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                </button>
-                                <span class="text-xs text-muted">ساعت</span>
-                            </div>
-                            <div class="text-2xl font-black pb-5 text-muted">:</div>
-                            <div class="flex flex-col items-center gap-1">
-                                <button type="button" @click="m=Math.min(m+1,59)" class="w-9 h-9 rounded-xl flex items-center justify-center bg-secondary border border-border">
-                                    <svg class="w-4 h-4 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
-                                </button>
-                                <input type="number" x-model.number="m" class="w-14 h-12 rounded-xl text-center font-bold text-lg bg-secondary border border-border text-foreground">
-                                <button type="button" @click="m=Math.max(m-1,0)" class="w-9 h-9 rounded-xl flex items-center justify-center bg-secondary border border-border">
-                                    <svg class="w-4 h-4 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                </button>
-                                <span class="text-xs text-muted">دقیقه</span>
-                            </div>
-                        </div>
+                        {{-- قبلاً استپرِ +/- با اینپوتِ عددی بود؛ حالا همان چرخِ ساعت/دقیقهٔ آیفونی --}}
+                        <x-ui.duration-wheel-picker
+                            hours-model="makeupDurationHours"
+                            minutes-model="makeupDurationMinutes"
+                            :max-hours="24"
+                            :minute-step="1"/>
                     </div>
                     <textarea wire:model="makeupNote" rows="2" class="w-full rounded-xl px-4 py-3 text-sm focus:outline-none resize-none bg-secondary border border-border text-foreground" placeholder="یادداشت (اختیاری)..."></textarea>
                 </div>
                 <div class="flex items-center justify-end gap-3 px-6 py-4 sticky bottom-0 glass border-t border-border">
-                    <button wire:click="closeMakeupModal" class="px-5 h-10 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border">انصراف</button>
+                    <button wire:click="closeMakeupModal" class="btn-press px-5 h-10 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border" data-elevated="false">انصراف</button>
                     <button wire:click="startMakeupTimer" wire:loading.attr="disabled" wire:target="startMakeupTimer"
-                            class="px-6 h-10 rounded-xl font-semibold text-sm text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px] {{ !$makeupChapterId ? 'bg-secondary text-muted cursor-not-allowed' : 'bg-blue-600' }}"
+                            class="btn-press px-6 h-10 rounded-xl font-semibold text-sm disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px] {{ !$makeupChapterId ? 'bg-secondary text-muted cursor-not-allowed' : 'bg-info text-info-foreground' }}" data-elevated="true"
                         {{ !$makeupChapterId ? 'disabled' : '' }}>
                         <span wire:loading.remove wire:target="startMakeupTimer">شروع تایمر</span>
-                        <span wire:loading wire:target="startMakeupTimer" class="spinner-circle"></span>
+                        <x-ui.spinner size="sm" wire:loading wire:target="startMakeupTimer"/>
                     </button>
                 </div>
             </div>
@@ -1349,11 +1331,12 @@
         <div x-cloak x-show="alarmModal" class="fixed inset-0 z-[200] flex flex-col justify-end sm:items-center sm:justify-center">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
             <div class="relative z-10 w-full sm:max-w-md glass border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
-                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
+                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-8">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
                 <div class="flex items-center justify-between px-6 py-4 border-b border-border">
                     <h3 class="font-bold text-foreground">انتخاب صدای آلارم</h3>
-                    <button @click="alarmModal=false; window.stopAlarmPreview && window.stopAlarmPreview()" class="text-muted hover:text-foreground">
+                    <button @click="alarmModal=false; window.stopAlarmPreview && window.stopAlarmPreview()" class="btn-press text-muted hover:text-foreground" data-elevated="false">
                         <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
@@ -1364,10 +1347,10 @@
                              wire:click="setAlarm('{{ $alarm['id'] }}')"
                              @click="selectedAlarmState = '{{ $alarm['id'] }}'"
                              class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl cursor-pointer transition border text-right"
-                             :class="selectedAlarmState === '{{ $alarm['id'] }}' ? 'bg-blue-500/10 border-blue-500/40' : 'bg-secondary border-border'">
+                             :class="selectedAlarmState === '{{ $alarm['id'] }}' ? 'bg-info/10 border-info/40' : 'bg-secondary border-border'">
                             <div class="flex items-center gap-3">
                                 <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
-                                     :class="selectedAlarmState === '{{ $alarm['id'] }}' ? 'border-blue-500 bg-blue-500' : 'border-muted'">
+                                     :class="selectedAlarmState === '{{ $alarm['id'] }}' ? 'border-info bg-info' : 'border-muted'">
                                     <div x-show="selectedAlarmState === '{{ $alarm['id'] }}'" x-cloak class="w-2 h-2 rounded-full bg-white"></div>
                                 </div>
                                 <div>
@@ -1377,15 +1360,16 @@
                             </div>
                             <span class="flex items-center gap-2 flex-shrink-0">
                                 <span class="text-[11px] font-medium"
-                                      :class="previewingAlarmId === '{{ $alarm['id'] }}' ? 'text-amber-500' : 'text-blue-500'"
+                                      :class="previewingAlarmId === '{{ $alarm['id'] }}' ? 'text-warning' : 'text-info'"
                                       x-text="previewingAlarmId === '{{ $alarm['id'] }}' ? 'توقف' : 'پخش'"></span>
-                                <button type="button"
+                                {{-- استثنا: آیکون‌های play/pause در دیکشنری موجود نیستن --}}
+                                <button type="button" data-elevated="false"
                                         @click.stop="window.toggleAlarmPreview && window.toggleAlarmPreview('{{ $alarm['id'] }}')"
-                                        class="w-9 h-9 rounded-full flex items-center justify-center bg-blue-500/10 border border-blue-500/30">
-                                    <svg x-show="previewingAlarmId !== '{{ $alarm['id'] }}'" x-cloak fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="#3b82f6" class="w-4 h-4">
+                                        class="btn-press w-9 h-9 rounded-full flex items-center justify-center bg-info/10 border border-info/30 text-info">
+                                    <svg x-show="previewingAlarmId !== '{{ $alarm['id'] }}'" x-cloak fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/>
                                     </svg>
-                                    <svg x-show="previewingAlarmId === '{{ $alarm['id'] }}'" x-cloak fill="currentColor" viewBox="0 0 24 24" class="w-4 h-4 text-amber-500">
+                                    <svg x-show="previewingAlarmId === '{{ $alarm['id'] }}'" x-cloak fill="currentColor" viewBox="0 0 24 24" class="w-4 h-4 text-warning">
                                         <path d="M7.5 5.25A1.125 1.125 0 006.375 6.375v11.25A1.125 1.125 0 007.5 18.75h1.5a1.125 1.125 0 001.125-1.125V6.375A1.125 1.125 0 009 5.25H7.5zm7.5 0a1.125 1.125 0 00-1.125 1.125v11.25A1.125 1.125 0 0015 18.75h1.5a1.125 1.125 0 001.125-1.125V6.375A1.125 1.125 0 0016.5 5.25H15z"/>
                                     </svg>
                                 </button>

@@ -16,6 +16,13 @@ Route::get('/test-error/{code}', function ($code) {
     abort($code);
 });
 
+// کیت رابط کاربری (پیش‌نمایش کامپوننت‌های ui/) — فقط روی محیط لوکال/تست در دسترس است
+if (app()->environment(['local', 'testing'])) {
+    Route::get('/dev/ui-kit', function () {
+        return view('dev.ui-kit');
+    })->name('dev.ui-kit');
+}
+
 // 👇 اینجا اضافه کن
 Route::get('/sitemap.xml', function () {
 

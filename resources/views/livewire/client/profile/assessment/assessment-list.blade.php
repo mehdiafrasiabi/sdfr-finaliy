@@ -67,13 +67,14 @@
                     </div>
 
                     @if (session()->has('error'))
-                        <div class="px-4 py-3 rounded-xl text-sm text-rose-500 bg-rose-500/10 border border-rose-500/25">
+                        <div class="px-4 py-3 rounded-xl text-sm text-error bg-error/10 border border-error/25">
                             {{ session('error') }}
                         </div>
                     @endif
 
                     <button type="button" wire:click="confirmTrial" wire:loading.attr="disabled" wire:target="confirmTrial"
-                            class="choice-card w-full rounded-2xl border border-border p-5 text-right transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-60">
+                            data-elevated="true"
+                            class="btn-press choice-card w-full rounded-2xl border border-border p-5 text-right transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-60">
                         <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary rounded-full px-2.5 py-1 mb-3 bg-primary/12">
                             <span class="w-1.5 h-1.5 bg-primary rounded-full"></span> رایگان
                         </div>
@@ -81,7 +82,7 @@
                         <p class="text-xs text-muted leading-6">
                             <span wire:loading.remove wire:target="confirmTrial">{{ $trialChoiceCopy['description'] }}</span>
                             <span wire:loading wire:target="confirmTrial" class="inline-flex items-center gap-2">
-                                <span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-current bg-secondary border-t-current animate-spin"></span>
+                                <x-ui.spinner size="xs"/>
                                 در حال آماده‌سازی…
                             </span>
                         </p>
@@ -89,11 +90,10 @@
                     </button>
 
                     <button type="button" wire:click="goToPurchase" wire:loading.attr="disabled"
-                            class="choice-card w-full rounded-2xl border border-primary/25 p-5 text-right transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-60">
+                            data-elevated="true"
+                            class="btn-press choice-card w-full rounded-2xl border border-primary/25 p-5 text-right transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-60">
                         <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary rounded-full px-2.5 py-1 mb-3 bg-primary/12">
-                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                            </svg>
+                            <x-ui.icon name="star" class="w-3 h-3"/>
                             کامل
                         </div>
                         <h3 class="font-black text-lg mb-1">خرید دوره</h3>
@@ -101,7 +101,8 @@
                     </button>
 
                     <button type="button" wire:click="$set('showChoice', false)"
-                            class="w-full text-center text-xs text-muted hover:text-foreground transition-colors py-1">
+                            data-elevated="false"
+                            class="btn-press w-full text-center text-xs text-muted hover:text-foreground transition-colors py-1">
                         بازگشت به کارنامه‌ی تحلیلی
                     </button>
                 </div>
@@ -114,9 +115,9 @@
                 <div class="p-6 sm:p-8">
                     <div class="text-center mb-7">
                         <div class="relative mx-auto w-16 h-16 mb-4">
-                            <div class="absolute inset-0 rounded-full animate-ping bg-emerald-500/12"></div>
-                            <div class="relative w-16 h-16 rounded-full flex items-center justify-center bg-emerald-500/15 border border-emerald-500/30">
-                                <svg class="w-8 h-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                            <div class="absolute inset-0 rounded-full animate-ping bg-success/12"></div>
+                            <div class="relative w-16 h-16 rounded-full flex items-center justify-center bg-success/15 border border-success/30">
+                                <x-ui.icon name="check" class="w-8 h-8 text-success"/>
                             </div>
                         </div>
                         <h1 class="text-2xl md:text-3xl font-black mb-2">کارنامه‌ی تحلیلی تو آماده شد</h1>
@@ -196,18 +197,20 @@
                             {{-- ───── انتخاب: نمایش جزییات یا ادامه ───── --}}
                             <div x-show="!showDetails" class="md:col-span-2 flex gap-3 pt-1">
                                 <button type="button" @click="showDetails = true"
-                                        class="flex-1 h-12 px-2 rounded-xl font-bold text-xs sm:text-sm text-foreground bg-secondary border border-border transition-all duration-200 hover:bg-background active:scale-[0.98] inline-flex items-center justify-center gap-1.5 sm:gap-2">
-                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        data-elevated="false"
+                                        class="btn-press flex-1 h-12 px-2 rounded-xl font-bold text-xs sm:text-sm text-foreground bg-secondary border border-border transition-all duration-200 hover:bg-background active:scale-[0.98] inline-flex items-center justify-center gap-1.5 sm:gap-2">
                                     <span class="whitespace-nowrap">نمایش جزییات</span>
+                                    <x-ui.icon name="eye" class="w-4 h-4 flex-shrink-0"/>
                                 </button>
                                 <button wire:click="continueToChoice" wire:loading.attr="disabled" wire:target="continueToChoice"
-                                        class="flex-1 h-12 px-2 rounded-xl font-bold text-xs sm:text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-60 inline-flex items-center justify-center gap-1.5 sm:gap-2">
+                                        data-elevated="true"
+                                        class="btn-press flex-1 h-12 px-2 rounded-xl font-bold text-xs sm:text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-60 inline-flex items-center justify-center gap-1.5 sm:gap-2">
                                     <span wire:loading.remove wire:target="continueToChoice" class="inline-flex items-center justify-center gap-1.5 sm:gap-2">
                                         <span class="whitespace-nowrap">ادامه میدهم</span>
-                                        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+                                        <x-ui.icon name="arrow-left" class="w-4 h-4 flex-shrink-0"/>
                                     </span>
                                     <span wire:loading wire:target="continueToChoice" class="inline-flex items-center gap-2">
-                                        <span class="inline-block w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+                                        <x-ui.spinner size="sm" class="text-primary-foreground"/>
                                         لطفا منتظر بمانید...
                                     </span>
                                 </button>
@@ -219,20 +222,26 @@
                                     <div class="rounded-xl p-4 bg-background border border-border">
                                         <div class="text-sm font-bold mb-3">{{ $testName }}</div>
                                         <div class="space-y-3">
+                                            @php
+
+                                                $lvlTokens = [
+                                                    'high'   => ['text' => 'text-success', 'soft' => 'bg-success/10', 'bar' => 'bg-success', 'label' => 'بالا'],
+                                                    'low'    => ['text' => 'text-warning', 'soft' => 'bg-warning/10', 'bar' => 'bg-warning', 'label' => 'پایین'],
+                                                    'medium' => ['text' => 'text-info',    'soft' => 'bg-info/10',    'bar' => 'bg-info',    'label' => 'متوسط'],
+                                                ];
+                                            @endphp
                                             @foreach($entry['facets'] as $f)
                                                 @php
                                                     $lvl = $f['level'] ?? 'medium';
-                                                    $lvlColor = $lvl === 'high' ? '#22c55e' : ($lvl === 'low' ? '#f59e0b' : '#3b82f6');
-                                                    $lvlText  = $lvl === 'high' ? 'بالا' : ($lvl === 'low' ? 'پایین' : 'متوسط');
+                                                    $lvlTok = $lvlTokens[$lvl] ?? $lvlTokens['medium'];
                                                 @endphp
                                                 <div>
                                                     <div class="flex items-center justify-between mb-1">
                                                         <span class="text-xs font-bold">{{ $f['label'] }}</span>
-                                                        <span class="text-[10px] font-bold rounded-full px-2 py-0.5"
-                                                              style="color:{{ $lvlColor }};background:{{ $lvlColor }}1a;">{{ $lvlText }} · {{ $f['percent'] }}%</span>
+                                                        <span class="text-[10px] font-bold rounded-full px-2 py-0.5 {{ $lvlTok['soft'] }} {{ $lvlTok['text'] }}">{{ $lvlTok['label'] }} · {{ $f['percent'] }}%</span>
                                                     </div>
                                                     <div class="h-1.5 rounded-full overflow-hidden mb-1 bg-border/60">
-                                                        <div class="h-full rounded-full" style="width:{{ $f['percent'] }}%;background:{{ $lvlColor }};"></div>
+                                                        <div class="h-full rounded-full {{ $lvlTok['bar'] }}" style="width:{{ $f['percent'] }}%;"></div>
                                                     </div>
                                                     @if(!empty($f['text']) && $f['text'] !== '—')
                                                         <p class="text-[11px] text-muted leading-5">{{ $f['text'] }}</p>
@@ -251,10 +260,11 @@
                     @endif
 
                     <button x-show="showDetails" x-cloak wire:click="continueToChoice" wire:loading.attr="disabled" wire:target="continueToChoice"
-                            class="w-full md:w-auto md:min-w-[260px] md:mx-auto md:flex h-12 mt-6 rounded-xl font-bold text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-60 items-center justify-center">
+                            data-elevated="true"
+                            class="btn-press w-full md:w-auto md:min-w-[260px] md:mx-auto md:flex h-12 mt-6 rounded-xl font-bold text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-60 items-center justify-center">
                         <span wire:loading.remove wire:target="continueToChoice">ادامه میدهم</span>
                         <span wire:loading wire:target="continueToChoice" class="inline-flex items-center gap-2">
-                            <span class="inline-block w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+                            <x-ui.spinner size="sm" class="text-primary-foreground"/>
                             لطفا منتظر بمانید...
                         </span>
                     </button>
@@ -293,10 +303,11 @@
 
                     <button wire:click="start"
                             wire:loading.attr="disabled" wire:target="start"
-                            class="w-full h-12 rounded-xl font-bold text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-60">
+                            data-elevated="true"
+                            class="btn-press w-full h-12 rounded-xl font-bold text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-60">
                         <span wire:loading.remove wire:target="start">{{ $hasStarted ? 'ادامه‌ی آزمون' : 'شروع آزمون' }}</span>
                         <span wire:loading wire:target="start" class="inline-flex items-center gap-2">
-                            <span class="inline-block w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+                            <x-ui.spinner size="sm" class="text-primary-foreground"/>
                             لحظه‌ای...
                         </span>
                     </button>

@@ -159,14 +159,14 @@
             }
 
             .purchase-button-warning {
-                background: rgb(245 158 11 / 0.18);
-                color: rgb(146 64 14);
-                border: 1px solid rgb(245 158 11 / 0.35);
-                box-shadow: 0 18px 36px -24px rgb(245 158 11 / 0.65);
+                background: hsl(var(--warning) / 0.18);
+                color: hsl(var(--warning));
+                border: 1px solid hsl(var(--warning) / 0.35);
+                box-shadow: 0 18px 36px -24px hsl(var(--warning) / 0.65);
             }
 
             .purchase-button-warning:hover {
-                background: rgb(245 158 11 / 0.24);
+                background: hsl(var(--warning) / 0.24);
             }
 
             .purchase-button-soft {
@@ -175,14 +175,14 @@
             }
 
             .purchase-button-trial {
-                border: 1px solid hsl(160 84% 36% / 0.32);
-                background: linear-gradient(135deg, hsl(160 84% 36% / 0.18), hsl(174 72% 42% / 0.1));
-                color: hsl(160 84% 36%);
-                box-shadow: 0 18px 36px -24px hsl(160 84% 36% / 0.55);
+                border: 1px solid hsl(var(--success) / 0.32);
+                background: linear-gradient(135deg, hsl(var(--success) / 0.18), hsl(var(--success) / 0.1));
+                color: hsl(var(--success));
+                box-shadow: 0 18px 36px -24px hsl(var(--success) / 0.55);
             }
 
             .purchase-button-trial:hover {
-                background: linear-gradient(135deg, hsl(160 84% 36% / 0.24), hsl(174 72% 42% / 0.16));
+                background: linear-gradient(135deg, hsl(var(--success) / 0.24), hsl(var(--success) / 0.16));
             }
 
             .purchase-field {
@@ -532,13 +532,10 @@
     @endpush
 
     <div wire:loading.flex wire:target="nextStep,prevStep,startEditInfo,cancelEditInfo,saveInfo,saveInfoAndContinue,applyCoupon,removeCoupon,pay,payInstallment,openTrialConfirm,closeTrialConfirm,startTrialWeek"
-         class="fixed inset-0 z-[90] hidden items-center justify-center bg-slate-950/55 backdrop-blur-sm">
-        <div class="w-[min(92vw,24rem)] rounded-3xl border border-white/10 bg-slate-950/80 p-6 text-center text-white shadow-2xl">
-            <div class="mx-auto mb-4 h-14 w-14 rounded-2xl border border-white/10 bg-white/5 p-3">
-                <svg class="h-full w-full animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-90" fill="currentColor" d="M12 2a10 10 0 0 1 10 10h-4a6 6 0 0 0-6-6V2z"></path>
-                </svg>
+         class="fixed inset-0 z-[90] hidden items-center justify-center bg-black/55 backdrop-blur-sm">
+        <div class="w-[min(92vw,24rem)] rounded-3xl border border-white/10 bg-black/80 p-6 text-center text-white shadow-2xl">
+            <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-3">
+                <x-ui.spinner size="lg" class="text-white"/>
             </div>
             <p class="text-sm font-black">در حال پردازش مرحله جاری...</p>
             <p class="mt-2 text-xs leading-6 text-white/70">لطفاً چند لحظه صبر کنید تا اطلاعات شما بررسی و مرحله بعد آماده شود.</p>
@@ -577,11 +574,9 @@
                 </div>
                 <button type="button" @click="closeBirthDatePicker()"
                         aria-label="بستن انتخابگر تاریخ"
-                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-muted transition-colors hover:text-foreground">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                         stroke-width="2" stroke-linecap="round">
-                        <path d="M18 6 6 18M6 6l12 12"/>
-                    </svg>
+                        data-elevated="false"
+                        class="btn-press flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-muted transition-colors hover:text-foreground">
+                    <x-ui.icon name="x" class="h-4 w-4"/>
                 </button>
             </div>
 
@@ -636,12 +631,12 @@
             </div>
 
             <div class="mt-5 grid grid-cols-2 gap-3">
-                <button type="button" @click="closeBirthDatePicker()"
-                        class="h-11 rounded-xl border border-border bg-secondary/40 text-sm font-bold text-muted transition-colors hover:text-foreground">
+                <button type="button" @click="closeBirthDatePicker()" data-elevated="false"
+                        class="btn-press h-11 rounded-xl border border-border bg-secondary/40 text-sm font-bold text-muted transition-colors hover:text-foreground">
                     انصراف
                 </button>
-                <button type="button" @click="confirmBirthDate()"
-                        class="purchase-button h-11 rounded-xl text-sm font-black">
+                <button type="button" @click="confirmBirthDate()" data-elevated="true"
+                        class="btn-press purchase-button h-11 rounded-xl text-sm font-black">
                     تأیید تاریخ
                 </button>
             </div>
@@ -649,7 +644,7 @@
     </div>
 
     @if (session('error'))
-        <div class="mb-5 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-300">
+        <div class="mb-5 rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-sm font-bold text-error">
             {{ session('error') }}
         </div>
     @endif
@@ -658,9 +653,7 @@
         <div class="purchase-shell rounded-[2rem] p-6 sm:p-8">
             <div class="purchase-panel mx-auto max-w-2xl rounded-[1.75rem] p-8 text-center">
                 <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-secondary/50 text-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
+                    <x-ui.icon name="info" class="h-8 w-8"/>
                 </div>
                 <h1 class="text-xl font-black text-foreground sm:text-2xl">فعلاً قیمت فعالی برای پایه شما ثبت نشده است.</h1>
                 <p class="mt-3 text-sm leading-7 text-muted">به‌محض ثبت قیمت، همین صفحه امکان خرید را نمایش می‌دهد. اگر فکر می‌کنید این مورد غیرعادی است با پشتیبانی هماهنگ کنید.</p>
@@ -695,9 +688,7 @@
                                     'border-border bg-secondary/50 text-muted' => $step < $n,
                                 ])>
                                         @if ($step > $n)
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                            </svg>
+                                            <x-ui.icon name="check" class="h-5 w-5"/>
                                         @else
                                             {{ $toFaDigits($n) }}
                                         @endif
@@ -760,7 +751,7 @@
                                             مبلغ بر اساس <span class="font-black text-foreground">ماه ورود</span> محاسبه می‌شود. پایان دسترسی پنل برای این خرید روی <span class="font-black text-foreground">{{ $toFaDigits($data['access_ends_label']) }}</span> ثبت می‌شود و سررسید اقساط هم فقط تا ۲۰ اسفند چیده می‌شود.
                                         </div>
                                         @unless ($data['access_ends_is_khordad'])
-                                            <div class="mt-3 rounded-2xl border border-red-500/25 bg-red-500/10 p-4 text-sm leading-7 text-red-300">
+                                            <div class="mt-3 rounded-2xl border border-error/25 bg-error/10 p-4 text-sm leading-7 text-error">
                                                 تاریخ پایان دسترسی این پایه هنوز روی پایان خرداد تنظیم نشده است. قبل از پرداخت باید این مورد اصلاح شود.
                                             </div>
                                         @endunless
@@ -814,7 +805,7 @@
                                     </div>
                                 @endif
 
-                                <div class="rounded-[1.5rem] border border-emerald-500/20 bg-emerald-500/8 p-5">
+                                <div class="rounded-[1.5rem] border border-success/20 bg-success/8 p-5">
                                     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                         <div class="max-w-2xl">
                                             <div class="text-sm font-black text-foreground">فعلاً می‌خواهی با ما یک هفته تستی کار کنی؟</div>
@@ -822,14 +813,11 @@
                                                 اگر هنوز برای خرید قطعی نیستی، می‌توانی به‌جای پرداخت، مسیر <span class="font-black text-foreground">یک هفته آزمایشی</span> را شروع کنی و بعد از ورود، ادامه خرید از همین صفحه دیگر در اولویت این flow نخواهد بود.
                                             </p>
                                         </div>
-                                        <button wire:click="openTrialConfirm" wire:loading.attr="disabled" wire:target="openTrialConfirm"
-                                                class="purchase-button-trial inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-black transition disabled:opacity-60 lg:w-auto">
+                                        <button wire:click="openTrialConfirm" wire:loading.attr="disabled" wire:target="openTrialConfirm" data-elevated="true"
+                                                class="btn-press purchase-button-trial inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-black transition disabled:opacity-60 lg:w-auto">
                                             <span wire:loading.remove wire:target="openTrialConfirm">شروع یک هفته آزمایشی</span>
                                             <span wire:loading wire:target="openTrialConfirm" class="inline-flex items-center gap-2">
-                                                <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                                </svg>
+                                                <x-ui.spinner size="sm"/>
                                                 در حال آماده‌سازی
                                             </span>
                                         </button>
@@ -837,14 +825,11 @@
                                 </div>
 
                                 <div class="flex justify-end">
-                                    <button wire:click="nextStep" wire:loading.attr="disabled" wire:target="nextStep"
-                                            class="purchase-button inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-black transition disabled:opacity-60 sm:w-auto">
+                                    <button wire:click="nextStep" wire:loading.attr="disabled" wire:target="nextStep" data-elevated="true"
+                                            class="btn-press purchase-button inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-black transition disabled:opacity-60 sm:w-auto">
                                         <span wire:loading.remove wire:target="nextStep">ادامه و بررسی اطلاعات</span>
                                         <span wire:loading wire:target="nextStep" class="inline-flex items-center gap-2">
-                                            <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                            </svg>
+                                            <x-ui.spinner size="sm"/>
                                             در حال بررسی
                                         </span>
                                     </button>
@@ -860,7 +845,7 @@
                                         <p class="mt-2 text-sm leading-7 text-muted">قبل از ورود به پرداخت، اطلاعات این بخش را یک‌بار دقیق چک کنید. برای ادامه، «آدرس»، «محل تولد»، «استان» و «شهر» باید کامل باشند.</p>
                                     </div>
                                     @if ($requiresInfoCompletion && ! $editingInfo)
-                                        <div class="rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-sm leading-7 text-amber-800">
+                                        <div class="rounded-2xl border border-warning/25 bg-warning/10 p-4 text-sm leading-7 text-warning">
                                             برای ورود به پرداخت هنوز باید اطلاعات ضروری‌ات را تکمیل کنی. دکمه پایین در همین مرحله تو را وارد ویرایش می‌کند.
                                         </div>
                                     @endif
@@ -876,7 +861,7 @@
                                             ['label' => 'پایه', 'value' => $gradeOptions[$infoGrade] ?? $infoGrade, 'field' => 'infoGrade'],
                                             ['label' => 'رشته', 'value' => $selectedGradeRequiresField ? ($fieldOptions[$infoField] ?? $infoField) : 'بدون رشته', 'field' => 'infoField'],
                                             ['label' => 'تاریخ تولد', 'value' => $infoBirthDate ? $toFaDigits($infoBirthDate) : '—', 'field' => 'infoBirthDate'],
-                                            ['label' => 'محل تولد', 'value' => $infoPlaceOfBirth ?: '<span class="text-red-400 text-xs font-black">تکمیل این فیلد الزامی است</span>', 'field' => 'infoPlaceOfBirth'],
+                                            ['label' => 'محل تولد', 'value' => $infoPlaceOfBirth ?: '<span class="text-error text-xs font-black">تکمیل این فیلد الزامی است</span>', 'field' => 'infoPlaceOfBirth'],
                                             ['label' => 'موبایل پدر', 'value' => $toFaDigits($infoFatherMobile), 'field' => 'infoFatherMobile'],
                                             ['label' => 'موبایل مادر', 'value' => $toFaDigits($infoMotherMobile), 'field' => 'infoMotherMobile'],
                                             ['label' => 'استان', 'value' => $pi?->state?->name ?? '—', 'field' => 'infoStateId'],
@@ -889,8 +874,8 @@
                                             <div class="purchase-review-card rounded-2xl p-4">
                                                 <div class="flex items-center justify-between gap-3">
                                                     <div class="text-[11px] font-bold text-muted">{{ $row['label'] }}</div>
-                                                    <button wire:click="editInfoField('{{ $row['field'] }}')" wire:loading.attr="disabled"
-                                                            class="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-black text-primary transition hover:bg-primary/15">
+                                                    <button wire:click="editInfoField('{{ $row['field'] }}')" wire:loading.attr="disabled" data-elevated="false"
+                                                            class="btn-press rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-black text-primary transition hover:bg-primary/15">
                                                         ویرایش
                                                     </button>
                                                 </div>
@@ -900,12 +885,12 @@
                                         <div class="purchase-review-card rounded-2xl p-4 lg:col-span-2">
                                             <div class="flex items-center justify-between gap-3">
                                                 <div class="text-[11px] font-bold text-muted">آدرس</div>
-                                                <button wire:click="editInfoField('infoAddress')" wire:loading.attr="disabled"
-                                                        class="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-black text-primary transition hover:bg-primary/15">
+                                                <button wire:click="editInfoField('infoAddress')" wire:loading.attr="disabled" data-elevated="false"
+                                                        class="btn-press rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-black text-primary transition hover:bg-primary/15">
                                                     ویرایش
                                                 </button>
                                             </div>
-                                            <div class="mt-2 text-sm font-black text-foreground">{!! $infoAddress ?: '<span class="text-red-400 text-xs font-black">تکمیل این فیلد الزامی است</span>' !!}</div>
+                                            <div class="mt-2 text-sm font-black text-foreground">{!! $infoAddress ?: '<span class="text-error text-xs font-black">تکمیل این فیلد الزامی است</span>' !!}</div>
                                         </div>
                                     </div>
                                 @else
@@ -927,7 +912,7 @@
                                             <div class="space-y-2" data-purchase-field="{{ $model }}">
                                                 <label class="block text-xs font-black text-foreground">{{ $label }}</label>
                                                 <input type="text" wire:model="{{ $model }}" class="{{ $fieldClass }}">
-                                                @error($model)<div class="mt-1 text-xs font-bold text-red-400">{{ $message }}</div>@enderror
+                                                @error($model)<div class="mt-1 text-xs font-bold text-error">{{ $message }}</div>@enderror
                                             </div>
                                         @endforeach
 
@@ -941,7 +926,7 @@
                                                    placeholder="انتخاب تاریخ"
                                                    class="birth-date-trigger {{ $fieldClass }} cursor-pointer"
                                                    dir="ltr">
-                                            @error('infoBirthDate')<div class="mt-1 text-xs font-bold text-red-400">{{ $message }}</div>@enderror
+                                            @error('infoBirthDate')<div class="mt-1 text-xs font-bold text-error">{{ $message }}</div>@enderror
                                         </div>
 
                                         <div class="purchase-select-surface space-y-2" data-purchase-field="infoGrade">
@@ -951,7 +936,7 @@
                                                 :options="$gradeSelectOptions"
                                                 placeholder="انتخاب پایه"
                                                 name="infoGrade" />
-                                            @error('infoGrade')<div class="mt-1 text-xs font-bold text-red-400">{{ $message }}</div>@enderror
+                                            @error('infoGrade')<div class="mt-1 text-xs font-bold text-error">{{ $message }}</div>@enderror
                                         </div>
 
                                         @if($selectedGradeRequiresField)
@@ -962,7 +947,7 @@
                                                     :options="$fieldSelectOptions"
                                                     placeholder="انتخاب رشته"
                                                     name="infoField" />
-                                                @error('infoField')<div class="mt-1 text-xs font-bold text-red-400">{{ $message }}</div>@enderror
+                                                @error('infoField')<div class="mt-1 text-xs font-bold text-error">{{ $message }}</div>@enderror
                                             </div>
                                         @else
                                             <div class="space-y-2" data-purchase-field="infoField">
@@ -989,7 +974,7 @@
                                                 searchable
                                                 search-placeholder="جستجوی استان"
                                                 name="infoStateId" />
-                                            @error('infoStateId')<div class="mt-1 text-xs font-bold text-red-400">{{ $message }}</div>@enderror
+                                            @error('infoStateId')<div class="mt-1 text-xs font-bold text-error">{{ $message }}</div>@enderror
                                         </div>
 
                                         <div class="purchase-select-surface space-y-2" wire:key="purchase-city-select-{{ $infoStateId ?: 'none' }}" data-purchase-field="infoCityId">
@@ -1002,66 +987,57 @@
                                                 searchable
                                                 search-placeholder="جستجوی شهر"
                                                 name="infoCityId" />
-                                            @error('infoCityId')<div class="mt-1 text-xs font-bold text-red-400">{{ $message }}</div>@enderror
+                                            @error('infoCityId')<div class="mt-1 text-xs font-bold text-error">{{ $message }}</div>@enderror
                                         </div>
 
                                         <div class="space-y-2 lg:col-span-2" data-purchase-field="infoAddress">
                                             <label class="block text-xs font-black text-foreground">آدرس</label>
                                             <textarea wire:model="infoAddress" rows="3" class="purchase-field w-full !ring-0 rounded-xl border border-border bg-background px-4 py-3 text-sm leading-7 text-foreground outline-none transition-all focus:border-primary"></textarea>
-                                            @error('infoAddress')<div class="mt-1 text-xs font-bold text-red-400">{{ $message }}</div>@enderror
+                                            @error('infoAddress')<div class="mt-1 text-xs font-bold text-error">{{ $message }}</div>@enderror
                                         </div>
                                     </div>
 
                                     <div class="flex flex-col gap-3 sm:flex-row">
-                                        <button wire:click="saveInfo" wire:loading.attr="disabled" wire:target="saveInfo"
-                                                class="purchase-button-soft inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black text-foreground transition hover:border-primary/40 disabled:opacity-60 sm:w-auto">
+                                        <button wire:click="saveInfo" wire:loading.attr="disabled" wire:target="saveInfo" data-elevated="false"
+                                                class="btn-press purchase-button-soft inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black text-foreground transition hover:border-primary/40 disabled:opacity-60 sm:w-auto">
                                             <span wire:loading.remove wire:target="saveInfo">ذخیره</span>
                                             <span wire:loading wire:target="saveInfo" class="inline-flex items-center gap-2">
-                                                <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                                </svg>
+                                                <x-ui.spinner size="sm"/>
                                                 در حال ذخیره
                                             </span>
                                         </button>
-                                        <button wire:click="cancelEditInfo" wire:loading.attr="disabled" wire:target="cancelEditInfo"
-                                                class="purchase-button-soft w-full rounded-2xl px-5 py-3 text-sm font-black text-foreground transition hover:border-primary/40 sm:w-auto">
+                                        <button wire:click="cancelEditInfo" wire:loading.attr="disabled" wire:target="cancelEditInfo" data-elevated="false"
+                                                class="btn-press purchase-button-soft w-full rounded-2xl px-5 py-3 text-sm font-black text-foreground transition hover:border-primary/40 sm:w-auto">
                                             انصراف
                                         </button>
                                     </div>
                                 @endif
 
                                 <div class="flex flex-col gap-3 border-t border-border/70 pt-6 sm:flex-row sm:items-center sm:justify-between">
-                                    <button wire:click="prevStep" wire:loading.attr="disabled" wire:target="prevStep"
-                                            class="purchase-button-soft w-full rounded-2xl px-5 py-3 text-sm font-black text-foreground transition hover:border-primary/40 sm:w-auto">
+                                    <button wire:click="prevStep" wire:loading.attr="disabled" wire:target="prevStep" data-elevated="false"
+                                            class="btn-press purchase-button-soft w-full rounded-2xl px-5 py-3 text-sm font-black text-foreground transition hover:border-primary/40 sm:w-auto">
                                         بازگشت
                                     </button>
                                     @if ($editingInfo)
-                                        <button wire:click="saveInfoAndContinue" wire:loading.attr="disabled" wire:target="saveInfoAndContinue"
-                                                class="purchase-button inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
+                                        <button wire:click="saveInfoAndContinue" wire:loading.attr="disabled" wire:target="saveInfoAndContinue" data-elevated="true"
+                                                class="btn-press purchase-button inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
                                             <span wire:loading.remove wire:target="saveInfoAndContinue">ذخیره و ادامه</span>
                                             <span wire:loading wire:target="saveInfoAndContinue" class="inline-flex items-center gap-2">
-                                                <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                                </svg>
+                                                <x-ui.spinner size="sm"/>
                                                 در حال ذخیره
                                             </span>
                                         </button>
                                     @elseif ($requiresInfoCompletion)
-                                        <button wire:click="startEditInfo" wire:loading.attr="disabled" wire:target="startEditInfo"
-                                                class="purchase-button-warning inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
+                                        <button wire:click="startEditInfo" wire:loading.attr="disabled" wire:target="startEditInfo" data-elevated="true"
+                                                class="btn-press purchase-button-warning inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
                                             ویرایش اطلاعات
                                         </button>
                                     @else
-                                        <button wire:click="nextStep" wire:loading.attr="disabled" wire:target="nextStep"
-                                                class="purchase-button inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
+                                        <button wire:click="nextStep" wire:loading.attr="disabled" wire:target="nextStep" data-elevated="true"
+                                                class="btn-press purchase-button inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
                                             <span wire:loading.remove wire:target="nextStep">ادامه و ورود به پرداخت</span>
                                             <span wire:loading wire:target="nextStep" class="inline-flex items-center gap-2">
-                                                <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                                </svg>
+                                                <x-ui.spinner size="sm"/>
                                                 در حال بررسی
                                             </span>
                                         </button>
@@ -1110,8 +1086,8 @@
                                     @if ($couponType !== '' )
                                         <div class="mt-4 flex flex-col gap-3 rounded-2xl border border-primary/20 bg-primary/10 p-4 sm:flex-row sm:items-center sm:justify-between">
                                             <div class="text-sm font-black text-foreground">{{ $couponNotice }}</div>
-                                            <button wire:click="removeCoupon" wire:loading.attr="disabled" wire:target="removeCoupon"
-                                                    class="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-xs font-black text-red-300 transition hover:bg-red-500/15">
+                                            <button wire:click="removeCoupon" wire:loading.attr="disabled" wire:target="removeCoupon" data-elevated="false"
+                                                    class="btn-press rounded-xl border border-error/20 bg-error/10 px-4 py-2 text-xs font-black text-error transition hover:bg-error/15">
                                                 حذف کد
                                             </button>
                                         </div>
@@ -1119,20 +1095,17 @@
                                         <div class="mt-4 flex flex-col gap-3 sm:flex-row">
                                             <input type="text" wire:model="couponCode" placeholder="کد تخفیف را وارد کنید"
                                                    class="purchase-field min-w-0 flex-1 rounded-2xl px-4 py-3 text-sm text-foreground placeholder:text-muted/60">
-                                            <button wire:click="applyCoupon" wire:loading.attr="disabled" wire:target="applyCoupon"
-                                                    class="purchase-button inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black transition disabled:opacity-60">
+                                            <button wire:click="applyCoupon" wire:loading.attr="disabled" wire:target="applyCoupon" data-elevated="true"
+                                                    class="btn-press purchase-button inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black transition disabled:opacity-60">
                                                 <span wire:loading.remove wire:target="applyCoupon">اعمال کد</span>
                                                 <span wire:loading wire:target="applyCoupon" class="inline-flex items-center gap-2">
-                                                    <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                                    </svg>
+                                                    <x-ui.spinner size="sm"/>
                                                     در حال بررسی
                                                 </span>
                                             </button>
                                         </div>
                                         @if ($couponError)
-                                            <div class="mt-2 text-xs font-black text-red-400">{{ $couponError }}</div>
+                                            <div class="mt-2 text-xs font-black text-error">{{ $couponError }}</div>
                                         @endif
                                     @endif
                                 </div>
@@ -1151,14 +1124,11 @@
                                             <div class="purchase-stable-price mt-2 text-[clamp(1.8rem,4vw,2.6rem)] font-black text-foreground"><span class="purchase-amount">{{ $faMoney($data['full_with_coupon']) }}</span></div>
                                             <div class="mt-1 text-sm font-bold text-primary">مبلغ قابل پرداخت</div>
                                         </div>
-                                        <button wire:click="pay" wire:loading.attr="disabled" wire:target="pay" @disabled(! $agreedToTerms)
-                                                class="purchase-button mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-50">
+                                        <button wire:click="pay" wire:loading.attr="disabled" wire:target="pay" @disabled(! $agreedToTerms) data-elevated="true"
+                                                class="btn-press purchase-button mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-50">
                                             <span wire:loading.remove wire:target="pay">پرداخت نقدی</span>
                                             <span wire:loading wire:target="pay" class="inline-flex items-center gap-2">
-                                                <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                                </svg>
+                                                <x-ui.spinner size="sm"/>
                                                 در حال اتصال به درگاه
                                             </span>
                                         </button>
@@ -1186,14 +1156,11 @@
                                             <p class="mt-4 text-sm leading-7 text-muted">
                                                 بعد از پیش‌پرداخت، {{ $toFaDigits($data['installment_count']) }} قسط ماهانه برای شما ثبت می‌شود؛ آخرین سررسید قسط {{ $toFaDigits($data['installment_until_label']) }} است.
                                             </p>
-                                            <button wire:click="payInstallment" wire:loading.attr="disabled" wire:target="payInstallment" @disabled(! $agreedToTerms)
-                                                    class="purchase-button mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-50">
+                                            <button wire:click="payInstallment" wire:loading.attr="disabled" wire:target="payInstallment" @disabled(! $agreedToTerms) data-elevated="true"
+                                                    class="btn-press purchase-button mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-50">
                                                 <span wire:loading.remove wire:target="payInstallment">شروع با پیش‌پرداخت</span>
                                                 <span wire:loading wire:target="payInstallment" class="inline-flex items-center gap-2">
-                                                    <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                                    </svg>
+                                                    <x-ui.spinner size="sm"/>
                                                     در حال ساخت طرح
                                                 </span>
                                             </button>
@@ -1210,8 +1177,8 @@
                                 </div>
 
                                 <div class="flex border-t border-border/70 pt-6">
-                                    <button wire:click="prevStep" wire:loading.attr="disabled" wire:target="prevStep"
-                                            class="purchase-button-soft w-full rounded-2xl px-5 py-3 text-sm font-black text-foreground transition hover:border-primary/40 sm:w-auto">
+                                    <button wire:click="prevStep" wire:loading.attr="disabled" wire:target="prevStep" data-elevated="false"
+                                            class="btn-press purchase-button-soft w-full rounded-2xl px-5 py-3 text-sm font-black text-foreground transition hover:border-primary/40 sm:w-auto">
                                         بازگشت
                                     </button>
                                 </div>
@@ -1226,10 +1193,11 @@
 
     @if ($showTrialConfirmModal)
         <div class="fixed inset-0 z-[110] flex items-center justify-center p-4" @keydown.escape.window="$wire.closeTrialConfirm()">
-            <div class="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" wire:click="closeTrialConfirm"></div>
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" wire:click="closeTrialConfirm"></div>
 
             <div class="purchase-panel relative z-10 w-full max-w-lg rounded-[2rem] p-6 sm:p-8">
-                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-500">
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-success/20 bg-success/10 text-success">
+                    {{-- استثنا: آیکون «رعد/شروع سریع» در دیکشنری موجود نیست --}}
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
@@ -1243,24 +1211,21 @@
                     </p>
                 </div>
 
-                <div class="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm leading-7 text-foreground">
+                <div class="mt-6 rounded-2xl border border-success/20 bg-success/10 p-4 text-sm leading-7 text-foreground">
                     بعد از شروع، شما به صفحهٔ انتظار برای تخصیص پشتیبان هدایت می‌شوید و ادامهٔ مراحل هفتهٔ آزمایشی از همان‌جا انجام می‌شود.
                 </div>
 
                 <div class="mt-6 flex flex-col gap-3 sm:flex-row">
-                    <button wire:click="startTrialWeek" wire:loading.attr="disabled" wire:target="startTrialWeek"
-                            class="purchase-button-trial inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black transition disabled:opacity-60">
+                    <button wire:click="startTrialWeek" wire:loading.attr="disabled" wire:target="startTrialWeek" data-elevated="true"
+                            class="btn-press purchase-button-trial inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black transition disabled:opacity-60">
                         <span wire:loading.remove wire:target="startTrialWeek">بزن بریم یک هفته آزمایشی</span>
                         <span wire:loading wire:target="startTrialWeek" class="inline-flex items-center gap-2">
-                            <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                            </svg>
+                            <x-ui.spinner size="sm"/>
                             در حال شروع
                         </span>
                     </button>
-                    <button wire:click="closeTrialConfirm" wire:loading.attr="disabled" wire:target="closeTrialConfirm,startTrialWeek"
-                            class="purchase-button-soft w-full rounded-2xl px-5 py-3 text-sm font-black text-foreground transition hover:border-primary/40">
+                    <button wire:click="closeTrialConfirm" wire:loading.attr="disabled" wire:target="closeTrialConfirm,startTrialWeek" data-elevated="false"
+                            class="btn-press purchase-button-soft w-full rounded-2xl px-5 py-3 text-sm font-black text-foreground transition hover:border-primary/40">
                         فعلاً نه
                     </button>
                 </div>

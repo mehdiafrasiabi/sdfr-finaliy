@@ -161,4 +161,28 @@
     }
 </script>
 
+<script data-navigate-once>
+    if (!window.SdfrModalScrollLock) {
+        /**
+         * قفلِ اسکرولِ پشتِ صفحه برای مودال‌ها — سراسری و ایده‌آل‌پوتنت (idempotent).
+         * عمداً شمارنده (counter) نیست: چون در تمام فایل‌های پروژه یک x-effect
+         * روی ریشه‌ی هر کامپوننت، هر بار که یکی از booleanهای مودال تغییر می‌کند
+         * دوباره اجرا می‌شود و ممکن است lock() چند بار پشتِ سرِ هم صدا زده شود
+         * بدون یک unlock() متناظر (مثلاً وقتی مودال A باز است و مودال B توی
+         * همون x-effect باز/بسته می‌شود). چون مودال‌های این پروژه هیچ‌وقت روی هم
+         * stack نمی‌شوند، یک قفلِ سراسریِ ساده (نه شمارنده‌ای) دقیقاً همون رفتاری
+         * رو میده که قبلاً هر مودال با document.body.classList.add/remove مستقیم
+         * پیاده می‌کرد؛ فقط این‌بار مشترک و یک‌جا.
+         */
+        window.SdfrModalScrollLock = {
+            lock() {
+                document.body.classList.add('overflow-hidden');
+            },
+            unlock() {
+                document.body.classList.remove('overflow-hidden');
+            }
+        };
+    }
+</script>
+
 @stack('script')

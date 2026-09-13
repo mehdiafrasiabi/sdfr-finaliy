@@ -10,6 +10,7 @@ use App\Models\ProgramPart;
 use App\Models\SmartReportCard;
 use App\Models\Student;
 use App\Models\StudentClassification;
+use App\Models\StudentClassificationSubmission;
 use App\Models\TrialWeek;
 use App\Models\User;
 use App\Models\WeeklyProgram;
@@ -171,6 +172,79 @@ class TrialWeekService
                 'advising_session_id'      => $session->id,
                 'status'                   => TrialWeek::STATUS_SUPPORTER_ASSIGNED,
                 'supporter_assigned_at'    => Carbon::now(),
+            ]);
+        });
+    }
+
+    /**
+     * ریست فرایند هفتهٔ آزمایشی توسط مدیر آموزشی.
+     *
+     * فقط برای هفته‌های آزمایشیِ «در حال استفاده» (برنامه ساخته‌شده و هنوز منقضی نشده،
+     * یعنی TrialWeek::hasFullAccess()) قابل استفاده است.
+     *
+     * پاک می‌شود: طبقه‌بندی درس‌ها، پیش‌جلسه (و امتحان/پرسش‌وپاسخ/پارت‌درخواستی/...)،
+     * برنامهٔ کلاسی مدرسه، برنامهٔ هفتگیِ ساخته‌شده (و پارت‌ها/جلسات مطالعه/گزارش‌های
+     * روزانهٔ وابسته به آن)، و کارنامهٔ هوشمندِ آزمایشی.
+     *
+     * دست‌نخورده می‌ماند: نتایج آزمون‌های شخصیتی («مایندست» / MBTI / VARK —
+     * StudentAssessmentAttempt) و تخصیصِ «پشتیبان جذب».
+     *
+     * پس از ریست، وضعیت به‌ صورت SUPPORTER_ASSIGNED برمی‌گردد تا دانش‌آموز بتواند
+     * دوباره طبقه‌بندی/پیش‌جلسه/ساخت برنامه را از نو طی کند؛ برای این کار یک
+     * جلسهٔ آزمایشی + پیش‌جلسهٔ خالیِ جدید (دقیقاً مثل assignSupporter) ساخته می‌شود.
+     */
+    public function resetTrialWeek(TrialWeek $trialWeek): void
+    {
+        DB::transaction(function () use ($trialWeek) {
+            $studentId = $trialWeek->student_id;
+            $userId    = $trialWeek->user_id;
+
+            // برنامهٔ هفتگیِ آزمایشی؛ پارت‌ها، جلسات مطالعهٔ ثبت‌شده، گزارش‌های روزانه و
+            // بازخوردهای مربوط به آن‌ها همگی با cascade دیتابیسی حذف می‌شوند.
+            WeeklyProgram::withTrashed()->where('student_id', $studentId)->forceDelete();
+
+            // جلسهٔ آزمایشی؛ پیش‌جلسه و زیرمجموعه‌هایش (امتحان/پرسش‌وپاسخ/تکلیف/زمان
+            // آزاد/متفرقه/پارت‌درخواستی) نیز با cascade دیتابیسی حذف می‌شوند.
+            AdvisingSession::withTrashed()->where('student_id', $studentId)->forceDelete();
+
+            // برنامهٔ کلاسی مدرسه (پارت‌هایش با cascade حذف می‌شود).
+            ClassSchedule::where('student_id', $studentId)->delete();
+
+            // طبقه‌بندی درس‌ها.
+            StudentClassification::where('user_id', $userId)->delete();
+            StudentClassificationSubmission::where('user_id', $userId)->delete();
+
+            // کارنامهٔ هوشمندِ هفتهٔ آزمایشی.
+            SmartReportCard::where('student_id', $studentId)->delete();
+
+            // جلسهٔ آزمایشی + پیش‌جلسهٔ خالیِ جدید — همان کاری که assignSupporter انجام می‌دهد.
+            $session = AdvisingSession::create([
+                'student_id'      => $studentId,
+                'advisor_id'      => null,
+                'title'           => 'جلسه آزمایشی',
+                'activation_date' => Carbon::now()->addDay(),
+                'status'          => AdvisingSession::STATUS_ACTIVE,
+                'location_type'   => 'online',
+                'is_active'       => true,
+            ]);
+
+            AdvisingPreSession::create([
+                'advising_session_id' => $session->id,
+                'student_id'          => $studentId,
+                'title'               => 'پیش‌جلسه آزمایشی',
+                'status'              => AdvisingPreSession::STATUS_PENDING,
+            ]);
+
+            $trialWeek->update([
+                'advising_session_id'              => $session->id,
+                'status'                            => TrialWeek::STATUS_SUPPORTER_ASSIGNED,
+                'supporter_assigned_at'             => Carbon::now(),
+                'classification_locked_at'          => null,
+                'pre_session_completed_at'          => null,
+                'program_built_at'                  => null,
+                'daily_study_hours'                 => null,
+                'expires_at'                        => null,
+                'dashboard_notice_acknowledged_at'  => null,
             ]);
         });
     }

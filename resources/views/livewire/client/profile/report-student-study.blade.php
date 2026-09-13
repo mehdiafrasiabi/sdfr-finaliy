@@ -11,15 +11,9 @@
                 <div class="space-y-10">
 
                     @if($hideForExamProgramTrialStudent)
-                        <div class="flex flex-col items-center justify-center space-y-8 py-12">
-                            <img src="/client/svg/empty2.svg"
-                                 class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
-                                 alt="پیامی وجود ندارد"/>
-                            <div class="text-center space-y-2">
-                                <h2 class="font-bold text-xl text-foreground">کارنامه‌ای برای نمایش وجود ندارد.</h2>
-                                <p class="text-sm text-muted">فعلاً داده‌ای برای صدور یا نمایش کارنامه ثبت نشده است.</p>
-                            </div>
-                        </div>
+                        <x-ui.empty-state title="کارنامه‌ای برای نمایش وجود ندارد.">
+                            فعلاً داده‌ای برای صدور یا نمایش کارنامه ثبت نشده است.
+                        </x-ui.empty-state>
                     @else
                     <div class="space-y-5">
                         <!-- section:title -->
@@ -38,9 +32,7 @@
                                     {{-- کارنامه‌ی هفته آزمایشی تا روز ششم قفل است --}}
                                     <div class="flex flex-col items-center justify-center text-center space-y-5 py-14">
                                         <div class="w-16 h-16 rounded-2xl bg-secondary border border-border flex items-center justify-center">
-                                            <svg class="w-8 h-8 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                                            </svg>
+                                            <x-ui.icon name="lock" class="w-8 h-8 text-muted"/>
                                         </div>
                                         <div class="space-y-2">
                                             <h2 class="font-bold text-xl text-foreground">کارنامه‌ی هفته آزمایشی هنوز فعال نشده</h2>
@@ -63,28 +55,22 @@
                                                 <div class="md:hidden">
 
                                                     {{-- تصویر بالا --}}
-                                                    <div class="w-full h-36 flex items-center justify-center bg-gradient-to-b from-blue-100 to-blue-200 dark:from-blue-950 dark:to-blue-900">
+                                                    <x-ui.thumbnail class="w-full h-36">
                                                         <img src="/client/icons/karname.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
-
-                                                    </div>
+                                                    </x-ui.thumbnail>
 
                                                     {{-- اطلاعات --}}
                                                     <div class="p-4 space-y-3" dir="rtl">
                                                         <h3 class="font-bold text-foreground text-base flex items-center gap-2 flex-wrap">
                                                             {{ $isExamProgramReport ? 'برنامه امتحانی' : ($isTrial ? 'یک هفته آزمایشی' : $card->month_name) }}
-                                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/15 text-green-600 dark:text-green-400 text-xs rounded-full">
-                                                                <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                                                فعال
-                                                            </span>
+                                                            <x-ui.status-badge status="active"/>
                                                         </h3>
 
                                                         @unless($isTrial || $isExamProgramReport)<p class="text-sm text-muted">سال {{ $card->jalali_year }}</p>@endunless
 
                                                         <p class="text-xs text-muted">
                                                             <span class="inline-flex items-center gap-1">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/>
-                                                                </svg>
+                                                                <x-ui.icon name="calendar" class="w-3.5 h-3.5"/>
                                                                 از {{ $card->jalali_start }} تا {{ $card->jalali_end }}
                                                             </span>
                                                         </p>
@@ -92,13 +78,10 @@
 
                                                     {{-- دکمه موبایل --}}
                                                     <div class="px-4 pb-4" dir="rtl">
-                                                        <a wire:navigate href="{{ route('client.profile.smartReportCard.show', $card->id) }}"
-                                                           class="w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors">
+                                                        <x-ui.button href="{{ route('client.profile.smartReportCard.show', $card->id) }}"
+                                                                     wire:navigate variant="primary" icon="chevron-left" block>
                                                             مشاهده کارنامه
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 18L9 12L15 6"/>
-                                                            </svg>
-                                                        </a>
+                                                        </x-ui.button>
                                                     </div>
                                                 </div>
 
@@ -107,10 +90,11 @@
                                                 ════════════════════════════════════ --}}
                                                 <div class="hidden md:flex flex-row min-h-[130px]">
 
-                                                    {{-- ستون تصویر --}}
+                                                    {{-- ستون تصویر — دارک‌مودِ دسکتاپ عمداً همون هگزِ سفارشیِ
+                                                         #1e3a5f/#1e40af نگه داشته شده (نه x-ui.thumbnail)،
+                                                         طبق همون قرارِ قبلی درباره‌ی این گرادیان‌های آبی --}}
                                                     <div class="flex-shrink-0 w-[120px] flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 dark:from-[#1e3a5f] dark:to-[#1e40af]">
                                                         <img src="/client/icons/karname.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
-
                                                     </div>
 
                                                     {{-- محتوا --}}
@@ -125,30 +109,22 @@
 
                                                             <p class="text-sm text-muted">
                                                                 <span class="inline-flex items-center gap-1">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/>
-                                                                    </svg>
+                                                                    <x-ui.icon name="calendar" class="w-3.5 h-3.5"/>
                                                                     از {{ $card->jalali_start }} تا {{ $card->jalali_end }}
                                                                 </span>
                                                             </p>
 
                                                             <div class="flex flex-wrap items-center gap-1.5">
-                                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/15 text-green-600 dark:text-green-400 text-xs rounded-full">
-                                                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                                                    فعال
-                                                                </span>
+                                                                <x-ui.status-badge status="active"/>
                                                             </div>
                                                         </div>
 
                                                         {{-- چپ: دکمه --}}
                                                         <div class="flex items-center gap-2 flex-shrink-0" dir="ltr">
-                                                            <a wire:navigate href="{{ route('client.profile.smartReportCard.show', $card->id) }}"
-                                                               class="inline-flex items-center justify-center gap-2 px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                                </svg>
-                                                            </a>
+                                                            <x-ui.button href="{{ route('client.profile.smartReportCard.show', $card->id) }}"
+                                                                         wire:navigate variant="primary" icon="eye">
+                                                                مشاهده کارنامه
+                                                            </x-ui.button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -156,15 +132,9 @@
                                         @endforeach
                                     </div>
                                 @else
-                                    <div class="flex flex-col items-center justify-center space-y-8 py-12">
-                                        <img src="/client/svg/empty2.svg"
-                                             class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
-                                             alt="پیامی وجود ندارد"/>
-                                        <div class="text-center space-y-2">
-                                            <h2 class="font-bold text-xl text-foreground">کارنامه هوشمندی برای شما فعال نشده است.</h2>
-                                            <p class="text-sm text-muted">پس از فعال‌سازی توسط مشاور، ماه‌های فعال در این بخش نمایش داده می‌شود.</p>
-                                        </div>
-                                    </div>
+                                    <x-ui.empty-state title="کارنامه هوشمندی برای شما فعال نشده است.">
+                                        پس از فعال‌سازی توسط مشاور، ماه‌های فعال در این بخش نمایش داده می‌شود.
+                                    </x-ui.empty-state>
                                 @endif
                             </div>
                         </div>

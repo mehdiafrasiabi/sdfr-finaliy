@@ -83,6 +83,8 @@
                 </svg>
 
                 <div class="bob absolute inset-[18%] rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-xl shadow-primary/25">
+                    {{-- ترکیب «ذره‌بین + چهره» یک ایلوستریشن اختصاصیه (نه یک آیکون ساده)
+                         و معادل دقیقی توی دیکشیونری Keyline نداره، پس دست‌نخورده نگه داشته شد. --}}
                     <template x-if="!revealed">
                         <svg class="w-10 h-10 text-primary-foreground" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
@@ -93,10 +95,7 @@
                         </svg>
                     </template>
                     <template x-if="revealed">
-                        <svg class="w-10 h-10 text-primary-foreground" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 6L9 17l-5-5"/>
-                        </svg>
+                        <x-ui.icon name="check" class="w-10 h-10 text-primary-foreground"/>
                     </template>
                 </div>
 
@@ -134,9 +133,7 @@
                              class="w-16 h-16 rounded-2xl object-cover border border-border shrink-0">
                     @else
                         <div class="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                            <svg class="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="8" r="4"/><path d="M5 21v-1a7 7 0 0 1 14 0v1"/>
-                            </svg>
+                            <x-ui.icon name="user" class="w-8 h-8 text-primary"/>
                         </div>
                     @endif
 
@@ -150,12 +147,12 @@
             {{-- نوار پیشرفت مراحل --}}
             <div class="w-full max-w-sm">
                 <div class="flex items-center justify-between text-[11px] mb-2">
-                    <span class="font-bold text-emerald-600 dark:text-emerald-400">آزمون‌ها</span>
+                    <span class="font-bold text-success">آزمون‌ها</span>
                     <span class="font-bold text-primary">انتخاب مشاور</span>
                     <span class="font-medium text-muted">شروع</span>
                 </div>
                 <div class="relative h-1.5 rounded-full bg-background overflow-hidden">
-                    <div class="absolute inset-y-0 right-0 w-1/3 bg-emerald-500 rounded-full"></div>
+                    <div class="absolute inset-y-0 right-0 w-1/3 bg-success rounded-full"></div>
                     <div class="absolute inset-y-0 bg-primary/70 rounded-full transition-all duration-1000"
                          style="right: 33.33%;" :style="'right:33.33%;width:' + (33.33 * elapsed / total) + '%'"></div>
                 </div>
@@ -166,7 +163,7 @@
 
     {{-- پیام خطا --}}
     @if (session('error'))
-        <div class="mt-5 rounded-xl bg-red-50 dark:bg-red-900/10 text-red-700 dark:text-red-300 px-4 py-3 border border-red-200 dark:border-red-800 text-sm">
+        <div class="mt-5 rounded-xl bg-error/10 text-error px-4 py-3 border border-error/30 text-sm">
             {{ session('error') }}
         </div>
     @endif

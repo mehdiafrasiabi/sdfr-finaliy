@@ -12,10 +12,11 @@ class Detail extends Component
     public TrialWeek $trialWeek;
     public ?int      $selectedSupporterId = null;
     public bool      $showAssignModal     = false;
+    public bool      $showResetConfirm    = false;
 
     public function mount(int $id): void
     {
-        $this->trialWeek = TrialWeek::with(['user', 'supporter', 'student'])->findOrFail($id);
+        $this->trialWeek = TrialWeek::with(['user', 'acquisitionSupporter', 'student'])->findOrFail($id);
     }
 
     public function openAssignModal(): void
@@ -27,6 +28,45 @@ class Detail extends Component
     {
         $this->showAssignModal = false;
         $this->selectedSupporterId = null;
+    }
+
+    /**
+     * آیا این هفتهٔ آزمایشی قابل ریست است؟
+     * فقط کسانی که در بازهٔ هفتهٔ آزمایشی هستند و از آن استفاده می‌کنند
+     * (برنامه ساخته شده و هنوز منقضی نشده).
+     */
+    public function getCanResetProperty(): bool
+    {
+        return $this->trialWeek->hasFullAccess();
+    }
+
+    public function openResetConfirm(): void
+    {
+        if (! $this->canReset) {
+            return;
+        }
+        $this->showResetConfirm = true;
+    }
+
+    public function closeResetConfirm(): void
+    {
+        $this->showResetConfirm = false;
+    }
+
+    public function resetTrial(TrialWeekService $service): void
+    {
+        if (! $this->canReset) {
+            $this->showResetConfirm = false;
+            session()->flash('error', 'ریست فقط برای دانش‌آموزانی که در حال حاضر در بازهٔ هفتهٔ آزمایشی هستند امکان‌پذیر است.');
+            return;
+        }
+
+        $service->resetTrialWeek($this->trialWeek);
+
+        $this->trialWeek->refresh();
+        $this->showResetConfirm = false;
+
+        session()->flash('success', 'فرایند هفتهٔ آزمایشی برای این دانش‌آموز ریست شد. طبقه‌بندی، پیش‌جلسه و برنامهٔ ساخته‌شده پاک شد؛ نتایج آزمون‌های شخصیتی (مایندست) دست‌نخورده ماند.');
     }
 
     public function assignSupporter(TrialWeekService $service): void

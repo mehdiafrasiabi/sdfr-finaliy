@@ -14,9 +14,6 @@
     $pad    = $itemH * intdiv($visible, 2);
 @endphp
 
-{{-- تایم‌پیکرِ چرخشیِ شبیه به پیکر زمانِ آیفون (بدون هیچ کتابخانه‌ای، فقط Alpine + CSS
-     scroll-snap). هر ستون یک لیستِ قابل‌اسکرول است که با scroll-snap روی هر مقدار
-     می‌چسبد؛ مقدارِ انتخاب‌شده همیشه ردیفِ وسط (زیرِ نوارِ هایلایت) است. --}}
 <div
     x-data="{
         itemH: {{ $itemH }},
@@ -60,10 +57,10 @@
     class="relative select-none"
 >
     {{-- نوار هایلایتِ ثابتِ وسط --}}
-    <div class="pointer-events-none absolute inset-x-2 top-1/2 -translate-y-1/2 rounded-xl bg-sky-500/15 ring-1 ring-sky-400/40" style="height:{{ $itemH }}px;"></div>
+    <div class="pointer-events-none absolute inset-x-2 top-1/2 -translate-y-1/2 rounded-xl bg-primary/15 border border-primary/40" style="height:{{ $itemH }}px;"></div>
     {{-- محوشدگیِ بالا/پایین برای حسِ عمقِ چرخ --}}
-    <div class="pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-black/30 to-transparent z-10"></div>
-    <div class="pointer-events-none absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-black/30 to-transparent z-10"></div>
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-background to-transparent z-10"></div>
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-background to-transparent z-10"></div>
 
     <div class="flex items-center justify-center gap-4" dir="ltr">
         {{-- ساعت --}}
@@ -79,15 +76,15 @@
                         @click="pick('hoursTrack', hoursValues, 'hours', v)"
                         class="flex items-center justify-center cursor-pointer font-black tabular-nums transition-all duration-150"
                         style="height:{{ $itemH }}px; scroll-snap-align:center;"
-                        :class="hours === v ? 'text-white text-lg' : 'text-neutral-600 text-sm'"
+                        :class="hours === v ? 'text-foreground text-lg' : 'text-muted text-sm'"
                         x-text="v"
                     ></div>
                 </template>
             </div>
-            <span class="pointer-events-none absolute top-1/2 -translate-y-1/2 -left-7 text-[10px] text-neutral-400 font-bold">ساعت</span>
+            <span class="pointer-events-none absolute top-1/2 -translate-y-1/2 -left-7 text-[10px] text-muted font-bold">ساعت</span>
         </div>
 
-        <span class="text-neutral-600 font-black text-base">:</span>
+        <span class="text-muted font-black text-base">:</span>
 
         {{-- دقیقه --}}
         <div class="relative">
@@ -102,12 +99,12 @@
                         @click="pick('minutesTrack', minutesValues, 'minutes', v)"
                         class="flex items-center justify-center cursor-pointer font-black tabular-nums transition-all duration-150"
                         style="height:{{ $itemH }}px; scroll-snap-align:center;"
-                        :class="minutes === v ? 'text-white text-lg' : 'text-neutral-600 text-sm'"
+                        :class="minutes === v ? 'text-foreground text-lg' : 'text-muted text-sm'"
                         x-text="v.toString().padStart(2, '0')"
                     ></div>
                 </template>
             </div>
-            <span class="pointer-events-none absolute top-1/2 -translate-y-1/2 -right-9 text-[10px] text-neutral-400 font-bold">دقیقه</span>
+            <span class="pointer-events-none absolute top-1/2 -translate-y-1/2 -right-9 text-[10px] text-muted font-bold">دقیقه</span>
         </div>
     </div>
 </div>

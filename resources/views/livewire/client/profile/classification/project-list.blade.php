@@ -11,15 +11,9 @@
             <div class="lg:col-span-9 md:col-span-8" dir="rtl">
                 <div class="space-y-10">
                     @if($hideForExamProgramTrialStudent)
-                        <div class="flex flex-col items-center justify-center py-20 space-y-5">
-                            <img src="/client/svg/empty2.svg"
-                                 class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
-                                 alt="پیامی وجود ندارد"/>
-                            <div class="text-center space-y-1.5">
-                                <h2 class="font-bold text-lg text-foreground">پروژه‌ای در دسترس نیست</h2>
-                                <p class="text-sm text-muted">در حال حاضر پروژه طبقه‌بندی فعالی وجود ندارد.</p>
-                            </div>
-                        </div>
+                        <x-ui.empty-state title="پروژه‌ای در دسترس نیست">
+                            در حال حاضر پروژه طبقه‌بندی فعالی وجود ندارد.
+                        </x-ui.empty-state>
                     @else
 
                     {{-- سربرگ --}}
@@ -37,7 +31,7 @@
                     @if($isTrialUser && $trialProject)
                         <section class="space-y-4">
                             <div class="flex items-center gap-2">
-                                <span class="w-1 h-5 rounded-full bg-blue-500"></span>
+                                <span class="w-1 h-5 rounded-full bg-info"></span>
                                 <h2 class="font-bold text-foreground text-sm">طبقه‌بندی آزمایشی</h2>
                             </div>
 
@@ -56,9 +50,9 @@
                     @if($activeProjects->count() > 0)
                         <section class="space-y-4">
                             <div class="flex items-center gap-2">
-                                <span class="w-1 h-5 rounded-full bg-emerald-500"></span>
+                                <span class="w-1 h-5 rounded-full bg-success"></span>
                                 <h2 class="font-bold text-foreground text-sm">پروژه‌های فعال</h2>
-                                <span class="text-xs font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                                <span class="text-xs font-bold text-success bg-success/10 border border-success/30 px-2 py-0.5 rounded-full">
                                     {{ $activeProjects->count() }}
                                 </span>
                             </div>
@@ -82,9 +76,9 @@
                     @if($upcomingProjects->count() > 0)
                         <section class="space-y-4">
                             <div class="flex items-center gap-2">
-                                <span class="w-1 h-5 rounded-full bg-amber-500"></span>
+                                <span class="w-1 h-5 rounded-full bg-warning"></span>
                                 <h2 class="font-bold text-foreground text-sm">در انتظار شروع</h2>
-                                <span class="text-xs font-bold text-amber-500 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                                <span class="text-xs font-bold text-warning bg-warning/10 border border-warning/30 px-2 py-0.5 rounded-full">
                                     {{ $upcomingProjects->count() }}
                                 </span>
                             </div>
@@ -130,15 +124,9 @@
 
                     {{-- حالت خالی --}}
                     @if($activeProjects->count() === 0 && $upcomingProjects->count() === 0 && $endedProjects->count() === 0 && !($isTrialUser && $trialProject))
-                        <div class="flex flex-col items-center justify-center py-20 space-y-5">
-                            <img src="/client/svg/empty2.svg"
-                                 class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
-                                 alt="پیامی وجود ندارد"/>
-                            <div class="text-center space-y-1.5">
-                                <h2 class="font-bold text-lg text-foreground">پروژه‌ای در دسترس نیست</h2>
-                                <p class="text-sm text-muted">در حال حاضر پروژه طبقه‌بندی فعالی وجود ندارد.</p>
-                            </div>
-                        </div>
+                        <x-ui.empty-state title="پروژه‌ای در دسترس نیست">
+                            در حال حاضر پروژه طبقه‌بندی فعالی وجود ندارد.
+                        </x-ui.empty-state>
                     @endif
                     @endif
 
@@ -150,7 +138,7 @@
     {{-- لودینگ --}}
     <div wire:loading.flex class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/60 backdrop-blur-sm">
         <div class="flex items-center gap-3 rounded-2xl border border-border bg-secondary px-6 py-4 shadow-2xl">
-            <div class="h-6 w-6 animate-spin rounded-full border-2 border-primary/30 border-t-primary"></div>
+            <x-ui.spinner size="lg" class="text-primary"/>
             <span class="text-sm font-semibold text-foreground">در حال بارگذاری...</span>
         </div>
     </div>

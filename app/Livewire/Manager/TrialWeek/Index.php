@@ -27,7 +27,7 @@ class Index extends Component
 
     public function render(): \Illuminate\Contracts\View\View
     {
-        $query = TrialWeek::with(['user', 'supporter'])
+        $query = TrialWeek::with(['user', 'acquisitionSupporter'])
             ->when($this->search, function ($q) {
                 $q->whereHas('user', fn($u) => $u->where('name', 'like', "%{$this->search}%")
                     ->orWhere('mobile', 'like', "%{$this->search}%"));

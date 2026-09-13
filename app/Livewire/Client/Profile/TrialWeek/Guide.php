@@ -19,11 +19,13 @@ class Guide extends Component
 
     public ?TrialWeek $trialWeek = null;
 
-    public bool $showLockConfirm = false;
-    public bool $showHoursModal = false;
     public int $dailyStudyHours = 2;
     public bool $isLocking = false;
     public bool $examPlanningMode = false;
+
+    /** id مودال‌ها — برای x-ui.modal (dispatch('open-modal'/'close-modal', ...)) */
+    public const LOCK_CONFIRM_MODAL_ID = 'trial-lock-confirm';
+    public const HOURS_MODAL_ID        = 'trial-hours-modal-guide';
 
     public function mount(): void
     {
@@ -127,12 +129,12 @@ class Guide extends Component
             $this->dispatch('warning', 'ابتدا باید طبقه‌بندی را تکمیل کنید.');
             return;
         }
-        $this->showLockConfirm = true;
+        $this->dispatch('open-modal', self::LOCK_CONFIRM_MODAL_ID);
     }
 
     public function closeLockConfirm(): void
     {
-        $this->showLockConfirm = false;
+        $this->dispatch('close-modal', self::LOCK_CONFIRM_MODAL_ID);
     }
 
     public function lockClassification(TrialWeekService $service): void
@@ -147,7 +149,7 @@ class Guide extends Component
 
         $service->lockClassification($this->trialWeek);
         $this->trialWeek->refresh();
-        $this->showLockConfirm = false;
+        $this->dispatch('close-modal', self::LOCK_CONFIRM_MODAL_ID);
         $this->isLocking = false;
     }
 
@@ -157,12 +159,12 @@ class Guide extends Component
         if ($this->trialWeek->status !== TrialWeek::STATUS_PRE_SESSION_DONE) {
             return;
         }
-        $this->showHoursModal = true;
+        $this->dispatch('open-modal', self::HOURS_MODAL_ID);
     }
 
     public function closeHoursModal(): void
     {
-        $this->showHoursModal = false;
+        $this->dispatch('close-modal', self::HOURS_MODAL_ID);
     }
 
     public function buildProgram(TrialWeekService $service): void
@@ -176,7 +178,7 @@ class Guide extends Component
 
         $service->buildProgram($this->trialWeek, $this->dailyStudyHours);
         $this->trialWeek->refresh();
-        $this->showHoursModal = false;
+        $this->dispatch('close-modal', self::HOURS_MODAL_ID);
 
         // (F/G) بعد از ساخت برنامه مستقیم به داشبورد می‌رویم و تورِ راهنمای داشبورد را فعال می‌کنیم.
         session()->put('start_dashboard_tour', true);

@@ -48,20 +48,36 @@
         dropUp: {{ $dropUp ? 'true' : 'false' }},
         menuStyle: '',
 
-        // موقعیت‌دهیِ واقعیِ منو نسبت به viewport (نه والدِ نزدیک)، تا وقتی dropUp فعاله
-        // منو همیشه دقیقاً بالای دکمه باز بشه و هیچ‌وقت (مخصوصاً روی سافاری iOS، وقتی
-        // یکی از والدها transform/animation داره) به اشتباه پایین باز نشه یا از صفحه بیرون نزنه.
+        // موقعیت‌دهیِ واقعیِ منو نسبت به viewport (نه والدِ نزدیک)، تا وقتی dropUp فعاله.
+        // «dropUp» یعنی «اگه لازم شد بالا باز کن»، نه «همیشه بالا باز کن»: این تابع
+        // فضای واقعیِ بالا و پایینِ دکمه رو (نسبت به viewport) اندازه می‌گیره و فقط
+        // وقتی واقعاً پایین جا نیست (مثلاً وقتی select داخل یک مودالِ نزدیکِ لبه‌ی
+        // پایینِ صفحه‌ست، مثل مودالِ جابجاییِ جلسه روی موبایل) به بالا باز می‌کنه؛
+        // وگرنه عادی از پایینِ دکمه باز می‌شه. این باعث می‌شه، برخلافِ حالتِ قبلی
+        // (که با dropUp همیشه رو به بالا بود)، منو هیچ‌وقت از صفحه بیرون نزنه یا
+        // (روی صفحه‌های کوچیک مثل iPhone) قسمتی از گزینه‌ها بریده نشه.
         positionMenu() {
             if (!this.dropUp) return;
             this.$nextTick(() => {
                 const btn  = this.$refs.trigger;
                 const menu = this.$refs.menu;
                 if (!btn || !menu) return;
-                const rect   = btn.getBoundingClientRect();
-                const gap    = 4;
-                const menuH  = menu.offsetHeight;
-                let top = rect.top - menuH - gap;
-                if (top < 8) top = 8; // اگر بالای صفحه هم جا نشد، به لبه‌ی بالای viewport بچسبه
+                const rect       = btn.getBoundingClientRect();
+                const gap        = 4;
+                const menuH      = menu.offsetHeight;
+                const spaceBelow = window.innerHeight - rect.bottom;
+                const spaceAbove = rect.top;
+                const openUpward = spaceBelow < (menuH + gap) && spaceAbove > spaceBelow;
+
+                let top;
+                if (openUpward) {
+                    top = rect.top - menuH - gap;
+                    if (top < 8) top = 8; // اگر بالای صفحه هم جا نشد، به لبه‌ی بالای viewport بچسبه
+                } else {
+                    top = rect.bottom + gap;
+                    const maxTop = window.innerHeight - 8 - menuH;
+                    if (top > maxTop) top = Math.max(8, maxTop); // اگر پایین هم کامل جا نشد، به لبه‌ی پایینِ viewport بچسبه
+                }
                 this.menuStyle = `left:${rect.left}px; top:${top}px; width:${rect.width}px;`;
             });
         },

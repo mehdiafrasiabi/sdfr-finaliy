@@ -3,16 +3,17 @@
         showCompensatoryModal: @entangle('showCompensatoryModal'),
         replyModalOpen: @entangle('replyModalOpen'),
         activeTab: 'submit',
-     }">
-
+     }"
+     x-effect="(showReportModal || showCompensatoryModal || replyModalOpen) ? window.SdfrModalScrollLock.lock() : window.SdfrModalScrollLock.unlock()">
 
     {{-- اسپینرهای این صفحه حالا از کامپوننت مشترک <x-ui.spinner> میان (رجوع کنید به
-         resources/views/components/ui/spinner.blade.php) به‌جای یک <style> تکراری اینجا. --}}
-    @assets
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
-    @endassets
+         resources/views/components/ui/spinner.blade.php)، و هر سه مودال زیر هم طبق
+         الگوی یکسانِ استانداردِ همه‌ی مودال‌های پروژه (SdfrModalScrollLock +
+         ترنزیشن + دستگیره + دکمه‌ی بستنِ گرد) بازسازی شده‌اند؛ x-cloak روی خودِ
+         هر مودال است، نه روی کل صفحه. --}}
+    @once('sdfr-ui-kit-assets')
+        @include('components.ui._kit-assets')
+    @endonce
     <div class="max-w-7xl space-y-6 px-4 mx-auto">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
 
@@ -51,22 +52,24 @@
                         {{-- Tab: Submit --}}
                         <div x-show="activeTab === 'submit'" class="space-y-6">
                             @if(count($missedParts) > 0)
-                                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-5">
+                                <div class="bg-warning/10 border border-warning/30 rounded-2xl p-5">
                                     <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
                                         <div>
-                                            <h3 class="font-bold text-amber-800 dark:text-amber-200 flex items-center gap-2">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                                                    <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
-                                                </svg>
+                                            <h3 class="font-bold text-warning flex items-center gap-2">
+                                                <x-ui.icon name="triangle-alert" class="w-5 h-5"/>
                                                 پارت های جبرانی
                                             </h3>
-                                            <p class="text-sm text-amber-700 dark:text-amber-300 mt-1">{{ count($missedParts) }} پارت از دست رفته دارید</p>
+                                            <p class="text-sm text-warning mt-1">{{ count($missedParts) }} پارت از دست رفته دارید</p>
                                         </div>
-                                        <button type="button" wire:click="openCompensatoryModal" wire:loading.attr="disabled" wire:target="openCompensatoryModal"
-                                                class="bg-amber-500 hover:bg-amber-600 text-white rounded-xl px-4 py-2 font-semibold text-sm transition-all disabled:opacity-60 inline-flex items-center gap-2">
-                                            <span wire:loading.remove wire:target="openCompensatoryModal">ثبت پارت جبرانی</span>
-                                            <x-ui.spinner size="sm" wire:loading wire:target="openCompensatoryModal" />
-                                        </button>
+                                        <x-ui.button type="button" wire:click="openCompensatoryModal" wire:loading.attr="disabled" wire:target="openCompensatoryModal"
+                                                     variant="warning">
+                                            <span wire:loading.remove wire:target="openCompensatoryModal" class="inline-flex items-center gap-1.5">
+                                                ثبت پارت جبرانی <x-ui.icon name="plus" class="w-4 h-4"/>
+                                            </span>
+                                            <span wire:loading wire:target="openCompensatoryModal">
+                                                <x-ui.spinner size="xs"/>
+                                            </span>
+                                        </x-ui.button>
                                     </div>
                                 </div>
                             @endif
@@ -77,40 +80,34 @@
                                     @foreach($weekDays as $dayIndex => $day)
                                         <div wire:key="day-{{ $dayIndex }}"
                                              class="glass border rounded-2xl p-4 transition-colors
-                                             {{ $day['is_submitted'] ? 'border-green-500/50' : '' }}
-                                             {{ $day['can_submit'] ? 'border-blue-500' : '' }}
-                                             {{ $day['is_rest_day'] ? 'border-emerald-500/50' : '' }}
-                                             {{ !$day['is_submitted'] && !$day['can_submit'] && !$day['is_rest_day'] ? 'border-border' : '' }}">
+ {{ $day['is_submitted'] ? 'border-success/50' : '' }}
+ {{ $day['can_submit'] ? 'border-info' : '' }}
+ {{ $day['is_rest_day'] ? 'border-success/50' : '' }}
+ {{ !$day['is_submitted'] && !$day['can_submit'] && !$day['is_rest_day'] ? 'border-border' : '' }}">
 
                                             <div class="flex items-center justify-between mb-3">
                                                 <div>
-                                                    <h4 class="font-bold {{ $day['is_rest_day'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground' }}">{{ $day['name'] }}</h4>
+                                                    <h4 class="font-bold {{ $day['is_rest_day'] ? 'text-success' : 'text-foreground' }}">{{ $day['name'] }}</h4>
                                                     <p class="text-xs text-muted">{{ $day['jalali_date'] }}</p>
                                                 </div>
 
                                                 @if($day['is_rest_day'])
-                                                    <span class="text-emerald-500">
+                                                    <span class="text-success">
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
                                                         </svg>
                                                     </span>
                                                 @elseif($day['is_submitted'])
-                                                    <span class="text-green-500">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-                                                            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/>
-                                                        </svg>
+                                                    <span class="text-success">
+                                                        <x-ui.icon name="circle-check" class="w-6 h-6"/>
                                                     </span>
                                                 @elseif($day['is_locked'])
-                                                    <span class="text-red-500">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-                                                            <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clip-rule="evenodd"/>
-                                                        </svg>
+                                                    <span class="text-error">
+                                                        <x-ui.icon name="lock" class="w-6 h-6"/>
                                                     </span>
                                                 @elseif($day['can_submit'])
-                                                    <span class="text-blue-500 animate-pulse">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-                                                            <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clip-rule="evenodd"/>
-                                                        </svg>
+                                                    <span class="text-info animate-pulse">
+                                                        <x-ui.icon name="clock" class="w-6 h-6"/>
                                                     </span>
                                                 @endif
                                             </div>
@@ -118,8 +115,8 @@
                                             @if($day['is_rest_day'])
                                                 <div class="text-center py-4">
                                                     <div class="text-2xl mb-2">🌿</div>
-                                                    <p class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">روز استراحت</p>
-                                                    <p class="text-xs text-emerald-600/70 dark:text-emerald-400/70 mt-1">نیازی به ارسال گزارش نیست</p>
+                                                    <p class="text-sm text-success font-medium">روز استراحت</p>
+                                                    <p class="text-xs text-success/70 mt-1">نیازی به ارسال گزارش نیست</p>
                                                 </div>
                                             @else
                                                 <div class="space-y-2 mb-4">
@@ -135,15 +132,19 @@
 
                                                 @if($day['can_submit'])
                                                     {{-- مودال بلافاصله با Alpine باز می‌شود (بدون لگ)، و داده‌ها با Livewire بارگذاری می‌شوند --}}
-                                                    <button type="button" @click="showReportModal = true" wire:click="openReportModal({{ $dayIndex }})" wire:loading.attr="disabled" wire:target="openReportModal({{ $dayIndex }})"
-                                                            class="w-full bg-primary hover:bg-primary/90 text-white rounded-xl py-2.5 font-semibold text-sm transition-all disabled:opacity-60 inline-flex items-center justify-center gap-2">
-                                                        <span wire:loading.remove wire:target="openReportModal({{ $dayIndex }})">ثبت گزارش</span>
-                                                        <x-ui.spinner size="sm" wire:loading wire:target="openReportModal({{ $dayIndex }})" />
-                                                    </button>
+                                                    <x-ui.button type="button" @click="showReportModal = true" wire:click="openReportModal({{ $dayIndex }})" wire:loading.attr="disabled" wire:target="openReportModal({{ $dayIndex }})"
+                                                                 variant="primary" block>
+                                                        <span wire:loading.remove wire:target="openReportModal({{ $dayIndex }})" class="inline-flex items-center gap-1.5">
+                                                            ثبت گزارش <x-ui.icon name="square-pen" class="w-4 h-4"/>
+                                                        </span>
+                                                        <span wire:loading wire:target="openReportModal({{ $dayIndex }})">
+                                                            <x-ui.spinner size="xs"/>
+                                                        </span>
+                                                    </x-ui.button>
                                                 @elseif($day['is_submitted'])
-                                                    <div class="text-center text-green-600 dark:text-green-400 text-sm font-medium py-2">گزارش ثبت شده</div>
+                                                    <div class="text-center text-success text-sm font-medium py-2">گزارش ثبت شده</div>
                                                 @elseif($day['is_locked'])
-                                                    <div class="text-center text-red-500 text-sm font-medium py-2">مهلت تمام شده</div>
+                                                    <div class="text-center text-error text-sm font-medium py-2">مهلت تمام شده</div>
                                                 @else
                                                     <div class="text-center text-muted text-sm py-2">در انتظار</div>
                                                 @endif
@@ -153,15 +154,9 @@
                                 </div>
 
                             @else
-                                <div class="flex flex-col items-center justify-center py-12 space-y-4">
-                                    <img src="/client/svg/empty2.svg"
-                                         class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
-                                         alt="پیامی وجود ندارد"/>
-                                    <div class="text-center space-y-2">
-                                        <h2 class="font-bold text-xl text-foreground">گزارشی وجود ندارد !</h2>
-                                        <p class="text-muted text-sm">پس از برگزاری جلسه مشاوره، گزارش های روزانه شما  در اینجا ثبت می‌شود.</p>
-                                    </div>
-                                </div>
+                                <x-ui.empty-state title="گزارشی وجود ندارد !">
+                                    پس از برگزاری جلسه مشاوره، گزارش های روزانه شما در اینجا ثبت می‌شود.
+                                </x-ui.empty-state>
                             @endif
                         </div>
 
@@ -182,10 +177,10 @@
                                         <div wire:key="report-{{ $report->id }}"
                                              class="glass rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-border">
 
-                                            <div class="bg-gradient-to-r from-primary/10 via-blue-500/10 to-sky-500/10 px-4 sm:px-6 py-3 sm:py-4 border-b border-border">
+                                            <div class="bg-gradient-to-r from-primary/10 via-info/10 to-info/10 px-4 sm:px-6 py-3 sm:py-4 border-b border-border">
                                                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                                     <div class="flex items-center gap-3 sm:gap-4">
-                                                        <div class="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30">
+                                                        <div class="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-xl bg-gradient-to-br from-info to-info/70 text-white shadow-lg shadow-info/30">
                                                             <svg class="w-5 h-5 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                                             </svg>
@@ -195,10 +190,8 @@
                                                             <div class="flex items-center gap-2 mt-0.5">
                                                                 <p class="text-xs sm:text-sm text-muted">{{ jdate($report->report_date)->format('Y/m/d') }}</p>
                                                                 @if($report->is_compensatory)
-                                                                    <span class="inline-flex items-center gap-1 bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold">
-                                                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                                                        </svg>
+                                                                    <span class="inline-flex items-center gap-1 bg-warning/20 text-warning text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold">
+                                                                        <x-ui.icon name="check" class="w-3 h-3"/>
                                                                         جبرانی
                                                                     </span>
                                                                 @endif
@@ -206,25 +199,20 @@
                                                         </div>
                                                     </div>
 
+                                                    @php
+                                                        $reportStatusKey = match($report->status) {
+                                                            'approved' => 'paid',
+                                                            'rejected' => 'voided',
+                                                            default    => 'pending',
+                                                        };
+                                                        $reportStatusLabel = match($report->status) {
+                                                            'approved' => 'تایید شده',
+                                                            'rejected' => 'رد شده',
+                                                            default    => 'در انتظار بررسی',
+                                                        };
+                                                    @endphp
                                                     <div>
-                                                        @if($report->status === 'approved')
-                                                            <span class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-green-500/20 text-green-600 dark:text-green-400 text-xs sm:text-sm font-black border border-green-500/30">
-                                                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                                                تایید شده
-                                                            </span>
-                                                        @elseif($report->status === 'rejected')
-                                                            <span class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-red-500/20 text-red-500 text-xs sm:text-sm font-black border border-red-500/30">
-                                                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                                                </svg>
-                                                                رد شده
-                                                            </span>
-                                                        @else
-                                                            <span class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 text-xs sm:text-sm font-black border border-amber-500/30">
-                                                                <span class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
-                                                                در انتظار بررسی
-                                                            </span>
-                                                        @endif
+                                                        <x-ui.status-badge :status="$reportStatusKey" :label="$reportStatusLabel"/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -234,15 +222,15 @@
 
                                                     <div class="bg-muted/30 rounded-xl p-3 sm:p-4">
                                                         <div class="flex items-center gap-2 mb-2">
-                                                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20">
-                                                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-success/20">
+                                                                <svg class="w-4 h-4 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                                                                 </svg>
                                                             </div>
                                                             <span class="text-xs text-muted font-semibold">پارت خوانده</span>
                                                         </div>
                                                         <div class="flex items-baseline gap-1.5">
-                                                            <span class="text-2xl sm:text-3xl font-black text-green-600">{{ $report->read_parts_count }}</span>
+                                                            <span class="text-2xl sm:text-3xl font-black text-success">{{ $report->read_parts_count }}</span>
                                                             <span class="text-sm text-muted font-medium">/</span>
                                                             <span class="text-base text-foreground font-bold">{{ $report->total_parts }}</span>
                                                         </div>
@@ -250,14 +238,14 @@
 
                                                     <div class="bg-muted/30 rounded-xl p-3 sm:p-4">
                                                         <div class="flex items-center gap-2 mb-2">
-                                                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20">
-                                                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-info/20">
+                                                                <svg class="w-4 h-4 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                                                 </svg>
                                                             </div>
                                                             <span class="text-xs text-muted font-semibold">تست زده</span>
                                                         </div>
-                                                        <div class="text-2xl sm:text-3xl font-black text-blue-600">{{ $report->reportParts->sum('tests_done') }}</div>
+                                                        <div class="text-2xl sm:text-3xl font-black text-info">{{ $report->reportParts->sum('tests_done') }}</div>
                                                     </div>
 
                                                     <div class="bg-muted/30 rounded-xl p-3 sm:p-4">
@@ -268,21 +256,21 @@
                                                         <div class="flex items-center gap-2 mb-2">
                                                             <div @class([
                                                                 'flex h-8 w-8 items-center justify-center rounded-lg',
-                                                                'bg-emerald-500/20' => $rptColorName === 'emerald',
-                                                                'bg-blue-500/20' => $rptColorName === 'blue',
-                                                                'bg-yellow-500/20' => $rptColorName === 'yellow',
-                                                                'bg-orange-500/20' => $rptColorName === 'orange',
-                                                                'bg-red-500/20' => $rptColorName === 'red',
-                                                                'bg-gray-500/20' => $rptColorName === 'gray',
+                                                                'bg-success/20' => $rptColorName === 'emerald',
+                                                                'bg-info/20' => $rptColorName === 'blue',
+                                                                'bg-warning/20' => $rptColorName === 'yellow',
+                                                                'bg-warning/20' => $rptColorName === 'orange',
+                                                                'bg-error/20' => $rptColorName === 'red',
+                                                                'bg-muted/20' => $rptColorName === 'gray',
                                                             ])>
                                                                 <svg @class([
                                                                     'w-4 h-4',
-                                                                    'text-emerald-600' => $rptColorName === 'emerald',
-                                                                    'text-blue-600' => $rptColorName === 'blue',
-                                                                    'text-yellow-600' => $rptColorName === 'yellow',
-                                                                    'text-orange-600' => $rptColorName === 'orange',
-                                                                    'text-red-600' => $rptColorName === 'red',
-                                                                    'text-gray-600' => $rptColorName === 'gray',
+                                                                    'text-success' => $rptColorName === 'emerald',
+                                                                    'text-info' => $rptColorName === 'blue',
+                                                                    'text-warning' => $rptColorName === 'yellow',
+                                                                    'text-warning' => $rptColorName === 'orange',
+                                                                    'text-error' => $rptColorName === 'red',
+                                                                    'text-muted' => $rptColorName === 'gray',
                                                                 ]) fill="currentColor" viewBox="0 0 24 24">
                                                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                                                 </svg>
@@ -293,23 +281,23 @@
                                                             <div class="flex items-baseline gap-1">
                                                                 <span @class([
                                                                     'text-2xl sm:text-3xl font-black',
-                                                                    'text-emerald-600 dark:text-emerald-400' => $rptColorName === 'emerald',
-                                                                    'text-blue-600 dark:text-blue-400' => $rptColorName === 'blue',
-                                                                    'text-yellow-600 dark:text-yellow-400' => $rptColorName === 'yellow',
-                                                                    'text-orange-600 dark:text-orange-400' => $rptColorName === 'orange',
-                                                                    'text-red-600 dark:text-red-400' => $rptColorName === 'red',
-                                                                    'text-gray-600 dark:text-gray-400' => $rptColorName === 'gray',
+                                                                    'text-success' => $rptColorName === 'emerald',
+                                                                    'text-info' => $rptColorName === 'blue',
+                                                                    'text-warning' => $rptColorName === 'yellow',
+                                                                    'text-warning' => $rptColorName === 'orange',
+                                                                    'text-error' => $rptColorName === 'red',
+                                                                    'text-muted' => $rptColorName === 'gray',
                                                                 ])>{{ $rpt }}</span>
                                                                 <span class="text-xs text-muted font-medium">/ 10</span>
                                                             </div>
                                                             <span @class([
                                                                 'inline-flex items-center mt-1 text-xs font-bold px-2 py-0.5 rounded-lg',
-                                                                'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' => $rptColorName === 'emerald',
-                                                                'bg-blue-500/20 text-blue-600 dark:text-blue-400' => $rptColorName === 'blue',
-                                                                'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' => $rptColorName === 'yellow',
-                                                                'bg-orange-500/20 text-orange-600 dark:text-orange-400' => $rptColorName === 'orange',
-                                                                'bg-red-500/20 text-red-600 dark:text-red-400' => $rptColorName === 'red',
-                                                                'bg-gray-500/20 text-gray-600 dark:text-gray-400' => $rptColorName === 'gray',
+                                                                'bg-success/20 text-success' => $rptColorName === 'emerald',
+                                                                'bg-info/20 text-info' => $rptColorName === 'blue',
+                                                                'bg-warning/20 text-warning' => $rptColorName === 'yellow',
+                                                                'bg-warning/20 text-warning' => $rptColorName === 'orange',
+                                                                'bg-error/20 text-error' => $rptColorName === 'red',
+                                                                'bg-muted/20 text-muted' => $rptColorName === 'gray',
                                                             ])>
                                                                 {{ $this->getRatingLabel($rpt) }}
                                                             </span>
@@ -332,8 +320,8 @@
                                                             </div>
                                                         @endif
                                                         @if($rptMissed)
-                                                            <div class="bg-red-500/5 rounded-xl p-3 border border-red-300/30">
-                                                                <p class="text-xs font-semibold text-red-500 mb-1">علت عدم انجام پارت:</p>
+                                                            <div class="bg-error/5 rounded-xl p-3 border border-error/30">
+                                                                <p class="text-xs font-semibold text-error mb-1">علت عدم انجام پارت:</p>
                                                                 <p class="text-sm text-foreground leading-6">{{ $rptMissed }}</p>
                                                             </div>
                                                         @endif
@@ -341,7 +329,7 @@
                                                 @endif
 
                                                 @if($report->advisor_comment)
-                                                    <div class="bg-gradient-to-br from-primary/10 via-blue-500/10 to-sky-500/10 rounded-xl p-4 sm:p-5 border-2 border-primary/20">
+                                                    <div class="bg-gradient-to-br from-primary/10 via-info/10 to-info/10 rounded-xl p-4 sm:p-5 border-2 border-primary/20">
                                                         <div class="flex items-start gap-3 mb-3">
                                                             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 shrink-0">
                                                                 <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -353,17 +341,15 @@
                                                                 <p class="text-xs sm:text-sm text-muted">مشاور شما پاسخی برای این گزارش ثبت کرده است</p>
                                                             </div>
                                                         </div>
-                                                        <button type="button" wire:click="openReplyModal({{ $report->id }})" wire:loading.attr="disabled" wire:target="openReplyModal({{ $report->id }})"
-                                                                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all text-sm sm:text-base font-black shadow-lg shadow-primary/30 disabled:opacity-60">
+                                                        <x-ui.button type="button" wire:click="openReplyModal({{ $report->id }})" wire:loading.attr="disabled" wire:target="openReplyModal({{ $report->id }})"
+                                                                     variant="primary" size="lg" class="w-full sm:w-auto">
                                                             <span wire:loading.remove wire:target="openReplyModal({{ $report->id }})" class="inline-flex items-center gap-2">
-                                                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                                </svg>
-                                                                مشاهده نظر کامل
+                                                                مشاهده نظر کامل <x-ui.icon name="eye" class="w-4 h-4 sm:w-5 sm:h-5"/>
                                                             </span>
-                                                            <x-ui.spinner wire:loading wire:target="openReplyModal({{ $report->id }})" />
-                                                        </button>
+                                                            <span wire:loading wire:target="openReplyModal({{ $report->id }})">
+                                                                <x-ui.spinner size="sm"/>
+                                                            </span>
+                                                        </x-ui.button>
                                                     </div>
                                                 @else
                                                     <div class="bg-muted/30 rounded-xl p-4 border border-border">
@@ -386,21 +372,13 @@
                                 </div>
 
                                 <div class="mt-6 sm:mt-8">
-                                    {{ $reports->links('layouts.client.pagination') }}
+                                    {{ $reports->links('components.ui.pagination') }}
                                 </div>
 
                             @else
-                                <div>
-                                    <div>
-                                        <img src="/client/svg/empty2.svg"
-                                             class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
-                                             alt="پیامی وجود ندارد"/>
-                                    </div>
-                                    <div class="text-center space-y-2">
-                                        <h2 class="font-black text-xl sm:text-2xl text-foreground">گزارشی ثبت نشده است</h2>
-                                        <p class="text-muted text-sm sm:text-base max-w-md">گزارش‌های روزانه ارسال شده شما در اینجا نمایش داده می‌شود.</p>
-                                    </div>
-                                </div>
+                                <x-ui.empty-state title="گزارشی ثبت نشده است">
+                                    گزارش‌های روزانه ارسال شده شما در اینجا نمایش داده می‌شود.
+                                </x-ui.empty-state>
                             @endif
                             </div>
                         </div>
@@ -412,70 +390,80 @@
     </div>
 
 
-    {{-- ═════════════════════ Report Modal (Alpine-driven, zero lag) ═════════════════════ --}}
-    <div x-show="showReportModal" x-cloak class="fixed inset-0 z-[60] flex flex-col justify-end sm:items-center sm:justify-center"
-         @keydown.escape.window="showReportModal = false; $wire.closeReportModal()">
+    {{-- ═════════════════════ Report Modal ═════════════════════ --}}
+    <div x-show="showReportModal" x-cloak>
+        <div
+            x-show="showReportModal"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
+            @click="showReportModal = false; $wire.closeReportModal()"
+            @keydown.escape.window="showReportModal = false; $wire.closeReportModal()"
+        ></div>
 
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showReportModal = false; $wire.closeReportModal()"></div>
+        <div
+            x-show="showReportModal"
+            class="fixed inset-0 z-[61] flex items-end justify-center overscroll-contain sm:items-center sm:p-4"
+            @click.self="showReportModal = false; $wire.closeReportModal()"
+        >
+            <div
+                x-show="showReportModal"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                class="relative w-full sm:max-w-2xl max-h-[85vh] sm:max-h-[88vh] overflow-hidden bg-background border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,80px)] sm:pb-0"
+            >
+                <div class="mx-auto mt-3 mb-1 h-1.5 w-14 rounded-full bg-border sm:hidden shrink-0"></div>
 
-        <div class="relative z-10 w-full sm:max-w-2xl max-h-[85vh] sm:max-h-[88vh] overflow-hidden
-                    glass border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col
-                    pb-[env(safe-area-inset-bottom,80px)] sm:pb-0">
+                <button type="button" @click="showReportModal = false; $wire.closeReportModal()" data-elevated="false"
+                        class="btn-press absolute top-4 left-4 w-8 h-8 inline-flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-secondary transition-colors z-10">
+                    <x-ui.icon name="x" class="w-4 h-4"/>
+                </button>
 
-            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
-                <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
-            </div>
+                @if(isset($weekDays[$selectedDayIndex]))
+                    @php $selectedDay = $weekDays[$selectedDayIndex]; @endphp
 
-            @if(isset($weekDays[$selectedDayIndex]))
-                @php $selectedDay = $weekDays[$selectedDayIndex]; @endphp
-
-                <div class="shrink-0 border-b border-border px-4 sm:px-6 py-3 sm:py-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-base sm:text-lg font-bold text-foreground">ثبت گزارش روزانه</h3>
-                            <p class="text-xs sm:text-sm text-muted">{{ $selectedDay['name'] }} - {{ $selectedDay['jalali_short'] }}</p>
-                        </div>
-                        <button type="button" @click="showReportModal = false; $wire.closeReportModal()" class="text-muted hover:text-foreground transition-all p-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
+                    <div class="shrink-0 border-b border-border px-4 sm:px-6 py-3 sm:py-4">
+                        <h3 class="text-base sm:text-lg font-bold text-foreground">ثبت گزارش روزانه</h3>
+                        <p class="text-xs sm:text-sm text-muted">{{ $selectedDay['name'] }} - {{ $selectedDay['jalali_short'] }}</p>
                     </div>
-                </div>
 
-                <div class="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5">
+                    <div class="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5">
 
-                    @if($errors->any())
-                        <div class="rounded-xl border border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-3.5 sm:p-4" role="alert">
-                            <div class="flex items-start gap-2.5">
-                                <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                </svg>
-                                <div class="min-w-0">
-                                    <p class="font-bold text-sm text-red-700 dark:text-red-300">لطفاً موارد زیر را اصلاح کنید:</p>
-                                    <ul class="mt-2 space-y-1 text-xs sm:text-sm text-red-600 dark:text-red-300 list-disc list-inside">
-                                        @foreach($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
+                        @if($errors->any())
+                            <div class="rounded-xl border border-error/30 bg-error/10 p-3.5 sm:p-4" role="alert">
+                                <div class="flex items-start gap-2.5">
+                                    <x-ui.icon name="triangle-alert" class="w-5 h-5 text-error shrink-0 mt-0.5"/>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-sm text-error">لطفاً موارد زیر را اصلاح کنید:</p>
+                                        <ul class="mt-2 space-y-1 text-xs sm:text-sm text-error list-disc list-inside">
+                                            @foreach($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endif
+                        @endif
 
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
                             <label class="font-semibold text-foreground text-sm sm:text-base">پارت‌های خوانده شده:</label>
                             <span class="text-xs sm:text-sm text-muted">
-                                <span class="font-medium text-green-600">{{ count($selectedParts) }}</span> / {{ count($selectedDay['parts']) }}
+                                <span class="font-medium text-success">{{ count($selectedParts) }}</span> / {{ count($selectedDay['parts']) }}
                             </span>
                         </div>
                         @if(count($selectedParts) > 0)
-                            <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/30">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-green-600 shrink-0">
-                                    <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="text-xs text-green-700 dark:text-green-400 font-medium">{{ count($selectedParts) }} پارت بر اساس ثبت ساعت مطالعه شما خودکار انتخاب شدند.</span>
+                            <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-success/10 border border-success/30">
+                                <x-ui.icon name="circle-check" class="w-4 h-4 text-success shrink-0"/>
+                                <span class="text-xs text-success font-medium">{{ count($selectedParts) }} پارت بر اساس ثبت ساعت مطالعه شما خودکار انتخاب شدند.</span>
                             </div>
                         @endif
 
@@ -489,43 +477,33 @@
                                 @endphp
                                 <div wire:key="part-select-{{ $part->id }}"
                                      class="relative bg-background rounded-xl border-2 transition-all duration-200
-                                     {{ $partIsRejected ? 'border-red-500 bg-red-50/30 dark:bg-red-900/10' : ($partIsSelected ? 'border-green-500 bg-green-50/50 dark:bg-green-900/10' : 'border-transparent') }}
-                                     {{ !$partHasStudyHours && !$partIsRejected ? 'border-red-300 dark:border-red-800 opacity-70' : '' }}">
+ {{ $partIsRejected ? 'border-error bg-error/30' : ($partIsSelected ? 'border-success bg-success/50' : 'border-transparent') }}
+ {{ !$partHasStudyHours && !$partIsRejected ? 'border-error opacity-70' : '' }}">
 
                                     @if($partIsRejected)
                                         <div class="flex items-center gap-2 px-3 sm:px-3.5 pt-2.5 pb-1">
-                                            <svg class="w-4 h-4 text-red-500 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M12 1.5a.75.75 0 01.564.255l8.25 9.5a.75.75 0 01-.564 1.245H3.75a.75.75 0 01-.564-1.245L11.436 1.755A.75.75 0 0112 1.5zM10.5 8.25a.75.75 0 011.5 0v3a.75.75 0 01-1.5 0v-3zM12 15a.75.75 0 100 1.5.75.75 0 000-1.5z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <span class="text-[10px] sm:text-xs text-red-600 dark:text-red-400 font-semibold">گزارش تقلب این پارت توسط مشاور رد شده — انتخاب اجباری</span>
+                                            <x-ui.icon name="triangle-alert" class="w-4 h-4 text-error shrink-0"/>
+                                            <span class="text-[10px] sm:text-xs text-error font-semibold">گزارش تقلب این پارت توسط مشاور رد شده — انتخاب اجباری</span>
                                         </div>
                                     @elseif(!$partHasStudyHours)
                                         <div class="flex items-center gap-2 px-3 sm:px-3.5 pt-2.5 pb-1">
-                                            <svg class="w-4 h-4 text-red-500 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <span class="text-[10px] sm:text-xs text-red-600 dark:text-red-400 font-semibold">ساعت مطالعه ثبت نشده — ابتدا از بخش «ثبت ساعت مطالعه» اقدام کنید</span>
+                                            <x-ui.icon name="triangle-alert" class="w-4 h-4 text-error shrink-0"/>
+                                            <span class="text-[10px] sm:text-xs text-error font-semibold">ساعت مطالعه ثبت نشده — ابتدا از بخش «ثبت ساعت مطالعه» اقدام کنید</span>
                                         </div>
                                     @elseif($partIsLocked)
                                         <div class="flex items-center gap-2 px-3 sm:px-3.5 pt-2.5 pb-1">
-                                            <svg class="w-4 h-4 text-green-500 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <span class="text-[10px] sm:text-xs text-green-600 dark:text-green-400 font-semibold">ساعت مطالعه ثبت شده — انتخاب خودکار</span>
+                                            <x-ui.icon name="lock" class="w-4 h-4 text-success shrink-0"/>
+                                            <span class="text-[10px] sm:text-xs text-success font-semibold">ساعت مطالعه ثبت شده — انتخاب خودکار</span>
                                         </div>
                                     @endif
 
                                     <div wire:click="togglePart({{ $part->id }})"
                                          class="flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 {{ !$partHasStudyHours ? 'cursor-not-allowed' : ($partIsLocked ? 'cursor-default' : 'cursor-pointer') }}">
-                                        <div class="mt-0.5 shrink-0 {{ $partIsSelected ? 'text-green-500' : (!$partHasStudyHours ? 'text-red-400' : 'text-muted') }}">
+                                        <div class="mt-0.5 shrink-0 {{ $partIsSelected ? 'text-success' : (!$partHasStudyHours ? 'text-error' : 'text-muted') }}">
                                             @if($partIsSelected)
-                                                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
-                                                    <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/>
-                                                </svg>
+                                                <x-ui.icon name="circle-check" class="w-5 h-5 sm:w-6 sm:h-6"/>
                                             @elseif(!$partHasStudyHours)
-                                                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
-                                                    <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clip-rule="evenodd"/>
-                                                </svg>
+                                                <x-ui.icon name="lock" class="w-5 h-5 sm:w-6 sm:h-6"/>
                                             @else
                                                 <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -577,12 +555,12 @@
                                             <div>
                                                 <label class="text-xs text-muted block mb-1">
                                                     تعداد تست زده شده:
-                                                    <span class="text-red-500 font-semibold">(اجباری — حداقل ۰)</span>
+                                                    <span class="text-error font-semibold">(اجباری — حداقل ۰)</span>
                                                 </label>
                                                 <input type="number" wire:model="testsDone.{{ $part->id }}" min="0" max="{{ $part->test_count }}"
-                                                       class="w-full h-9 sm:h-10 rounded-lg border {{ $errors->has('testsDone.'.$part->id) ? 'border-red-400' : 'border-border' }} bg-background text-foreground text-sm px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                                       class="w-full h-9 sm:h-10 rounded-lg border {{ $errors->has('testsDone.'.$part->id) ? 'border-error' : 'border-border' }} bg-background text-foreground text-sm px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                                        placeholder="عدد وارد کنید (از ۰ تا {{ $part->test_count }})">
-                                                @error('testsDone.'.$part->id)<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                                                @error('testsDone.'.$part->id)<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                                             </div>
                                         </div>
                                     @endif
@@ -596,15 +574,15 @@
                     @if($unreadCount >= 2)
                         <div class="space-y-2">
                             <label class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
-                                <svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                <svg class="w-4 h-4 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                                 علت عدم انجام پارت:
-                                <span class="text-red-500 text-xs font-normal">(اجباری)</span>
+                                <span class="text-error text-xs font-normal">(اجباری)</span>
                             </label>
                             <p class="text-xs text-muted">{{ $unreadCount }} پارت از برنامه امروز انجام نشده — لطفاً دلیل را توضیح دهید.</p>
                             <textarea wire:model="missedPartsReason" rows="3"
-                                      class="w-full rounded-xl border {{ $errors->has('missedPartsReason') ? 'border-red-400' : 'border-red-300 dark:border-red-700' }} bg-background text-foreground px-4 py-3 text-sm sm:text-base resize-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
+                                      class="w-full rounded-xl border {{ $errors->has('missedPartsReason') ? 'border-error' : 'border-error' }} bg-background text-foreground px-4 py-3 text-sm sm:text-base resize-none focus:ring-2 focus:ring-error/20 focus:border-error transition-all"
                                       placeholder="لطفاً توضیح دهید چرا پارت‌های مطالعاتی انجام نشدند..."></textarea>
-                            @error('missedPartsReason')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                            @error('missedPartsReason')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </div>
                     @else
                         <div class="space-y-2">
@@ -616,37 +594,37 @@
                             <textarea wire:model="description" rows="3"
                                       class="w-full rounded-xl border border-border bg-secondary text-foreground px-4 py-3 text-sm sm:text-base resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                       placeholder="اگر توضیحی دارید اینجا بنویسید..."></textarea>
-                            @error('description')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                            @error('description')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </div>
                     @endif
 
 
                     @if(count($currentDayMakeupSessions) > 0)
-                        <div class="rounded-xl border border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/10 p-3.5 sm:p-4 space-y-2">
+                        <div class="rounded-xl border border-info/30 bg-info/10 p-3.5 sm:p-4 space-y-2">
                             <div class="flex items-center gap-2">
-                                <svg class="w-4 h-4 text-blue-600 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                <svg class="w-4 h-4 text-info shrink-0" viewBox="0 0 24 24" fill="currentColor">
                                     <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clip-rule="evenodd"/>
                                 </svg>
-                                <span class="font-semibold text-sm text-blue-700 dark:text-blue-300">مطالعه اضافه بر برنامه (خودکار ضمیمه می‌شود):</span>
+                                <span class="font-semibold text-sm text-info">مطالعه اضافه بر برنامه (خودکار ضمیمه می‌شود):</span>
                             </div>
                             <div class="space-y-1.5">
                                 @foreach($currentDayMakeupSessions as $ms)
-                                    <div class="flex items-center justify-between text-xs text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/30 rounded-lg px-3 py-1.5">
+                                    <div class="flex items-center justify-between text-xs text-info bg-info/15 rounded-lg px-3 py-1.5">
                                         <span class="font-medium">
                                             @if($ms['subject_name']){{ $ms['subject_name'] }}@endif
-                                            @if($ms['chapter_name']) <span class="text-blue-400">«</span> {{ $ms['chapter_name'] }}@elseif(!$ms['subject_name'])نامشخص@endif
+                                            @if($ms['chapter_name']) <span class="text-info">«</span> {{ $ms['chapter_name'] }}@elseif(!$ms['subject_name'])نامشخص@endif
                                         </span>
-                                        <div class="flex items-center gap-2 text-blue-500">
+                                        <div class="flex items-center gap-2 text-info">
                                             <span>{{ $ms['part_type_label'] }}</span>
                                             @if($ms['duration_minutes'] > 0)
-                                                <span class="text-blue-400">•</span>
+                                                <span class="text-info">•</span>
                                                 <span>{{ $ms['duration_minutes'] }} دقیقه</span>
                                             @endif
                                         </div>
                                     </div>
                                 @endforeach
                             </div>
-                            <p class="text-[10px] text-blue-500 dark:text-blue-400">این موارد به‌عنوان گزارش اضافه بر سازمان برای {{ $this->reportRecipientLabel }} ارسال می‌شوند.</p>
+                            <p class="text-[10px] text-info">این موارد به‌عنوان گزارش اضافه بر سازمان برای {{ $this->reportRecipientLabel }} ارسال می‌شوند.</p>
                         </div>
                     @endif
 
@@ -664,20 +642,20 @@
                                 <div class="flex items-center gap-2">
                                     <span @class([
                                         'text-2xl font-black',
-                                        'text-emerald-600 dark:text-emerald-400' => $ratingColorName === 'emerald',
-                                        'text-blue-600 dark:text-blue-400' => $ratingColorName === 'blue',
-                                        'text-yellow-600 dark:text-yellow-400' => $ratingColorName === 'yellow',
-                                        'text-orange-600 dark:text-orange-400' => $ratingColorName === 'orange',
-                                        'text-red-600 dark:text-red-400' => $ratingColorName === 'red',
+                                        'text-success' => $ratingColorName === 'emerald',
+                                        'text-info' => $ratingColorName === 'blue',
+                                        'text-warning' => $ratingColorName === 'yellow',
+                                        'text-warning' => $ratingColorName === 'orange',
+                                        'text-error' => $ratingColorName === 'red',
                                     ])>{{ $computedRating }}</span>
                                     <span class="text-muted text-sm">/ 10</span>
                                     <span @class([
                                         'text-xs sm:text-sm font-bold px-2 py-1 rounded-lg',
-                                        'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' => $ratingColorName === 'emerald',
-                                        'bg-blue-500/20 text-blue-600 dark:text-blue-400' => $ratingColorName === 'blue',
-                                        'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' => $ratingColorName === 'yellow',
-                                        'bg-orange-500/20 text-orange-600 dark:text-orange-400' => $ratingColorName === 'orange',
-                                        'bg-red-500/20 text-red-600 dark:text-red-400' => $ratingColorName === 'red',
+                                        'bg-success/20 text-success' => $ratingColorName === 'emerald',
+                                        'bg-info/20 text-info' => $ratingColorName === 'blue',
+                                        'bg-warning/20 text-warning' => $ratingColorName === 'yellow',
+                                        'bg-warning/20 text-warning' => $ratingColorName === 'orange',
+                                        'bg-error/20 text-error' => $ratingColorName === 'red',
                                     ])>
                                         {{ $this->getRatingLabel($computedRating) }}
                                     </span>
@@ -689,108 +667,119 @@
                     </div>
                 </div>
 
-                <div class="shrink-0 bg-secondary border-t border-border px-4 sm:px-6 py-3 sm:py-4">
-                    <div class="flex items-center justify-end gap-2 sm:gap-3">
-                        <button type="button" @click="showReportModal = false; $wire.closeReportModal()"
-                                class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl border border-border text-foreground hover:bg-muted/50 transition-all text-sm sm:text-base font-medium">
-                            انصراف
-                        </button>
-                        <button type="button" wire:click="submitReport" wire:loading.attr="disabled" wire:target="submitReport"
-                                class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all disabled:opacity-50 text-sm sm:text-base font-semibold inline-flex items-center justify-center gap-2 min-w-[120px]">
-                            <span wire:loading.remove wire:target="submitReport">ثبت گزارش</span>
-                            <x-ui.spinner wire:loading wire:target="submitReport" />
-                        </button>
+                    <div class="shrink-0 bg-secondary border-t border-border px-4 sm:px-6 py-3 sm:py-4">
+                        <div class="flex items-center justify-end gap-2 sm:gap-3">
+                            <x-ui.button type="button" @click="showReportModal = false; $wire.closeReportModal()"
+                                         variant="secondary-outline" icon="x">
+                                انصراف
+                            </x-ui.button>
+                            <x-ui.button type="button" wire:click="submitReport" wire:loading.attr="disabled" wire:target="submitReport"
+                                         variant="primary" class="min-w-[120px]">
+                                <span wire:loading.remove wire:target="submitReport" class="inline-flex items-center gap-1.5">
+                                    ثبت گزارش <x-ui.icon name="check" class="w-4 h-4"/>
+                                </span>
+                                <span wire:loading wire:target="submitReport">
+                                    <x-ui.spinner size="xs"/>
+                                </span>
+                            </x-ui.button>
+                        </div>
                     </div>
-                </div>
-            @else
-                {{-- حالت بارگذاری: تا رسیدن اطلاعات روز از سرور --}}
-                <div class="flex-1 flex flex-col items-center justify-center gap-3 p-12">
-                    <x-ui.spinner class="text-primary" />
-                    <span class="text-sm text-muted">در حال بارگذاری اطلاعات…</span>
-                </div>
-            @endif
+                @else
+                    {{-- حالت بارگذاری: تا رسیدن اطلاعات روز از سرور --}}
+                    <div class="flex-1 flex flex-col items-center justify-center gap-3 p-12">
+                        <x-ui.spinner class="text-primary" />
+                        <span class="text-sm text-muted">در حال بارگذاری اطلاعات…</span>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 
 
     {{-- ═════════════════════ Compensatory Modal ═════════════════════ --}}
-    <div x-show="showCompensatoryModal" x-cloak class="fixed inset-0 z-[80] flex flex-col justify-end sm:items-center sm:justify-center"
-         @keydown.escape.window="showCompensatoryModal = false; $wire.closeCompensatoryModal()">
+    <div x-show="showCompensatoryModal" x-cloak>
+        <div
+            x-show="showCompensatoryModal"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm"
+            @click="showCompensatoryModal = false; $wire.closeCompensatoryModal()"
+            @keydown.escape.window="showCompensatoryModal = false; $wire.closeCompensatoryModal()"
+        ></div>
 
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showCompensatoryModal = false; $wire.closeCompensatoryModal()"></div>
+        <div
+            x-show="showCompensatoryModal"
+            class="fixed inset-0 z-[81] flex items-end justify-center overscroll-contain sm:items-center sm:p-4"
+            @click.self="showCompensatoryModal = false; $wire.closeCompensatoryModal()"
+        >
+            <div
+                x-show="showCompensatoryModal"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                class="relative w-full sm:max-w-2xl max-h-[90vh] overflow-hidden bg-background border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+            >
+                <div class="mx-auto mt-3 mb-1 h-1.5 w-14 rounded-full bg-border sm:hidden shrink-0"></div>
 
-        <div class="relative z-10 w-full sm:max-w-2xl max-h-[90vh] overflow-hidden glass border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0">
+                <button type="button" @click="showCompensatoryModal = false; $wire.closeCompensatoryModal()" data-elevated="false"
+                        class="btn-press absolute top-4 left-4 w-8 h-8 inline-flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-secondary transition-colors z-10">
+                    <x-ui.icon name="x" class="w-4 h-4"/>
+                </button>
 
-            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
-                <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
-            </div>
-
-            <div class="shrink-0 border-b border-border px-6 py-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-bold text-foreground">ثبت پارت جبرانی</h3>
-                        <p class="text-sm text-muted">
-                            @if($compensatoryStep === 1) مرحله ۱: پارت های خوانده شده را انتخاب کنید
-                            @else مرحله ۲: جزئیات گزارش را وارد کنید @endif
-                        </p>
+                <div class="shrink-0 border-b border-border px-6 py-4">
+                    <h3 class="text-lg font-bold text-foreground">ثبت پارت جبرانی</h3>
+                    <p class="text-sm text-muted">
+                        @if($compensatoryStep === 1) مرحله ۱: پارت های خوانده شده را انتخاب کنید
+                        @else مرحله ۲: جزئیات گزارش را وارد کنید @endif
+                    </p>
+                    <div class="flex items-center gap-2 mt-4">
+                        <div class="flex-1 h-2 rounded-full {{ $compensatoryStep >= 1 ? 'bg-warning' : 'bg-border' }}"></div>
+                        <div class="flex-1 h-2 rounded-full {{ $compensatoryStep >= 2 ? 'bg-warning' : 'bg-border' }}"></div>
                     </div>
-                    <button type="button" @click="showCompensatoryModal = false; $wire.closeCompensatoryModal()" class="text-muted hover:text-foreground transition-all">
-                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
                 </div>
-                <div class="flex items-center gap-2 mt-4">
-                    <div class="flex-1 h-2 rounded-full {{ $compensatoryStep >= 1 ? 'bg-amber-500' : 'bg-border' }}"></div>
-                    <div class="flex-1 h-2 rounded-full {{ $compensatoryStep >= 2 ? 'bg-amber-500' : 'bg-border' }}"></div>
-                </div>
-            </div>
 
-            <div class="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+                <div class="flex-1 overflow-y-auto px-6 py-5 space-y-4">
 
-                @if($compensatoryStep === 1)
-                    @foreach($missedParts as $missed)
-                        @php $compPartHasStudyHours = in_array($missed['part']->id, $completedStudyParts); @endphp
+                    @if($compensatoryStep === 1)
+                        @foreach($missedParts as $missed)
+                            @php $compPartHasStudyHours = in_array($missed['part']->id, $completedStudyParts); @endphp
 
-                        <div @if($missed['has_study']) wire:click="toggleCompensatoryPart({{ $missed['part']->id }})" @endif
-                        wire:key="comp-part-{{ $missed['part']->id }}"
-                             class="p-4 bg-muted/30 rounded-xl transition-all duration-200
-     {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'border-2 border-green-500 bg-green-50/50 dark:bg-green-900/10' : 'border-2 border-transparent' }}
-     {{ !$missed['has_study'] ? 'border-red-300 dark:border-red-800 opacity-70 cursor-not-allowed' : 'cursor-pointer' }}">
+                            <div @if($missed['has_study']) wire:click="toggleCompensatoryPart({{ $missed['part']->id }})" @endif
+                            wire:key="comp-part-{{ $missed['part']->id }}"
+                                 class="p-4 bg-muted/30 rounded-xl transition-all duration-200
+ {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'border-2 border-success bg-success/50' : 'border-2 border-transparent' }}
+ {{ !$missed['has_study'] ? 'border-error opacity-70 cursor-not-allowed' : 'cursor-pointer' }}">
 
-                            @if(!$missed['has_study'])
+                                @if(!$missed['has_study'])
 
-                                <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-red-500 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
-                                        </svg>
-                                        <span class="text-[10px] sm:text-xs text-red-600 dark:text-red-400 font-semibold">ساعت مطالعه این پارت هنوز ثبت نشده</span>
+                                    <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                                        <div class="flex items-center gap-2">
+                                            <x-ui.icon name="triangle-alert" class="w-4 h-4 text-error shrink-0"/>
+                                            <span class="text-[10px] sm:text-xs text-error font-semibold">ساعت مطالعه این پارت هنوز ثبت نشده</span>
+                                        </div>
+                                        @if($currentProgram)
+                                            <x-ui.button href="{{ route('client.profile.consultation.weekly-program', ['program' => $currentProgram->id, 'focus_part' => $missed['part']->id]) }}"
+                                                         wire:navigate variant="warning" size="sm" pill icon="chevron-left">
+                                                شروع و ثبت ساعت مطالعه
+                                            </x-ui.button>
+                                        @endif
                                     </div>
-                                    @if($currentProgram)
-                                        <a href="{{ route('client.profile.consultation.weekly-program', ['program' => $currentProgram->id, 'focus_part' => $missed['part']->id]) }}"
-                                           wire:navigate
-                                           class="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-amber-500 text-white text-[11px] sm:text-xs font-bold px-3 py-1.5 hover:bg-amber-600 active:scale-95 transition-all duration-150">
-                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z"/>
-                                            </svg>
-                                            شروع و ثبت ساعت مطالعه
-                                        </a>
-                                    @endif
-                                </div>
-                            @endif
+                                @endif
 
-                            <div class="flex items-start gap-3">
-                                <div class="mt-1 {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'text-green-500' : (!$compPartHasStudyHours ? 'text-red-400' : 'text-muted') }}">
-                                    @if(in_array($missed['part']->id, $selectedCompensatoryParts))
-                                        <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                                            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/>
-                                        </svg>
-                                    @elseif(!$compPartHasStudyHours)
-                                        <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                                            <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clip-rule="evenodd"/>
-                                        </svg>
-                                    @else
+                                <div class="flex items-start gap-3">
+                                    <div class="mt-1 {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'text-success' : (!$compPartHasStudyHours ? 'text-error' : 'text-muted') }}">
+                                        @if(in_array($missed['part']->id, $selectedCompensatoryParts))
+                                            <x-ui.icon name="circle-check" class="w-5 h-5"/>
+                                        @elseif(!$compPartHasStudyHours)
+                                            <x-ui.icon name="lock" class="w-5 h-5"/>
+                                        @else
                                         <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                         </svg>
@@ -798,7 +787,7 @@
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-xs bg-amber-500/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full">
+                                        <span class="text-xs bg-warning/20 text-warning px-2 py-0.5 rounded-full">
                                             {{ $missed['day_name'] }} - {{ $missed['jalali_date'] }}
                                         </span>
                                     </div>
@@ -815,12 +804,12 @@
                     @endforeach
 
                 @else
-                    <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-4">
-                        <h4 class="font-semibold text-amber-800 dark:text-amber-200 mb-3">پارت‌های انتخاب شده:</h4>
+                    <div class="bg-warning/10 border border-warning/30 rounded-xl p-4 mb-4">
+                        <h4 class="font-semibold text-warning mb-3">پارت‌های انتخاب شده:</h4>
                         <div class="space-y-4">
                             @foreach($missedParts as $missed)
                                 @if(in_array($missed['part']->id, $selectedCompensatoryParts))
-                                    <div class="pb-3 border-b border-amber-200/50 dark:border-amber-800/50 last:border-0 last:pb-0">
+                                    <div class="pb-3 border-b border-warning/50 last:border-0 last:pb-0">
                                         <div class="flex items-center justify-between text-sm mb-2 flex-wrap gap-2">
                                             <span class="text-foreground font-medium">
                                                 {{ $missed['part']->lesson_name }}@include('livewire.client.profile.partials.part-chapter-label', ['part' => $missed['part']])
@@ -842,47 +831,60 @@
                     </div>
                     <div class="space-y-2">
                         <label class="font-semibold text-foreground flex items-center gap-2">
-                            <svg class="w-4 h-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            <x-ui.icon name="square-pen" class="w-4 h-4 text-muted"/>
                             علت عدم انجام پارت
                             <span class="text-muted text-xs font-normal">(اختیاری)</span>
                         </label>
                         <textarea wire:model="compensatoryMissedPartsReason" rows="3"
                                   class="w-full rounded-xl border border-border bg-secondary text-foreground px-4 py-3 resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                   placeholder="در صورت تمایل توضیح دهید چرا پارت‌ها در زمان اصلی انجام نشدند..."></textarea>
-                        @error('compensatoryMissedPartsReason')<p class="text-red-500 text-xs">{{ $message }}</p>@enderror
+                        @error('compensatoryMissedPartsReason')<p class="text-error text-xs">{{ $message }}</p>@enderror
                     </div>
 
-                @endif
-            </div>
-
-            <div class="shrink-0 bg-secondary border-t border-border px-6 py-4 flex items-center justify-between">
-                <p class="text-sm text-muted">
-                    انتخاب شده: <span class="font-medium text-green-600">{{ count($selectedCompensatoryParts) }}</span>
-                    از <span class="font-medium">{{ count($missedParts) }}</span>
-                </p>
-                <div class="flex items-center gap-3">
-                    @if($compensatoryStep === 1)
-                        <button type="button" @click="showCompensatoryModal = false; $wire.closeCompensatoryModal()"
-                                class="px-5 py-2.5 rounded-xl border border-border text-foreground hover:bg-muted/50 transition-all">
-                            انصراف
-                        </button>
-                        <button type="button" wire:click="goToCompensatoryStep2" wire:loading.attr="disabled" wire:target="goToCompensatoryStep2"
-                                class="px-5 py-2.5 rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-all disabled:opacity-60 inline-flex items-center gap-2 min-w-[120px] justify-center">
-                            <span wire:loading.remove wire:target="goToCompensatoryStep2">مرحله بعد</span>
-                            <x-ui.spinner wire:loading wire:target="goToCompensatoryStep2" />
-                        </button>
-                    @else
-                        <button type="button" wire:click="goToCompensatoryStep1" wire:loading.attr="disabled" wire:target="goToCompensatoryStep1"
-                                class="px-5 py-2.5 rounded-xl border border-border text-foreground hover:bg-muted/50 transition-all disabled:opacity-60 inline-flex items-center gap-2 min-w-[110px] justify-center">
-                            <span wire:loading.remove wire:target="goToCompensatoryStep1">مرحله قبل</span>
-                            <x-ui.spinner wire:loading wire:target="goToCompensatoryStep1" />
-                        </button>
-                        <button type="button" wire:click="submitCompensatory" wire:loading.attr="disabled" wire:target="submitCompensatory"
-                                class="px-5 py-2.5 rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-all disabled:opacity-50 inline-flex items-center gap-2 min-w-[150px] justify-center">
-                            <span wire:loading.remove wire:target="submitCompensatory">ثبت گزارش جبرانی</span>
-                            <x-ui.spinner wire:loading wire:target="submitCompensatory" />
-                        </button>
                     @endif
+                </div>
+
+                <div class="shrink-0 bg-secondary border-t border-border px-6 py-4 flex items-center justify-between flex-wrap gap-3">
+                    <p class="text-sm text-muted">
+                        انتخاب شده: <span class="font-medium text-success">{{ count($selectedCompensatoryParts) }}</span>
+                        از <span class="font-medium">{{ count($missedParts) }}</span>
+                    </p>
+                    <div class="flex items-center gap-3">
+                        @if($compensatoryStep === 1)
+                            <x-ui.button type="button" @click="showCompensatoryModal = false; $wire.closeCompensatoryModal()"
+                                         variant="secondary-outline" icon="x">
+                                انصراف
+                            </x-ui.button>
+                            <x-ui.button type="button" wire:click="goToCompensatoryStep2" wire:loading.attr="disabled" wire:target="goToCompensatoryStep2"
+                                         variant="warning" class="min-w-[120px]">
+                                <span wire:loading.remove wire:target="goToCompensatoryStep2" class="inline-flex items-center gap-1.5">
+                                    مرحله بعد <x-ui.icon name="chevron-left" class="w-4 h-4"/>
+                                </span>
+                                <span wire:loading wire:target="goToCompensatoryStep2">
+                                    <x-ui.spinner size="xs"/>
+                                </span>
+                            </x-ui.button>
+                        @else
+                            <x-ui.button type="button" wire:click="goToCompensatoryStep1" wire:loading.attr="disabled" wire:target="goToCompensatoryStep1"
+                                         variant="secondary-outline" class="min-w-[110px]">
+                                <span wire:loading.remove wire:target="goToCompensatoryStep1" class="inline-flex items-center gap-1.5">
+                                    مرحله قبل <x-ui.icon name="chevron-right" class="w-4 h-4"/>
+                                </span>
+                                <span wire:loading wire:target="goToCompensatoryStep1">
+                                    <x-ui.spinner size="xs"/>
+                                </span>
+                            </x-ui.button>
+                            <x-ui.button type="button" wire:click="submitCompensatory" wire:loading.attr="disabled" wire:target="submitCompensatory"
+                                         variant="warning" class="min-w-[150px]">
+                                <span wire:loading.remove wire:target="submitCompensatory" class="inline-flex items-center gap-1.5">
+                                    ثبت گزارش جبرانی <x-ui.icon name="check" class="w-4 h-4"/>
+                                </span>
+                                <span wire:loading wire:target="submitCompensatory">
+                                    <x-ui.spinner size="xs"/>
+                                </span>
+                            </x-ui.button>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -890,25 +892,45 @@
 
 
     {{-- ═════════════════════ Reply Modal ═════════════════════ --}}
-    <div x-show="replyModalOpen" x-cloak class="fixed inset-0 z-[90] flex flex-col justify-end sm:items-center sm:justify-center"
-         @keydown.escape.window="replyModalOpen = false; $wire.closeReplyModal()">
+    <div x-show="replyModalOpen" x-cloak>
+        <div
+            x-show="replyModalOpen"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm"
+            @click="replyModalOpen = false; $wire.closeReplyModal()"
+            @keydown.escape.window="replyModalOpen = false; $wire.closeReplyModal()"
+        ></div>
 
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="replyModalOpen = false; $wire.closeReplyModal()"></div>
+        <div
+            x-show="replyModalOpen"
+            class="fixed inset-0 z-[91] flex items-end justify-center overscroll-contain sm:items-center sm:p-4"
+            @click.self="replyModalOpen = false; $wire.closeReplyModal()"
+        >
+            <div
+                x-show="replyModalOpen"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                class="relative w-full sm:max-w-lg bg-background border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+            >
+                <div class="mx-auto mt-3 mb-1 h-1.5 w-14 rounded-full bg-border sm:hidden shrink-0"></div>
 
-        <div class="relative z-10 w-full sm:max-w-lg glass border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0">
-
-            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
-                <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
-            </div>
-
-            <div class="flex items-center justify-between px-6 py-4 border-b border-border">
-                <h3 class="text-lg font-bold text-foreground">نظر مشاور</h3>
-                <button type="button" @click="replyModalOpen = false; $wire.closeReplyModal()" class="text-muted hover:text-foreground transition-all">
-                    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
+                <button type="button" @click="replyModalOpen = false; $wire.closeReplyModal()" data-elevated="false"
+                        class="btn-press absolute top-4 left-4 w-8 h-8 inline-flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-secondary transition-colors z-10">
+                    <x-ui.icon name="x" class="w-4 h-4"/>
                 </button>
-            </div>
+
+                <div class="shrink-0 px-6 py-4 border-b border-border">
+                    <h3 class="text-lg font-bold text-foreground">نظر مشاور</h3>
+                </div>
 
             <div class="px-6 py-5 space-y-4">
                 @if($advisorCommentPreview)
@@ -926,14 +948,14 @@
                 @endif
 
                 @if($studentReplyPreview)
-                    <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
+                    <div class="bg-success/10 border border-success/20 rounded-xl p-4">
                         <div class="flex items-center gap-2 mb-3">
-                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20">
-                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-success/20">
+                                <svg class="w-4 h-4 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
                                 </svg>
                             </div>
-                            <span class="font-bold text-green-600 text-sm">پاسخ شما</span>
+                            <span class="font-bold text-success text-sm">پاسخ شما</span>
                         </div>
                         <p class="text-sm text-foreground leading-7 whitespace-pre-line">{{ $studentReplyPreview }}</p>
                     </div>
@@ -943,7 +965,7 @@
                         <textarea wire:model="studentReplyInput" rows="3"
                                   class="w-full rounded-xl border border-border bg-background text-foreground px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                   placeholder="پاسخ خود را بنویسید..."></textarea>
-                        @error('studentReplyInput')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        @error('studentReplyInput')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
                 @else
                     <div class="flex items-center justify-center py-6">
@@ -952,18 +974,23 @@
                 @endif
             </div>
 
-            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
-                <button type="button" @click="replyModalOpen = false; $wire.closeReplyModal()"
-                        class="px-5 py-2.5 rounded-xl border border-border text-foreground hover:bg-muted/50 transition-all text-sm font-medium">
-                    بستن
-                </button>
-                @if(!$studentReplyPreview && $advisorCommentPreview)
-                    <button type="button" wire:click="saveStudentReply" wire:loading.attr="disabled" wire:target="saveStudentReply"
-                            class="px-5 py-2.5 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all disabled:opacity-50 text-sm font-semibold inline-flex items-center gap-2 min-w-[110px] justify-center">
-                        <span wire:loading.remove wire:target="saveStudentReply">ثبت پاسخ</span>
-                        <x-ui.spinner wire:loading wire:target="saveStudentReply" />
-                    </button>
-                @endif
+                <div class="shrink-0 flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
+                    <x-ui.button type="button" @click="replyModalOpen = false; $wire.closeReplyModal()"
+                                 variant="secondary-outline" icon="x">
+                        بستن
+                    </x-ui.button>
+                    @if(!$studentReplyPreview && $advisorCommentPreview)
+                        <x-ui.button type="button" wire:click="saveStudentReply" wire:loading.attr="disabled" wire:target="saveStudentReply"
+                                     variant="primary" class="min-w-[110px]">
+                            <span wire:loading.remove wire:target="saveStudentReply" class="inline-flex items-center gap-1.5">
+                                ثبت پاسخ <x-ui.icon name="check" class="w-4 h-4"/>
+                            </span>
+                            <span wire:loading wire:target="saveStudentReply">
+                                <x-ui.spinner size="xs"/>
+                            </span>
+                        </x-ui.button>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

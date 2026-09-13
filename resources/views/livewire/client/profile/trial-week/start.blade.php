@@ -2,11 +2,16 @@
 
     {{-- دکمه شروع هفته آزمایشی --}}
     <button
+        type="button"
         wire:click="openConfirm"
         wire:loading.attr="disabled"
         @click="loading = true"
-        class="group relative inline-flex items-center gap-3 px-6 py-4 bg-gradient-to-l from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-2xl font-bold text-sm shadow-lg shadow-emerald-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-300 w-full justify-center md:w-auto">
+        data-elevated="true"
+        class="btn-press group relative inline-flex items-center gap-3 px-6 py-4 bg-success hover:bg-success/90 text-success-foreground rounded-2xl font-bold text-sm shadow-lg shadow-success/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-success/40 transition-all duration-300 w-full justify-center md:w-auto">
 
+        <span>شروع یک هفته آزمایشی رایگان</span>
+
+        {{-- آیکون «رعد/جرقه» توی دیکشنری Keyline نیست، همون SVG قبلی نگه داشته شد. --}}
         <span x-show="!$wire.isLoading">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -15,177 +20,200 @@
         </span>
         <x-ui.spinner wire:loading wire:target="openConfirm" />
 
-        <span>شروع یک هفته آزمایشی رایگان</span>
-
-        <span class="absolute -top-2 -left-2 bg-amber-400 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded-full">
+        <span class="absolute -top-2 -left-2 bg-warning text-warning-foreground text-[10px] font-black px-2 py-0.5 rounded-full">
             رایگان
         </span>
     </button>
 
     {{-- مودال تایید --}}
     @if($showConfirmModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
-         x-data x-init="$el.scrollIntoView({behavior:'smooth'})"
-         @keydown.escape.window="$wire.closeConfirm()">
+        <div class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+             x-data x-init="window.SdfrModalScrollLock.lock()"
+             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+             wire:click="closeConfirm" @click="window.SdfrModalScrollLock.unlock()"
+             @keydown.escape.window="$wire.closeConfirm(); window.SdfrModalScrollLock.unlock()"
+        ></div>
 
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" wire:click="closeConfirm"></div>
+        <div class="fixed inset-0 z-[101] flex items-end sm:items-center justify-center p-0 sm:p-4"
+             @click.self="$wire.closeConfirm(); window.SdfrModalScrollLock.unlock()">
 
-        <div class="relative z-10 w-full max-w-md bg-background border border-border rounded-3xl shadow-2xl p-8 text-center"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 scale-90"
-             x-transition:enter-end="opacity-100 scale-100">
+            <div class="relative w-full sm:max-w-md bg-background border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl p-8 text-center"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-0 sm:scale-90"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-0 sm:scale-90">
 
-            <div class="flex items-center justify-center w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full mx-auto mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                </svg>
-            </div>
+                <div class="mx-auto mt-3 mb-1 h-1.5 w-14 rounded-full bg-border sm:hidden shrink-0"></div>
 
-            <h2 class="text-xl font-black text-foreground mb-3">شروع هفته آزمایشی</h2>
-            <p class="text-muted text-sm leading-relaxed mb-6">
-                با شروع هفته آزمایشی، به مدت <span class="text-emerald-500 font-bold">۷ روز</span> به امکانات سایت دسترسی خواهید داشت.
-                پس از تکمیل مراحل، برنامه مطالعاتی شخصی برای شما ساخته می‌شود.
-                <br><br>
-                <span class="font-semibold text-foreground">آیا می‌خواهید ادامه دهید؟</span>
-            </p>
-
-            <div class="flex gap-3">
-                <button wire:click="confirm"
-                        class="flex-1 py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold transition-colors">
-                    بله، شروع می‌کنم
+                <button type="button" wire:click="closeConfirm" @click="window.SdfrModalScrollLock.unlock()"
+                        class="btn-press absolute top-4 left-4 w-8 h-8 inline-flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-secondary"
+                        data-elevated="false">
+                    <x-ui.icon name="x" class="w-4 h-4"/>
                 </button>
-                <button wire:click="closeConfirm"
-                        class="flex-1 py-3 bg-secondary hover:bg-border text-foreground rounded-xl font-bold transition-colors">
-                    انصراف
-                </button>
+
+                <div class="flex items-center justify-center w-20 h-20 bg-success/15 rounded-full mx-auto mb-6 mt-4">
+                    <x-ui.icon name="sparkles" class="w-10 h-10 text-success"/>
+                </div>
+
+                <h2 class="text-xl font-black text-foreground mb-3">شروع هفته آزمایشی</h2>
+                <p class="text-muted text-sm leading-relaxed mb-6">
+                    با شروع هفته آزمایشی، به مدت <span class="text-success font-bold">۷ روز</span> به امکانات سایت دسترسی خواهید داشت.
+                    پس از تکمیل مراحل، برنامه مطالعاتی شخصی برای شما ساخته می‌شود.
+                    <br><br>
+                    <span class="font-semibold text-foreground">آیا می‌خواهید ادامه دهید؟</span>
+                </p>
+
+                <div class="flex gap-3 border-t border-border pt-5">
+                    <x-ui.button wire:click="confirm" variant="success" icon="check" block>بله، شروع می‌کنم</x-ui.button>
+                    <x-ui.button wire:click="closeConfirm" @click="window.SdfrModalScrollLock.unlock()" variant="secondary-outline" icon="x" block>انصراف</x-ui.button>
+                </div>
             </div>
         </div>
-    </div>
     @endif
 
     {{-- مودال فرم اطلاعات --}}
     @if($showFormModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
-         @keydown.escape.window="$wire.closeForm()">
+        <div class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+             x-data x-init="window.SdfrModalScrollLock.lock()"
+             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+             wire:click="closeForm" @click="window.SdfrModalScrollLock.unlock()"
+             @keydown.escape.window="$wire.closeForm(); window.SdfrModalScrollLock.unlock()"
+        ></div>
 
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" wire:click="closeForm"></div>
+        <div class="fixed inset-0 z-[101] flex items-end sm:items-center justify-center p-0 sm:p-4"
+             @click.self="$wire.closeForm(); window.SdfrModalScrollLock.unlock()">
 
-        <div class="relative z-10 w-full max-w-lg bg-background border border-border rounded-3xl shadow-2xl my-4"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 scale-90"
-             x-transition:enter-end="opacity-100 scale-100">
+            <div class="relative w-full sm:max-w-lg bg-background border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[90vh]"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-0 sm:scale-90"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-0 sm:scale-90">
 
-            {{-- هدر --}}
-            <div class="flex items-center justify-between p-6 border-b border-border">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
+                <div class="mx-auto mt-3 mb-1 h-1.5 w-14 rounded-full bg-border sm:hidden shrink-0"></div>
+
+                <button type="button" wire:click="closeForm" @click="window.SdfrModalScrollLock.unlock()"
+                        class="btn-press absolute top-4 left-4 w-8 h-8 inline-flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-secondary"
+                        data-elevated="false">
+                    <x-ui.icon name="x" class="w-4 h-4"/>
+                </button>
+
+                {{-- هدر --}}
+                <div class="flex items-center gap-3 p-6 pb-4 border-b border-border shrink-0">
+                    <div class="w-10 h-10 rounded-full bg-success/15 flex items-center justify-center shrink-0">
+                        <x-ui.icon name="user" class="w-5 h-5 text-success"/>
                     </div>
                     <h3 class="font-black text-foreground">تکمیل اطلاعات</h3>
                 </div>
-                <button wire:click="closeForm" class="text-muted hover:text-foreground transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
 
-            {{-- بدنه فرم --}}
-            <div class="p-6 space-y-5">
+                {{-- بدنه فرم --}}
+                <div class="p-6 space-y-5 overflow-y-auto">
 
-                @if($errors->has('general'))
-                    <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">
-                        {{ $errors->first('general') }}
+                    @if($errors->has('general'))
+                        <div class="p-4 bg-error/10 border border-error/30 rounded-xl text-error text-sm">
+                            {{ $errors->first('general') }}
+                        </div>
+                    @endif
+
+                    {{-- پایه تحصیلی --}}
+                    <div>
+                        <label class="block text-sm font-bold text-foreground mb-2">
+                            پایه تحصیلی
+                            <span class="text-error">*</span>
+                        </label>
+                        <div class="grid grid-cols-4 gap-2">
+                            @foreach([9 => 'نهم', 10 => 'دهم', 11 => 'یازدهم', 12 => 'دوازدهم'] as $gradeVal => $gradeLabel)
+                                <x-ui.button type="button"
+                                             wire:click="$set('grade', {{ $gradeVal }})"
+                                             variant="{{ $grade == $gradeVal ? 'success' : 'secondary-outline' }}"
+                                             size="sm" block
+                                             :icon="$grade == $gradeVal ? 'check' : null">
+                                    {{ $gradeLabel }}
+                                </x-ui.button>
+                            @endforeach
+                        </div>
+                        @error('grade') <p class="mt-1 text-xs text-error">{{ $message }}</p> @enderror
                     </div>
-                @endif
 
-                {{-- پایه تحصیلی --}}
-                <div>
-                    <label class="block text-sm font-bold text-foreground mb-2">
-                        پایه تحصیلی
-                        <span class="text-red-500">*</span>
-                    </label>
-                    <div class="grid grid-cols-4 gap-2">
-                        @foreach([9 => 'نهم', 10 => 'دهم', 11 => 'یازدهم', 12 => 'دوازدهم'] as $gradeVal => $gradeLabel)
-                            <button type="button"
-                                    wire:click="$set('grade', {{ $gradeVal }})"
-                                    class="py-3 rounded-xl text-sm font-bold border-2 transition-all duration-200 {{ $grade == $gradeVal ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'border-border bg-secondary text-foreground hover:border-emerald-300' }}">
-                                {{ $gradeLabel }}
-                            </button>
-                        @endforeach
+                    {{-- رشته (فقط اگر پایه ۱۰، ۱۱، ۱۲ باشد) --}}
+                    @if($grade != 9)
+                    <div>
+                        <label class="block text-sm font-bold text-foreground mb-2">
+                            رشته تحصیلی
+                            <span class="text-error">*</span>
+                        </label>
+                        <div class="grid grid-cols-3 gap-2">
+                            @foreach(['math' => 'ریاضی', 'experimental' => 'تجربی', 'human' => 'انسانی'] as $fieldVal => $fieldLabel)
+                                <x-ui.button type="button"
+                                             wire:click="$set('field', '{{ $fieldVal }}')"
+                                             variant="{{ $field === $fieldVal ? 'success' : 'secondary-outline' }}"
+                                             size="sm" block
+                                             :icon="$field === $fieldVal ? 'check' : null">
+                                    {{ $fieldLabel }}
+                                </x-ui.button>
+                            @endforeach
+                        </div>
+                        @error('field') <p class="mt-1 text-xs text-error">{{ $message }}</p> @enderror
                     </div>
-                    @error('grade') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                </div>
+                    @endif
 
-                {{-- رشته (فقط اگر پایه ۱۰، ۱۱، ۱۲ باشد) --}}
-                @if($grade != 9)
-                <div>
-                    <label class="block text-sm font-bold text-foreground mb-2">
-                        رشته تحصیلی
-                        <span class="text-red-500">*</span>
-                    </label>
-                    <div class="grid grid-cols-3 gap-2">
-                        @foreach(['math' => 'ریاضی', 'experimental' => 'تجربی', 'human' => 'انسانی'] as $fieldVal => $fieldLabel)
-                            <button type="button"
-                                    wire:click="$set('field', '{{ $fieldVal }}')"
-                                    class="py-3 rounded-xl text-sm font-bold border-2 transition-all duration-200 {{ $field === $fieldVal ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'border-border bg-secondary text-foreground hover:border-emerald-300' }}">
-                                {{ $fieldLabel }}
-                            </button>
-                        @endforeach
+                    {{-- تلفن پدر --}}
+                    <div>
+                        <label class="block text-sm font-bold text-foreground mb-2">
+                            تلفن پدر
+                            <span class="text-error">*</span>
+                        </label>
+                        <input type="tel"
+                               wire:model.live="fatherMobile"
+                               placeholder="09xxxxxxxxx"
+                               dir="ltr"
+                               maxlength="11"
+                               class="w-full px-4 py-3 bg-secondary border border-border rounded-xl text-foreground placeholder-muted focus:outline-none focus:border-success focus:ring-2 focus:ring-success/20 transition-all text-left">
+                        @error('fatherMobile') <p class="mt-1 text-xs text-error">{{ $message }}</p> @enderror
                     </div>
-                    @error('field') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                </div>
-                @endif
 
-                {{-- تلفن پدر --}}
-                <div>
-                    <label class="block text-sm font-bold text-foreground mb-2">
-                        تلفن پدر
-                        <span class="text-red-500">*</span>
-                    </label>
-                    <input type="tel"
-                           wire:model.live="fatherMobile"
-                           placeholder="09xxxxxxxxx"
-                           dir="ltr"
-                           maxlength="11"
-                           class="w-full px-4 py-3 bg-secondary border border-border rounded-xl text-foreground placeholder-muted focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all text-left">
-                    @error('fatherMobile') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    {{-- تلفن مادر --}}
+                    <div>
+                        <label class="block text-sm font-bold text-foreground mb-2">
+                            تلفن مادر
+                            <span class="text-error">*</span>
+                        </label>
+                        <input type="tel"
+                               wire:model.live="motherMobile"
+                               placeholder="09xxxxxxxxx"
+                               dir="ltr"
+                               maxlength="11"
+                               class="w-full px-4 py-3 bg-secondary border border-border rounded-xl text-foreground placeholder-muted focus:outline-none focus:border-success focus:ring-2 focus:ring-success/20 transition-all text-left">
+                        @error('motherMobile') <p class="mt-1 text-xs text-error">{{ $message }}</p> @enderror
+                    </div>
                 </div>
 
-                {{-- تلفن مادر --}}
-                <div>
-                    <label class="block text-sm font-bold text-foreground mb-2">
-                        تلفن مادر
-                        <span class="text-red-500">*</span>
-                    </label>
-                    <input type="tel"
-                           wire:model.live="motherMobile"
-                           placeholder="09xxxxxxxxx"
-                           dir="ltr"
-                           maxlength="11"
-                           class="w-full px-4 py-3 bg-secondary border border-border rounded-xl text-foreground placeholder-muted focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all text-left">
-                    @error('motherMobile') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                {{-- دکمه ثبت --}}
+                <div class="p-6 pt-4 border-t border-border shrink-0">
+                    <button wire:click="submit"
+                            wire:loading.attr="disabled"
+                            wire:target="submit"
+                            type="button"
+                            data-elevated="true"
+                            class="btn-press w-full py-4 bg-success hover:bg-success/90 disabled:opacity-50 text-success-foreground rounded-xl font-black text-base transition-all duration-200 flex items-center justify-center gap-2">
+                        <span wire:loading.remove wire:target="submit">ثبت و شروع هفته آزمایشی</span>
+                        <span wire:loading wire:target="submit">در حال پردازش...</span>
+                        <span wire:loading.remove wire:target="submit">
+                            <x-ui.icon name="check" class="w-4 h-4"/>
+                        </span>
+                        <x-ui.spinner wire:loading wire:target="submit" />
+                    </button>
+                    <p class="text-center text-xs text-muted mt-3">
+                        با ثبت اطلاعات، <span class="text-success font-semibold">۷ روز</span> آزمایشی شما آغاز می‌شود
+                    </p>
                 </div>
-            </div>
-
-            {{-- دکمه ثبت --}}
-            <div class="p-6 pt-0">
-                <button wire:click="submit"
-                        wire:loading.attr="disabled"
-                        class="w-full py-4 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-white rounded-xl font-black text-base transition-all duration-200 flex items-center justify-center gap-2">
-                    <x-ui.spinner wire:loading wire:target="submit" />
-                    <span wire:loading.remove wire:target="submit">ثبت و شروع هفته آزمایشی</span>
-                    <span wire:loading wire:target="submit">در حال پردازش...</span>
-                </button>
-                <p class="text-center text-xs text-muted mt-3">
-                    با ثبت اطلاعات، <span class="text-emerald-500 font-semibold">۷ روز</span> آزمایشی شما آغاز می‌شود
-                </p>
             </div>
         </div>
-    </div>
     @endif
 
 </div>

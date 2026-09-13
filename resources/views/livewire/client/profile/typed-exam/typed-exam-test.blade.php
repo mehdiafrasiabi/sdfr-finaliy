@@ -55,7 +55,10 @@
             seconds: secs.toString().padStart(2, '0'),
         };
     }
-}" x-init="init()" class="min-h-screen bg-background">
+}" x-init="init()"
+     x-effect="(showConfirmModal || showFiveMinuteWarning) ? window.SdfrModalScrollLock.lock() : window.SdfrModalScrollLock.unlock()"
+     class="min-h-screen bg-background">
+    {{-- توجه: x-cloak روی خودِ هر مودال است، نه روی کل صفحه --}}
 
     @assets
     <style>
@@ -91,9 +94,7 @@
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
+                        <x-ui.icon name="square-pen" class="w-6 h-6 text-primary"/>
                     </div>
                     <div style="margin-right: 10px">
                         <h1 class="font-bold text-xl text-foreground">{{ $exam->title }}</h1>
@@ -108,15 +109,13 @@
                         <div class="flex items-center gap-2 bg-background/80 border border-border rounded-2xl px-3 py-2">
                             <button type="button" class="relative inline-flex items-center gap-2" @click="showTimer = !showTimer">
                                 <span class="flex items-center justify-center w-7 h-7 rounded-xl bg-primary/10 text-primary">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l2 2m-5-9h6M12 4a8 8 0 100 16 8 8 0 000-16z"/>
-                                    </svg>
+                                    <x-ui.icon name="clock" class="w-4 h-4"/>
                                 </span>
 
                                 {{-- سوییچ بازنویسی‌شده --}}
                                 <span dir="ltr"
                                       class="relative inline-flex items-center w-11 h-6 rounded-full transition-colors duration-200"
-                                      :class="showTimer ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'">
+                                      :class="showTimer ? 'bg-primary' : 'bg-muted'">
                                     <span class="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200"
                                           :class="showTimer ? 'translate-x-[22px]' : 'translate-x-[2px]'"></span>
                                 </span>
@@ -127,7 +126,7 @@
 
                     <div class="flex items-center justify-end gap-2 transition-all duration-200" :class="showTimer ? 'timer-blur-glass' : ''">
                         <div class="flex flex-col items-center bg-background border border-border rounded-xl px-3 py-2 min-w-[50px]">
-                            <span class="font-bold text-lg" :class="remainingSeconds < 60 ? 'text-red-500' : 'text-foreground'" x-text="formatTime(remainingSeconds).seconds"></span>
+                            <span class="font-bold text-lg" :class="remainingSeconds < 60 ? 'text-error' : 'text-foreground'" x-text="formatTime(remainingSeconds).seconds"></span>
                             <span class="text-[10px] text-muted">ثانیه</span>
                         </div>
                         <span class="text-xl font-bold text-muted">:</span>
@@ -232,7 +231,7 @@
                                         @click="currentQ = {{ $i }}"
                                         :class="currentQ === {{ $i }}
                                             ? 'bg-primary text-primary-foreground shadow-md shadow-primary/30'
-                                            : '{{ $qMark === 'close' ? 'bg-red-500/10 text-red-500 border border-red-500/40' : ($qMark === 'minus' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/40' : ($qMark === 'circle' ? 'bg-sky-500/10 text-sky-500 border border-sky-500/40' : 'bg-background border border-border text-foreground/70 hover:text-foreground')) }}'"
+                                            : '{{ $qMark === 'close' ? 'bg-error/10 text-error border border-error/40' : ($qMark === 'minus' ? 'bg-warning/10 text-warning border border-warning/40' : ($qMark === 'circle' ? 'bg-info/10 text-info border border-info/40' : 'bg-background border border-border text-foreground/70 hover:text-foreground')) }}'"
                                         class="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full font-bold text-xs sm:text-sm transition-all">
                                     {{ $i + 1 }}
                                 </button>
@@ -266,22 +265,23 @@
                                         </div>
                                         <div class="flex items-center gap-1.5 sm:gap-2">
                                             <button wire:click="setQuestionMark({{ $question->id }}, 'close')"
-                                                    class="w-8 h-8 rounded-full flex items-center justify-center transition-colors
-                                                    {{ $mark === 'close' ? 'bg-red-500 text-white' : 'bg-background border border-border text-muted hover:border-red-500 hover:text-red-500' }}">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                </svg>
+                                                    data-elevated="{{ $mark === 'close' ? 'true' : 'false' }}"
+                                                    class="btn-press w-8 h-8 rounded-full flex items-center justify-center transition-colors
+                                                    {{ $mark === 'close' ? 'bg-error text-white' : 'bg-background border border-border text-muted hover:border-error hover:text-error' }}">
+                                                <x-ui.icon name="x" class="w-4 h-4"/>
                                             </button>
                                             <button wire:click="setQuestionMark({{ $question->id }}, 'minus')"
-                                                    class="w-8 h-8 rounded-full flex items-center justify-center transition-colors
-                                                    {{ $mark === 'minus' ? 'bg-orange-500 text-white' : 'bg-background border border-border text-muted hover:border-yellow-500 hover:text-yellow-500' }}">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
-                                                </svg>
+                                                    data-elevated="{{ $mark === 'minus' ? 'true' : 'false' }}"
+                                                    class="btn-press w-8 h-8 rounded-full flex items-center justify-center transition-colors
+                                                    {{ $mark === 'minus' ? 'bg-warning text-white' : 'bg-background border border-border text-muted hover:border-warning hover:text-warning' }}">
+                                                <x-ui.icon name="minus" class="w-4 h-4"/>
                                             </button>
+                                            {{-- آیکون «دایره‌ی توخالی» معادل دقیقی در دیکشنری Keyline نداره؛ طبق قاعده‌ی
+                                                 «هیچ‌وقت آیکون از حافظه ساخته نشه»، همون SVG اصلی به‌عنوان استثنای اصولی نگه داشته شده --}}
                                             <button wire:click="setQuestionMark({{ $question->id }}, 'circle')"
-                                                    class="w-8 h-8 rounded-full flex items-center justify-center transition-colors
-                                                    {{ $mark === 'circle' ? 'bg-blue-500 text-white' : 'bg-background border border-border text-muted hover:border-blue-500 hover:text-blue-500' }}">
+                                                    data-elevated="{{ $mark === 'circle' ? 'true' : 'false' }}"
+                                                    class="btn-press w-8 h-8 rounded-full flex items-center justify-center transition-colors
+                                                    {{ $mark === 'circle' ? 'bg-info text-white' : 'bg-background border border-border text-muted hover:border-info hover:text-info' }}">
                                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <circle cx="12" cy="12" r="8" stroke-width="2"/>
                                                 </svg>
@@ -297,10 +297,12 @@
                                             <img src="{{ $question->content->question_image_url }}" alt="تصویر سوال {{ $index + 1 }}" class="exam-question-img rounded-xl shadow-lg" loading="lazy">
                                         </div>
                                     @elseif($question->content?->body)
-                                        <div class="prose text-white prose-sm dark:prose-invert max-w-none mb-4" dir="rtl">
+                                        <div class="prose text-foreground prose-sm dark:prose-invert max-w-none mb-4" dir="rtl">
                                             {!! $question->content?->body !!}
                                         </div>
                                     @else
+                                        {{-- آیکون «تصویر خراب/موجود نیست» معادل دقیقی در دیکشنری Keyline نداره؛
+                                             طبق قاعده‌ی «هیچ‌وقت آیکون از حافظه ساخته نشه»، SVG اصلی نگه داشته شده --}}
                                         <div class="text-center py-8 text-muted">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -344,36 +346,25 @@
                     {{-- ناوبری قبلی/بعدی (فقط در حالت یک‌به‌یک) --}}
                     <div x-show="pagedMode" x-cloak
                          class="max-w-5xl mx-auto mt-4 flex items-center justify-between gap-3" dir="rtl">
-                        <button type="button"
-                                @click="currentQ = Math.max(0, currentQ - 1)"
-                                :disabled="currentQ === 0"
-                                class="inline-flex items-center gap-2 px-4 py-2.5 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
+                        <x-ui.button type="button" x-on:click="currentQ = Math.max(0, currentQ - 1)"
+                                     x-bind:disabled="currentQ === 0"
+                                     variant="secondary-outline" icon="chevron-right" pill>
                             سوال قبلی
-                        </button>
+                        </x-ui.button>
 
                         <span class="text-xs sm:text-sm text-muted font-semibold">
                             سوال <span class="text-foreground" x-text="currentQ + 1"></span> از {{ $totalShown }}
                         </span>
 
-                        <button type="button"
-                                @click="currentQ = Math.min({{ $totalShown - 1 }}, currentQ + 1)"
-                                :disabled="currentQ === {{ $totalShown - 1 }}"
-                                class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                        <x-ui.button type="button" x-on:click="currentQ = Math.min({{ $totalShown - 1 }}, currentQ + 1)"
+                                     x-bind:disabled="currentQ === {{ $totalShown - 1 }}"
+                                     variant="primary" icon="chevron-left" pill>
                             سوال بعدی
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                            </svg>
-                        </button>
+                        </x-ui.button>
                     </div>
                 @else
-                    <div class="bg-secondary border border-border rounded-2xl p-12 text-center max-w-5xl mx-auto">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 mx-auto text-muted mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <p class="text-muted">سوالی با این فیلتر یافت نشد</p>
+                    <div class="max-w-5xl mx-auto">
+                        <x-ui.empty-state>سوالی با این فیلتر یافت نشد</x-ui.empty-state>
                     </div>
                 @endif
             @else
@@ -388,22 +379,22 @@
                                 $unanswered = !$item['is_answered'];
                                 $mark = $item['mark'] ?? null;
                                 $markBg = match($mark) {
-                                    'minus'  => 'bg-amber-500',
-                                    'circle' => 'bg-sky-500',
-                                    'close'  => 'bg-red-500',
+                                    'minus'  => 'bg-warning',
+                                    'circle' => 'bg-info',
+                                    'close'  => 'bg-error',
                                     default  => 'bg-transparent',
                                 };
                             @endphp
 
                             <div wire:key="typed-exam-mobile-answer-{{ $attempt->id }}-{{ $item['question_id'] }}"
                                  class="w-full flex items-center gap-2 rounded-full pl-1.5 pr-2 py-1.5
-                                        bg-sky-100/80 dark:bg-sky-950/30
+                                        bg-info/10
                                         {{ $item['is_current'] ? 'ring-2 ring-primary' : '' }}">
                                 {{-- شماره سوال (چپ - LTR) - کلیک = برو به سوال --}}
                                 <button type="button"
                                         @click="currentQ = {{ $item['index'] }}; $wire.setViewMode('questions')"
                                         class="flex-shrink-0 w-7 text-center font-bold text-sm hover:text-primary transition-colors
-                                               {{ $unanswered ? 'text-red-500' : 'text-foreground' }}">
+                                               {{ $unanswered ? 'text-error' : 'text-foreground' }}">
                                     {{ $item['index'] + 1 }}
                                 </button>
 
@@ -415,7 +406,7 @@
                                                 wire:click="selectAnswerByPosition({{ $item['question_id'] }}, {{ $i }})"
                                                 class="flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-all
                                                        {{ $isSelected
-                                                            ? 'bg-blue-500 text-white shadow-md shadow-blue-500/30 scale-105'
+                                                            ? 'bg-info text-white shadow-md shadow-info/30 scale-105'
                                                             : 'border border-border bg-background/50 text-muted hover:border-primary/40 hover:text-foreground' }}">
                                             {{ $i }}
                                         </button>
@@ -435,9 +426,9 @@
                                 $unanswered = !$item['is_answered'];
                                 $mark = $item['mark'] ?? null;
                                 $markColor = match($mark) {
-                                    'minus'  => 'text-amber-500',
-                                    'circle' => 'text-sky-500',
-                                    'close'  => 'text-red-500',
+                                    'minus'  => 'text-warning',
+                                    'circle' => 'text-info',
+                                    'close'  => 'text-error',
                                     default  => '',
                                 };
                                 $markSymbol = match($mark) {
@@ -456,7 +447,7 @@
                                 <button type="button"
                                         @click="currentQ = {{ $item['index'] }}; $wire.setViewMode('questions')"
                                         class="flex-shrink-0 w-8 text-center font-bold text-base hover:text-primary transition-colors
-                                               {{ $unanswered ? 'text-red-500' : 'text-foreground' }}">
+                                               {{ $unanswered ? 'text-error' : 'text-foreground' }}">
                                     {{ $item['index'] + 1 }}
                                 </button>
 
@@ -468,7 +459,7 @@
                                                 wire:click="selectAnswerByPosition({{ $item['question_id'] }}, {{ $i }})"
                                                 class="flex items-center justify-center w-8 h-7 rounded-full text-xs font-bold border transition-all
                                                        {{ $isSelected
-                                                            ? 'bg-blue-500 border-blue-500 text-white shadow-sm scale-105'
+                                                            ? 'bg-info border-info text-white shadow-sm scale-105'
                                                             : 'border-border bg-background/30 text-muted hover:border-primary/40 hover:text-foreground' }}">
                                             {{ $i }}
                                         </button>
@@ -493,126 +484,140 @@
         <br>
 
         <div class="flex justify-end">
-            <button type="button" x-on:click="showConfirmModal = true"
-                    class="inline-flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors shadow-md shadow-primary/20">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
+            <x-ui.button type="button" x-on:click="showConfirmModal = true" variant="primary" icon="check" pill>
                 ثبت نهایی
-            </button>
+            </x-ui.button>
         </div>
 
-        <!-- Confirm Submit Modal (bottom sheet on mobile, centered on desktop) -->
-        <div x-show="showConfirmModal" x-cloak
-             class="fixed inset-0 z-50 flex flex-col justify-end sm:items-center sm:justify-center"
-             x-transition.opacity>
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showConfirmModal = false"></div>
+        <!-- Confirm Submit Modal -->
+        <div x-show="showConfirmModal" x-cloak>
+            <div
+                x-show="showConfirmModal"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+                @click="showConfirmModal = false"
+            ></div>
 
-            <div class="relative w-full sm:max-w-md bg-secondary border-t sm:border border-border rounded-t-3xl sm:rounded-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0 shadow-xl"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 translate-y-8"
-                 x-transition:enter-end="opacity-100 translate-y-0"
-                 x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100 translate-y-0"
-                 x-transition:leave-end="opacity-0 translate-y-8">
+            <div
+                x-show="showConfirmModal"
+                class="fixed inset-0 z-[101] flex items-end justify-center overscroll-contain sm:items-center sm:p-4"
+                @click.self="showConfirmModal = false"
+            >
+                <div
+                    x-show="showConfirmModal"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                    class="relative w-full sm:max-w-md bg-background border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                >
+                    <div class="mx-auto mt-3 mb-1 h-1.5 w-14 rounded-full bg-border sm:hidden shrink-0"></div>
 
-                {{-- Handle bar (موبایل) --}}
-                <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
-                    <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
-                </div>
-
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="font-bold text-lg text-primary">ثبت نهایی آزمون</h2>
-                        <button type="button" class="text-muted hover:text-foreground" @click="showConfirmModal = false">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <p class="text-sm text-muted mb-4 leading-relaxed">
-                        آیا از ثبت نهایی آزمون اطمینان دارید؟<br>
-                        پس از ثبت نهایی، امکان تغییر پاسخ‌ها وجود نخواهد داشت.
-                    </p>
-                    <hr class="my-4 border-border">
-                    <div class="mb-2 text-sm leading-relaxed space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-foreground">تعداد کل سوالات:</span>
-                            <span class="font-bold text-foreground">{{ $totalQuestions }}</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-foreground">سؤالات پاسخ داده شده:</span>
-                            <span class="font-bold text-emerald-400">{{ $answeredCount }}</span>
-                        </div>
-                        @php $unanswered = max($totalQuestions - $answeredCount, 0); @endphp
-                        <div class="flex items-center justify-between">
-                            <span class="text-foreground">سؤالات بدون پاسخ:</span>
-                            <span class="font-bold {{ $unanswered > 0 ? 'text-red-400' : 'text-emerald-400' }}">{{ $unanswered }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-3 border-t border-border p-4 pb-safe">
-                    <button type="button"
-                            class="flex-1 px-4 py-3 rounded-xl border border-border bg-background text-sm text-foreground hover:bg-secondary transition-colors font-semibold"
-                            @click="showConfirmModal = false">
-                        انصراف
+                    <button type="button" @click="showConfirmModal = false" data-elevated="false"
+                            class="btn-press absolute top-4 left-4 w-8 h-8 inline-flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-secondary transition-colors z-10">
+                        <x-ui.icon name="x" class="w-4 h-4"/>
                     </button>
-                    <button type="button"
-                            class="flex-1 px-4 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white text-sm font-semibold transition-colors"
-                            @click="$wire.submitExam(); showConfirmModal = false">
-                        بله، ثبت نهایی
-                    </button>
+
+                    <div class="p-6">
+                        <h2 class="font-bold text-lg text-primary mb-4">ثبت نهایی آزمون</h2>
+                        <p class="text-sm text-muted mb-4 leading-relaxed">
+                            آیا از ثبت نهایی آزمون اطمینان دارید؟<br>
+                            پس از ثبت نهایی، امکان تغییر پاسخ‌ها وجود نخواهد داشت.
+                        </p>
+                        <hr class="my-4 border-border">
+                        <div class="mb-2 text-sm leading-relaxed space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-foreground">تعداد کل سوالات:</span>
+                                <span class="font-bold text-foreground">{{ $totalQuestions }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-foreground">سؤالات پاسخ داده شده:</span>
+                                <span class="font-bold text-success">{{ $answeredCount }}</span>
+                            </div>
+                            @php $unanswered = max($totalQuestions - $answeredCount, 0); @endphp
+                            <div class="flex items-center justify-between">
+                                <span class="text-foreground">سؤالات بدون پاسخ:</span>
+                                <span class="font-bold {{ $unanswered > 0 ? 'text-error' : 'text-success' }}">{{ $unanswered }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 border-t border-border p-4 pb-safe">
+                        <x-ui.button type="button" variant="secondary-outline" icon="x" block
+                                     @click="showConfirmModal = false">
+                            انصراف
+                        </x-ui.button>
+                        <x-ui.button type="button" variant="success" icon="check" block
+                                     @click="$wire.submitExam(); showConfirmModal = false">
+                            بله، ثبت نهایی
+                        </x-ui.button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Five-Minute Warning Modal (bottom sheet on mobile, centered on desktop) -->
-        <div x-show="showFiveMinuteWarning" x-cloak
-             class="fixed inset-0 z-40 flex flex-col justify-end sm:items-center sm:justify-center"
-             x-transition.opacity>
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showFiveMinuteWarning = false"></div>
+        <!-- Five-Minute Warning Modal -->
+        <div x-show="showFiveMinuteWarning" x-cloak>
+            <div
+                x-show="showFiveMinuteWarning"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+                @click="showFiveMinuteWarning = false"
+            ></div>
 
-            <div class="relative w-full sm:max-w-md bg-secondary border-t sm:border border-border rounded-t-3xl sm:rounded-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0 shadow-xl"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 translate-y-8"
-                 x-transition:enter-end="opacity-100 translate-y-0"
-                 x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100 translate-y-0"
-                 x-transition:leave-end="opacity-0 translate-y-8">
+            <div
+                x-show="showFiveMinuteWarning"
+                class="fixed inset-0 z-[101] flex items-end justify-center overscroll-contain sm:items-center sm:p-4"
+                @click.self="showFiveMinuteWarning = false"
+            >
+                <div
+                    x-show="showFiveMinuteWarning"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                    class="relative w-full sm:max-w-md bg-background border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                >
+                    <div class="mx-auto mt-3 mb-1 h-1.5 w-14 rounded-full bg-border sm:hidden shrink-0"></div>
 
-                <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
-                    <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
-                </div>
-
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="font-bold text-lg text-amber-400">۵ دقیقه‌ی پایانی</h2>
-                        <button type="button" class="text-muted hover:text-foreground" @click="showFiveMinuteWarning = false">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="flex items-center justify-center mb-4">
-                        <div class="flex items-center justify-center w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-sm text-muted leading-relaxed text-center">
-                        فقط ۵ دقیقه تا پایان آزمون باقی مانده است.<br>
-                        لطفاً پاسخ تمام سؤالات خود را بررسی و ثبت کنید.
-                    </p>
-                </div>
-
-                <div class="flex items-center justify-end gap-3 border-t border-border p-4 pb-safe">
-                    <button type="button"
-                            class="w-full px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold transition-colors"
-                            @click="showFiveMinuteWarning = false">
-                        متوجه شدم
+                    <button type="button" @click="showFiveMinuteWarning = false" data-elevated="false"
+                            class="btn-press absolute top-4 left-4 w-8 h-8 inline-flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-secondary transition-colors z-10">
+                        <x-ui.icon name="x" class="w-4 h-4"/>
                     </button>
+
+                    <div class="p-6">
+                        <h2 class="font-bold text-lg text-warning mb-4">۵ دقیقه‌ی پایانی</h2>
+                        <div class="flex items-center justify-center mb-4">
+                            <div class="flex items-center justify-center w-16 h-16 bg-warning/15 rounded-full">
+                                <x-ui.icon name="clock" class="w-8 h-8 text-warning"/>
+                            </div>
+                        </div>
+                        <p class="text-sm text-muted leading-relaxed text-center">
+                            فقط ۵ دقیقه تا پایان آزمون باقی مانده است.<br>
+                            لطفاً پاسخ تمام سؤالات خود را بررسی و ثبت کنید.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 border-t border-border p-4 pb-safe">
+                        <x-ui.button type="button" variant="warning" icon="check" block
+                                     @click="showFiveMinuteWarning = false">
+                            متوجه شدم
+                        </x-ui.button>
+                    </div>
                 </div>
             </div>
         </div>

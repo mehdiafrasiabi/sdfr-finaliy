@@ -21,10 +21,10 @@
                 </div>
 
                 @if (! $student || ! $advisor)
-                    <div class="glass border border-border rounded-2xl p-6 text-center space-y-3">
-                        <img src="/client/svg/empty2.svg" class="w-full max-w-[220px] mx-auto opacity-40" alt="">
-                        <h2 class="font-bold text-foreground">مشاور فعالی برای شما ثبت نشده است.</h2>
-                        <p class="text-sm text-muted">بعد از تخصیص مشاور، امکان ثبت درخواست جابجایی فعال می‌شود.</p>
+                    <div class="glass border border-border rounded-2xl p-6">
+                        <x-ui.empty-state title="مشاور فعالی برای شما ثبت نشده است.">
+                            بعد از تخصیص مشاور، امکان ثبت درخواست جابجایی فعال می‌شود.
+                        </x-ui.empty-state>
                     </div>
                 @else
                     <div class="glass border border-border rounded-2xl p-5 md:p-6 space-y-5">
@@ -35,9 +35,7 @@
                             <div class="flex-1 min-w-0 space-y-2">
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="text-xs text-muted">مشاور فعلی شما</span>
-                                    <span class="inline-flex items-center rounded-full bg-primary/10 text-primary px-3 py-1 text-[11px] font-bold">
-                                        فعال
-                                    </span>
+                                    <x-ui.status-badge status="active"/>
                                 </div>
                                 <h2 class="font-black text-lg text-foreground">{{ $advisor->name }}</h2>
                                 <div class="flex flex-wrap gap-2 text-xs text-muted">
@@ -60,21 +58,23 @@
                     </div>
 
                     @if($latest)
+                        {{-- این یک کارت رنگی کاملِ وضعیت است (حاشیه + عنوان)، نه یک بج فشرده،
+                             پس عمداً به x-ui.status-badge تبدیل نشده و فقط رنگ‌هاش توکنیزه شده --}}
                         <div class="glass border rounded-2xl p-5 md:p-6 space-y-4
                             @class([
-                                'border-amber-500/30' => $latest->status === \App\Models\AdvisorChangeRequest::STATUS_PENDING,
-                                'border-emerald-500/30' => $latest->status === \App\Models\AdvisorChangeRequest::STATUS_APPROVED,
-                                'border-red-500/30' => $latest->status === \App\Models\AdvisorChangeRequest::STATUS_REJECTED,
+                                'border-warning/30' => $latest->status === \App\Models\AdvisorChangeRequest::STATUS_PENDING,
+                                'border-success/30' => $latest->status === \App\Models\AdvisorChangeRequest::STATUS_APPROVED,
+                                'border-error/30' => $latest->status === \App\Models\AdvisorChangeRequest::STATUS_REJECTED,
                                 'border-border' => $latest->status === \App\Models\AdvisorChangeRequest::STATUS_CANCELLED_BY_STUDENT,
                             ])">
                             @if($latest->status === \App\Models\AdvisorChangeRequest::STATUS_PENDING)
-                                <h2 class="font-black text-amber-600">مدیر  در حال پیگیری است و با شما تماس خواهد گرفته شد.</h2>
+                                <h2 class="font-black text-warning">مدیر  در حال پیگیری است و با شما تماس خواهد گرفته شد.</h2>
                             @elseif($latest->status === \App\Models\AdvisorChangeRequest::STATUS_APPROVED)
-                                <h2 class="font-black text-emerald-600">با درخواست شما موافقت شد.</h2>
+                                <h2 class="font-black text-success">با درخواست شما موافقت شد.</h2>
                                 @if($latest->newAdvisor)
-                                    <div class="flex items-center gap-3 rounded-2xl bg-emerald-500/10 p-4">
+                                    <div class="flex items-center gap-3 rounded-2xl bg-success/10 p-4">
                                         <img src="{{ $latest->newAdvisor->picture_url ?? $avatarFallback }}" alt="{{ $latest->newAdvisor->name }}"
-                                             class="w-14 h-14 rounded-xl object-cover border border-emerald-500/20">
+                                             class="w-14 h-14 rounded-xl object-cover border border-success/20">
                                         <div>
                                             <div class="text-xs text-muted">مشاور جدید شما</div>
                                             <div class="font-bold text-foreground">{{ $latest->newAdvisor->name }}</div>
@@ -85,7 +85,7 @@
                                     </div>
                                 @endif
                             @elseif($latest->status === \App\Models\AdvisorChangeRequest::STATUS_REJECTED)
-                                <h2 class="font-black text-red-600">درخواست شما رد شد و امکان جابجایی وجود ندارد.</h2>
+                                <h2 class="font-black text-error">درخواست شما رد شد و امکان جابجایی وجود ندارد.</h2>
                                 @if($latest->reject_reason)
                                     <p class="text-sm leading-7 text-muted">علت: {{ $latest->reject_reason }}</p>
                                 @endif
@@ -97,18 +97,24 @@
                     @endif
 
                     @if($canSubmit)
+                        @php
+                            $subjectOptions = collect($subjects)
+                                ->map(fn($label, $value) => ['value' => (string) $value, 'label' => $label])
+                                ->values()
+                                ->all();
+                        @endphp
                         <form wire:submit="submit" class="glass border border-border rounded-2xl p-5 md:p-6 space-y-5">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
                                     <label class="block text-xs font-bold text-muted">موضوع درخواست</label>
-                                    <select wire:model.live="subject"
-                                            class="w-full h-12 rounded-xl border border-border bg-background px-4 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
-                                        <option value="">انتخاب موضوع...</option>
-                                        @foreach($subjects as $value => $label)
-                                            <option value="{{ $value }}">{{ $label }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('subject') <div class="text-red-500 text-xs font-semibold">{{ $message }}</div> @enderror
+                                    <x-ui.select
+                                        wire:model.live="subject"
+                                        :options="$subjectOptions"
+                                        value-key="value"
+                                        label-key="label"
+                                        placeholder="انتخاب موضوع..."
+                                    />
+                                    @error('subject') <div class="text-error text-xs font-semibold">{{ $message }}</div> @enderror
                                 </div>
 
                                 @if($subject === \App\Models\AdvisorChangeRequest::SUBJECT_OTHER)
@@ -117,7 +123,7 @@
                                         <input type="text" wire:model.blur="subject_other"
                                                class="w-full h-12 rounded-xl border border-border bg-background px-4 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                                                placeholder="موضوع را بنویسید">
-                                        @error('subject_other') <div class="text-red-500 text-xs font-semibold">{{ $message }}</div> @enderror
+                                        @error('subject_other') <div class="text-error text-xs font-semibold">{{ $message }}</div> @enderror
                                     </div>
                                 @endif
                             </div>
@@ -127,16 +133,18 @@
                                 <textarea wire:model.blur="request_text" rows="6"
                                           class="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm leading-7 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                                           placeholder="درخواست خود را با توضیح کافی بنویسید..."></textarea>
-                                @error('request_text') <div class="text-red-500 text-xs font-semibold">{{ $message }}</div> @enderror
+                                @error('request_text') <div class="text-error text-xs font-semibold">{{ $message }}</div> @enderror
                             </div>
 
-                            <button type="submit"
-                                    wire:loading.attr="disabled"
-                                    wire:target="submit"
-                                    class="w-full md:w-auto min-h-12 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-black text-primary-foreground transition hover:opacity-90 disabled:opacity-60">
-                                <span wire:loading.remove wire:target="submit">ثبت درخواست</span>
-                                <span wire:loading wire:target="submit">در حال ثبت...</span>
-                            </button>
+                            <x-ui.button type="submit" wire:loading.attr="disabled" wire:target="submit"
+                                         variant="primary" class="w-full md:w-auto">
+                                <span wire:loading.remove wire:target="submit" class="inline-flex items-center gap-1.5">
+                                    ثبت درخواست <x-ui.icon name="check" class="w-4 h-4"/>
+                                </span>
+                                <span wire:loading wire:target="submit">
+                                    <x-ui.spinner size="xs"/>
+                                </span>
+                            </x-ui.button>
                         </form>
                     @endif
 
@@ -144,21 +152,22 @@
                         <h2 class="font-black text-foreground">لیست درخواست‌ها</h2>
                         <div class="space-y-3">
                             @forelse($requests as $request)
+                                @php
+                                    [$reqStatusKey] = match ($request->status) {
+                                        \App\Models\AdvisorChangeRequest::STATUS_PENDING => ['pending'],
+                                        \App\Models\AdvisorChangeRequest::STATUS_APPROVED => ['paid'],
+                                        \App\Models\AdvisorChangeRequest::STATUS_REJECTED => ['voided'],
+                                        \App\Models\AdvisorChangeRequest::STATUS_CANCELLED_BY_STUDENT => ['cancelled'],
+                                        default => ['inactive'],
+                                    };
+                                @endphp
                                 <div class="rounded-2xl border border-border bg-background/70 p-4 space-y-3">
                                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                         <div>
                                             <div class="font-bold text-foreground">{{ $request->subject_label }}</div>
                                             <div class="text-xs text-muted mt-1">{{ jalali($request->created_at)->format('%Y/%m/%d H:i') }}</div>
                                         </div>
-                                        <span class="self-start rounded-full px-3 py-1 text-[11px] font-black
-                                            @class([
-                                                'bg-amber-500/10 text-amber-600' => $request->status === \App\Models\AdvisorChangeRequest::STATUS_PENDING,
-                                                'bg-emerald-500/10 text-emerald-600' => $request->status === \App\Models\AdvisorChangeRequest::STATUS_APPROVED,
-                                                'bg-red-500/10 text-red-600' => $request->status === \App\Models\AdvisorChangeRequest::STATUS_REJECTED,
-                                                'bg-secondary text-muted' => $request->status === \App\Models\AdvisorChangeRequest::STATUS_CANCELLED_BY_STUDENT,
-                                            ])">
-                                            {{ $request->status_label }}
-                                        </span>
+                                        <x-ui.status-badge :status="$reqStatusKey" :label="$request->status_label" class="self-start"/>
                                     </div>
                                     <p class="text-sm leading-7 text-muted">{{ $request->request_text }}</p>
                                     @if($request->oldAdvisor || $request->newAdvisor || $request->reject_reason)
@@ -167,7 +176,7 @@
                                                 <div class="rounded-xl bg-secondary/60 px-3 py-2">مشاور جدید: {{ $request->newAdvisor->name }}</div>
                                             @endif
                                             @if($request->reject_reason)
-                                                <div class="rounded-xl bg-red-500/10 px-3 py-2 sm:col-span-2">علت رد: {{ $request->reject_reason }}</div>
+                                                <div class="rounded-xl bg-error/10 px-3 py-2 sm:col-span-2">علت رد: {{ $request->reject_reason }}</div>
                                             @endif
                                         </div>
                                     @endif

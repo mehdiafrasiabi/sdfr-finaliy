@@ -151,28 +151,41 @@ class Edit extends Component
         $this->dispatch('success', 'آواتار شما با موفقیت به‌روزرسانی شد.');
     }
     /**
+     * قوانین مشترکِ اعتبارسنجیِ «رمز عبور جدید» - چه از مسیر رمز فعلی، چه از مسیر OTP:
+     * فقط حداقل ۸ کاراکتر و وجود حداقل یک حرف انگلیسی لازم است؛ محدودیت دیگری
+     * (حرف بزرگ/کوچک/عدد اجباری) وجود ندارد.
+     */
+    private function passwordRules(): array
+    {
+        return ['required', 'string', 'min:8', 'regex:/[a-zA-Z]/'];
+    }
+
+    /**
+     * پیام‌های اعتبارسنجیِ مشترک برای یک جفت فیلدِ «رمز جدید» / «تکرار رمز جدید».
+     */
+    private function passwordMessages(string $field, string $confirmField): array
+    {
+        return [
+            "$field.required" => 'وارد کردن رمز جدید الزامی است.',
+            "$field.min" => 'رمز عبور باید حداقل ۸ کاراکتر باشد.',
+            "$field.regex" => 'رمز عبور باید شامل حروف انگلیسی باشد.',
+            "$confirmField.required" => 'تکرار رمز جدید الزامی است.',
+            "$confirmField.same" => 'تکرار رمز جدید با رمز جدید مطابقت ندارد.',
+        ];
+    }
+
+    /**
      * تغییر رمز عبور با رمز فعلی
      */
     public function changePassword()
     {
         $this->validate([
             'current_password' => ['required', 'string'],
-            'new_password' => [
-                'required',
-                'string',
-                'min:8',
-                'regex:/[a-z]/',      // حداقل یک حرف کوچک
-                'regex:/[A-Z]/',      // حداقل یک حرف بزرگ
-                'regex:/[0-9]/',      // حداقل یک عدد
-            ],
+            'new_password' => $this->passwordRules(),
             'new_password_confirmation' => ['required', 'same:new_password'],
         ], [
             'current_password.required' => 'وارد کردن رمز فعلی الزامی است.',
-            'new_password.required' => 'وارد کردن رمز جدید الزامی است.',
-            'new_password.min' => 'رمز عبور باید حداقل ۸ کاراکتر باشد.',
-            'new_password.regex' => 'رمز عبور باید شامل حرف کوچک، حرف بزرگ و عدد باشد.',
-            'new_password_confirmation.required' => 'تکرار رمز جدید الزامی است.',
-            'new_password_confirmation.same' => 'تکرار رمز جدید با رمز جدید مطابقت ندارد.',
+            ...$this->passwordMessages('new_password', 'new_password_confirmation'),
         ]);
         $user = Auth::user();
         // بررسی رمز فعلی
@@ -190,7 +203,14 @@ class Edit extends Component
         session()->flash('password_success', 'رمز عبور با موفقیت تغییر کرد.');
     }
     /**
-     * نمایش فرم فراموشی رمز عبور
+     * نمایش/بستن فرم فراموشی رمز عبور.
+     *
+     * از این به بعد، به‌محض باز شدن این فرم، کد تایید خودکار و بلافاصله به همان شماره‌ی
+     * ثبت‌شده روی حساب کاربر پیامک می‌شود (دیگر نیازی به زدن دستیِ دکمه‌ی «ارسال کد» نیست).
+     * آن دکمه از این پس فقط بعد از تمام‌شدنِ تایمر (Otp::TTL_SECONDS = ۹۰ ثانیه، یعنی
+     * همان ۱ دقیقه و ۳۰ ثانیه) به‌عنوان «ارسال دوباره‌ی کد» ظاهر می‌شود؛ چون شرط نمایشش در
+     * ویو از قبل countdown === 0 است، همین‌که ارسال اول خودکار شد، مخفی‌ماندنِ دکمه تا پایان
+     * تایمر به‌صورت خودکار تضمین می‌شود.
      */
     public function toggleForgotPassword()
     {
@@ -198,6 +218,15 @@ class Edit extends Component
         $this->reset(['otp_code', 'forgot_new_password', 'forgot_new_password_confirmation', 'otp_verified', 'countdown']);
         $this->resetErrorBag();
         $this->dispatch('otp-cleared');
+
+        if ($this->showForgotPassword) {
+            $this->sendOtp();
+        }
+
+        // این عمل یک رفت‌وبرگشتِ کامل با سرور است؛ به Alpine سمت کلاینت صراحتاً اعلام می‌کنیم
+        // که تبِ «رمز عبور» را ترک نکند تا بعد از هر رفت‌وبرگشت، صفحه به‌اشتباه به تبِ
+        // «اطلاعات حساب» نپرد.
+        $this->dispatch('keep-password-tab');
     }
     /**
      * ارسال کد OTP
@@ -251,18 +280,21 @@ class Edit extends Component
 
     }
     /**
-     * تایید خودکار کد به محض وارد شدن ۶ رقم
+     * پاکسازی دفاعیِ سمت سرور: فقط ارقام باقی بماند.
+     *
+     * توجه: این متد دیگر خودش verifyOtp را صدا نمی‌زند. چون input مخفیِ کد OTP روی
+     * wire:model ساده (نه .live) است، این هوک فقط در همان یک درخواستی اجرا می‌شود که
+     * سمتِ کلاینت (بعد از پر شدن هر ۶ خانه) با $wire.call('verifyOtp') فرستاده می‌شود -
+     * یعنی otp_code و متد verifyOtp هر دو در یک درخواست به سرور می‌رسند. اگر این‌جا هم
+     * verifyOtp صدا زده می‌شد، همان یک درخواست باعث می‌شد verifyOtp دوبار پشتِ‌هم اجرا
+     * شود (یک‌بار از این هوک، یک‌بار از فراخوانیِ صریح) و دومی چون کد را قبلاً used کرده،
+     * با خطای «قبلاً استفاده شده» مواجه می‌شد.
      */
     public function updatedOtpCode($value): void
     {
-        // فقط ارقام را نگه می‌داریم
         $clean = preg_replace('/\D/', '', (string) $value);
         if ($clean !== $value) {
             $this->otp_code = $clean;
-        }
-        // به محض کامل شدن ۶ رقم، خودکار اعتبارسنجی شود
-        if (strlen($clean) === 6 && !$this->otp_verified) {
-            $this->verifyOtp();
         }
     }
 
@@ -335,22 +367,9 @@ class Edit extends Component
             return;
         }
         $this->validate([
-            'forgot_new_password' => [
-                'required',
-                'string',
-                'min:8',
-                'regex:/[a-z]/',
-                'regex:/[A-Z]/',
-                'regex:/[0-9]/',
-            ],
+            'forgot_new_password' => $this->passwordRules(),
             'forgot_new_password_confirmation' => ['required', 'same:forgot_new_password'],
-        ], [
-            'forgot_new_password.required' => 'وارد کردن رمز جدید الزامی است.',
-            'forgot_new_password.min' => 'رمز عبور باید حداقل ۸ کاراکتر باشد.',
-            'forgot_new_password.regex' => 'رمز عبور باید شامل حرف کوچک، حرف بزرگ و عدد باشد.',
-            'forgot_new_password_confirmation.required' => 'تکرار رمز جدید الزامی است.',
-            'forgot_new_password_confirmation.same' => 'تکرار رمز جدید با رمز جدید مطابقت ندارد.',
-        ]);
+        ], $this->passwordMessages('forgot_new_password', 'forgot_new_password_confirmation'));
         $user = Auth::user();
         $user->password = Hash::make($this->forgot_new_password);
         $user->save();

@@ -2,6 +2,13 @@
 
     @props(['steps' => [], 'storageKey' => 'page_tour_done', 'auto' => false])
 
+    {{--
+        نسخه‌ی سبک page-tour:
+        اسپات‌لایت (تیره شدن بقیه‌ی صفحه + هایلایت دور المنت هدف) برگشته چون برای فهموندن
+        «این بخش داره توضیح داده می‌شه» لازمه، ولی این‌بار بدون backdrop-filter/blur —
+        همون چیزی که باعث لگ بین step ها می‌شد. لایه‌ی تیره فقط یک پس‌زمینه‌ی نیمه‌شفاف با
+        clip-path هست (بدون هیچ فیلتری روی کل صفحه)، که خیلی ارزون‌تر از blur روی مرورگره.
+    --}}
     <div dir="rtl"
          x-data="{
         steps: {{ \Illuminate\Support\Js::from($steps) }},
@@ -13,7 +20,7 @@
         index: 0,
         _booted: false,
 
-        /* موقعیت spotlight */
+        /* موقعیت اسپات‌لایت (هایلایت دور المنت هدف) */
         spotTop: 0,
         spotLeft: 0,
         spotWidth: 0,
@@ -34,13 +41,13 @@
             return !this.isForced(this.index);
         },
 
-init() {
+        init() {
             if (this._booted) return;
             this._booted = true;
 
             window.addEventListener('resize', () => { if (this.active) this.calcPosition(false); });
 
-            // ✨ اضافه شدن Listener اسکرول با requestAnimationFrame برای پرفورمنس بالا
+            // فقط موقعیت اسپات‌لایت/تولتیپ رو دنبال اسکرول آپدیت می‌کنیم (بدون blur) — سبک و ارزون.
             window.addEventListener('scroll', () => {
                 if (this.active && !this.transitioning) {
                     window.requestAnimationFrame(() => this.calcPosition(false));
@@ -97,50 +104,42 @@ init() {
             this.tipVisible = false;
             this.$nextTick(() => {
                 this.calcPosition(true);
-                setTimeout(() => { this.tipVisible = true; }, 500);
+                setTimeout(() => { this.tipVisible = true; }, 350);
             });
         },
 
         next() {
             const n = this.firstVisible(this.index + 1, 1);
             if (n === -1) { this.forceFinish(); return; }
-            this.transitionTo(n);
+            this.goTo(n);
         },
 
         prev() {
             const p = this.firstVisible(this.index - 1, -1);
             if (p === -1) return;
-            this.transitionTo(p);
+            this.goTo(p);
         },
 
-        /* انیمیشن جمع شدن spotlight روی نقطه، رفتن به بعدی، باز شدن دوباره */
-        transitionTo(newIndex) {
+        /* جابجایی بین step‌ها: اسپات‌لایت با یک transition ساده‌ی clip-path (بدون blur) سُر می‌خوره،
+           تولتیپ هم فقط فید می‌کنه. هیچ انیمیشن چندفازی سنگینی وجود نداره. */
+        goTo(newIndex) {
+            if (this.transitioning) return;
             this.transitioning = true;
             this.tipVisible = false;
 
-            // فاز ۱: spotlight به نقطه مرکزی جمع میشه
-            const cx = this.spotLeft + this.spotWidth / 2;
-            const cy = this.spotTop + this.spotHeight / 2;
-            this.spotTop = cy;
-            this.spotLeft = cx;
-            this.spotWidth = 0;
-            this.spotHeight = 0;
-
-            // فاز ۲: بعد از جمع شدن، index تغییر و spotlight روی المنت جدید باز میشه
             setTimeout(() => {
                 this.index = newIndex;
                 this.$nextTick(() => {
                     this.calcPosition(true);
-                    // فاز ۳: نمایش تولتیپ بعد از باز شدن spotlight
                     setTimeout(() => {
                         this.transitioning = false;
                         this.tipVisible = true;
-                    }, 280);
+                    }, 260);
                 });
-            }, 190);
+            }, 100);
         },
 
-        /* بستن اجباری - فقط در steps غیر-اجباری از طریق دکمه X صدا زده میشه */
+        /* بستن کامل تور - از طریق دکمه X صدا زده میشه */
         forceFinish() {
             this.active = false;
             this.tipVisible = false;
@@ -150,7 +149,7 @@ init() {
             }));
         },
 
-      calcPosition(scroll) {
+        calcPosition(scroll) {
             const el = document.querySelector(this.steps[this.index].el);
             if (!el || !this.isElVisible(el)) { this.next(); return; }
 
@@ -162,7 +161,7 @@ init() {
                 const r = el.getBoundingClientRect();
                 const pad = 8;
 
-                /* spotlight */
+                /* اسپات‌لایت */
                 this.spotTop    = r.top    - pad;
                 this.spotLeft   = r.left   - pad;
                 this.spotWidth  = r.width  + pad * 2;
@@ -170,7 +169,7 @@ init() {
 
                 /* تولتیپ */
                 const tipW = Math.min(300, window.innerWidth - 32);
-                const tipH = 200;
+                const tipH = 190;
                 const spaceBelow = window.innerHeight - r.bottom - pad;
                 const spaceAbove = r.top - pad;
 
@@ -187,38 +186,37 @@ init() {
             };
 
             if (scroll) {
-                // ✨ افزایش تایم‌اوت از 380 به 600 برای جبران کندی اسکرول گوشی‌ها
-                // بعلاوه با وجود scroll event (که بالاتر اضافه کردیم) کادر در حین حرکت هم آپدیت می‌شود
-                setTimeout(doCalc, 600);
+                setTimeout(doCalc, 450);
             } else {
                 doCalc();
             }
         },
      }">
 
-        {{-- آیکون راهنما — بالا چپ --}}
-        <button type="button" @click="start()" title="راهنمای صفحه"
-                class="fixed top-20 left-3 sm:left-5 z-[70] w-10 h-10 rounded-full bg-secondary border border-border shadow-lg
+        {{-- آیکون راهنما — پایین چپ (بالای دکمه‌ی برگشت به بالا در صورت وجود) --}}
+        <button type="button" id="sdfr-page-tour-trigger" @click="start()" title="راهنمای صفحه"
+                aria-label="راهنمای صفحه"
+                class="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] md:bottom-6 left-3 sm:left-5 z-[70] w-11 h-11 rounded-full bg-secondary border border-border shadow-lg
                    flex items-center justify-center text-muted hover:text-primary hover:border-primary/40 transition-colors">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                 strokeWidth="2" class="w-6 h-6">
+                <path
+                    d="M11.75 15.1658V14.6915C11.75 13.1553 10.8011 12.342 9.85232 11.6869C8.9261 11.0544 8 10.2411 8 8.75014C8 6.67179 9.67165 5 11.75 5C13.8283 5 15.5 6.67179 15.5 8.75014"
+                    stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M11.7586 18.5456H11.7382" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                      stroke-linejoin="round"></path>
             </svg>
         </button>
 
-        {{-- ────── تور اصلی ────── --}}
+        {{-- ────── تور اصلی: اسپات‌لایت + تولتیپ ────── --}}
         <template x-if="active">
             <div class="fixed inset-0 z-[90]" aria-modal="true" role="dialog">
 
-                {{-- ░░ لایه‌ی blur/dark با clip-path برای spotlight ░░
-                     ❌ کلیک روی این لایه باعث بسته شدن نمیشه (per request) --}}
+                {{-- ░░ لایه‌ی تیره با clip-path برای اسپات‌لایت — بدون backdrop-filter/blur ░░
+                     کلیک روی این لایه باعث بسته شدن نمی‌شه؛ فقط جلوی تعامل با بقیه‌ی صفحه رو می‌گیره. --}}
                 <div class="absolute inset-0 pointer-events-auto"
                      :style="`
-                    background: rgba(0,0,0,.72);
-                    backdrop-filter: blur(4px);
-                    -webkit-backdrop-filter: blur(4px);
+                    background: rgba(0,0,0,.62);
                     clip-path: polygon(
                         0% 0%, 100% 0%, 100% 100%, 0% 100%,
                         0% ${spotTop}px,
@@ -228,11 +226,11 @@ init() {
                         ${spotLeft + spotWidth}px ${spotTop}px,
                         0% ${spotTop}px
                     );
-                    transition: clip-path .26s cubic-bezier(.4,0,.2,1);
+                    transition: clip-path .24s cubic-bezier(.4,0,.2,1);
                  `">
                 </div>
 
-                {{-- ░░ حلقه‌ی درخشان دور المان ░░ --}}
+                {{-- ░░ حلقه‌ی درخشان دور المان هدف ░░ --}}
                 <div class="absolute rounded-xl pointer-events-none"
                      :style="`
                     top:    ${spotTop}px;
@@ -242,71 +240,65 @@ init() {
                     box-shadow:
                         0 0 0 2px rgba(56,189,248,.9),
                         0 0 0 5px rgba(56,189,248,.20),
-                        0 0 28px 4px rgba(56,189,248,.30);
-                    transition: top .26s cubic-bezier(.4,0,.2,1),
-                                left .26s cubic-bezier(.4,0,.2,1),
-                                width .26s cubic-bezier(.4,0,.2,1),
-                                height .26s cubic-bezier(.4,0,.2,1);
+                        0 0 24px 3px rgba(56,189,248,.28);
+                    transition: top .24s cubic-bezier(.4,0,.2,1),
+                                left .24s cubic-bezier(.4,0,.2,1),
+                                width .24s cubic-bezier(.4,0,.2,1),
+                                height .24s cubic-bezier(.4,0,.2,1);
                  `">
                 </div>
 
-                {{-- ░░ تولتیپ ░░ --}}
+                {{-- ░░ کارت تولتیپ ░░ --}}
                 <div class="absolute pointer-events-auto"
-                     :style="`top: ${tipTop}px; right: ${tipRight}px; width: 300px; max-width: calc(100vw - 2rem);`"
-                     :class="tipVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2 scale-95'"
-                     style="transition: opacity .3s ease, transform .3s cubic-bezier(.2,.8,.2,1);">
+                     :style="`top: ${tipTop}px; right: ${tipRight}px; width: 300px; max-width: calc(100vw - 2rem); will-change: opacity, transform;`"
+                     :class="tipVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'"
+                     style="transition: opacity .18s ease, transform .18s ease;">
 
-                    <div class="absolute w-3 h-3 rotate-45 bg-[#131825] border border-white/10"
+                    {{-- دم کوچک اشاره‌گر به سمت المنت هدف --}}
+                    <div class="absolute w-3 h-3 rotate-45 bg-white  border border-white/10"
                          :class="tipSide === 'bottom' ? '-top-1.5 right-5' : '-bottom-1.5 right-5'"
                          style="z-index:-1"></div>
 
-                    <div class="rounded-2xl p-4 shadow-2xl border border-white/10 backdrop-blur-xl"
-                         style="background: rgba(13,18,30,.92);">
+                    <div class="rounded-2xl p-4 shadow-2xl border border-white/10 bg-secondary  ">
 
-                        {{-- ─── Header: عنوان + دکمه بستن (یا badge اجباری) ─── --}}
+                        {{-- ─── Header: عنوان + دکمه بستن ─── --}}
                         <div class="flex items-center justify-between gap-2 mb-2">
-                            <p class="text-sm font-bold text-white flex-1 min-w-0 truncate" x-text="steps[index].title"></p>
+                            <p class="text-sm font-bold text-white flex-1 min-w-0 truncate"
+                               x-text="steps[index].title"></p>
 
                             {{-- دکمه بستن - فقط در steps غیر-اجباری --}}
                             <template x-if="canClose()">
                                 <button type="button" @click="forceFinish()"
-                                        class="w-6 h-6 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition text-neutral-400 hover:text-white flex-shrink-0">
-                                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        class="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition text-neutral-400 hover:text-white flex-shrink-0">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M18 6 6 18M6 6l12 12"/>
                                     </svg>
                                 </button>
                             </template>
-
                         </div>
 
                         <p class="text-xs text-neutral-400 leading-6 mb-4" x-text="steps[index].text"></p>
 
-                        {{-- ─── Footer: نقاط پیشرفت + دکمه‌های قبلی/بعدی ─── --}}
+                        {{-- ─── Footer: شمارنده صفحه + دکمه‌های قبلی/بعدی ─── --}}
                         <div class="flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-1.5">
-                            </div>
+                            <span class="text-[11px] text-neutral-500 font-medium"
+                                  x-text="`${index + 1} از ${steps.length}`"></span>
 
-                            <div class="flex items-center gap-1.5">
+                            <div class="flex items-center gap-2">
                                 {{-- دکمه قبلی --}}
                                 <button type="button" @click="prev()"
                                         :disabled="!hasPrev() || transitioning"
-                                        :class="hasPrev() && !transitioning ? 'bg-white/5 hover:bg-white/10 text-neutral-300 cursor-pointer' : 'bg-white/5 text-neutral-600 cursor-not-allowed opacity-40'"
-                                        class="w-9 h-9 rounded-lg flex items-center justify-center transition-all">
-                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="m9 18 6-6-6-6"/>
-                                    </svg>
+                                        :class="hasPrev() && !transitioning ? 'bg-white/5 hover:bg-white/10 text-neutral-300 border-white/10 cursor-pointer' : 'bg-white/5 text-neutral-600 border-white/5 cursor-not-allowed opacity-40'"
+                                        class="px-4 h-9 rounded-lg text-xs font-bold border transition-colors">
+                                    قبلی
                                 </button>
 
                                 {{-- دکمه بعدی --}}
                                 <button type="button" @click="next()"
                                         :disabled="transitioning"
-                                        class="px-4 h-9 rounded-lg text-xs font-bold bg-sky-500 hover:bg-sky-400 text-white transition-all hover:scale-105 shadow-lg shadow-sky-500/20 flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-wait">
+                                        class="px-4 h-9 rounded-lg text-xs font-bold bg-primary hover:bg-white hover:text-black text-white transition-colors disabled:opacity-60 disabled:cursor-wait">
                                     <span x-text="index >= steps.length - 1 ? 'تمام 🎉' : 'بعدی'"></span>
-                                    <template x-if="index < steps.length - 1">
-                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="m15 18-6-6 6-6"/>
-                                        </svg>
-                                    </template>
                                 </button>
                             </div>
                         </div>

@@ -24,17 +24,11 @@
                                 <div class="w-2 h-2 bg-foreground rounded-full"></div>
                             </div>
                             <div class="font-black text-foreground">افزودن برنامه کلاسی</div>
-                            <a wire:navigate href="{{ $backUrl ?: ($inTrialCs ? route('client.profile.trial.guide') : route('client.profile.dashboard')) }}"
-                               class="inline-flex items-center justify-center gap-x-1.5 h-10 bg-secondary border border-border rounded-full text-muted transition-colors hover:text-foreground px-6 ms-auto">
-                                <span class="font-semibold text-xs">
-                                    {{ $backUrl ? 'بازگشت به پیش‌جلسه' : ('بازگشت' . ($inTrialCs ? ' به راهنما' : '')) }}
-                                </span>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     stroke-width="1.5" stroke="currentColor" class="size-5">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3"></path>
-                                </svg>
-                            </a>
+                            <x-ui.button href="{{ $backUrl ?: ($inTrialCs ? route('client.profile.trial.guide') : route('client.profile.dashboard')) }}"
+                                         wire:navigate variant="secondary-outline" icon="chevron-right" pill
+                                         class="ms-auto">
+                                {{ $backUrl ? 'بازگشت به پیش‌جلسه' : ('بازگشت' . ($inTrialCs ? ' به راهنما' : '')) }}
+                            </x-ui.button>
                         </div>
 
                         {{-- اطلاعات پایه و رشته --}}
@@ -42,11 +36,7 @@
                             <div class="flex flex-wrap items-center justify-between gap-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none"
-                                             viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                        </svg>
+                                        <x-ui.icon name="book-open" class="w-6 h-6 text-white"/>
                                     </div>
                                     <div>
                                         <h2 class="text-white font-bold text-lg">برنامه کلاسی</h2>
@@ -62,23 +52,9 @@
                                 </div>
 
                                 @if($isFinalized)
-                                    <span class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 text-white rounded-full text-sm font-semibold border border-emerald-400 shadow-lg shadow-emerald-500/30">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-             viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M5 13l4 4L19 7"/>
-        </svg>
-        نهایی شده
-    </span>
+                                    <x-ui.status-badge status="paid" label="نهایی شده" class="!text-sm !px-4 !py-2"/>
                                 @else
-                                    <span class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 text-white rounded-full text-sm font-semibold border border-amber-400 shadow-lg shadow-amber-500/30">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-             viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-        </svg>
-        در حال تکمیل
-    </span>
+                                    <x-ui.status-badge status="pending" label="در حال تکمیل" class="!text-sm !px-4 !py-2"/>
                                 @endif
                             </div>
                         </div>
@@ -91,7 +67,7 @@
                                         @if($isGraduate)
                                             <span class="inline-flex items-center rounded-full bg-secondary px-2.5 py-1 text-[11px] font-bold text-muted">فارغ‌التحصیل</span>
                                         @elseif($this->attendsSchoolSwitchLocked)
-                                            <span class="inline-flex items-center rounded-full bg-rose-500/10 px-2.5 py-1 text-[11px] font-bold text-rose-500">قفل شده</span>
+                                            <span class="inline-flex items-center rounded-full bg-error/10 px-2.5 py-1 text-[11px] font-bold text-error">قفل شده</span>
                                         @endif
                                     </div>
                                     <p class="text-sm text-muted leading-6">اگر وضعیتت نسبت به زمان ثبت‌نام تغییر کرده، از همین‌جا آن را به‌روزرسانی کن.</p>
@@ -131,12 +107,7 @@
                         {{-- راهنما --}}
                         <div dir="rtl" class="rounded-2xl border border-border bg-secondary p-4">
                             <div class="flex items-start gap-3">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                     class="w-5 h-5 text-primary mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24"
-                                     stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
+                                <x-ui.icon name="info" class="w-5 h-5 text-primary mt-0.5 flex-shrink-0"/>
 
                                 <div class="text-sm text-muted leading-relaxed space-y-1">
                                     <p>- تمام روزهای هفته اختیاری هستند و الزامی برای تکمیل شنبه تا چهارشنبه وجود
@@ -170,20 +141,10 @@
 
                                             {{-- دکمه حذف تمامی پارت‌های روز --}}
                                             @if($day['filled_count'] > 0)
-                                                <button
-                                                    wire:click="$dispatch('open-delete-day-modal', { day: {{ $day['day_of_week'] }}, name: '{{ $day['name'] }}' })"
-                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold
-                                                           bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400
-                                                           border border-red-200 dark:border-red-800
-                                                           hover:bg-red-100 dark:hover:bg-red-900/40
-                                                           transition-all duration-200">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5"
-                                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                              stroke-width="2"
-                                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                    </svg>
-                                                </button>
+                                                <x-ui.button type="button" size="sm" variant="error-soft" icon="trash" pill
+                                                             wire:click="$dispatch('open-delete-day-modal', { day: {{ $day['day_of_week'] }}, name: '{{ $day['name'] }}' })">
+                                                    حذف همه
+                                                </x-ui.button>
                                             @endif
                                         </div>
                                     </div>
@@ -203,7 +164,8 @@
                                                         <div class="relative group">
                                                             <button
                                                                 @click="$dispatch('open-part-modal', { day: {{ $day['day_of_week'] }}, part: {{ $partInfo['order'] }} })"
-                                                                class="w-full rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3 text-center transition-all hover:border-green-400 hover:shadow-md cursor-pointer">
+                                                                data-elevated="false"
+                                                                class="btn-press w-full rounded-xl border-2 border-success/40 bg-success/10 p-3 text-center transition-all hover:border-success hover:shadow-md cursor-pointer">
                                                                 <div class="text-xs text-muted mb-1">
                                                                     پارت {{ $partInfo['order'] }}</div>
                                                                 <div
@@ -213,20 +175,17 @@
                                                             {{-- دکمه حذف تک پارت --}}
                                                             <button
                                                                 wire:click="$dispatch('open-delete-part-modal', { day: {{ $day['day_of_week'] }}, part: {{ $partInfo['order'] }}, name: '{{ $partInfo['part']->lesson_name }}' })"
-                                                                class="absolute -top-2 -left-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full items-center justify-center text-xs hidden group-hover:flex shadow-lg transition-colors">
-                                                                &times;
+                                                                data-elevated="true"
+                                                                class="btn-press absolute -top-2 -left-2 w-6 h-6 bg-error hover:bg-error/90 text-white rounded-full items-center justify-center hidden group-hover:flex shadow-lg transition-colors">
+                                                                <x-ui.icon name="x" class="w-3.5 h-3.5"/>
                                                             </button>
                                                         </div>
                                                     @elseif($partInfo['is_unlocked'])
                                                         <button
                                                             @click="$dispatch('open-part-modal', { day: {{ $day['day_of_week'] }}, part: {{ $partInfo['order'] }} })"
-                                                            class="w-full rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-3 text-center transition-all hover:border-primary hover:bg-primary/10 hover:shadow-md cursor-pointer">
-                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                 class="w-6 h-6 text-primary mx-auto" fill="none"
-                                                                 viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                      stroke-width="2" d="M12 4v16m8-8H4"/>
-                                                            </svg>
+                                                            data-elevated="false"
+                                                            class="btn-press w-full rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-3 text-center transition-all hover:border-primary hover:bg-primary/10 hover:shadow-md cursor-pointer">
+                                                            <x-ui.icon name="plus" class="w-6 h-6 text-primary mx-auto"/>
                                                             <div class="text-xs text-primary mt-1 font-semibold">
                                                                 افزودن
                                                             </div>
@@ -236,13 +195,7 @@
                                                             class="w-full rounded-xl border border-border bg-secondary/50 p-3 text-center opacity-40">
                                                             <div class="text-xs text-muted mb-1">
                                                                 پارت {{ $partInfo['order'] }}</div>
-                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                 class="w-6 h-6 text-muted mx-auto" fill="none"
-                                                                 viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                      stroke-width="2"
-                                                                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                                            </svg>
+                                                            <x-ui.icon name="lock" class="w-6 h-6 text-muted mx-auto"/>
                                                         </div>
                                                     @endif
                                                 </div>
@@ -256,13 +209,9 @@
                                                 <div class="w-28 flex-shrink-0 snap-start">
                                                     <button
                                                         @click="$dispatch('open-part-modal', { day: {{ $day['day_of_week'] }}, part: {{ $nextUnlocked['order'] }} })"
-                                                        class="w-full h-full min-h-[88px] rounded-xl border-2 border-dashed border-primary/50 bg-primary/5 p-3 text-center transition-all active:bg-primary/10">
-                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                             class="w-7 h-7 text-primary mx-auto" fill="none"
-                                                             viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                  stroke-width="2" d="M12 4v16m8-8H4"/>
-                                                        </svg>
+                                                        data-elevated="false"
+                                                        class="btn-press w-full h-full min-h-[88px] rounded-xl border-2 border-dashed border-primary/50 bg-primary/5 p-3 text-center transition-all active:bg-primary/10">
+                                                        <x-ui.icon name="plus" class="w-7 h-7 text-primary mx-auto"/>
                                                         <div class="text-xs text-primary mt-1 font-bold">افزودن</div>
                                                     </button>
                                                 </div>
@@ -273,22 +222,19 @@
                                                     <div class="relative">
                                                         <button
                                                             @click="$dispatch('open-part-modal', { day: {{ $day['day_of_week'] }}, part: {{ $partInfo['order'] }} })"
-                                                            class="w-full rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3 text-center transition-all active:border-green-400 cursor-pointer">
+                                                            data-elevated="false"
+                                                            class="btn-press w-full rounded-xl border-2 border-success/40 bg-success/10 p-3 text-center transition-all active:border-success cursor-pointer">
                                                             <div class="text-[10px] text-muted mb-0.5">
                                                                 پارت {{ $partInfo['order'] }}</div>
                                                             <div
                                                                 class="font-bold text-xs text-foreground truncate">{{ $partInfo['part']->lesson_name }}</div>
-                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                 class="w-3.5 h-3.5 text-green-500 mx-auto mt-1"
-                                                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                      stroke-width="2" d="M5 13l4 4L19 7"/>
-                                                            </svg>
+                                                            <x-ui.icon name="check" class="w-3.5 h-3.5 text-success mx-auto mt-1"/>
                                                         </button>
                                                         <button
                                                             wire:click="$dispatch('open-delete-part-modal', { day: {{ $day['day_of_week'] }}, part: {{ $partInfo['order'] }}, name: '{{ $partInfo['part']->lesson_name }}' })"
-                                                            class="absolute -top-2 -left-2 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-[10px] shadow-lg transition-colors">
-                                                            &times;
+                                                            data-elevated="true"
+                                                            class="btn-press absolute -top-2 -left-2 w-5 h-5 bg-error hover:bg-error/90 text-white rounded-full flex items-center justify-center shadow-lg transition-colors">
+                                                            <x-ui.icon name="x" class="w-3 h-3"/>
                                                         </button>
                                                     </div>
                                                 </div>
@@ -298,9 +244,7 @@
                                                     <div class="w-full rounded-xl border border-border bg-secondary/50 p-3 text-center opacity-40">
                                                         <div class="text-xs text-muted mb-1">
                                                             پارتی وجود ندارد !</div>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-muted mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                                        </svg>
+                                                        <x-ui.icon name="lock" class="w-6 h-6 text-muted mx-auto"/>
                                                     </div>
                                             @endif
                                         </div>
@@ -311,36 +255,18 @@
 
                         {{-- دکمه ثبت نهایی --}}
                         <div dir="rtl" class="flex items-center justify-end gap-4">
-                            <button wire:click="openFinalizeModal"
-                                    wire:loading.attr="disabled"
-                                    wire:target="openFinalizeModal"
-                                    @if(!$canFinalize) disabled @endif
-                                    class="inline-flex  items-center gap-2 px-8 py-3  rounded-xl font-bold text-sm transition-colors
-                                    {{ $canFinalize
-                                        ? 'bg-primary hover:bg-blue-600 text-white shadow-lg shadow-green-500/30'
-                                        : 'bg-secondary  text-muted cursor-not-allowed' }}" >
-                                <span wire:loading wire:target="openFinalizeModal">
-                                    <svg class="animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg"
-                                         fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                                stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor"
-                                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                    </svg>
-                                </span>
-                                <span wire:loading.remove wire:target="openFinalizeModal">
-                                       ثبت نهایی
-                                </span>
-
-                            </button>
+                            <x-ui.button wire:click="openFinalizeModal"
+                                         wire:loading.attr="disabled" wire:target="openFinalizeModal"
+                                         :disabled="!$canFinalize"
+                                         variant="{{ $canFinalize ? 'primary' : 'secondary' }}"
+                                         icon="check" size="lg" pill>
+                                ثبت نهایی
+                            </x-ui.button>
                         </div>
                         @else
-                            <div dir="rtl" class="rounded-2xl border border-sky-200/70 bg-sky-50 px-4 py-4 text-sm text-sky-800 dark:bg-sky-500/10 dark:text-sky-300 dark:border-sky-500/40">
+                            <div dir="rtl" class="rounded-2xl border border-info/30 bg-info/10 px-4 py-4 text-sm text-info">
                                 <div class="flex items-start gap-3">
-                                    <svg class="w-5 h-5 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01"></path>
-                                    </svg>
+                                    <x-ui.icon name="info" class="w-5 h-5 mt-0.5 shrink-0"/>
                                     <div class="space-y-2">
                                         <p class="font-bold">در حال حاضر وضعیت شما روی «مدرسه نمی‌روم» است.</p>
                                         <p class="leading-6">در این حالت نیازی به ثبت برنامه کلاسی مدرسه نداری. هر زمان دوباره مدرسه رفتی، همین سوییچ را روشن کن تا فرم برنامه کلاسی برایت فعال شود.</p>
@@ -368,83 +294,71 @@
             this.part = e.detail.part;
             this.name = e.detail.name;
             this.show = true;
-            document.body.classList.add('overflow-hidden'); // جلوگیری از اسکرول
         },
         close() {
             this.show = false;
-            document.body.classList.remove('overflow-hidden'); // بازگرداندن اسکرول
         }
     }"
             @open-delete-part-modal.window="open($event)"
-            x-show="show"
-            x-cloak
-            class="fixed inset-0 z-[82] flex flex-col justify-end sm:items-center sm:justify-center"
+            x-effect="show ? window.SdfrModalScrollLock.lock() : window.SdfrModalScrollLock.unlock()"
             @keydown.escape.window="close()">
+            <div x-show="show" x-cloak>
+                <div
+                    x-show="show"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+                    @click="close()"
+                ></div>
 
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                 x-show="show"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 @click="close()"></div>
-
-            <div
-                class="relative z-10 w-full sm:max-w-sm bg-background dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl  sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
-                x-show="show"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 translate-y-8"
-                x-transition:enter-end="opacity-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 translate-y-0"
-                x-transition:leave-end="opacity-0 translate-y-8"
-                dir="rtl">
-
-                <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
-                    <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
-                </div>
-
-                <div class="p-6 text-center">
+                <div
+                    x-show="show"
+                    class="fixed inset-0 z-[101] flex items-end justify-center overscroll-contain sm:items-center sm:p-4"
+                    @click.self="close()"
+                >
                     <div
-                        class="w-14 h-14 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-500" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                    </div>
-                    <h3 class="font-bold text-foreground text-lg mb-2">حذف پارت</h3>
-                    <p class="text-sm text-muted">
-                        آیا از حذف درس <span class="font-bold text-foreground" x-text="`«${name}»`"></span> مطمئنید؟
-                    </p>
-                </div>
+                        x-show="show"
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave="transition ease-in duration-200"
+                        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                        class="relative w-full sm:max-w-sm bg-background border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                        dir="rtl">
 
-                <div class="flex items-center gap-3  border-border px-5 pb-5">
-                    <button @click="close()"
-                            class="w-full rounded-xl border border-border py-2.5 px-4 text-sm font-semibold text-foreground
-                                   bg-background dark:bg-zinc-900 hover:bg-muted/50 dark:hover:bg-zinc-800 transition-colors">
-                        انصراف
-                    </button>
-                    <button
-                        @click="$wire.deletePart(day, part); close();"
-                        wire:loading.attr="disabled"
-                        wire:target="deletePart"
-                        class="w-full rounded-xl py-2.5 px-4 text-sm font-semibold text-white
-                               bg-red-500 hover:bg-red-600 transition-colors
-                               inline-flex items-center justify-center gap-2">
-                        <span wire:loading wire:target="deletePart">
-                            <svg class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                 viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                            </svg>
-                        </span>
-                        <span wire:loading.remove wire:target="deletePart">حذف</span>
-                    </button>
+                        <div class="mx-auto mt-3 mb-1 h-1.5 w-14 rounded-full bg-border sm:hidden shrink-0"></div>
+
+                        <button type="button" @click="close()" data-elevated="false"
+                                class="btn-press absolute top-4 left-4 w-8 h-8 inline-flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-secondary transition-colors z-10">
+                            <x-ui.icon name="x" class="w-4 h-4"/>
+                        </button>
+
+                        <div class="p-6 text-center">
+                            <div class="w-14 h-14 bg-error/15 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <x-ui.icon name="trash" class="w-7 h-7 text-error"/>
+                            </div>
+                            <h3 class="font-bold text-foreground text-lg mb-2">حذف پارت</h3>
+                            <p class="text-sm text-muted">
+                                آیا از حذف درس <span class="font-bold text-foreground" x-text="`«${name}»`"></span> مطمئنید؟
+                            </p>
+                        </div>
+
+                        <div class="flex items-center gap-3 border-t border-border px-5 py-5">
+                            <x-ui.button type="button" variant="secondary-outline" icon="x" block @click="close()">
+                                انصراف
+                            </x-ui.button>
+                            <x-ui.button type="button" variant="error" icon="trash" block
+                                         wire:loading.attr="disabled" wire:target="deletePart"
+                                         @click="$wire.deletePart(day, part); close();">
+                                حذف
+                            </x-ui.button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -461,87 +375,74 @@
             this.day  = e.detail.day;
             this.name = e.detail.name;
             this.show = true;
-            document.body.classList.add('overflow-hidden'); // جلوگیری از اسکرول
         },
         close() {
             this.show = false;
-            document.body.classList.remove('overflow-hidden'); // بازگرداندن اسکرول
         }
     }"
             @open-delete-day-modal.window="open($event)"
-            x-show="show"
-            x-cloak
-            class="fixed inset-0 z-[78] flex flex-col justify-end sm:items-center sm:justify-center"
+            x-effect="show ? window.SdfrModalScrollLock.lock() : window.SdfrModalScrollLock.unlock()"
             @keydown.escape.window="close()">
+            <div x-show="show" x-cloak>
+                <div
+                    x-show="show"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+                    @click="close()"
+                ></div>
 
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                 x-show="show"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 @click="close()"></div>
-
-            <div
-                class="relative z-10 w-full sm:max-w-sm bg-background dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl  sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
-                x-show="show"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 translate-y-8"
-                x-transition:enter-end="opacity-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 translate-y-0"
-                x-transition:leave-end="opacity-0 translate-y-8"
-                dir="rtl">
-
-                <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
-                    <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
-                </div>
-
-                <div class="p-6 text-center">
+                <div
+                    x-show="show"
+                    class="fixed inset-0 z-[101] flex items-end justify-center overscroll-contain sm:items-center sm:p-4"
+                    @click.self="close()"
+                >
                     <div
-                        class="w-14 h-14 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-500" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                        </svg>
+                        x-show="show"
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave="transition ease-in duration-200"
+                        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                        class="relative w-full sm:max-w-sm bg-background border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                        dir="rtl">
+
+                        <div class="mx-auto mt-3 mb-1 h-1.5 w-14 rounded-full bg-border sm:hidden shrink-0"></div>
+
+                        <button type="button" @click="close()" data-elevated="false"
+                                class="btn-press absolute top-4 left-4 w-8 h-8 inline-flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-secondary transition-colors z-10">
+                            <x-ui.icon name="x" class="w-4 h-4"/>
+                        </button>
+
+                        <div class="p-6 text-center">
+                            <div class="w-14 h-14 bg-error/15 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <x-ui.icon name="triangle-alert" class="w-7 h-7 text-error"/>
+                            </div>
+                            <h3 class="font-bold text-foreground text-lg mb-2">حذف تمامی پارت‌ها</h3>
+                            <p class="text-sm text-muted">
+                                آیا از حذف <strong class="text-error">تمامی پارت‌های</strong> روز
+                                <span class="font-bold text-foreground" x-text="`«${name}»`"></span>
+                                مطمئنید؟
+                            </p>
+                            <p class="text-xs mt-3 text-error">این عمل قابل بازگشت نیست.</p>
+                        </div>
+
+                        <div class="flex items-center gap-3 border-t border-border px-5 py-5">
+                            <x-ui.button type="button" variant="secondary-outline" icon="x" block @click="close()">
+                                انصراف
+                            </x-ui.button>
+                            <x-ui.button type="button" variant="error" icon="trash" block
+                                         wire:loading.attr="disabled" wire:target="deleteAllDayParts"
+                                         @click="$wire.deleteAllDayParts(day); close();">
+                                حذف همه
+                            </x-ui.button>
+                        </div>
                     </div>
-                    <h3 class="font-bold text-foreground text-lg mb-2">حذف تمامی پارت‌ها</h3>
-                    <p class="text-sm text-muted">
-                        آیا از حذف <strong class="text-red-500">تمامی پارت‌های</strong> روز
-                        <span class="font-bold text-foreground" x-text="`«${name}»`"></span>
-                        مطمئنید؟
-                    </p>
-                    <p class="text-xs  mt-3 text-red-500">این عمل قابل بازگشت نیست.</p>
-
-                </div>
-
-                <div class="flex items-center gap-3  border-border px-5 pb-5">
-                    <button @click="close()"
-                            class="w-full rounded-xl border border-border py-2.5 px-4 text-sm font-semibold text-foreground
-                                   bg-background dark:bg-zinc-900 hover:bg-muted/50 dark:hover:bg-zinc-800 transition-colors">
-                        انصراف
-                    </button>
-                    <button
-                        @click="$wire.deleteAllDayParts(day); close();"
-                        wire:loading.attr="disabled"
-                        wire:target="deleteAllDayParts"
-                        class="w-full rounded-xl py-2.5 px-4 text-sm font-semibold text-white
-                               bg-red-500 hover:bg-red-600 transition-colors
-                               inline-flex items-center justify-center gap-2">
-                        <span wire:loading wire:target="deleteAllDayParts">
-                            <svg class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                 viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                            </svg>
-                        </span>
-                        <span wire:loading.remove wire:target="deleteAllDayParts">حذف همه</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -556,159 +457,138 @@
         open(e) {
             this.next = e.detail.next;
             this.show = true;
-            document.body.classList.add('overflow-hidden'); // جلوگیری از اسکرول
         },
         close() {
             this.show = false;
-            document.body.classList.remove('overflow-hidden'); // بازگرداندن اسکرول
         }
     }"
             @open-attends-school-modal.window="open($event)"
-            x-show="show"
-            x-cloak
-            class="fixed inset-0 z-[76] flex flex-col justify-end sm:items-center sm:justify-center"
+            x-effect="show ? window.SdfrModalScrollLock.lock() : window.SdfrModalScrollLock.unlock()"
             @keydown.escape.window="close()">
+            <div x-show="show" x-cloak>
+                <div
+                    x-show="show"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+                    @click="close()"
+                ></div>
 
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                 x-show="show"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 @click="close()"></div>
-
-            <div
-                class="relative z-10 w-full sm:max-w-sm bg-background dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl  sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
-                x-show="show"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 translate-y-8"
-                x-transition:enter-end="opacity-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 translate-y-0"
-                x-transition:leave-end="opacity-0 translate-y-8"
-                dir="rtl">
-
-                <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
-                    <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
-                </div>
-
-                <div class="p-6 text-center">
+                <div
+                    x-show="show"
+                    class="fixed inset-0 z-[101] flex items-end justify-center overscroll-contain sm:items-center sm:p-4"
+                    @click.self="close()"
+                >
                     <div
-                        class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-primary" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <h3 class="font-bold text-foreground text-lg mb-2">تغییر وضعیت مدرسه</h3>
-                    <p class="text-sm text-muted">
-                        آیا مطمئن هستید می‌خواهید وضعیت را به
-                        <span class="font-bold text-foreground"
-                              x-text="next ? '«به مدرسه می‌روم»' : '«به مدرسه نمی‌روم»'"></span>
-                        تغییر دهید؟
-                    </p>
-                </div>
+                        x-show="show"
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave="transition ease-in duration-200"
+                        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                        class="relative w-full sm:max-w-sm bg-background border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                        dir="rtl">
 
-                <div class="flex items-center gap-3  border-border px-5 pb-5">
-                    <button @click="close()"
-                            class="w-full rounded-xl border border-border py-2.5 px-4 text-sm font-semibold text-foreground
-                                   bg-background dark:bg-zinc-900 hover:bg-muted/50 dark:hover:bg-zinc-800 transition-colors">
-                        انصراف
-                    </button>
-                    <button
-                        @click="$wire.changeAttendsSchool(next); close();"
-                        wire:loading.attr="disabled"
-                        wire:target="changeAttendsSchool"
-                        class="w-full rounded-xl py-2.5 px-4 text-sm font-semibold text-white
-                               bg-primary hover:bg-primary/90 transition-colors
-                               inline-flex items-center justify-center gap-2">
-                        <span wire:loading wire:target="changeAttendsSchool">
-                            <svg class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                 viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                            </svg>
-                        </span>
-                        <span wire:loading.remove wire:target="changeAttendsSchool">بله، تغییر بده</span>
-                    </button>
+                        <div class="mx-auto mt-3 mb-1 h-1.5 w-14 rounded-full bg-border sm:hidden shrink-0"></div>
+
+                        <button type="button" @click="close()" data-elevated="false"
+                                class="btn-press absolute top-4 left-4 w-8 h-8 inline-flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-secondary transition-colors z-10">
+                            <x-ui.icon name="x" class="w-4 h-4"/>
+                        </button>
+
+                        <div class="p-6 text-center">
+                            <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <x-ui.icon name="info" class="w-7 h-7 text-primary"/>
+                            </div>
+                            <h3 class="font-bold text-foreground text-lg mb-2">تغییر وضعیت مدرسه</h3>
+                            <p class="text-sm text-muted">
+                                آیا مطمئن هستید می‌خواهید وضعیت را به
+                                <span class="font-bold text-foreground"
+                                      x-text="next ? '«به مدرسه می‌روم»' : '«به مدرسه نمی‌روم»'"></span>
+                                تغییر دهید؟
+                            </p>
+                        </div>
+
+                        <div class="flex items-center gap-3 border-t border-border px-5 py-5">
+                            <x-ui.button type="button" variant="secondary-outline" icon="x" block @click="close()">
+                                انصراف
+                            </x-ui.button>
+                            <x-ui.button type="button" variant="primary" icon="check" block
+                                         wire:loading.attr="disabled" wire:target="changeAttendsSchool"
+                                         @click="$wire.changeAttendsSchool(next); close();">
+                                بله، تغییر بده
+                            </x-ui.button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         {{-- مودال ثبت نهایی (Alpine - instant open) --}}
         <div x-data="{ finalizeOpen: @entangle('showFinalizeModal') }"
-             x-init="$watch('finalizeOpen', value => {
-         if (value) {
-             document.body.classList.add('overflow-hidden');
-         } else {
-             document.body.classList.remove('overflow-hidden');
-         }
-     })"
-             x-show="finalizeOpen" x-cloak
-             class="fixed inset-0 z-[72] flex flex-col justify-end sm:items-center sm:justify-center"
+             x-effect="finalizeOpen ? window.SdfrModalScrollLock.lock() : window.SdfrModalScrollLock.unlock()"
              @keydown.escape.window="finalizeOpen = false">
+            <div x-show="finalizeOpen" x-cloak>
+                <div
+                    x-show="finalizeOpen"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+                    @click="$wire.closeFinalizeModal()"
+                ></div>
 
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                 x-show="finalizeOpen"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 @click="$wire.closeFinalizeModal()"></div>
+                <div
+                    x-show="finalizeOpen"
+                    class="fixed inset-0 z-[101] flex items-end justify-center overscroll-contain sm:items-center sm:p-4"
+                    @click.self="$wire.closeFinalizeModal()"
+                >
+                    <div
+                        x-show="finalizeOpen"
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave="transition ease-in duration-200"
+                        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                        class="relative w-full sm:max-w-md bg-background border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                        dir="rtl">
 
-            <div
-                class="relative z-10 w-full sm:max-w-md bg-background dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl  sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
-                x-show="finalizeOpen"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 translate-y-8"
-                x-transition:enter-end="opacity-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 translate-y-0"
-                x-transition:leave-end="opacity-0 translate-y-8"
-                dir="rtl">
+                        <div class="mx-auto mt-3 mb-1 h-1.5 w-14 rounded-full bg-border sm:hidden shrink-0"></div>
 
-                <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
-                    <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
-                </div>
+                        <button type="button" @click="$wire.closeFinalizeModal()" data-elevated="false"
+                                class="btn-press absolute top-4 left-4 w-8 h-8 inline-flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-secondary transition-colors z-10">
+                            <x-ui.icon name="x" class="w-4 h-4"/>
+                        </button>
 
-                <div class="p-5 border-b border-border">
-                    <h3 class="font-bold text-foreground text-lg">به‌روزرسانی برنامه</h3>
-                </div>
-                <div class="p-5 space-y-2 text-sm text-muted">
-                    <p>آیا از ثبت نهایی برنامه کلاسی مطمئن هستید؟</p>
-                    <p class="text-primary">در آینده هم می‌توانید ویرایش کنید و دوباره ثبت نهایی بزنید.</p>
-                </div>
-                <div class="flex items-center gap-x-3  border-border p-4 pb-safe">
-                    <button wire:click="closeFinalizeModal"
-                            wire:loading.attr="disabled"
-                            wire:target="closeFinalizeModal"
-                            class="w-full rounded-xl border border-border py-3 px-4 text-foreground
-                                   hover:bg-muted/50 dark:hover:bg-zinc-800 transition-colors text-sm font-semibold">
-                        انصراف
-                    </button>
-                    <button wire:click="finalizeSchedule"
-                            wire:loading.attr="disabled"
-                            wire:target="finalizeSchedule"
-                            class="w-full rounded-xl bg-primary hover:bg-primary-600 text-white py-3 px-4
-                                   transition-colors inline-flex items-center justify-center gap-2 text-sm font-semibold">
-                        <span wire:loading wire:target="finalizeSchedule">
-                            <svg class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                 viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                            </svg>
-                        </span>
-                        <span wire:loading.remove wire:target="finalizeSchedule">بله، ثبت نهایی شود</span>
-                    </button>
+                        <div class="p-5 border-b border-border">
+                            <h3 class="font-bold text-foreground text-lg">به‌روزرسانی برنامه</h3>
+                        </div>
+                        <div class="p-5 space-y-2 text-sm text-muted">
+                            <p>آیا از ثبت نهایی برنامه کلاسی مطمئن هستید؟</p>
+                            <p class="text-primary">در آینده هم می‌توانید ویرایش کنید و دوباره ثبت نهایی بزنید.</p>
+                        </div>
+                        <div class="flex items-center gap-x-3 border-t border-border p-4 pb-safe">
+                            <x-ui.button wire:click="closeFinalizeModal"
+                                         wire:loading.attr="disabled" wire:target="closeFinalizeModal"
+                                         variant="secondary-outline" icon="x" block>
+                                انصراف
+                            </x-ui.button>
+                            <x-ui.button wire:click="finalizeSchedule"
+                                         wire:loading.attr="disabled" wire:target="finalizeSchedule"
+                                         variant="primary" icon="check" block>
+                                بله، ثبت نهایی شود
+                            </x-ui.button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -720,7 +600,6 @@
     openPart(day, part) {
         this.partModalOpen = true;
         this.partLoading = true; // بلافاصله لودینگ نمایش داده شود تا محتوای قدیمی/خالی برای یک لحظه دیده نشود
-        document.body.classList.add('overflow-hidden'); // جلوگیری از اسکرول
         const startedAt = Date.now();
         $wire.openPartModal(day, part).then(() => {
             // حداقل زمان نمایش لودینگ، فقط برای حس روان‌تر — حتی اگر پاسخ فوری برسد
@@ -730,58 +609,60 @@
     },
     closePart() {
         this.partModalOpen = false;
-        document.body.classList.remove('overflow-hidden'); // بازگرداندن اسکرول
         $wire.closeModal();
     }
 }"
              @open-part-modal.window="openPart($event.detail.day, $event.detail.part)"
              @close-part-modal.window="closePart()"
-             x-show="partModalOpen" x-cloak
-             class="fixed inset-0 z-[70] flex flex-col justify-end sm:items-center sm:justify-center"
+             x-effect="partModalOpen ? window.SdfrModalScrollLock.lock() : window.SdfrModalScrollLock.unlock()"
              @keydown.escape.window="closePart()">
+            <div x-show="partModalOpen" x-cloak>
+                <div
+                    x-show="partModalOpen"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+                    @click="closePart()"
+                ></div>
 
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                 x-show="partModalOpen"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 @click="closePart()"></div>
+                <div
+                    x-show="partModalOpen"
+                    class="fixed inset-0 z-[101] flex items-end justify-center overscroll-contain sm:items-center sm:p-4"
+                    @click.self="closePart()"
+                >
+                    <div
+                        x-show="partModalOpen"
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave="transition ease-in duration-200"
+                        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                        class="relative w-full sm:max-w-md bg-background border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[90vh] pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                        dir="rtl">
 
-            <div
-                class="relative z-10 w-full sm:max-w-md bg-background dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl  sm:border border-border shadow-2xl flex flex-col max-h-[90vh] pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
-                x-show="partModalOpen"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 translate-y-8"
-                x-transition:enter-end="opacity-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 translate-y-0"
-                x-transition:leave-end="opacity-0 translate-y-8">
+                        <div class="mx-auto mt-3 mb-1 h-1.5 w-14 rounded-full bg-border sm:hidden shrink-0"></div>
 
-                <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
-                    <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
-                </div>
+                        <button type="button" @click="closePart()" data-elevated="false"
+                                class="btn-press absolute top-4 left-4 w-8 h-8 inline-flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-secondary transition-colors z-10">
+                            <x-ui.icon name="x" class="w-4 h-4"/>
+                        </button>
 
-                <div class="shrink-0 p-4 border-b border-border flex items-center justify-between">
-                    <h3 class="font-bold text-foreground text-base">انتخاب درس</h3>
-                    <button @click="closePart()" class="text-muted hover:text-red-500 transition-colors p-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
-                </div>
+                        <div class="shrink-0 p-4 border-b border-border">
+                            <h3 class="font-bold text-foreground text-base">انتخاب درس</h3>
+                        </div>
 
-                <div class="flex-1 overflow-y-auto p-4">
-                    {{-- Loading skeleton — فقط برای حس روان‌تر، مستقل از سرعت واقعی پاسخ --}}
-                    <div x-show="partLoading" x-cloak class="space-y-2">
-                        @for($i = 0; $i < 5; $i++)
-                            <div class="h-12 bg-muted/40 rounded-xl animate-pulse"></div>
-                        @endfor
-                    </div>
+                        <div class="flex-1 overflow-y-auto p-4">
+                            {{-- Loading skeleton — فقط برای حس روان‌تر، مستقل از سرعت واقعی پاسخ --}}
+                            <div x-show="partLoading" x-cloak class="space-y-2">
+                                @for($i = 0; $i < 5; $i++)
+                                    <div class="h-12 bg-muted/40 rounded-xl animate-pulse"></div>
+                                @endfor
+                            </div>
 
                     {{-- Content --}}
                     <div x-show="!partLoading" x-cloak>
@@ -801,7 +682,7 @@
                                 </div>
 
                                 @if($selectedCount >= $this->maxSelectableSubjects)
-                                    <div class="mb-3 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 text-xs">
+                                    <div class="mb-3 px-3 py-2 rounded-lg bg-warning/10 text-warning text-xs">
                                         به حداکثر تعداد قابل انتخاب رسیدید.
                                     </div>
                                 @endif
@@ -821,22 +702,19 @@
                                             class="w-full text-right px-3 py-3 rounded-xl border transition-all
                         {{ $isSelected
                             ? 'border-primary bg-primary/10 text-primary font-bold'
-                            : 'border-border bg-background dark:bg-zinc-900 hover:border-primary/40 hover:bg-primary/5 text-foreground' }}">
+                            : 'border-border bg-background hover:border-primary/40 hover:bg-primary/5 text-foreground' }}">
                                         <div class="flex items-center justify-between gap-3">
                                             {{-- چپ‌چین: تیک/رادیو + نام --}}
                                             <div class="flex items-center gap-3 min-w-0 flex-1">
                             <span class="flex-shrink-0 w-5 h-5 {{ $isEditingFilledPart ? 'rounded-full' : 'rounded-md' }} border-2 flex items-center justify-center transition-colors
                                    {{ $isSelected
                                        ? 'bg-primary border-primary'
-                                       : 'border-border bg-background dark:bg-zinc-900' }}">
+                                       : 'border-border bg-background' }}">
                                 @if($isSelected)
                                     @if($isEditingFilledPart)
                                         <span class="w-2 h-2 rounded-full bg-white"></span>
                                     @else
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-white"
-                                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                                        </svg>
+                                        <x-ui.icon name="check" class="w-3.5 h-3.5 text-white"/>
                                     @endif
                                 @endif
                             </span>
@@ -850,7 +728,7 @@
                                     پارت {{ $assignedPart }}
                                 </span>
                                                 @endif
-                                                <span class="text-[11px] {{ $subject->type === 'general' ? 'text-blue-500' : 'text-orange-500' }}">
+                                                <span class="text-[11px] {{ $subject->type === 'general' ? 'text-info' : 'text-warning' }}">
                                 {{ $subject->type === 'general' ? 'عمومی' : 'تخصصی' }}
                             </span>
                                             </div>
@@ -860,43 +738,26 @@
                             </div>
                         @else
                             <div class="text-center py-8">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-muted mx-auto mb-3"
-                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                                </svg>
+                                <x-ui.icon name="triangle-alert" class="w-12 h-12 text-muted mx-auto mb-3"/>
                                 <p class="text-muted text-sm">درسی یافت نشد. لطفاً اطلاعات شخصی (پایه و رشته) خود را تکمیل کنید.</p>
                             </div>
                         @endif
+                            </div>
+                        </div>
+
+                        <div class="shrink-0 flex items-center gap-x-4 border-t border-border p-4 pb-safe">
+                            <x-ui.button type="button" variant="secondary-outline" icon="x" block @click="closePart()">
+                                انصراف
+                            </x-ui.button>
+                            <x-ui.button wire:click="savePart"
+                                         wire:loading.attr="disabled" wire:target="savePart"
+                                         :disabled="empty($selectedSubjectIds)"
+                                         variant="primary" icon="check" block>
+                                ذخیره @if(!$isEditingFilledPart && count($selectedSubjectIds) > 1) ({{ count($selectedSubjectIds) }} پارت) @endif
+                            </x-ui.button>
+                        </div>
                     </div>
                 </div>
-
-                <div class="shrink-0 flex items-center gap-x-4 border-border p-4 pb-safe">
-                    <button @click="closePart()"
-                            class="flex items-center justify-center gap-x-2 w-full border border-border rounded-xl text-foreground py-3 px-4
-                   hover:bg-muted/50 dark:hover:bg-zinc-800 transition-colors text-sm font-semibold">
-                        انصراف
-                    </button>
-                    <button wire:click="savePart"
-                            wire:loading.attr="disabled"
-                            wire:target="savePart"
-                            @if(empty($selectedSubjectIds)) disabled @endif
-                            class="flex items-center justify-center gap-x-2 w-full rounded-xl py-3 px-4 transition-colors
-            {{ !empty($selectedSubjectIds)
-                ? 'bg-primary hover:bg-primary/90'
-                : 'bg-muted cursor-not-allowed' }}">
-        <span wire:loading wire:target="savePart">
-            <svg class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-            </svg>
-        </span>
-                        <span wire:loading.remove wire:target="savePart" class="font-bold text-sm text-white">
-            ذخیره @if(!$isEditingFilledPart && count($selectedSubjectIds) > 1) ({{ count($selectedSubjectIds) }} پارت) @endif
-        </span>
-                    </button>
-                </div>
-
             </div>
         </div>
     </div>

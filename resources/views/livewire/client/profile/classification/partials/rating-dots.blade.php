@@ -28,7 +28,7 @@
                 <span class="text-[11px] font-black leading-none transition-colors"
                       :class="ratings['{{ $key }}'] && ratings['{{ $key }}'] >= {{ $n['v'] }}
                           ? letterClass(ratings['{{ $key }}'])
-                          : 'text-muted-foreground'">{{ $n['letter'] }}</span>
+                          : 'text-muted'">{{ $n['letter'] }}</span>
 
                 {{-- نقطه --}}
                 <button type="button"
@@ -53,13 +53,11 @@
 
     {{-- ── دکمه حذف (ضربدر) ── --}}
     <template x-if="ratings['{{ $key }}']">
-        <button type="button"
+        <button type="button" data-elevated="false"
                 @click="clearRating('{{ $key }}', '{{ $kind }}', {{ $id }})"
-                class="w-6 h-6 flex items-center justify-center rounded-lg  text-red-400 hover:bg-red-500/20 hover:text-red-500 transition-colors shrink-0"
+                class="btn-press w-6 h-6 flex items-center justify-center rounded-lg text-error/70 hover:bg-error/20 hover:text-error transition-colors shrink-0"
                 title="حذف امتیاز">
-            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
+            <x-ui.icon name="x" class="w-3.5 h-3.5 pointer-events-none"/>
         </button>
     </template>
 </div>

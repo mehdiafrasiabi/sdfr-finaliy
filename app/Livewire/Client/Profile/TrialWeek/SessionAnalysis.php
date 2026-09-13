@@ -17,8 +17,10 @@ class SessionAnalysis extends Component
 
     public ?TrialWeek $trialWeek   = null;
     public array       $analysis    = [];
-    public bool        $showHoursModal = false;
     public int         $dailyStudyHours = 2;
+
+    /** id مودالِ انتخاب ساعت مطالعه — برای x-ui.modal (dispatch('open-modal'/'close-modal', ...)) */
+    public const HOURS_MODAL_ID = 'trial-hours-modal';
 
     /** بعد از ساخت برنامه، اورلی «در حال ساخت» (۴۵ ثانیه) نمایش داده می‌شود. */
     public bool $programJustBuilt = false;
@@ -51,12 +53,12 @@ class SessionAnalysis extends Component
 
     public function openHoursModal(): void
     {
-        $this->showHoursModal = true;
+        $this->dispatch('open-modal', self::HOURS_MODAL_ID);
     }
 
     public function closeHoursModal(): void
     {
-        $this->showHoursModal = false;
+        $this->dispatch('close-modal', self::HOURS_MODAL_ID);
     }
 
     public function buildProgram(TrialWeekService $service): void
@@ -74,7 +76,7 @@ class SessionAnalysis extends Component
         $this->trialWeek->refresh();
 
         // ۴. بستن مودال انتخاب ساعت
-        $this->showHoursModal = false;
+        $this->dispatch('close-modal', self::HOURS_MODAL_ID);
 
         // ۵. [اصلی] هدایت آنی و مستقیم کاربر به داشبورد (بدون فعال کردن وضعیت اورلی ساخت برنامه)
         $this->redirect(route('client.profile.dashboard'), navigate: true);

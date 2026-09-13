@@ -36,9 +36,9 @@
                                                     <div class="md:hidden">
 
                                                         {{-- تصویر بالا --}}
-                                                        <div class="w-full h-36 flex items-center justify-center bg-gradient-to-b from-blue-100 to-blue-200 dark:from-blue-950 dark:to-blue-900">
+                                                        <x-ui.thumbnail class="w-full h-36">
                                                             <img src="/client/icons/plan.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
-                                                        </div>
+                                                        </x-ui.thumbnail>
 
                                                         {{-- اطلاعات --}}
                                                         <div class="p-4 space-y-3" dir="rtl">
@@ -49,21 +49,18 @@
 
                                                         {{-- دکمه‌های موبایل --}}
                                                         <div class="px-4 pb-4 space-y-2" dir="rtl">
-                                                            <a wire:navigate href="{{ route('client.profile.consultation.weekly-program', $program->id) }}"
-                                                               class="w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors">
+                                                            <x-ui.button href="{{ route('client.profile.consultation.weekly-program', $program->id) }}"
+                                                                         wire:navigate variant="primary" icon="chevron-left" block>
                                                                 مشاهده برنامه
-                                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" strokeWidth="2" class="w-4 h-4"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                                                            </a>
+                                                            </x-ui.button>
 
-                                                            <button @click="$data.expanded = !($data.expanded ?? false)"
-                                                                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors">
+                                                            {{-- دستی (نه x-ui.button) چون آیکونش باید با چرخش ۱۸۰
+                                                                 درجه بین باز/بسته انیمیشن بگیره --}}
+                                                            <button type="button" @click="expanded = !expanded" data-elevated="false"
+                                                                    class="btn-press w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors">
                                                                 <span>مشاهده جزئیات</span>
-                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                     class="w-4 h-4 transition-transform duration-200"
-                                                                     :class="{ 'rotate-180': $data.expanded ?? false }"
-                                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                                                </svg>
+                                                                <x-ui.icon name="chevron-down" class="w-4 h-4 transition-transform duration-200"
+                                                                           x-bind:class="{ 'rotate-180': expanded }"/>
                                                             </button>
                                                         </div>
                                                     </div>
@@ -73,7 +70,9 @@
                                                     ════════════════════════════════════ --}}
                                                     <div class="hidden md:flex flex-row min-h-[130px]">
 
-                                                        {{-- ستون تصویر --}}
+                                                        {{-- ستون تصویر — دارک‌مودِ دسکتاپ عمداً همون هگزِ سفارشیِ
+                                                             #1e3a5f/#1e40af نگه داشته شده (نه x-ui.thumbnail)،
+                                                             طبق همون قرارِ قبلی درباره‌ی این گرادیان‌های آبی --}}
                                                         <div class="flex-shrink-0 w-[120px] flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 dark:from-[#1e3a5f] dark:to-[#1e40af]">
                                                             <img src="/client/icons/plan.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
                                                         </div>
@@ -91,29 +90,24 @@
 
                                                             {{-- چپ: دکمه‌ها --}}
                                                             <div class="flex items-center gap-2 flex-shrink-0" dir="ltr">
-                                                                <a wire:navigate href="{{ route('client.profile.consultation.weekly-program', $program->id) }}"
-                                                                   class="inline-flex items-center justify-center gap-2 px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                                    </svg>
-                                                                </a>
+                                                                <x-ui.button href="{{ route('client.profile.consultation.weekly-program', $program->id) }}"
+                                                                             wire:navigate variant="primary" icon="eye">
+                                                                    مشاهده برنامه
+                                                                </x-ui.button>
 
-                                                                <button @click="$data.expanded = !($data.expanded ?? false)"
-                                                                        class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                                         class="w-4 h-4 transition-transform duration-200"
-                                                                         :class="{ 'rotate-180': $data.expanded ?? false }"
-                                                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                                                    </svg>
+                                                                {{-- دستی (نه x-ui.button) چون آیکونش باید با چرخش
+                                                                     ۱۸۰ درجه بین باز/بسته انیمیشن بگیره --}}
+                                                                <button type="button" @click="expanded = !expanded" data-elevated="false"
+                                                                        class="btn-press inline-flex items-center justify-center gap-2 px-4 py-2 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors">
+                                                                    <x-ui.icon name="chevron-down" class="w-4 h-4 transition-transform duration-200"
+                                                                               x-bind:class="{ 'rotate-180': expanded }"/>
                                                                 </button>
                                                             </div>
                                                         </div>
                                                     </div>
 
                                                     {{-- ═══ جزئیات (مشترک موبایل و دسکتاپ) ═══ --}}
-                                                    <div x-show="$data.expanded ?? false"
+                                                    <div x-show="expanded"
                                                          x-cloak
                                                          x-transition:enter="transition ease-out duration-200"
                                                          x-transition:enter-start="opacity-0 -translate-y-1"
@@ -125,33 +119,25 @@
                                                          style="display: none;">
                                                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                                             <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                                                </svg>
+                                                                <x-ui.icon name="calendar" class="w-6 h-6 text-primary mb-2"/>
                                                                 <span class="text-xs text-muted">تاریخ شروع</span>
                                                                 <span class="font-bold text-foreground text-sm mt-1">{{ jdate($program->start_date)->format('d %B') }}</span>
                                                             </div>
 
                                                             <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-2 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                                                </svg>
+                                                                <x-ui.icon name="calendar" class="w-6 h-6 mb-2 text-warning"/>
                                                                 <span class="text-xs text-muted">تاریخ پایان</span>
                                                                 <span class="font-bold text-foreground text-sm mt-1">{{ jdate($program->end_date)->format('d %B') }}</span>
                                                             </div>
 
                                                             <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                                </svg>
+                                                                <x-ui.icon name="clock" class="w-6 h-6 text-success mb-2"/>
                                                                 <span class="text-xs text-muted">ساعت کل برنامه</span>
                                                                 <span class="font-bold text-foreground text-sm mt-1">{{ $program->total_hours }} ساعت</span>
                                                             </div>
 
                                                             <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-2 text-fuchsia-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                                                </svg>
+                                                                <x-ui.icon name="list-check" class="w-6 h-6 mb-2 text-info"/>
                                                                 <span class="text-xs text-muted">تعداد تست</span>
                                                                 <span class="font-bold text-foreground text-sm mt-1">{{ $program->total_tests }} تست</span>
                                                             </div>
@@ -161,24 +147,15 @@
                                             @endforeach
                                         </div>
                                     @else
-                                        <!-- حالت خالی -->
-                                        <div class="flex flex-col items-center justify-center py-12 space-y-4">
-                                            <img src="/client/svg/empty2.svg"
-                                                 class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
-                                                 alt="پیامی وجود ندارد"/>
-                                            <div class="text-center space-y-2">
-                                                <h2 class="font-bold text-xl text-foreground">برنامه‌ای وجود ندارد!</h2>
-                                                <p class="text-muted text-sm">هنوز برنامه‌ای برای شما ثبت نشده است.</p>
-                                            </div>
-                                        </div>
+                                        <x-ui.empty-state title="برنامه‌ای وجود ندارد!">
+                                            هنوز برنامه‌ای برای شما ثبت نشده است.
+                                        </x-ui.empty-state>
                                     @endif
 
                                     <!-- پیجینیشن -->
                                     @if($weeklyPrograms->hasPages())
-                                        <div class="mt-6 flex justify-center">
-                                            <div class="inline-flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/50">
-                                                {{ $weeklyPrograms->links('layouts.client.pagination') }}
-                                            </div>
+                                        <div class="mt-6">
+                                            {{ $weeklyPrograms->links('components.ui.pagination') }}
                                         </div>
                                     @endif
                                 </div>

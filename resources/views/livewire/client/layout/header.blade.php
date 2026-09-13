@@ -566,69 +566,71 @@
                      x-transition:leave-end="-translate-x-full"
                      dir="rtl">
 
-                    <div class="glass h-full flex flex-col overflow-hidden">
+                    <div class="bg-background h-full flex flex-col overflow-hidden">
 
-                        <!-- Top bar: close button سمت راست -->
-                        <div class="flex items-center justify-end pt-4 pb-2 px-4 shrink-0">
-                            <button @click="profileModalOpen = false"
-                                    class="w-8 h-8 rounded-full bg-foreground/10 hover:bg-foreground/20 flex items-center justify-center transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     stroke-width="2" stroke="currentColor" class="w-4 h-4 text-foreground/60">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
-                        </div>
+                        <!-- ─── هدر رنگی: دکمه بستن + آواتار + نام + شماره ─── -->
+                        <div class="bg-primary rounded-b-[28px] shrink-0 shadow-sm">
+                            <!-- Top bar: close button سمت راست -->
+                            <div class="flex items-center justify-end pt-4 pb-2 px-4">
+                                <button @click="profileModalOpen = false"
+                                        class="w-8 h-8 rounded-full bg-primary-foreground/15 hover:bg-primary-foreground/25 flex items-center justify-center transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         stroke-width="2" stroke="currentColor" class="w-4 h-4 text-primary-foreground">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
 
-                        <!-- ─── بخش بالا: آواتار + نام + شماره ─── -->
-                        <div class="px-5 pt-3 pb-4 shrink-0">
-                            <div class="flex items-center gap-4">
-                                {{-- آواتار --}}
-                                <div
-                                    style="background: {{ $avatarBg }}"
-                                    class="w-16 h-16 rounded-full ring-2 ring-white/10 text-white flex items-center justify-center overflow-hidden flex-shrink-0">
-                                    @if($profilePictureUrl)
-                                        <img src="{{ $profilePictureUrl }}"
-                                             class="w-full h-full object-cover rounded-full" alt="avatar">
-                                    @elseif($this->defaultAvatarType === 'female')
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                             stroke-width="1.5" stroke="currentColor"
-                                             class="w-8 h-8 text-foreground/70">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                  d="M12 3.75a4.5 4.5 0 0 0-4.5 4.5v.334a4.5 4.5 0 1 0 9 0V8.25a4.5 4.5 0 0 0-4.5-4.5ZM4.5 20.25a7.5 7.5 0 0 1 15 0"/>
-                                        </svg>
-                                    @else
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                             stroke-width="1.5" stroke="currentColor"
-                                             class="w-8 h-8 text-foreground/70">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                  d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-                                        </svg>
-                                    @endif
-                                </div>
-
-                                {{-- نام و شماره --}}
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <h3 class="text-foreground font-bold text-base leading-tight">{{ auth()->user()->name ?? '' }}</h3>
-                                        <a wire:navigate href="{{ route('client.profile.edit') }}"
-                                           @click="profileModalOpen = false"
-                                           class="w-7 h-7 rounded-lg bg-[#2b2b31] hover:bg-[#34343c] flex items-center justify-center flex-shrink-0 transition-colors">
+                            <!-- ─── بخش بالا: آواتار + نام + شماره ─── -->
+                            <div class="px-5 pt-1 pb-5">
+                                <div class="flex items-center gap-4">
+                                    {{-- آواتار --}}
+                                    <div
+                                        class="w-16 h-16 rounded-full bg-primary-foreground/15 text-primary-foreground flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-primary-foreground/20">
+                                        @if($profilePictureUrl)
+                                            <img src="{{ $profilePictureUrl }}"
+                                                 class="w-full h-full object-cover rounded-full" alt="avatar">
+                                        @elseif($this->defaultAvatarType === 'female')
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                 stroke-width="2" stroke="currentColor"
-                                                 class="w-3.5 h-3.5 text-foreground/50">
+                                                 stroke-width="1.5" stroke="currentColor"
+                                                 class="w-8 h-8 text-primary-foreground">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
-                                                      d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Z"/>
+                                                      d="M12 3.75a4.5 4.5 0 0 0-4.5 4.5v.334a4.5 4.5 0 1 0 9 0V8.25a4.5 4.5 0 0 0-4.5-4.5ZM4.5 20.25a7.5 7.5 0 0 1 15 0"/>
                                             </svg>
-                                        </a>
+                                        @else
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor"
+                                                 class="w-8 h-8 text-primary-foreground">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+                                            </svg>
+                                        @endif
                                     </div>
-                                    <p class="text-foreground/50 text-sm font-mono"
-                                       style="direction:ltr; text-align:right;">{{ auth()->user()->mobile ?? '' }}</p>
+
+                                    {{-- نام و شماره --}}
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <h3 class="text-primary-foreground font-bold text-base leading-tight">{{ auth()->user()->name ?? '' }}</h3>
+                                            <a wire:navigate href="{{ route('client.profile.edit') }}"
+                                               @click="profileModalOpen = false"
+                                               class="w-7 h-7 rounded-lg bg-primary-foreground/15 hover:bg-primary-foreground/25 flex items-center justify-center flex-shrink-0 transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                     stroke-width="2" stroke="currentColor"
+                                                     class="w-3.5 h-3.5 text-primary-foreground">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Z"/>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                        <p class="text-primary-foreground/70 text-sm font-mono"
+                                           style="direction:ltr; text-align:right;">{{ auth()->user()->mobile ?? '' }}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- ─── محتوای اسکرول‌پذیر ─── -->
-                        <div class="flex-1 overflow-y-auto px-4 pb-8 space-y-2.5">
+                        <div class="flex-1 overflow-y-auto px-4 pt-4 pb-8 space-y-2.5">
 
                             @php
                                 $icons = [
@@ -695,10 +697,10 @@
                                     @foreach($group['items'] as $item)
                                         <a wire:navigate href="{{ $item['route'] }}"
                                            @click="profileModalOpen = false"
-                                           class="flex items-center gap-3 px-4 py-3.5 bg-[#2b2b31] rounded-2xl active:bg-[#34343c] hover:bg-[#34343c] transition-colors">
+                                           class="flex items-center gap-3 px-4 py-3.5 bg-secondary rounded-2xl active:bg-secondary/70 hover:bg-secondary/70 transition-colors">
                                             {{-- ایکون --}}
                                             <div
-                                                class="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+                                                class="w-9 h-9 rounded-xl bg-background flex items-center justify-center flex-shrink-0">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                      stroke-width="1.5" stroke="currentColor"
                                                      class="w-4 h-4 text-foreground/60">
@@ -720,12 +722,12 @@
                                     <div
                                         class="w-9 h-9 rounded-xl bg-red-500/15 flex items-center justify-center flex-shrink-0">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                             stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-red-400">
+                                             stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-red-600 dark:text-red-400">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                   d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
                                         </svg>
                                     </div>
-                                    <span class="text-sm font-bold text-red-400">خروج از حساب کاربری</span>
+                                    <span class="text-sm font-bold text-red-600 dark:text-red-400">خروج از حساب کاربری</span>
                                 </a>
                             </div>
 

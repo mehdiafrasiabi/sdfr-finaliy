@@ -47,9 +47,7 @@
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="flex items-center gap-2 mb-2 sm:mb-0">
                 <div class="w-9 h-9 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10m-11 9h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2Z"/>
-                    </svg>
+                    <x-ui.icon name="calendar" class="w-5 h-5"/>
                 </div>
                 <div>
                     <h1 class="text-xl font-black">ساخت برنامه امتحانی</h1>
@@ -59,20 +57,23 @@
                 <button type="button"
                         wire:click="openResetCalendarModal"
                         wire:loading.attr="disabled" wire:target="openResetCalendarModal"
-                        class="inline-flex w-full sm:w-auto items-center justify-center self-stretch sm:self-start rounded-2xl border border-red-500/20 bg-red-500/10 px-5 py-3 text-sm font-bold text-red-500 disabled:opacity-60">
+                        data-elevated="false"
+                        class="btn-press inline-flex w-full sm:w-auto items-center justify-center gap-2 self-stretch sm:self-start rounded-2xl border border-error/20 bg-error/10 px-5 py-3 text-sm font-bold text-error disabled:opacity-60">
                     <span wire:loading.remove wire:target="openResetCalendarModal">ریست و شروع از اول</span>
-                    <span wire:loading wire:target="openResetCalendarModal" class="inline-block w-4 h-4 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin"></span>
+                    <span wire:loading wire:target="openResetCalendarModal"><x-ui.spinner size="sm"/></span>
                 </button>
             @endif
         </div>
 
         @if($programAlreadyBuilt)
-            <div class="rounded-3xl border border-emerald-500/20 bg-emerald-500/10 glass p-5 mb-6">
+            <div class="rounded-3xl border border-success/20 bg-success/10 glass p-5 mb-6">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center font-black">✓</div>
+                        <div class="w-10 h-10 rounded-2xl bg-success/15 text-success flex items-center justify-center font-black">
+                            <x-ui.icon name="check" class="w-5 h-5"/>
+                        </div>
                         <div>
-                            <h2 class="font-black text-lg text-emerald-700">برنامه امتحانی ساخته شده است</h2>
+                            <h2 class="font-black text-lg text-success">برنامه امتحانی ساخته شده است</h2>
                             <p class="text-sm leading-7 text-muted-foreground">
                                 برای جلوگیری از تداخل و بازسازی اشتباه، بعد از ساخت برنامه امکان ساخت یا ویرایش مجدد از این صفحه وجود ندارد.
                             </p>
@@ -80,8 +81,10 @@
                     </div>
                     @if($builtProgramRoute)
                         <a wire:navigate href="{{ $builtProgramRoute }}"
-                           class="inline-flex  items-center justify-center rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-black text-white shadow-sm hover:bg-emerald-600">
+                           data-elevated="true"
+                           class="btn-press inline-flex items-center justify-center gap-2 rounded-2xl bg-success px-5 py-3 text-sm font-black text-success-foreground shadow-sm hover:opacity-90">
                             مشاهده برنامه
+                            <x-ui.icon name="arrow-left" class="w-4 h-4"/>
                         </a>
                     @endif
                 </div>
@@ -90,7 +93,7 @@
             <div class="rounded-3xl border border-border bg-card glass p-5 mb-6">
                 <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-black">1</div>
+                        <div class="w-10 h-10 rounded-2xl bg-warning/10 text-warning flex items-center justify-center font-black">1</div>
                         <div>
                             <h2 class="font-black text-lg">ثبت تقویم امتحانات</h2>
                             <p class="text-sm text-muted-foreground mt-2">بازه امتحاناتت را مشخص کن و روی هر روز، درس همان امتحان را اضافه کن. </p>
@@ -106,10 +109,10 @@
                                    data-jdp-min-date="{{ $calendarMinDate }}"
                                    data-jdp-max-date="{{ $calendarMaxDate }}"
                                    readonly
-                                   class="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm cursor-pointer @error('calendarStart') border-red-500/70 @enderror"
+                                   class="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm cursor-pointer @error('calendarStart') border-error/70 @enderror"
                                    placeholder="1405/03/10">
                             @error('calendarStart')
-                                <p class="mt-1.5 text-xs font-semibold text-red-500">{{ $message }}</p>
+                                <p class="mt-1.5 text-xs font-semibold text-error">{{ $message }}</p>
                             @enderror
                         </div>
                         <div>
@@ -118,17 +121,21 @@
                                    data-jdp-min-date="{{ $calendarMinDate }}"
                                    data-jdp-max-date="{{ $calendarMaxDate }}"
                                    readonly
-                                   class="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm cursor-pointer @error('calendarEnd') border-red-500/70 @enderror"
+                                   class="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm cursor-pointer @error('calendarEnd') border-error/70 @enderror"
                                    placeholder="1405/03/28">
                             @error('calendarEnd')
-                                <p class="mt-1.5 text-xs font-semibold text-red-500">{{ $message }}</p>
+                                <p class="mt-1.5 text-xs font-semibold text-error">{{ $message }}</p>
                             @enderror
                         </div>
                         <div class="flex items-end">
                             <button wire:click="saveCalendarRange" wire:loading.attr="disabled" wire:target="saveCalendarRange"
-                                    class="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2">
-                                <span wire:loading.remove wire:target="saveCalendarRange">ثبت بازه امتحانات</span>
-                                <span wire:loading wire:target="saveCalendarRange" class="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin"></span>
+                                    data-elevated="true"
+                                    class="btn-press w-full rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                                <span wire:loading.remove wire:target="saveCalendarRange" class="inline-flex items-center gap-2">
+                                    ثبت بازه امتحانات
+                                    <x-ui.icon name="check" class="w-4 h-4"/>
+                                </span>
+                                <span wire:loading wire:target="saveCalendarRange"><x-ui.spinner size="sm"/></span>
                             </button>
                         </div>
                     </div>
@@ -136,7 +143,7 @@
 
                 @if(!empty($calendarDays))
                     <div class="space-y-4">
-                        <div class="flex flex-col gap-3 rounded-2xl border border-amber-500/15 bg-amber-500/10 glass px-4 py-3">
+                        <div class="flex flex-col gap-3 rounded-2xl border border-warning/15 bg-warning/10 glass px-4 py-3">
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
                                     <div class="text-[20px] font-black">هفته {{ $currentCalendarWeek + 1 }} از {{ $calendarWeekCount }}</div>
@@ -147,14 +154,18 @@
                                         <button type="button"
                                                 wire:click="goToPreviousCalendarWeek"
                                                 @disabled($currentCalendarWeek === 0)
-                                                class="inline-flex items-center justify-center rounded-2xl border border-border bg-secondary px-4 py-2 text-sm font-bold text-foreground disabled:opacity-40 disabled:cursor-not-allowed">
+                                                data-elevated="false"
+                                                class="btn-press inline-flex items-center justify-center gap-1.5 rounded-2xl border border-border bg-secondary px-4 py-2 text-sm font-bold text-foreground disabled:opacity-40 disabled:cursor-not-allowed">
                                             هفته قبل
+                                            <x-ui.icon name="chevron-right" class="w-3.5 h-3.5"/>
                                         </button>
                                         <button type="button"
                                                 wire:click="goToNextCalendarWeek"
                                                 @disabled($currentCalendarWeek >= $calendarWeekCount - 1)
-                                                class="inline-flex items-center justify-center rounded-2xl border border-border bg-secondary px-4 py-2 text-sm font-bold text-foreground disabled:opacity-40 disabled:cursor-not-allowed">
+                                                data-elevated="false"
+                                                class="btn-press inline-flex items-center justify-center gap-1.5 rounded-2xl border border-border bg-secondary px-4 py-2 text-sm font-bold text-foreground disabled:opacity-40 disabled:cursor-not-allowed">
                                             هفته بعد
+                                            <x-ui.icon name="chevron-left" class="w-3.5 h-3.5"/>
                                         </button>
                                     @endif
                                 </div>
@@ -171,13 +182,13 @@
                                                     <div class="text-xs font-bold text-muted-foreground">{{ $day['day_name'] }}</div>
                                                     <div class="mt-1 text-base font-black">{{ $day['jalali'] }}</div>
                                                 </div>
-                                                <span class="inline-flex h-3 w-3 rounded-full {{ $day['subjects']->isNotEmpty() ? 'bg-emerald-500' : 'bg-border' }}"></span>
+                                                <span class="inline-flex h-3 w-3 rounded-full {{ $day['subjects']->isNotEmpty() ? 'bg-success' : 'bg-border' }}"></span>
                                             </div>
 
                                             @if($day['subjects']->isNotEmpty())
                                                 <div class="mt-auto space-y-2">
                                                     @foreach($day['subjects'] as $examDay)
-                                                        <div class="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-3">
+                                                        <div class="rounded-2xl border border-success/20 bg-success/10 px-3 py-3">
                                                             <div class="flex items-start justify-between gap-2">
                                                                 <div>
                                                                     <div class="text-sm font-black leading-6">{{ $examDay->subject->name }}</div>
@@ -185,11 +196,10 @@
                                                                 <button type="button"
                                                                         wire:click="removeExamDay({{ $examDay->id }})"
                                                                         wire:loading.attr="disabled" wire:target="removeExamDay({{ $examDay->id }})"
-                                                                        class="inline-flex h-7 w-7 items-center justify-center text-red-500 transition hover:text-red-600 disabled:opacity-60">
-                                                                    <svg wire:loading.remove wire:target="removeExamDay({{ $examDay->id }})" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                                        <path d="M18 6 6 18M6 6l12 12"/>
-                                                                    </svg>
-                                                                    <span wire:loading wire:target="removeExamDay({{ $examDay->id }})" class="inline-block w-3 h-3 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin"></span>
+                                                                        data-elevated="false"
+                                                                        class="btn-press inline-flex h-7 w-7 items-center justify-center text-error transition hover:opacity-80 disabled:opacity-60">
+                                                                    <x-ui.icon wire:loading.remove wire:target="removeExamDay({{ $examDay->id }})" name="x" class="w-4 h-4"/>
+                                                                    <span wire:loading wire:target="removeExamDay({{ $examDay->id }})"><x-ui.spinner size="xs"/></span>
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -199,12 +209,14 @@
                                                 <button type="button"
                                                         wire:click="openExamDayModal('{{ $day['date'] }}', '{{ $day['selection_key'] }}')"
                                                         wire:loading.attr="disabled" wire:target="openExamDayModal('{{ $day['date'] }}', '{{ $day['selection_key'] }}')"
-                                                        class="mt-auto flex  w-full flex-col items-center justify-center rounded-2xl border border-dashed border-primary/25 bg-primary/5 px-3 py-4 text-center transition hover:bg-primary/10 disabled:opacity-70">
-                                                    <span wire:loading.remove wire:target="openExamDayModal('{{ $day['date'] }}', '{{ $day['selection_key'] }}')" class="flex flex-col items-center justify-center">
-                                                        <span class="text-sm font-black text-primary">انتخاب درس</span>
+                                                        data-elevated="false"
+                                                        class="btn-press mt-auto flex w-full flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-primary/25 bg-primary/5 px-3 py-4 text-center transition hover:bg-primary/10 disabled:opacity-70">
+                                                    <span wire:loading.remove wire:target="openExamDayModal('{{ $day['date'] }}', '{{ $day['selection_key'] }}')" class="flex flex-col items-center justify-center gap-1 text-primary">
+                                                        <span class="text-sm font-black">انتخاب درس</span>
+                                                        <x-ui.icon name="plus" class="w-4 h-4"/>
                                                     </span>
-                                                    <span wire:loading wire:target="openExamDayModal('{{ $day['date'] }}', '{{ $day['selection_key'] }}')" class="inline-flex items-center gap-2 text-primary">
-                                                        <span class="inline-block w-4 h-4 rounded-full border-2 border-current/30 border-t-current animate-spin"></span>
+                                                    <span wire:loading wire:target="openExamDayModal('{{ $day['date'] }}', '{{ $day['selection_key'] }}')" class="text-primary">
+                                                        <x-ui.spinner size="sm"/>
                                                     </span>
                                                 </button>
                                             @endif
@@ -222,7 +234,7 @@
                                 @if(!$calendarFinalized && !$usingManagerCalendar)
                                     <div class="flex flex-col items-start gap-3 sm:items-end">
                                         @unless($canFinalizeCalendar)
-                                            <p class="text-sm leading-7 text-amber-700">
+                                            <p class="text-sm leading-7 text-warning">
                                                 برای ثبت نهایی تقویم، حداقل باید 3 امتحان ثبت شده باشد.
                                             </p>
                                         @endunless
@@ -230,9 +242,10 @@
                                                 wire:click="openFinalizeCalendarModal"
                                                 wire:loading.attr="disabled" wire:target="openFinalizeCalendarModal"
                                                 @disabled(!$canFinalizeCalendar)
-                                                class="inline-flex items-center justify-center rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed">
+                                                data-elevated="true"
+                                                class="btn-press inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed">
                                             <span wire:loading.remove wire:target="openFinalizeCalendarModal">{{ $editingCalendar ? 'ذخیره' : 'ثبت نهایی تقویم امتحانات' }}</span>
-                                            <span wire:loading wire:target="openFinalizeCalendarModal" class="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin"></span>
+                                            <span wire:loading wire:target="openFinalizeCalendarModal"><x-ui.spinner size="sm"/></span>
                                         </button>
                                     </div>
                                 @endif
@@ -247,7 +260,7 @@
             <div class="rounded-3xl border border-border bg-card glass p-5 mb-6">
                 <div class="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-black">2</div>
+                        <div class="w-10 h-10 rounded-2xl bg-success/10 text-success flex items-center justify-center font-black">2</div>
                         <div>
                             <h2 class="font-black text-lg">ساعت‌ مطالعه هر درس</h2>
                         </div>
@@ -256,25 +269,30 @@
                         <button type="button"
                                 wire:click="reopenCalendarForEditing"
                                 wire:loading.attr="disabled" wire:target="reopenCalendarForEditing"
-                                class="inline-flex items-center justify-center rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-2.5 text-sm font-bold text-amber-600 disabled:opacity-60">
+                                data-elevated="false"
+                                class="btn-press inline-flex items-center justify-center gap-2 rounded-2xl border border-warning/20 bg-warning/10 px-4 py-2.5 text-sm font-bold text-warning disabled:opacity-60">
                             <span wire:loading.remove wire:target="reopenCalendarForEditing">بازگشت برای ویرایش امتحانات</span>
-                            <span wire:loading wire:target="reopenCalendarForEditing" class="inline-block w-4 h-4 rounded-full border-2 border-amber-500/30 border-t-amber-500 animate-spin"></span>
+                            <span wire:loading wire:target="reopenCalendarForEditing"><x-ui.spinner size="sm"/></span>
                         </button>
                     @endif
                 </div>
 
                 @if($segmentWarnings->isNotEmpty())
-                    <div class="rounded-2xl border border-red-500/20 bg-red-500/10 glass px-4 py-3 text-sm text-red-600 mb-4">
+                    <div class="flex items-center gap-2 rounded-2xl border border-error/20 bg-error/10 glass px-4 py-3 text-sm text-error mb-4">
+                        <x-ui.icon name="triangle-alert" class="w-4 h-4 flex-none"/>
                         جمع ساعت‌های واردشده در یکی از بازه‌های امتحانی از ظرفیت مجاز بیشتر شده است. قبل از ساخت برنامه، مقدارها را متعادل کن.
                     </div>
                 @endif
 
                 @if(!empty($missingStudySubjects))
-                    <div class="rounded-2xl border border-amber-500/20 bg-amber-500/10 glass px-4 py-3 text-sm text-amber-700 mb-4">
-                        <div class="font-black">این درس‌ها هنوز ساعت مطالعه ندارند:</div>
+                    <div class="rounded-2xl border border-warning/20 bg-warning/10 glass px-4 py-3 text-sm text-warning mb-4">
+                        <div class="flex items-center gap-2 font-black">
+                            <x-ui.icon name="triangle-alert" class="w-4 h-4 flex-none"/>
+                            این درس‌ها هنوز ساعت مطالعه ندارند:
+                        </div>
                         <div class="mt-2 flex flex-wrap gap-2">
                             @foreach($missingStudySubjects as $missingSubject)
-                                <span class="inline-flex rounded-xl border border-amber-500/20 bg-background/60 px-3 py-1 text-xs font-bold text-amber-700">
+                                <span class="inline-flex rounded-xl border border-warning/20 bg-background/60 px-3 py-1 text-xs font-bold text-warning">
                                     {{ $missingSubject }}
                                 </span>
                             @endforeach
@@ -283,17 +301,19 @@
                 @endif
 
 
-                <div x-data="{ activeType: @entangle('activeType'), examsModal: false }"
-                     x-effect="document.body.classList.toggle('overflow-hidden', examsModal)">
+                {{-- توضیح رفع باگ: متغیر examsModal قبلاً اینجا تعریف شده بود ولی هیچ‌جا استفاده نمی‌شد (کد مرده)؛ حذف شد. --}}
+                <div x-data="{ activeType: @entangle('activeType') }">
                     <div class="flex gap-2 mb-5">
                         <button type="button" @click="activeType = 'specialized'"
+                                data-elevated="false"
                                 :class="activeType === 'specialized' ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary text-muted-foreground border-border'"
-                                class="px-4 py-2 rounded-2xl border text-sm font-bold transition">
+                                class="btn-press px-4 py-2 rounded-2xl border text-sm font-bold transition">
                             تخصصی
                         </button>
                         <button type="button" @click="activeType = 'general'"
+                                data-elevated="false"
                                 :class="activeType === 'general' ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary text-muted-foreground border-border'"
-                                class="px-4 py-2 rounded-2xl border text-sm font-bold transition">
+                                class="btn-press px-4 py-2 rounded-2xl border text-sm font-bold transition">
                             عمومی
                         </button>
                     </div>
@@ -305,7 +325,8 @@
                                 @foreach($specializedSubjects as $tabIndex => $tabSubject)
                                     <button type="button"
                                             wire:click="$set('activeSubject', {{ $tabIndex }})"
-                                            class="whitespace-nowrap rounded-2xl border px-4 py-2 text-sm font-bold transition {{ $activeSubject === $tabIndex ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary text-muted-foreground border-border' }}">
+                                            data-elevated="false"
+                                            class="btn-press whitespace-nowrap rounded-2xl border px-4 py-2 text-sm font-bold transition {{ $activeSubject === $tabIndex ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary text-muted-foreground border-border' }}">
                                         {{ $tabSubject['name'] }}
                                     </button>
                                 @endforeach
@@ -321,7 +342,7 @@
                                     $incrementDisabled = !$scheduled || !($subjectData['can_add'] ?? false);
                                 ?>
                                 <div class="{{ $subjectIsHidden ? 'hidden' : '' }}">
-                                    <div class="rounded-3xl border border-border border-blue-600/15 bg-blue-600/10 glass p-4 mb-4">
+                                    <div class="rounded-3xl border border-border border-info/15 bg-info/10 glass p-4 mb-4">
                                         <div class="flex items-start justify-between gap-3 mb-3 flex-wrap">
                                             <div>
                                                 <h3 class="font-black text-lg mb-2">{{ $subject['name'] }}
@@ -334,7 +355,7 @@
                                                          ظرفیت تا امتحان: {{ $subjectData['capacity_label'] }}
                                                     </p>
                                                 @else
-                                                    <p class="text-xs text-amber-600">برای این درس هنوز تاریخ امتحان ثبت نشده است.</p>
+                                                    <p class="text-xs text-warning">برای این درس هنوز تاریخ امتحان ثبت نشده است.</p>
                                                 @endif
                                             </div>
                                         </div>
@@ -354,8 +375,10 @@
                                             <button type="button"
                                                     wire:click="togglePriority({{ $subject['id'] }})"
                                                     {{ $priorityDisabled ? 'disabled' : '' }}
-                                                    class="inline-flex w-full items-center justify-center rounded-xl border px-3 py-2.5 text-xs font-bold transition {{ ($prioritySubjects[$subject['id']] ?? false) ? 'border-red-500/30 bg-red-500/10 text-red-500' : 'border-border bg-secondary text-muted-foreground' }}">
+                                                    data-elevated="false"
+                                                    class="btn-press inline-flex w-full items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-bold transition {{ ($prioritySubjects[$subject['id']] ?? false) ? 'border-error/30 bg-error/10 text-error' : 'border-border bg-secondary text-muted-foreground' }}">
                                                 <span>اره،میترسم</span>
+                                                <x-ui.icon name="triangle-alert" class="w-3.5 h-3.5"/>
                                             </button>
                                             <p class="mt-3 text-xs leading-6 text-muted-foreground">
                                                 اگر نگران این درس هستی و استرس شب امتحانش رو داری روی دکمه بزن
@@ -368,7 +391,7 @@
                                                         $key = 'chapter_' . $chapter['id'];
                                                         $minutes = $allocations[$key] ?? 0;
                                                     ?>
-                                                    <div class="rounded-2xl border {{ $minutes <= 0 ? 'border-red-500/30 bg-red-500/5' : 'border-border' }} glass px-3 py-3 flex items-center justify-between gap-3">
+                                                    <div class="rounded-2xl border {{ $minutes <= 0 ? 'border-error/30 bg-error/5' : 'border-border' }} glass px-3 py-3 flex items-center justify-between gap-3">
                                                         <span class="text-sm">{{ $chapter['name'] }}</span>
                                                         <div class="flex flex-col items-end gap-1">
                                                             <div class="flex items-center gap-2">
@@ -376,7 +399,8 @@
                                                                     wire:click="decrementAllocation('chapter', {{ $chapter['id'] }}, {{ $subject['id'] }})"
                                                                     wire:loading.attr="disabled" wire:target="decrementAllocation('chapter', {{ $chapter['id'] }}, {{ $subject['id'] }})"
                                                                     {{ (!$scheduled || $minutes <= 30) ? 'disabled' : '' }}
-                                                                    class="w-9 h-9 rounded-xl border border-border bg-secondary text-lg font-bold disabled:opacity-40">-</button>
+                                                                    data-elevated="false"
+                                                                    class="btn-press w-9 h-9 rounded-xl border border-border bg-secondary text-lg font-bold disabled:opacity-40"><x-ui.icon name="minus" class="w-4 h-4 mx-auto"/></button>
                                                             <div class="min-w-[92px] text-center rounded-xl bg-secondary px-3 py-2 text-sm font-bold">
                                                                 {{ intdiv($minutes, 60) }}:{{ str_pad((string) ($minutes % 60), 2, '0', STR_PAD_LEFT) }}
                                                             </div>
@@ -384,13 +408,14 @@
                                                                     wire:click="incrementAllocation('chapter', {{ $chapter['id'] }}, {{ $subject['id'] }})"
                                                                     wire:loading.attr="disabled" wire:target="incrementAllocation('chapter', {{ $chapter['id'] }}, {{ $subject['id'] }})"
                                                                     {{ $incrementDisabled ? 'disabled' : '' }}
-                                                                    class="w-9 h-9 rounded-xl border border-border bg-secondary text-lg font-bold disabled:opacity-40">+</button>
+                                                                    data-elevated="false"
+                                                                    class="btn-press w-9 h-9 rounded-xl border border-border bg-secondary text-lg font-bold disabled:opacity-40"><x-ui.icon name="plus" class="w-4 h-4 mx-auto"/></button>
                                                             </div>
                                                             @if($minutes <= 0)
-                                                                <p class="text-xs font-semibold text-red-500 text-left">حداقل ۳۰ دقیقه ثبت کن.</p>
+                                                                <p class="text-xs font-semibold text-error text-left">حداقل ۳۰ دقیقه ثبت کن.</p>
                                                             @endif
                                                             @error('allocations.' . $key)
-                                                                <p class="text-xs font-semibold text-red-500 text-left">{{ $message }}</p>
+                                                                <p class="text-xs font-semibold text-error text-left">{{ $message }}</p>
                                                             @enderror
                                                         </div>
                                                     </div>
@@ -423,7 +448,8 @@
                                 @foreach($generalSubjects as $tabIndex => $tabSubject)
                                     <button type="button"
                                             wire:click="$set('activeSubject', {{ $tabIndex }})"
-                                            class="whitespace-nowrap rounded-2xl border px-4 py-2 text-sm font-bold transition {{ $generalActiveSubject === $tabIndex ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary text-muted-foreground border-border' }}">
+                                            data-elevated="false"
+                                            class="btn-press whitespace-nowrap rounded-2xl border px-4 py-2 text-sm font-bold transition {{ $generalActiveSubject === $tabIndex ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary text-muted-foreground border-border' }}">
                                         {{ $tabSubject['name'] }}
                                     </button>
                                 @endforeach
@@ -447,7 +473,7 @@
                                     }
                                 ?>
                                 <div class="{{ $subjectIsHidden ? 'hidden' : '' }}">
-                                    <div class="rounded-3xl border border-border border-blue-600/15 bg-blue-600/10 glass p-4 mb-4">
+                                    <div class="rounded-3xl border border-border border-info/15 bg-info/10 glass p-4 mb-4">
                                         <div class="flex items-start justify-between gap-3 mb-3 flex-wrap">
                                             <div>
                                                 <h3 class="font-black text-lg mb-2">{{ $subject['name'] }}
@@ -461,7 +487,7 @@
                                                          ظرفیت تا امتحان: {{ $subjectData['capacity_label'] }}
                                                     </p>
                                                 @else
-                                                    <p class="text-xs text-amber-600">برای این درس هنوز تاریخ امتحان ثبت نشده است.</p>
+                                                    <p class="text-xs text-warning">برای این درس هنوز تاریخ امتحان ثبت نشده است.</p>
                                                 @endif
                                             </div>
                                         </div>
@@ -481,8 +507,10 @@
                                             <button type="button"
                                                     wire:click="togglePriority({{ $subject['id'] }})"
                                                     {{ $priorityDisabled ? 'disabled' : '' }}
-                                                    class="inline-flex w-full items-center justify-center rounded-xl border px-3 py-2.5 text-xs font-bold transition {{ ($prioritySubjects[$subject['id']] ?? false) ? 'border-red-500/30 bg-red-500/10 text-red-500' : 'border-border bg-secondary text-muted-foreground' }}">
+                                                    data-elevated="false"
+                                                    class="btn-press inline-flex w-full items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-bold transition {{ ($prioritySubjects[$subject['id']] ?? false) ? 'border-error/30 bg-error/10 text-error' : 'border-border bg-secondary text-muted-foreground' }}">
                                                 <span>اره،میترسم</span>
+                                                <x-ui.icon name="triangle-alert" class="w-3.5 h-3.5"/>
                                             </button>
                                             <p class="mt-3 text-xs leading-6 text-muted-foreground">
                                                 اگر نگران این درس هستی و استرس شب امتحانش رو داری روی دکمه بزن
@@ -496,18 +524,20 @@
                                                         wire:loading.attr="disabled"
                                                         wire:target="setGeneralStudyChapterMode({{ $subject['id'] }})"
                                                         {{ ($scheduled && $hasChapters) ? '' : 'disabled' }}
-                                                        class="inline-flex items-center justify-center rounded-xl border px-3 py-2.5 text-xs font-bold transition {{ $generalMode === 'chapter' ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-secondary text-muted-foreground' }}">
+                                                        data-elevated="false"
+                                                        class="btn-press inline-flex items-center justify-center rounded-xl border px-3 py-2.5 text-xs font-bold transition {{ $generalMode === 'chapter' ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-secondary text-muted-foreground' }}">
                                                     <span wire:loading.remove wire:target="setGeneralStudyChapterMode({{ $subject['id'] }})">فصل به فصل</span>
-                                                    <span wire:loading wire:target="setGeneralStudyChapterMode({{ $subject['id'] }})" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-current/30 border-t-current animate-spin"></span>
+                                                    <span wire:loading wire:target="setGeneralStudyChapterMode({{ $subject['id'] }})"><x-ui.spinner size="xs"/></span>
                                                 </button>
                                                 <button type="button"
                                                         wire:click="openGeneralWholeModal({{ $subject['id'] }})"
                                                         wire:loading.attr="disabled"
                                                         wire:target="openGeneralWholeModal({{ $subject['id'] }})"
                                                         {{ $scheduled ? '' : 'disabled' }}
-                                                        class="inline-flex items-center justify-center rounded-xl border px-3 py-2.5 text-xs font-bold transition {{ $generalMode === 'whole' ? 'border-blue-500/30 bg-blue-500/10 text-blue-500' : 'border-border bg-secondary text-muted-foreground' }}">
+                                                        data-elevated="false"
+                                                        class="btn-press inline-flex items-center justify-center rounded-xl border px-3 py-2.5 text-xs font-bold transition {{ $generalMode === 'whole' ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-secondary text-muted-foreground' }}">
                                                     <span wire:loading.remove wire:target="openGeneralWholeModal({{ $subject['id'] }})">کلی</span>
-                                                    <span wire:loading wire:target="openGeneralWholeModal({{ $subject['id'] }})" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-current/30 border-t-current animate-spin"></span>
+                                                    <span wire:loading wire:target="openGeneralWholeModal({{ $subject['id'] }})"><x-ui.spinner size="xs"/></span>
                                                 </button>
                                             </div>
                                             @if(!$generalMode)
@@ -520,7 +550,7 @@
                                                 $key = 'subject_' . $subject['id'];
                                                 $minutes = $allocations[$key] ?? 0;
                                             ?>
-                                            <div class="rounded-2xl border {{ $minutes <= 0 ? 'border-red-500/30 bg-red-500/5' : 'border-border' }} glass px-3 py-3 flex items-center justify-between gap-3">
+                                            <div class="rounded-2xl border {{ $minutes <= 0 ? 'border-error/30 bg-error/5' : 'border-border' }} glass px-3 py-3 flex items-center justify-between gap-3">
                                                 <span class="text-sm font-bold">کل درس</span>
                                                 <div class="flex flex-col items-end gap-1">
                                                     <div class="flex items-center gap-2">
@@ -529,7 +559,8 @@
                                                                 wire:loading.attr="disabled"
                                                                 wire:target="decrementAllocation('subject', {{ $subject['id'] }}, {{ $subject['id'] }})"
                                                                 {{ (!$scheduled || $minutes <= 0) ? 'disabled' : '' }}
-                                                                class="w-9 h-9 rounded-xl border border-border bg-secondary text-lg font-bold disabled:opacity-40">-</button>
+                                                                data-elevated="false"
+                                                                    class="btn-press w-9 h-9 rounded-xl border border-border bg-secondary text-lg font-bold disabled:opacity-40"><x-ui.icon name="minus" class="w-4 h-4 mx-auto"/></button>
                                                         <div class="min-w-[92px] text-center rounded-xl bg-secondary px-3 py-2 text-sm font-bold">
                                                             {{ intdiv($minutes, 60) }}:{{ str_pad((string) ($minutes % 60), 2, '0', STR_PAD_LEFT) }}
                                                         </div>
@@ -538,13 +569,14 @@
                                                                 wire:loading.attr="disabled"
                                                                 wire:target="incrementAllocation('subject', {{ $subject['id'] }}, {{ $subject['id'] }})"
                                                                 {{ (!$scheduled || $incrementDisabled) ? 'disabled' : '' }}
-                                                                class="w-9 h-9 rounded-xl border border-border bg-secondary text-lg font-bold disabled:opacity-40">+</button>
+                                                                data-elevated="false"
+                                                                    class="btn-press w-9 h-9 rounded-xl border border-border bg-secondary text-lg font-bold disabled:opacity-40"><x-ui.icon name="plus" class="w-4 h-4 mx-auto"/></button>
                                                     </div>
                                                     @if($minutes <= 0)
-                                                        <p class="text-xs font-semibold text-red-500 text-left">حداقل ۳۰ دقیقه ثبت کن.</p>
+                                                        <p class="text-xs font-semibold text-error text-left">حداقل ۳۰ دقیقه ثبت کن.</p>
                                                     @endif
                                                     @error('allocations.' . $key)
-                                                        <p class="text-xs font-semibold text-red-500 text-left">{{ $message }}</p>
+                                                        <p class="text-xs font-semibold text-error text-left">{{ $message }}</p>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -555,7 +587,7 @@
                                                         $key = 'chapter_' . $chapter['id'];
                                                         $minutes = $allocations[$key] ?? 0;
                                                     ?>
-                                                    <div class="rounded-2xl border {{ $minutes <= 0 ? 'border-red-500/30 bg-red-500/5' : 'border-border' }} glass px-3 py-3 flex items-center justify-between gap-3">
+                                                    <div class="rounded-2xl border {{ $minutes <= 0 ? 'border-error/30 bg-error/5' : 'border-border' }} glass px-3 py-3 flex items-center justify-between gap-3">
                                                         <span class="text-sm">{{ $chapter['name'] }}</span>
                                                         <div class="flex flex-col items-end gap-1">
                                                             <div class="flex items-center gap-2">
@@ -564,7 +596,8 @@
                                                                         wire:loading.attr="disabled"
                                                                         wire:target="decrementAllocation('chapter', {{ $chapter['id'] }}, {{ $subject['id'] }})"
                                                                         @if(!$scheduled || $minutes <= 30) disabled @endif
-                                                                        class="w-9 h-9 rounded-xl border border-border bg-secondary text-lg font-bold disabled:opacity-40">-</button>
+                                                                        data-elevated="false"
+                                                                    class="btn-press w-9 h-9 rounded-xl border border-border bg-secondary text-lg font-bold disabled:opacity-40"><x-ui.icon name="minus" class="w-4 h-4 mx-auto"/></button>
                                                                 <div class="min-w-[92px] text-center rounded-xl bg-secondary px-3 py-2 text-sm font-bold">
                                                                     {{ intdiv($minutes, 60) }}:{{ str_pad((string) ($minutes % 60), 2, '0', STR_PAD_LEFT) }}
                                                                 </div>
@@ -573,13 +606,14 @@
                                                                         wire:loading.attr="disabled"
                                                                         wire:target="incrementAllocation('chapter', {{ $chapter['id'] }}, {{ $subject['id'] }})"
                                                                         {{ $incrementDisabled ? 'disabled' : '' }}
-                                                                        class="w-9 h-9 rounded-xl border border-border bg-secondary text-lg font-bold disabled:opacity-40">+</button>
+                                                                        data-elevated="false"
+                                                                    class="btn-press w-9 h-9 rounded-xl border border-border bg-secondary text-lg font-bold disabled:opacity-40"><x-ui.icon name="plus" class="w-4 h-4 mx-auto"/></button>
                                                             </div>
                                                             @if($minutes <= 0)
-                                                                <p class="text-xs font-semibold text-red-500 text-left">حداقل ۳۰ دقیقه ثبت کن.</p>
+                                                                <p class="text-xs font-semibold text-error text-left">حداقل ۳۰ دقیقه ثبت کن.</p>
                                                             @endif
                                                             @error('allocations.' . $key)
-                                                                <p class="text-xs font-semibold text-red-500 text-left">{{ $message }}</p>
+                                                                <p class="text-xs font-semibold text-error text-left">{{ $message }}</p>
                                                             @enderror
                                                         </div>
                                                     </div>
@@ -604,16 +638,22 @@
 
             <div class="flex flex-col items-end gap-2">
                 @error('buildProgram')
-                    <p class="w-full rounded-2xl border border-red-500/20 bg-red-500/10 glass px-4 py-3 text-sm font-semibold text-red-500">
+                    <p class="w-full rounded-2xl border border-error/20 bg-error/10 glass px-4 py-3 text-sm font-semibold text-error">
                         {{ $message }}
                     </p>
                 @enderror
                 <button wire:click="buildProgram"
                         wire:loading.attr="disabled" wire:target="buildProgram"
                         @disabled(!$canBuildProgram)
-                        class="inline-flex w-full sm:w-auto items-center justify-center self-stretch sm:self-end rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-black text-white shadow-sm hover:bg-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed gap-2">
-                    <span wire:loading.remove wire:target="buildProgram">ساخت برنامه</span>
-                    <span wire:loading wire:target="buildProgram" class="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin"></span>
+                        data-elevated="true"
+                        class="btn-press inline-flex w-full sm:w-auto items-center justify-center self-stretch sm:self-end rounded-2xl bg-success px-5 py-3 text-sm font-black text-success-foreground shadow-sm hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed gap-2">
+                    <span wire:loading.remove wire:target="buildProgram" class="inline-flex items-center gap-2">
+                        ساخت برنامه
+                        <x-ui.icon name="check" class="w-4 h-4"/>
+                    </span>
+                    <span wire:loading wire:target="buildProgram">
+                        <x-ui.spinner size="sm"/>
+                    </span>
                 </button>
             </div>
         @endif
@@ -669,7 +709,8 @@
                                 @php($isSelected = $selectedExamDaySubjectId === (int) $subject['id'])
                                 <button type="button"
                                         wire:click="$set('selectedExamDaySubjectId', {{ $subject['id'] }})"
-                                        class="rounded-2xl border px-4 py-4 text-right transition {{ $isSelected ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-border bg-background hover:border-primary/30 hover:bg-primary/5' }}">
+                                        data-elevated="false"
+                                        class="btn-press rounded-2xl border px-4 py-4 text-right transition {{ $isSelected ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-border bg-background hover:border-primary/30 hover:bg-primary/5' }}">
                                     <div class="flex items-start justify-between gap-3">
                                         <div>
                                             <div class="text-sm font-black">{{ $subject['name'] }}</div>
@@ -686,7 +727,7 @@
                     @endif
 
                     @error('selectedExamDaySubjectId')
-                        <p class="mt-3 text-sm font-semibold text-red-500">{{ $message }}</p>
+                        <p class="mt-3 text-sm font-semibold text-error">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -695,16 +736,18 @@
                             wire:click="closeExamDayModal"
                             wire:loading.attr="disabled"
                             wire:target="closeExamDayModal,saveExamDayFromModal"
-                            class="w-full rounded-2xl border border-border px-4 py-3 text-sm font-bold text-foreground hover:bg-secondary/70 disabled:opacity-60">
+                            data-elevated="false"
+                            class="btn-press w-full rounded-2xl border border-border px-4 py-3 text-sm font-bold text-foreground hover:bg-secondary/70 disabled:opacity-60">
                         انصراف
                     </button>
                     <button type="button"
                             wire:click="saveExamDayFromModal"
                             wire:loading.attr="disabled"
                             wire:target="saveExamDayFromModal"
-                            class="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-black text-primary-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2">
-                        <span wire:loading.remove wire:target="saveExamDayFromModal">ثبت درس</span>
-                        <span wire:loading wire:target="saveExamDayFromModal" class="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin"></span>
+                            data-elevated="true"
+                            class="btn-press w-full rounded-2xl bg-primary px-4 py-3 text-sm font-black text-primary-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                        <span wire:loading.remove wire:target="saveExamDayFromModal" class="inline-flex items-center gap-2">ثبت درس <x-ui.icon name="check" class="w-4 h-4"/></span>
+                        <span wire:loading wire:target="saveExamDayFromModal"><x-ui.spinner size="sm"/></span>
                     </button>
                 </div>
             </div>
@@ -758,7 +801,8 @@
                                     wire:click="decrementGeneralWholeMinutes"
                                     wire:loading.attr="disabled"
                                     wire:target="decrementGeneralWholeMinutes"
-                                    class="w-10 h-10 rounded-xl border border-border bg-background text-lg font-black disabled:opacity-40">-</button>
+                                    data-elevated="false"
+                                                                    class="btn-press w-10 h-10 rounded-xl border border-border bg-background text-lg font-black disabled:opacity-40"><x-ui.icon name="minus" class="w-4 h-4 mx-auto"/></button>
                             <div class="min-w-[120px] text-center rounded-xl bg-background px-4 py-3 text-base font-black">
                                 {{ intdiv($selectedGeneralWholeMinutes, 60) }}:{{ str_pad((string) ($selectedGeneralWholeMinutes % 60), 2, '0', STR_PAD_LEFT) }}
                             </div>
@@ -766,12 +810,13 @@
                                     wire:click="incrementGeneralWholeMinutes"
                                     wire:loading.attr="disabled"
                                     wire:target="incrementGeneralWholeMinutes"
-                                    class="w-10 h-10 rounded-xl border border-border bg-background text-lg font-black disabled:opacity-40">+</button>
+                                    data-elevated="false"
+                                                                    class="btn-press w-10 h-10 rounded-xl border border-border bg-background text-lg font-black disabled:opacity-40"><x-ui.icon name="plus" class="w-4 h-4 mx-auto"/></button>
                         </div>
                     </div>
 
                     @error('selectedGeneralWholeMinutes')
-                        <p class="text-sm font-semibold text-red-500">{{ $message }}</p>
+                        <p class="text-sm font-semibold text-error">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -780,16 +825,18 @@
                             wire:click="closeGeneralWholeModal"
                             wire:loading.attr="disabled"
                             wire:target="closeGeneralWholeModal,saveGeneralWholeMode"
-                            class="w-full rounded-2xl border border-border px-4 py-3 text-sm font-bold text-foreground hover:bg-secondary/70 disabled:opacity-60">
+                            data-elevated="false"
+                            class="btn-press w-full rounded-2xl border border-border px-4 py-3 text-sm font-bold text-foreground hover:bg-secondary/70 disabled:opacity-60">
                         بستن
                     </button>
                     <button type="button"
                             wire:click="saveGeneralWholeMode"
                             wire:loading.attr="disabled"
                             wire:target="saveGeneralWholeMode"
-                            class="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-black text-primary-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2">
-                        <span wire:loading.remove wire:target="saveGeneralWholeMode">ثبت</span>
-                        <span wire:loading wire:target="saveGeneralWholeMode" class="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin"></span>
+                            data-elevated="true"
+                            class="btn-press w-full rounded-2xl bg-primary px-4 py-3 text-sm font-black text-primary-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                        <span wire:loading.remove wire:target="saveGeneralWholeMode" class="inline-flex items-center gap-2">ثبت <x-ui.icon name="check" class="w-4 h-4"/></span>
+                        <span wire:loading wire:target="saveGeneralWholeMode"><x-ui.spinner size="sm"/></span>
                     </button>
                 </div>
             </div>
@@ -839,16 +886,18 @@
                             wire:click="closeResetCalendarModal"
                             wire:loading.attr="disabled"
                             wire:target="closeResetCalendarModal,resetCalendarBuilder"
-                            class="w-full rounded-2xl border border-border px-4 py-3 text-sm font-bold text-foreground hover:bg-secondary/70 disabled:opacity-60">
+                            data-elevated="false"
+                            class="btn-press w-full rounded-2xl border border-border px-4 py-3 text-sm font-bold text-foreground hover:bg-secondary/70 disabled:opacity-60">
                         خیر
                     </button>
                     <button type="button"
                             wire:click="resetCalendarBuilder"
                             wire:loading.attr="disabled"
                             wire:target="resetCalendarBuilder"
-                            class="w-full rounded-2xl bg-red-500 px-4 py-3 text-sm font-black text-white disabled:opacity-60 inline-flex items-center justify-center gap-2">
-                        <span wire:loading.remove wire:target="resetCalendarBuilder">بله، ریست کن</span>
-                        <span wire:loading wire:target="resetCalendarBuilder" class="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin"></span>
+                            data-elevated="true"
+                            class="btn-press w-full rounded-2xl bg-error px-4 py-3 text-sm font-black text-error-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                        <span wire:loading.remove wire:target="resetCalendarBuilder" class="inline-flex items-center gap-2">بله، ریست کن <x-ui.icon name="trash" class="w-4 h-4"/></span>
+                        <span wire:loading wire:target="resetCalendarBuilder"><x-ui.spinner size="sm"/></span>
                     </button>
                 </div>
             </div>
@@ -909,15 +958,17 @@
                     <button wire:click="closeFinalizeCalendarModal"
                             wire:loading.attr="disabled"
                             wire:target="closeFinalizeCalendarModal,finalizeCalendar"
-                            class="w-full rounded-2xl border border-border px-4 py-3 text-sm font-bold text-foreground hover:bg-secondary/70 disabled:opacity-60">
+                            data-elevated="false"
+                            class="btn-press w-full rounded-2xl border border-border px-4 py-3 text-sm font-bold text-foreground hover:bg-secondary/70 disabled:opacity-60">
                         لغو
                     </button>
                     <button wire:click="finalizeCalendar"
                             wire:loading.attr="disabled"
                             wire:target="finalizeCalendar"
-                            class="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-black text-primary-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2">
-                        <span wire:loading.remove wire:target="finalizeCalendar">ثبت نهایی</span>
-                        <span wire:loading wire:target="finalizeCalendar" class="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin"></span>
+                            data-elevated="true"
+                            class="btn-press w-full rounded-2xl bg-primary px-4 py-3 text-sm font-black text-primary-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                        <span wire:loading.remove wire:target="finalizeCalendar" class="inline-flex items-center gap-2">ثبت نهایی <x-ui.icon name="check" class="w-4 h-4"/></span>
+                        <span wire:loading wire:target="finalizeCalendar"><x-ui.spinner size="sm"/></span>
                     </button>
                 </div>
             </div>

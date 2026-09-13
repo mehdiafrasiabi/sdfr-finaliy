@@ -236,6 +236,19 @@
         }
     }
 </style>
+{{--
+    تنظیمات رنگ/رادیوسِ Tailwind برای توکن‌های info/warning/error/success/...
+    (که از همون متغیرهای CSS بالا در app.css می‌آیند) + استایلِ حالتِ فشاریِ
+    دکمه‌های x-ui.button — یک‌بار و سراسری این‌جا لود می‌شود تا این کلاس‌ها
+    (مثل bg-warning یا bg-info) همه‌جای سایت، حتی خارج از کامپوننت‌های ui/،
+    درست رندر بشن. کامپوننت‌های components/ui/*.blade.php هم همین بلاک را
+    با همین کلید @once صدا می‌زنند، پس اگر اینجا زودتر رندر شده باشد، دوباره
+    تکرار نمی‌شود.
+--}}
+@once('sdfr-ui-kit-assets')
+    @include('components.ui._kit-assets')
+@endonce
+
 @stack('link')
 @php
 

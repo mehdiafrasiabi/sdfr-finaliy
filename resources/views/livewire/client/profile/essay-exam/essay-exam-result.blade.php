@@ -8,22 +8,19 @@
     <div class="bg-secondary border border-border rounded-2xl p-5 space-y-2">
         <div class="flex items-center justify-between flex-wrap gap-2">
             <h1 class="font-bold text-foreground text-lg">{{ $exam->title }}</h1>
-            <a href="{{ route('client.profile.typed-exam.list') }}"
-               class="text-sm text-primary hover:underline">بازگشت به لیست آزمون‌ها</a>
+            <x-ui.button href="{{ route('client.profile.typed-exam.list') }}" variant="secondary-outline" icon="chevron-right" size="sm">
+                بازگشت به لیست آزمون‌ها
+            </x-ui.button>
         </div>
         @if($isGraded)
             <div class="flex items-center gap-3 flex-wrap">
-                <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 text-sm rounded-full">
-                    تصحیح شده
-                </span>
+                <x-ui.status-badge status="paid" label="تصحیح شده"/>
                 <span class="font-bold text-foreground">
                     نمره شما: {{ number_format($attempt->total_score ?? 0, 2) }} / {{ number_format($exam->total_score, 2) }}
                 </span>
             </div>
         @else
-            <span class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500 text-sm rounded-full">
-                ارسال شده — در انتظار تصحیح
-            </span>
+            <x-ui.status-badge status="pending" label="ارسال شده — در انتظار تصحیح"/>
         @endif
     </div>
 
@@ -36,12 +33,12 @@
                     @php
                         $given = $scoresByQ->get($q->id)?->score ?? 0;
                         $ratio = (float)$q->score > 0 ? ((float)$given / (float)$q->score) : 0;
-                        $color = $ratio >= 0.75 ? 'green' : ($ratio >= 0.4 ? 'yellow' : 'red');
+                        $color = $ratio >= 0.75 ? 'success' : ($ratio >= 0.4 ? 'warning' : 'error');
                     @endphp
                     <div class="p-3 bg-background rounded-xl border border-border text-center">
                         <div class="text-xs text-muted">سوال {{ $q->question_number }}</div>
                         <div class="font-bold text-foreground mt-1">
-                            <span class="text-{{ $color }}-500">{{ number_format($given, 2) }}</span>
+                            <span class="text-{{ $color }}">{{ number_format($given, 2) }}</span>
                             <span class="text-muted text-xs">/ {{ number_format($q->score, 2) }}</span>
                         </div>
                     </div>
@@ -50,8 +47,8 @@
         </div>
 
         @if($attempt->consultant_message)
-            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-5">
-                <h3 class="font-bold text-blue-700 dark:text-blue-300 mb-2">پیام مشاور</h3>
+            <div class="bg-info/10 border border-info/20 rounded-2xl p-5">
+                <h3 class="font-bold text-info mb-2">پیام مشاور</h3>
                 <p class="text-sm text-foreground leading-7 whitespace-pre-line">{{ $attempt->consultant_message }}</p>
             </div>
         @endif

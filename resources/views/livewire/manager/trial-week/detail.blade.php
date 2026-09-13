@@ -7,6 +7,14 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="ri-error-warning-line me-2"></i>
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
     <div class="row">
         {{-- کارت اطلاعات کاربر --}}
         <div class="col-xxl-4">
@@ -73,19 +81,28 @@
         {{-- کارت وضعیت و مراحل --}}
         <div class="col-xxl-8">
             <div class="card">
-                <div class="card-header d-flex align-items-center justify-content-between">
+                <div class="card-header d-flex align-items-center justify-content-between gap-2">
                     <h5 class="card-title mb-0">وضعیت فرایند آزمایشی</h5>
-                    @php
-                        $badgeClass = match($trialWeek->status) {
-                            'pending' => 'badge-soft-warning',
-                            'supporter_assigned' => 'badge-soft-info',
-                            'classification_done' => 'badge-soft-primary',
-                            'pre_session_done' => 'badge-soft-secondary',
-                            'program_built' => 'badge-soft-success',
-                            default => 'badge-soft-secondary',
-                        };
-                    @endphp
-                    <span class="badge {{ $badgeClass }} fs-12">{{ $trialWeek->statusLabel }}</span>
+                    <div class="d-flex align-items-center gap-2">
+                        @php
+                            $badgeClass = match($trialWeek->status) {
+                                'pending' => 'badge-soft-warning',
+                                'supporter_assigned' => 'badge-soft-info',
+                                'classification_done' => 'badge-soft-primary',
+                                'pre_session_done' => 'badge-soft-secondary',
+                                'program_built' => 'badge-soft-success',
+                                default => 'badge-soft-secondary',
+                            };
+                        @endphp
+                        <span class="badge {{ $badgeClass }} fs-12">{{ $trialWeek->statusLabel }}</span>
+
+                        @if($this->canReset)
+                        <button type="button" wire:click="openResetConfirm" class="btn btn-sm btn-outline-danger">
+                            <i class="ri-refresh-line me-1"></i>
+                            ریست هفته آزمایشی
+                        </button>
+                        @endif
+                    </div>
                 </div>
                 <div class="card-body">
 
@@ -205,6 +222,56 @@
                         <span wire:loading wire:target="assignSupporter"
                               class="spinner-border spinner-border-sm me-1"></span>
                         تخصیص پشتیبان
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- مودال تایید ریست هفته آزمایشی --}}
+    @if($showResetConfirm)
+    <div class="modal show d-block" tabindex="-1" style="background:rgba(0,0,0,0.5);"
+         wire:keydown.escape="closeResetConfirm">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">
+                        <i class="ri-error-warning-line me-2"></i>
+                        ریست هفته آزمایشی
+                    </h5>
+                    <button type="button" class="btn-close" wire:click="closeResetConfirm"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">
+                        فرایند هفتهٔ آزمایشیِ <strong>{{ $trialWeek->user->name ?? '—' }}</strong> از نو شروع می‌شود.
+                    </p>
+                    <div class="alert alert-warning fs-13 mb-3">
+                        <div class="mb-1"><i class="ri-close-circle-line me-1"></i>موارد زیر <strong>کاملاً پاک</strong> می‌شود:</div>
+                        <ul class="mb-0 ps-3">
+                            <li>طبقه‌بندی درس‌ها</li>
+                            <li>پیش‌جلسه (امتحان‌ها، پرسش‌وپاسخ، پارت‌های درخواستی و ...)</li>
+                            <li>برنامهٔ کلاسی مدرسه</li>
+                            <li>برنامهٔ هفتگی ساخته‌شده، گزارش‌های روزانه و جلسات مطالعهٔ ثبت‌شده</li>
+                            <li>کارنامهٔ هوشمند هفتهٔ آزمایشی</li>
+                        </ul>
+                    </div>
+                    <div class="alert alert-success fs-13 mb-0">
+                        <i class="ri-checkbox-circle-line me-1"></i>
+                        فقط نتایج آزمون‌های شخصیتی (مایندست) و پشتیبان تخصیص‌یافته دست‌نخورده باقی می‌ماند.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" wire:click="closeResetConfirm">انصراف</button>
+                    <button type="button"
+                            class="btn btn-danger"
+                            wire:click="resetTrial"
+                            wire:loading.attr="disabled"
+                            wire:target="resetTrial">
+                        <span wire:loading wire:target="resetTrial"
+                              class="spinner-border spinner-border-sm me-1"></span>
+                        <i class="ri-refresh-line me-1"></i>
+                        بله، ریست کن
                     </button>
                 </div>
             </div>

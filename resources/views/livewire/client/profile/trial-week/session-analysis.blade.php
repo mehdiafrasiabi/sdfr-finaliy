@@ -24,19 +24,19 @@
             {{-- کارت خلاصه وضعیت --}}
             @if(!empty($analysis))
             <div class="grid grid-cols-3 gap-4">
-                <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-2xl p-5 text-center">
-                    <div class="text-3xl font-black text-red-600 dark:text-red-400 mb-1">{{ $analysis['weak_count'] }}</div>
-                    <div class="text-xs text-red-600/70 dark:text-red-400/70 font-semibold">مبحث ضعیف</div>
+                <div class="bg-error/10 border border-error/30 rounded-2xl p-5 text-center">
+                    <div class="text-3xl font-black text-error mb-1">{{ $analysis['weak_count'] }}</div>
+                    <div class="text-xs text-error/70 font-semibold">مبحث ضعیف</div>
                     <div class="text-[10px] text-muted mt-1">نیاز به تمرکز بیشتر</div>
                 </div>
-                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-2xl p-5 text-center">
-                    <div class="text-3xl font-black text-amber-600 dark:text-amber-400 mb-1">{{ $analysis['medium_count'] }}</div>
-                    <div class="text-xs text-amber-600/70 dark:text-amber-400/70 font-semibold">مبحث متوسط</div>
+                <div class="bg-warning/10 border border-warning/30 rounded-2xl p-5 text-center">
+                    <div class="text-3xl font-black text-warning mb-1">{{ $analysis['medium_count'] }}</div>
+                    <div class="text-xs text-warning/70 font-semibold">مبحث متوسط</div>
                     <div class="text-[10px] text-muted mt-1">قابل بهبود</div>
                 </div>
-                <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/40 rounded-2xl p-5 text-center">
-                    <div class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mb-1">{{ $analysis['strong_count'] }}</div>
-                    <div class="text-xs text-emerald-600/70 dark:text-emerald-400/70 font-semibold">مبحث قوی</div>
+                <div class="bg-success/10 border border-success/30 rounded-2xl p-5 text-center">
+                    <div class="text-3xl font-black text-success mb-1">{{ $analysis['strong_count'] }}</div>
+                    <div class="text-xs text-success/70 font-semibold">مبحث قوی</div>
                     <div class="text-[10px] text-muted mt-1">پایه خوب</div>
                 </div>
             </div>
@@ -46,9 +46,7 @@
             {{-- ═══════════ کارنامه تحلیلی پیش از ساخت برنامه ═══════════ --}}
             <div class="glass border border-border rounded-2xl p-6">
                 <h3 class="font-black text-foreground mb-1 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
-                    </svg>
+                    <x-ui.icon name="receipt" class="w-5 h-5 text-primary"/>
                     کارنامه‌ی تحلیلی تو
                 </h3>
                 <p class="text-xs text-muted leading-6 mb-5">خلاصه‌ی همه‌ی کارهایی که انجام دادی — برنامه‌ات دقیقاً بر اساس همین اطلاعات ساخته می‌شود.</p>
@@ -58,7 +56,7 @@
                     {{-- آزمون‌های شخصیت‌شناسی --}}
                     <div class="bg-secondary border border-border rounded-xl p-4">
                         <div class="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
-                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 21v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1"/></svg>
+                            <x-ui.icon name="user" class="w-4 h-4 text-primary"/>
                             Mindet Test
                         </div>
                         <div class="text-[11px] text-muted leading-6">
@@ -78,15 +76,15 @@
                     {{-- طبقه‌بندی --}}
                     <div class="bg-secondary border border-border rounded-xl p-4">
                         <div class="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
-                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                            <x-ui.icon name="layers" class="w-4 h-4 text-primary"/>
                             طبقه‌بندی دروس
                         </div>
                         @if(!empty($analysis) && $analysis['total'] > 0)
                             <div class="text-[11px] text-muted leading-6">
                                 {{ $analysis['total'] }} مبحث ارزیابی شد:
-                                <span class="text-red-500 font-bold">{{ $analysis['weak_count'] }} ضعیف</span> ·
-                                <span class="text-amber-500 font-bold">{{ $analysis['medium_count'] }} متوسط</span> ·
-                                <span class="text-emerald-500 font-bold">{{ $analysis['strong_count'] }} قوی</span>
+                                <span class="text-error font-bold">{{ $analysis['weak_count'] }} ضعیف</span> ·
+                                <span class="text-warning font-bold">{{ $analysis['medium_count'] }} متوسط</span> ·
+                                <span class="text-success font-bold">{{ $analysis['strong_count'] }} قوی</span>
                             </div>
                         @else
                             <div class="text-[11px] text-muted">داده‌ای ثبت نشده است.</div>
@@ -96,14 +94,14 @@
                     {{-- برنامه کلاسی --}}
                     <div class="bg-secondary border border-border rounded-xl p-4">
                         <div class="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
-                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <x-ui.icon name="calendar" class="w-4 h-4 text-primary"/>
                             برنامه کلاسی مدرسه
                         </div>
                         <div class="text-[11px] text-muted leading-6">
                             @if(!$this->needsSchedule)
                                 نیازی نبود — {{ $trialWeek?->isGraduate() ? 'فارغ‌التحصیل هستی' : 'فعلاً مدرسه نمی‌روی' }}.
                             @elseif($this->classScheduleFinalized)
-                                <span class="text-emerald-500 font-bold">ثبت و نهایی شد ✓</span>
+                                <span class="text-success font-bold">ثبت و نهایی شد ✓</span>
                             @else
                                 هنوز نهایی نشده است.
                             @endif
@@ -113,7 +111,7 @@
                     {{-- پیش‌جلسه --}}
                     <div class="bg-secondary border border-border rounded-xl p-4">
                         <div class="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
-                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            <x-ui.icon name="list-check" class="w-4 h-4 text-primary"/>
                             نیازمندی های جلسه
                         </div>
                         <div class="text-[11px] text-muted leading-6">
@@ -141,20 +139,14 @@
                 <p class="text-muted text-sm mb-6 leading-relaxed">
                     سیستم هوشمند SDFR برای هفته پیش روی شما آماده ساخت برنامه اختصاصی با نظارت مشاور متخصص می باشد
                 </p>
-                <button wire:click="openHoursModal"
-                        class="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl font-black text-base shadow-lg shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200">
-                    ساخت برنامه
-                </button>
+                <x-ui.button wire:click="openHoursModal" variant="primary" size="lg" icon="calendar" pill>ساخت برنامه</x-ui.button>
             </div>
             @elseif($trialWeek && $trialWeek->status === \App\Models\TrialWeek::STATUS_PROGRAM_BUILT)
-            <div class="bg-gradient-to-l from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-2xl p-6 text-center">
+            <div class="bg-success/10 border border-success/30 rounded-2xl p-6 text-center">
                 <div class="text-4xl mb-3">✅</div>
                 <h3 class="font-black text-foreground text-lg mb-2">برنامه ساخته شده است</h3>
                 @unless($hideForExamProgramTrialStudent)
-                    <a wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
-                       class="inline-flex items-center gap-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold mt-3 transition-colors">
-                        مشاهده جلسات و برنامه
-                    </a>
+                    <x-ui.button href="{{ route('client.profile.consultation.sessions') }}" wire:navigate variant="success" icon="chevron-left" pill class="mt-3">مشاهده جلسات و برنامه</x-ui.button>
                 @endunless
             </div>
             @endif
@@ -163,61 +155,38 @@
     </div>
 
     {{-- ════════════════ مودال انتخاب ساعت مطالعاتی ════════════════ --}}
-    @if($showHoursModal)
-        <div x-data x-init="document.body.style.overflow='hidden'"
-             @keydown.escape.window="$wire.closeHoursModal()">
+    <x-ui.modal id="trial-hours-modal" max-width="sm">
+        <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-info/15 border border-info/30 mb-4">
+                <x-ui.icon name="clock" class="w-8 h-8 text-info"/>
+            </div>
 
-            <!-- لایه تاریک پس‌زمینه (Overlay) -->
-            <div class="m-overlay" wire:click="closeHoursModal"></div>
+            <h2 class="text-lg font-black text-foreground mb-2">تعیین ساعت مطالعه روزانه</h2>
+            <p class="text-sm text-muted leading-7 mb-5">
+                لطفاً میانگین ساعتی که می‌توانی در روز مطالعه کنی را مشخص کن تا برنامه‌ات بر اساس آن ساخته شود.
+            </p>
 
-            <!-- بدنه اصلی مودال (در موبایل از پایین باز می‌شود و در دسکتاپ وسط‌چین است) -->
-            <div class="m-sheet" @click.stop>
-                <!-- خط دستگیره بالای مودال مخصوص موبایل -->
-                <div class="m-handle"></div>
-
-                <div class="p-6 text-center overflow-y-auto">
-                    <!-- آیکون مودال -->
-                    <div class="pop-in inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-500/15 border border-blue-500/30 mb-4">
-                        <svg class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                    </div>
-
-                    <h2 class="text-lg font-black text-foreground mb-2">تعیین ساعت مطالعه روزانه</h2>
-                    <p class="text-sm text-muted leading-7 mb-5">
-                        لطفاً میانگین ساعتی که می‌توانی در روز مطالعه کنی را مشخص کن تا برنامه‌ات بر اساس آن ساخته شود.
-                    </p>
-
-                    <!-- بخش انتخاب ساعت (به صورت Select یا اینپوت بسته به سلیقه خودتان) -->
-                    <div class="mb-6 max-w-xs mx-auto">
-                        <select wire:model="dailyStudyHours" class="w-full bg-secondary border border-border text-foreground rounded-xl px-4 py-3 font-bold text-center focus:outline-none focus:border-blue-500">
-                            @for($i = 1; $i <= 14; $i++)
-                                <option value="{{ $i }}">{{ $i }} ساعت در روز</option>
-                            @endfor
-                        </select>
-                        @error('dailyStudyHours')<p class="text-xs text-red-500 mt-2">{{ $message }}</p>@enderror
-                    </div>
-
-                    <!-- دکمه‌های اکشن -->
-                    <div class="flex gap-3">
-                        <button type="button" wire:click="buildProgram"
-                                wire:loading.attr="disabled" wire:target="buildProgram"
-                                class="press btn-primary flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm">
-                            <x-ui.spinner size="sm" wire:loading wire:target="buildProgram" />
-                            <span wire:loading.remove wire:target="buildProgram">تأیید و ساخت برنامه</span>
-                            <span wire:loading wire:target="buildProgram">در حال ایجاد…</span>
-                        </button>
-
-                        <button type="button" wire:click="closeHoursModal"
-                                class="press btn-soft flex-1 py-3 rounded-xl font-bold text-sm">
-                            انصراف
-                        </button>
-                    </div>
-                </div>
+            <div class="mb-6 max-w-xs mx-auto text-right">
+                <x-ui.select
+                    wire:model="dailyStudyHours"
+                    :options="collect(range(1, 14))->map(fn($h) => ['id' => $h, 'name' => $h . ' ساعت در روز'])->all()"
+                    placeholder="انتخاب ساعت..."
+                />
+                @error('dailyStudyHours')<p class="text-xs text-error mt-2">{{ $message }}</p>@enderror
             </div>
         </div>
-    @endif
+
+        <x-slot:footer>
+            <x-ui.button type="button" wire:click="closeHoursModal" variant="secondary-outline" icon="x" block>انصراف</x-ui.button>
+            <x-ui.button type="button" wire:click="buildProgram" wire:loading.attr="disabled" wire:target="buildProgram" variant="primary" block>
+                <span wire:loading.remove wire:target="buildProgram">تأیید و ساخت برنامه</span>
+                <span wire:loading wire:target="buildProgram" class="inline-flex items-center gap-2">
+                    <x-ui.spinner size="xs"/>
+                    در حال ایجاد…
+                </span>
+            </x-ui.button>
+        </x-slot:footer>
+    </x-ui.modal>
     {{-- ═══════════ اورلی ساخت برنامه (۴۵ ثانیه) ═══════════ --}}
     @if($programJustBuilt)
     {{-- x-data به‌صورت اینلاین تا بعد از morph لایووایر هم اجرا شود --}}
@@ -244,7 +213,7 @@
                 }, 1000);
             },
          }"
-         x-init="start()">
+         x-init="start(); window.SdfrModalScrollLock.lock()">
         <div class="absolute inset-0 bg-black/70 backdrop-blur-md"></div>
 
         <div class="relative z-10 w-full max-w-md bg-background border border-border rounded-3xl shadow-2xl p-8 text-center">
@@ -272,8 +241,8 @@
             {{-- فاز ۲: ساخته شد --}}
             <template x-if="done">
                 <div>
-                    <div class="mx-auto w-20 h-20 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mb-5">
-                        <svg class="w-10 h-10 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                    <div class="mx-auto w-20 h-20 rounded-full bg-success/15 border border-success/30 flex items-center justify-center mb-5">
+                        <x-ui.icon name="check" class="w-10 h-10 text-success"/>
                     </div>
                     <h2 class="text-xl font-black text-foreground mb-2">برنامه‌ی شما ساخته شد 🎉</h2>
                     <p class="text-muted text-sm leading-7 mb-6">
@@ -281,11 +250,7 @@
                         <br>
                         <span class="font-bold text-foreground">آماده‌ای شروع کنیم؟</span>
                     </p>
-                    <button wire:click="goToDashboard"
-                            wire:loading.attr="disabled" wire:target="goToDashboard"
-                            class="w-full py-3.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-black text-base shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5">
-                        بزن بریم! 🚀
-                    </button>
+                    <x-ui.button wire:click="goToDashboard" wire:loading.attr="disabled" wire:target="goToDashboard" variant="primary" icon="arrow-left" size="lg" block>بزن بریم! 🚀</x-ui.button>
                 </div>
             </template>
         </div>

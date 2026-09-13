@@ -253,7 +253,6 @@
         {{$slot}}
         @if(request()->routeIs('client.profile.*'))
             <x-client.profile-reconnect-overlay />
-            <x-cosmic-lines class="!fixed hidden dark:block" />
         @endif
     </main>
 
@@ -270,6 +269,11 @@
     @endphp
     @if((!$bottomNavTrial || $bottomNavTrial->status === \App\Models\TrialWeek::STATUS_PROGRAM_BUILT) && !request()->routeIs('client.profile.advisor-chat') && !$needsAdvisorSelection)
         <livewire:client.layout.mobile-bottom-nav/>
+    @endif
+
+    {{-- دکمه‌ی شناور برگشت به بالا — فقط در بخش پروفایل کاربر --}}
+    @if(request()->routeIs('client.profile.*'))
+        <x-client.scroll-to-top />
     @endif
 
 </div>

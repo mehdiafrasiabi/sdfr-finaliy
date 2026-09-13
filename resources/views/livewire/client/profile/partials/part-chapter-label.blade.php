@@ -1,4 +1,3 @@
-{{-- برچسب فصل پارت در گزارش: فصل / کل کتاب / فصل‌های مرور / بدون فصل --}}
 @php $pm = $part->part_mode ?? 'normal'; @endphp
 @if($pm === 'whole_book')
     <span class="font-normal text-muted">(کل کتاب)</span>

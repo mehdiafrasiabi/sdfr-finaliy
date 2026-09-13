@@ -3,9 +3,7 @@
     {{-- ═══════════ سربرگ ═══════════ --}}
     <div class="rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/10 to-secondary p-7 mb-6 text-center">
         <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4">
-            <svg class="w-8 h-8 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
-            </svg>
+            <x-ui.icon name="receipt" class="w-8 h-8 text-primary-foreground"/>
         </div>
         <h1 class="text-2xl font-black text-foreground mb-2">کارنامه هفته آزمایشی</h1>
         <p class="text-sm text-muted leading-7 max-w-xl mx-auto">
@@ -43,7 +41,7 @@
                 <div class="font-bold text-foreground mb-3">{{ $testName }}</div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2">نقاط قوت</div>
+                        <div class="text-xs font-bold text-success mb-2">نقاط قوت</div>
                         @forelse($strengths as $f)
                             <div class="text-sm text-foreground mb-1.5">✅ {{ $f['label'] }} <span class="text-muted text-xs">({{ $f['percent'] }}%)</span></div>
                         @empty
@@ -51,7 +49,7 @@
                         @endforelse
                     </div>
                     <div>
-                        <div class="text-xs font-bold text-amber-600 dark:text-amber-400 mb-2">نیازمند تقویت</div>
+                        <div class="text-xs font-bold text-warning mb-2">نیازمند تقویت</div>
                         @forelse($weaknesses as $f)
                             <div class="text-sm text-foreground mb-1.5">⚠️ {{ $f['label'] }} <span class="text-muted text-xs">({{ $f['percent'] }}%)</span></div>
                         @empty
@@ -63,7 +61,7 @@
         @endforeach
 
         @foreach($personality['flags'] as $flag)
-            <div class="rounded-2xl border p-4 mb-3 {{ ($flag['severity'] ?? '') === 'critical' ? 'border-red-500/40 bg-red-500/10' : 'border-amber-500/40 bg-amber-500/10' }}">
+            <div class="rounded-2xl border p-4 mb-3 {{ ($flag['severity'] ?? '') === 'critical' ? 'border-error/40 bg-error/10' : 'border-warning/40 bg-warning/10' }}">
                 <div class="font-bold text-foreground text-sm">{{ $flag['title'] ?? '' }}</div>
                 @if(!empty($flag['text']))
                     <p class="text-xs text-muted leading-6 mt-1">{{ $flag['text'] }}</p>
@@ -80,16 +78,16 @@
         </h2>
 
         <div class="grid grid-cols-3 gap-3 mb-4">
-            <div class="rounded-2xl border border-red-500/30 bg-red-500/5 p-4 text-center">
-                <div class="text-2xl font-black text-red-600 dark:text-red-400">{{ $classification['weak_count'] }}</div>
+            <div class="rounded-2xl border border-error/30 bg-error/5 p-4 text-center">
+                <div class="text-2xl font-black text-error">{{ $classification['weak_count'] }}</div>
                 <div class="text-xs text-muted mt-1">ضعیف</div>
             </div>
-            <div class="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 text-center">
-                <div class="text-2xl font-black text-amber-600 dark:text-amber-400">{{ $classification['medium_count'] }}</div>
+            <div class="rounded-2xl border border-warning/30 bg-warning/5 p-4 text-center">
+                <div class="text-2xl font-black text-warning">{{ $classification['medium_count'] }}</div>
                 <div class="text-xs text-muted mt-1">متوسط</div>
             </div>
-            <div class="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-center">
-                <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400">{{ $classification['strong_count'] }}</div>
+            <div class="rounded-2xl border border-success/30 bg-success/5 p-4 text-center">
+                <div class="text-2xl font-black text-success">{{ $classification['strong_count'] }}</div>
                 <div class="text-xs text-muted mt-1">قوی</div>
             </div>
         </div>
@@ -141,7 +139,7 @@
                         <div class="flex items-center justify-between mb-1">
                             <span class="font-bold text-foreground text-sm">{{ $day['name'] }} <span class="text-muted text-xs">{{ $day['jalali_short'] }}</span></span>
                             @if($day['is_rest_day'])
-                                <span class="text-xs text-amber-600 dark:text-amber-400">روز استراحت</span>
+                                <span class="text-xs text-warning">روز استراحت</span>
                             @else
                                 <span class="text-xs text-muted">{{ $day['total_hours'] }} ساعت</span>
                             @endif
@@ -166,6 +164,6 @@
     </section>
 
     <div class="text-center">
-        <a wire:navigate href="{{ route('client.profile.trial.guide') }}" class="btn btn-soft">بازگشت به راهنما</a>
+        <x-ui.button href="{{ route('client.profile.trial.guide') }}" wire:navigate variant="secondary-outline" icon="arrow-left" pill>بازگشت به راهنما</x-ui.button>
     </div>
 </div>
